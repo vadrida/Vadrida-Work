@@ -405,6 +405,18 @@ section {
 .share-btn:hover {
   background-color: #f0f0f0;
 }
+#analysisCancelBtn {
+    padding: 8px 16px;
+    background: #ef4444; /* red */
+    color: white;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+}
+#analysisCancelBtn:hover {
+    background: #dc2626;
+}
+
 
 </style>
 {% endblock %}
@@ -423,7 +435,7 @@ section {
     <aside class="bg-white rounded-lg p-4 shadow-sm flex flex-col">
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-montserrat font-semibold">Files</h3>
-        <button id="filesToggle" class="px-3 py-1 border rounded text-sm">All</button>
+        <button id="refreshFolders" class="px-3 py-1 border rounded text-sm">🔄</button>
       </div>
 
       <!-- Dropdown for file groups/categories -->
@@ -443,7 +455,7 @@ section {
           <li class="p-2 rounded file-item cursor-pointer hover:bg-gray-100 flex justify-between items-start"
               data-path="{{ file.path }}" 
               data-id="{{ file.id }}" 
-              data-cat="{{ file.category }}" 
+              data-cat="{{ file.category }}"
               data-name="{{ file.name }}"
               data-type="{{ file.type }}"
               data-size="{{ file.size }}"
@@ -589,7 +601,72 @@ section {
     </div>
   </div>
 </div>
+<!-- Analyse Modal -->
+<div id="analyseModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+
+  <div class="bg-white rounded-xl p-6 w-96 shadow-xl">
+    <h2 class="text-lg font-semibold mb-4">Analyse Files</h2>
+    <p class="text-sm text-gray-600 mb-4">Choose files for analysis</p>
+
+    <button id="analyseSelectFiles"
+            class="w-full mb-3 px-4 py-2 bg-blue-600 text-white rounded">
+      Select Files
+    </button>
+
+    <button id="analyseSelectAll"
+            class="w-full px-4 py-2 bg-green-600 text-white rounded">
+      Select All Files
+    </button>
+
+    <button id="analyseClose"
+            class="w-full mt-4 px-4 py-2 border rounded">
+      Cancel
+    </button>
+  </div>
+</div>
+<!-- File Selection List Modal -->
+<div id="fileSelectModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+
+  <div class="bg-white rounded-xl p-6 w-[420px] shadow-xl">
+    <h2 class="text-lg font-semibold mb-4">Select Files</h2>
+
+    <div id="fileSelectList" class="max-h-64 overflow-y-auto border rounded p-3 mb-4"></div>
+
+    <button id="confirmFileSelection"
+            class="w-full px-4 py-2 bg-blue-600 text-white rounded">
+      Confirm Selection
+    </button>
+
+    <button id="fileSelectClose"
+            class="w-full mt-3 px-4 py-2 border rounded">
+      Cancel
+    </button>
+  </div>
+</div>
+<!-- FILE LIST PANEL -->
+<div class="card glass-panel mt-4 p-3">
+    <h5 class="mb-3">Uploaded Files</h5>
+    <ul id="file-list" class="file-list"></ul>
+</div>
+
 <script>
+    // CSRF helper
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      document.cookie.split(';').forEach(cookie => {
+        const c = cookie.trim();
+        if (c.startsWith(name + '=')) cookieValue = decodeURIComponent(c.slice(name.length + 1));
+      });
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+  let currentFolder = null;
+  let folderFiles = [];
+
 (function(){
   const fileList = document.getElementById('fileList');
   const bigPdfFrame = document.getElementById('bigPdfFrame');
@@ -611,23 +688,13 @@ section {
   let currentFile = null;
   let allFiles = [];
 
-  // CSRF helper
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      document.cookie.split(';').forEach(cookie => {
-        const c = cookie.trim();
-        if (c.startsWith(name + '=')) cookieValue = decodeURIComponent(c.slice(name.length + 1));
-      });
-    }
-    return cookieValue;
-  }
-  const csrftoken = getCookie('csrftoken');
 
   // Load files into the list
   function renderFileList(files) {
+    console.log("renderFileList called but no UI implemented.");
     fileList.innerHTML = '';
     allFiles = files;
+    
 
     if (!files.length) {
       fileList.innerHTML = `<li class="p-4 text-center text-gray-500">No files found.</li>`;
@@ -745,51 +812,128 @@ section {
   });
 
   // Load folders into dropdown
-  fetch("/coreapi/api/folders/")
-    .then(res => res.json())
-    .then(data => {
-      if (data.folders && Array.isArray(data.folders)) {
-        data.folders.forEach(folder => {
-          const option = document.createElement('option');
-          option.value = folder;
-          option.textContent = folder;
-          fileDropdown.appendChild(option);
-        });
-      }
-    })
-    .catch(err => console.error("Error fetching folders:", err));
+(function(){
+    const fileDropdown = document.getElementById('fileDropdown');
+    const fileList = document.getElementById('fileList');
+
+    // Reusable folder loader
+    function loadFolders(refreshCurrent = true) {
+        fileDropdown.innerHTML = '<option value="">Select folder</option>';
+
+        fetch("/coreapi/api/folders/")
+          .then(res => res.json())
+          .then(data => {
+            if (data.folders && Array.isArray(data.folders)) {
+              data.folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder;
+                option.textContent = folder;
+                fileDropdown.appendChild(option);
+              });
+            }
+
+            // If we have a currently selected folder, refresh its files
+            if (refreshCurrent && currentFolder) {
+                if ([...fileDropdown.options].some(opt => opt.value === currentFolder)) {
+                    fileDropdown.value = currentFolder; // keep selection
+                    loadFiles(currentFolder);
+                } else {
+                    // Folder no longer exists
+                    currentFolder = null;
+                    folderFiles = [];
+                    renderFileList([]);
+                }
+            }
+
+          })
+          .catch(err => console.error("Error fetching folders:", err));
+    }
+
+    // Reusable file loader
+    function loadFiles(folderName) {
+        fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(folderName)}`)
+          .then(res => res.json())
+          .then(data => {
+              folderFiles = data.files || [];
+              const files = folderFiles.map(f => ({
+                  path: `${folderName}/${f.name}`,
+                  id: f.id || f.name,
+                  name: f.name,
+                  type: f.type || '',
+                  size: f.size || '',
+                  category: folderName
+              }));
+              renderFileList(files);
+          })
+          .catch(err => {
+              console.error("Error fetching files:", err);
+              folderFiles = [];
+              renderFileList([]);
+          });
+    }
+
+    // Folder select event
+    fileDropdown.addEventListener('change', function() {
+        const folderName = this.value;
+        currentFolder = folderName || null;
+
+        if (!currentFolder) {
+            folderFiles = [];
+            renderFileList([]);
+            return;
+        }
+
+        loadFiles(currentFolder);
+    });
+
+    // Refresh button
+    const refreshBtn = document.getElementById("refreshFolders");
+    refreshBtn.addEventListener("click", () => {
+        loadFolders(true); // true = refresh current folder files too
+      if(currentFolder){
+        refreshFilesAndModal(currentFolder); // reload files + Analyse modal
+    }
+    });
+
+    // Initial load
+    loadFolders();
+
+})();
 
   // On folder select
   fileDropdown.addEventListener('change', function() {
     const folderName = this.value;
-    if (!folderName) return;
+    if (!folderName){
+      renderFileList([]);
+      folderFiles = [];
+      currentFolder = null
+      return;
+    }
+    currentFolder = folderName
+    
 
     fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(folderName)}`)
       .then(res => res.json())
       .then(data => {
-        if (data.files && Array.isArray(data.files)) {
-          // Map to consistent structure
-          const files = data.files.map(f => ({
-            path: `${folderName}/${f.name || f}`,
-            id: f.id || f.name || f,
-            name: f.name || f,
-            type: f.type || '',
-            size: f.size || '',
-            category: folderName,
+          folderFiles = data.files || [];
+          const files = folderFiles.map(f => ({
+              path: `${folderName}/${f.name}`,
+              id: f.id || f.name,
+              name: f.name,
+              type: f.type || '',
+              size: f.size || '',
+              category: folderName
           }));
           renderFileList(files);
-        } else {
-          renderFileList([]);
-        }
       })
       .catch(err => {
-        console.error("Error fetching files:", err);
-        renderFileList([]);
+          console.error("Error fetching files:", err);
+          renderFileList([]);
+          folderFiles = [];
       });
-  });
-
+});
   // Initialize
-  renderFileList(Array.from(document.querySelectorAll('.file-item')).map(li => ({
+  renderFileList(Array.from(document.querySelectorAll('.file-list')).map(li => ({
     path: li.dataset.path,
     id: li.dataset.id,
     name: li.dataset.name,
@@ -835,6 +979,209 @@ shareCopy.addEventListener('click', function(e) {
   alert('Link copied to clipboard!');
 });
 })();
+const analyseBtn = document.getElementById("analyseBtn");
+const analyseModal = document.getElementById("analyseModal");
+const analyseClose = document.getElementById("analyseClose");
+
+const analyseSelectFiles = document.getElementById("analyseSelectFiles");
+const analyseSelectAll = document.getElementById("analyseSelectAll");
+
+// Second modal
+const fileSelectModal = document.getElementById("fileSelectModal");
+const fileSelectClose = document.getElementById("fileSelectClose");
+const fileSelectList = document.getElementById("fileSelectList");
+const confirmFileSelection = document.getElementById("confirmFileSelection");
+
+// Stores selected files
+let selectedFiles = null;
+
+
+// Open Analyse Modal
+analyseBtn.addEventListener("click", () => {
+    if (!currentFolder) {
+        return alert("Select a folder first!");
+    }
+    analyseModal.classList.remove("hidden");
+});
+
+analyseClose.addEventListener("click", () => {
+    analyseModal.classList.add("hidden");
+});
+
+
+// 1️⃣ Select Files Button
+analyseSelectFiles.addEventListener("click", () => {
+    if (!currentFolder) return alert("Select a folder first!");
+    
+    analyseModal.classList.add("hidden");
+    fileSelectModal.classList.remove("hidden");
+    renderAnalyseFileList();
+
+    if (!folderFiles.length) {
+        fileSelectList.innerHTML = "<p class='text-gray-500'>No files in this folder.</p>";
+        return;
+    }
+
+    // Show checkbox list
+    fileSelectList.innerHTML = folderFiles.map(f => `
+        <label class="flex items-center space-x-2 mb-2">
+            <input type="checkbox" class="file-checkbox" value="${f.path}">
+            <span>${f.name}</span>
+        </label>
+    `).join("");
+});
+
+fileSelectClose.addEventListener("click", () => {
+    fileSelectModal.classList.add("hidden");
+});
+
+// Confirm selected files
+confirmFileSelection.addEventListener("click", () => {
+    let checkboxes = document.querySelectorAll(".file-checkbox:checked");
+    selectedFiles = [...checkboxes].map(ch => {
+    let file = folderFiles.find(f => f.path === ch.value);
+    return {
+        file_id: file.name,   // send clean name
+        file_path: file.path  // send relative path
+    };
+});
+
+    if (selectedFiles.length === 0) {
+        return alert("Select at least one file!");
+    }
+
+    fileSelectModal.classList.add("hidden");
+    startAnalysis(selectedFiles);
+});
+
+
+// 2️⃣ Select All Files
+analyseSelectAll.addEventListener("click", () => {
+    if (!currentFolder) return alert("Select a folder first!");
+    if (!folderFiles.length) return alert("No files in this folder.");
+
+    selectedFiles = folderFiles.map(f => ({
+        file_id: f.name,
+        file_path: f.path
+    }));
+
+    analyseModal.classList.add("hidden");
+    startAnalysis(selectedFiles);
+});
+let currentAnalysisController = null;
+
+function renderAnalyseFileList() {
+    if (!folderFiles.length) {
+        fileSelectList.innerHTML = "<p class='text-gray-500'>No files in this folder.</p>";
+        return;
+    }
+
+    fileSelectList.innerHTML = folderFiles.map(f => `
+        <label class="flex items-center space-x-2 mb-2">
+            <input type="checkbox" class="file-checkbox" value="${f.path}">
+            <span>${f.name}</span>
+        </label>
+    `).join("");
+}
+
+
+function startAnalysis(files) {
+    const overlay = document.querySelector(".loading-overlay");
+    overlay.classList.remove("hidden");
+
+    // Create AbortController to allow cancel
+    currentAnalysisController = new AbortController();
+    const { signal } = currentAnalysisController;
+
+    // Show Cancel button inside the overlay
+    let cancelBtn = document.getElementById("analysisCancelBtn");
+    if (!cancelBtn) {
+        cancelBtn = document.createElement("button");
+        cancelBtn.id = "analysisCancelBtn";
+        cancelBtn.textContent = "Cancel";
+        cancelBtn.className = "mt-4 px-4 py-2 rounded bg-red-600 text-white";
+        overlay.appendChild(cancelBtn);
+    }
+    cancelBtn.onclick = () => {
+        currentAnalysisController.abort();
+        overlay.classList.add("hidden");
+        alert("Analysis canceled!");
+    };
+
+    // Prepare payload with all selected files and current folder
+    const payload = { files:files, folder: currentFolder };
+    console.log("Sending analysis request:", payload);
+
+    fetch("/coreapi/api/analyze/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify(payload),
+        signal
+    })
+    .then(res => res.json())
+    .then(result => {
+    overlay.classList.add("hidden");
+
+    if (result.success) {
+        alert(result.message);
+        if(currentFolder){
+            fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(currentFolder)}`)
+                .then(res => res.json())
+                .then(data => {
+                    folderFiles = data.files || [];
+                    const files = folderFiles.map(f => ({
+                        path: `${currentFolder}/${f.name}`,
+                        id: f.id || f.name,
+                        name: f.name,
+                        type: f.type || '',
+                        size: f.size || '',
+                        category: currentFolder
+                    }));
+                    renderFileList(files);
+                });
+         }
+        } else {
+            alert("Analysis failed: " + (result.error || "Unknown error"));
+        }
+    })
+
+    .catch(err => {
+        overlay.classList.add("hidden");
+        if (err.name === "AbortError") return; // canceled
+        console.error(err);
+        alert("Analysis error: " + err.message);
+    });
+}
+function refreshFilesAndModal(folderName) {
+    if (!folderName) return;
+
+    fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(folderName)}`)
+        .then(res => res.json())
+        .then(data => {
+            folderFiles = data.files || [];
+
+            const files = folderFiles.map(f => ({
+                path: `${folderName}/${f.name}`,
+                id: f.id || f.name,
+                name: f.name,
+                type: f.type || '',
+                size: f.size || '',
+                category: folderName
+            }));
+
+            renderFileList(files);      // update main file list
+            renderAnalyseFileList();    // update Analyse modal checkboxes
+        })
+        .catch(err => {
+            console.error("Error fetching files:", err);
+            folderFiles = [];
+            renderFileList([]);
+            renderAnalyseFileList();
+        });
+}
 
 </script>
 {% endblock %}

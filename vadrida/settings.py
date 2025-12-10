@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 
@@ -25,7 +28,6 @@ SECRET_KEY = 'django-insecure-_ig@9s8_3u#jib24eap(oydc$olvq)=)#4pb@9%u^=2)y8!6*$
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -60,7 +62,7 @@ ROOT_URLCONF = 'vadrida.urls'
 
 BASE_DIR=Path(__file__).resolve().parent.parent
 
-DOCUMENTS_FOLDER = r"G:\My Drive\1005.FOR_IT\pdfs"
+DOCUMENTS_FOLDER = r"G:\My Drive\1005.FOR_IT"
 
 if not os.path.exists(DOCUMENTS_FOLDER):
     print(f"⚠️  WARNING: Documents folder not found: {DOCUMENTS_FOLDER}")
@@ -189,3 +191,11 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000"
 ]
+
+
+FULL_DATA_ROOT = os.path.join(BASE_DIR, "data")
+# Folder to save generated PDFs in project
+GENERATED_PDFS_ROOT = os.path.join(BASE_DIR , "generated_pdfs")
+# Ensure directories exist
+os.makedirs(GENERATED_PDFS_ROOT, exist_ok=True)
+DOCUMENTS_ROOT = r"G:\My Drive\1005.FOR_IT"

@@ -5,10 +5,15 @@ import json
 from django.shortcuts import render, redirect
 from django.middleware.csrf import get_token
 from django_ratelimit.decorators import ratelimit
-import os
+import os,io
 import mimetypes
 from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.http import require_http_methods
+from PyPDF2 import PdfMerger
+from PIL import Image
+from datetime import datetime
+from django.conf import settings
+import shutil
 
 # ----------------------------
 # Login / Logout / Dashboard
@@ -125,7 +130,7 @@ def get_folders_and_files(base_folder, selected_folder=None):
             category = categorize_file(file_extension)
 
             files_list.append({
-                "id": f"{len(files_list)+1:06d}_#{filename}#",
+                "id": filename,
                 "name": filename,
                 "path": os.path.relpath(file_path, base_folder),
                 "full_path": file_path,
@@ -251,33 +256,63 @@ def get_file_info(request):
     }
     
     return JsonResponse(info)
+
+
+@csrf_protect
 @require_http_methods(["POST"])
 def analyze_file(request):
-    """Analyze file endpoint - replace with your actual analysis logic"""
     try:
         data = json.loads(request.body)
-        file_id = data.get('file_id')
-        file_path = data.get('file_path')
+
+        files = data.get("files", [])
         
-        # TODO: Implement your actual analysis logic here
-        # This is a placeholder that simulates analysis
-        
-        # Simulate processing time
-        import time
-        time.sleep(2)
-        
-        # Return analysis result
-        analysis_result = {
-            'success': True,
-            'message': 'Analysis completed',
-            'file_id': file_id,
-            'analysis_pdf': '/serve-file/?path=analysis_report.pdf',  # Replace with actual result
-        }
-        
-        return JsonResponse(analysis_result)
-    
+        selected_folder = data.get("folder")  
+        full_user_folder = os.path.join(settings.DOCUMENTS_ROOT, selected_folder)
+
+        if not selected_folder:
+            return JsonResponse({"success": False, "error": "User folder not provided"})
+
+        if not os.path.isdir(full_user_folder):
+            return JsonResponse({"success": False, "error": "User-selected folder does not exist"})
+
+        if not files:
+            return JsonResponse({"success": False, "error": "No files selected"})
+
+        merger = PdfMerger()
+
+        for f in files:
+            relative_path = f["file_path"]     # "NewLogo/file1.pdf"
+            abs_path = os.path.join(settings.DOCUMENTS_ROOT, relative_path)
+
+            if not os.path.exists(abs_path):
+                print("Missing file:", abs_path)
+                continue
+
+            if abs_path.lower().endswith(".pdf"):
+                merger.append(abs_path)
+            else:
+                img = Image.open(abs_path).convert("RGB")
+                pdf_bytes = io.BytesIO()
+                img.save(pdf_bytes, format="PDF")
+                pdf_bytes.seek(0)
+                merger.append(pdf_bytes)
+
+
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"combined_{timestamp}.pdf"
+
+        # Save only once to project folder
+        project_pdf_path = os.path.join(settings.GENERATED_PDFS_ROOT, filename)
+        merger.write(project_pdf_path)
+        merger.close()
+
+        # Copy the finished file to user folder
+        user_pdf_path = os.path.join(full_user_folder, filename)
+        shutil.copy(project_pdf_path, user_pdf_path)
+
+        merger.close()
+
+        return JsonResponse({"success": True, "message": "PDF created successfully"})
+
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=400)
+        return JsonResponse({"success": False, "error": str(e)})
