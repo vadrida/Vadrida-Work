@@ -3,422 +3,7 @@
 {% block title %}Office Dashboard — Vadrida{% endblock %}
 
 {% block extra_head %}
-<style>
-/* ========================= BASE STYLES ========================= */
-html, body {
-    max-height: 100vh;
-    max-width: 100vw;
-    overflow-x: hidden;
-    overscroll-behavior: none;
-}
-
-section {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 80px);
-    min-height: 400px;
-}
-
-#bigViewer {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 300px;
-}
-
-.pdf-frame, iframe, embed, object {
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-    display: block;
-    border: none;
-}
-
-.thumb-item {
-    min-width: 150px;
-    height: 170px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    background: #fff;
-    cursor: pointer;
-}
-
-.file-info, .file-list-scroll {
-    max-height: calc(100vh - 220px);
-    overflow-y: auto;
-    padding: 10px;
-}
-
-.analyse-btn {
-    background: linear-gradient(90deg,#0066ff,#3385ff);
-    color: white;
-}
-
-.spinner {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: 8px solid rgba(255,255,255,0.15);
-    border-top-color: white;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.dropdown-file {
-    appearance: none;
-    -webkit-appearance: none;
-    background: white url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' stroke='gray' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;
-    padding-right: 36px;
-}
-
-.download-btn { min-width: 90px; }
-
-/* ========================= DASHBOARD GRID ========================= */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 24% 52% 24%;
-    gap: 12px;
-    min-height: calc(100vh - 80px);
-}
-
-/* ========================= FULLSCREEN MODAL ========================= */
-#fullscreenModal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 0;
-    margin: 0;
-}
-
-#fullscreenModal.active { 
-    display: flex; 
-}
-
-.modal-box {
-    width: 90vw;
-    height: 90vh;
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    position: relative;
-}
-
-.modal-box .modal-header,
-.modal-box > div:first-child {
-    flex-shrink: 0;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
-    min-height: 50px;
-}
-
-.modal-box > div:first-child > div:first-child {
-    flex: 0 0 auto;
-    min-width: 150px;
-}
-
-.modal-box > div:first-child > div:last-child {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.modal-box .modal-inner,
-.modal-box > div:last-child {
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-}
-
-.modal-box iframe,
-.modal-box object,
-.modal-box embed,
-.modal-box img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain;
-    border: none;
-}
-
-/* ========================= LOADING OVERLAY ========================= */
-.loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    z-index: 70;
-    color: white;
-}
-
-/* ========================= RESPONSIVE ========================= */
-
-/* Large screens */
-@media (max-width: 1200px) {
-    .dashboard-grid { grid-template-columns: 30% 45% 25%; }
-}
-
-/* Medium screens */
-@media (max-width: 1024px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-    aside, section { width: 100%; }
-    #bigViewer { height: 60vh !important; }
-    .thumb-scroll { gap: 10px; }
-}
-
-/* Smaller screens */
-@media (max-width: 900px) {
-    aside:last-child { order: 3; }
-    #chatBox { max-height: 320px; }
-    #chatForm input { font-size: 14px; padding: 8px 12px; }
-    #chatForm button { padding: 8px 16px; }
-    .bg-royal-blue-600 { font-size: 14px; }
-    .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
-}
-
-/* Small devices */
-@media (max-width: 850px) {
-    .file-list-scroll { max-height: 280px; }
-    .file-info { max-height: 220px; }
-    #fileDropdown, #fileSearch { font-size: 14px; padding: 8px; }
-    ul#fileList li { padding: 8px; }
-}
-
-/* Tablets and below - CRITICAL MODAL FIXES */
-@media (max-width: 768px) {
-    .thumb-item { min-width: 120px; height: 150px; }
-    .pdf-frame { padding-left: 0; }
-    
-    /* MODAL FIXES FOR TABLETS */
-    #fullscreenModal {
-        padding: 0 !important;
-        overflow: hidden;
-    }
-    
-    .modal-box { 
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
-        border-radius: 0;
-        margin: 0;
-    }
-    
-    .modal-box > div:first-child {
-        padding: 10px;
-        font-size: 13px;
-        flex-wrap: wrap;
-        gap: 8px;
-        min-height: auto;
-    }
-    
-    .modal-box > div:first-child > div:first-child {
-        width: 100%;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-    
-    .modal-box > div:first-child > div:last-child {
-        width: 100%;
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-    
-    .modal-box > div:first-child button,
-    .modal-box > div:first-child a {
-        padding: 6px 10px;
-        font-size: 11px;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-    
-    #bigViewer, #bigPdfFrame { 
-        max-width: 100% !important; 
-        overflow: hidden !important; 
-    }
-}
-
-/* Mobile devices - ENHANCED MODAL FIXES */
-@media (max-width: 480px) {
-    #analyseBtn, #openFullBtn { 
-        padding: 8px 10px; 
-        font-size: 13px; 
-        margin-right: 5px; 
-    }
-    
-    .download-btn { 
-        padding: 5px 8px; 
-        font-size: 11px; 
-    }
-    
-    /* CRITICAL MOBILE MODAL FIXES */
-    #fullscreenModal {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    .modal-box { 
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-    }
-    
-    .modal-box > div:first-child {
-        padding: 8px;
-        flex-wrap: wrap;
-        gap: 6px;
-        min-height: auto;
-    }
-    
-    .modal-box > div:first-child > div:first-child {
-        font-size: 13px;
-        font-weight: 600;
-        width: 100%;
-        margin-bottom: 4px;
-    }
-    
-    .modal-box > div:first-child > div:last-child {
-        width: 100%;
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-    
-    .modal-box > div:first-child button,
-    .modal-box > div:first-child a {
-        padding: 5px 8px;
-        font-size: 10px;
-        flex-shrink: 0;
-    }
-    
-    .modal-box > div:first-child button i,
-    .modal-box > div:first-child a i {
-        margin-right: 3px;
-        font-size: 9px;
-    }
-}
-
-/* Extra small screens */
-@media (max-width: 460px) {
-    .space-y-4 > div div { 
-        max-width: 85%; 
-        font-size: 13px; 
-    }
-}
-
-/* Super small phones - MAXIMUM OPTIMIZATION */
-@media (max-width: 430px) {
-    .thumb-item { 
-        min-width: 100px; 
-        height: 130px; 
-    }
-    
-    #chatForm button i { 
-        font-size: 14px; 
-    }
-    
-    #chatInput { 
-        padding: 6px 8px; 
-    }
-    
-    #chatForm button { 
-        padding: 6px 14px; 
-    }
-    
-    #bigViewer { 
-        height: 50vh !important; 
-    }
-    
-    /* ULTRA COMPACT MODAL */
-    .modal-box > div:first-child {
-        padding: 6px;
-    }
-    
-    .modal-box > div:first-child > div:first-child {
-        font-size: 12px;
-    }
-    
-    .modal-box > div:first-child button,
-    .modal-box > div:first-child a {
-        padding: 4px 6px;
-        font-size: 9px;
-    }
-    
-    .modal-box > div:first-child button i,
-    .modal-box > div:first-child a i {
-        font-size: 8px;
-    }
-}
-
-/* Landscape mode on phones */
-@media (max-height: 500px) and (orientation: landscape) {
-    .modal-box { 
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
-    }
-    
-    .modal-box > div:first-child {
-        padding: 4px 8px;
-        font-size: 11px;
-    }
-    
-    .modal-box > div:first-child button,
-    .modal-box > div:first-child a {
-        padding: 3px 6px;
-        font-size: 10px;
-    }
-}
-.share-btn {
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.share-btn:hover {
-  background-color: #f0f0f0;
-}
-#analysisCancelBtn {
-    padding: 8px 16px;
-    background: #ef4444; /* red */
-    color: white;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-}
-#analysisCancelBtn:hover {
-    background: #dc2626;
-}
-
-
-</style>
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -438,38 +23,20 @@ section {
         <button id="refreshFolders" class="px-3 py-1 border rounded text-sm">🔄</button>
       </div>
 
-      <!-- Dropdown for file groups/categories -->
-      <div class="mb-3">
-        <select id="fileDropdown" class="w-full p-2 rounded border dropdown-file text-sm">
-            <option value="">Select Folder</option>
-        </select>
-      </div>
+     
 
       <div class="mb-3">
         <input id="fileSearch" type="text" placeholder="Search file id or name..." class="w-full p-2 rounded border" />
       </div>
 
       <div class="file-list-scroll mb-4">
-        <ul id="fileList" class="space-y-2 text-sm">
-          {% for file in files %}
-          <li class="p-2 rounded file-item cursor-pointer hover:bg-gray-100 flex justify-between items-start"
-              data-path="{{ file.path }}" 
-              data-id="{{ file.id }}" 
-              data-cat="{{ file.category }}"
-              data-name="{{ file.name }}"
-              data-type="{{ file.type }}"
-              data-size="{{ file.size }}"
-              title="Double-click to open full">
-            <div>
-              <div class="font-medium">{{ file.id }}</div>
-              <div class="text-xs text-gray-500">{{ file.type }}</div>
-              <div class="text-xs text-gray-400 mt-2">{{ file.size }}</div>
-            </div>
-          </li>
-          {% empty %}
-          <li class="p-4 text-center text-gray-500">No files found. Add files to your documents folder.</li>
-          {% endfor %}
-        </ul>
+
+       <div class="flex items-center gap-2 mb-2 text-sm">
+        <button id="goBackBtn" class="px-2 py-1 border rounded">⬅</button>
+        <span id="currentPath">/</span>
+       </div>
+
+       <ul id="fileList" class="space-y-2 text-sm"></ul>
       </div>
 
       <!-- File info moved into left panel -->
@@ -482,7 +49,7 @@ section {
     </aside>
 
     <!-- CENTER: Big preview + controls -->
-    <section class="bg-white rounded-lg p-4 shadow-sm relative">
+    <section class="bg-white rounded-lg p-2 shadow-sm relative flex flex-col h-full">
       <div class="flex items-center justify-between mb-3">
         <h3 class="font-montserrat font-semibold">Preview</h3>
         <div>
@@ -491,26 +58,34 @@ section {
         </div>
       </div>
 
-      <!-- Thumbnails row (populated dynamically) -->
-      <div id="thumbs" class="thumb-scroll flex gap-4 mb-4 overflow-x-auto">
-        <!-- Thumbnails will be populated by JavaScript -->
-      </div>
+        <!-- Thumbnails row (populated dynamically) -->
+        <div id="thumbs"
+            class="grid grid-cols-3 gap-3 mb-3 overflow-y-auto flex-none"
+            style="height: 220px;">
+        </div>
 
-      <!-- Large viewer -->
-      <div class="rounded border overflow-hidden" style="height:70vh;">
-        <div id="bigPreviewHeader" class="flex items-center justify-between px-4 py-2 bg-white border-b">
+
+        <!-- Large viewer -->
+        <div class="rounded border overflow-hidden flex-1 flex flex-col min-h-0">
+
+        <div id="bigPreviewHeader" class="flex items-center justify-between px-4 py-0 bg-white border-b">
           <div class="font-medium" id="bigPreviewTitle">No file selected</div>
           <div class="flex items-center gap-3">
             <a id="downloadPdfBtn" class="px-3 py-1 border rounded text-sm hidden download-btn" href="#" download><i class="fas fa-file-download mr-2"></i>Download</a>
           </div>
         </div>
 
-        <div id="bigViewer" class="w-full h-full">
-          <div id="noSelection" class="h-full flex items-center justify-center text-gray-400">
-            Select a file to view a large preview here.
-          </div>
-          <iframe id="bigPdfFrame" class="w-full h-full hidden border-0" src="" title="big-preview"></iframe>
-          <img id="bigImageFrame" class="w-full h-full hidden object-contain" src="" alt="preview" />
+        <div id="bigViewer" class="w-full flex-1 flex flex-col overflow-hidden">
+            <div id="noSelection" class="h-full flex items-center justify-center text-gray-400">
+                Select a file to view a large preview here.
+            </div>
+           <div id="pdfWrapper" class="flex h-full hidden">
+
+                <div id="pdfMain" class="flex-1 overflow-y-auto bg-gray-100"></div>
+           </div>
+
+
+            <img id="bigImageFrame" class="w-full h-full hidden object-contain" src="" alt="preview" />
         </div>
       </div>
     </section>
@@ -587,6 +162,7 @@ section {
             <!-- <button id="modalSaveFolder" class="px-3 py-2 border rounded text-sm"><i class="fas fa-folder mr-2"></i>Save</button> -->
 
             <!-- Download button -->
+          
             <a id="modalDownloadBtn" href="#" download class="px-3 py-2 rounded border text-sm download-btn"><i class="fas fa-file-download mr-2"></i>Download</a>
 
             <button id="modalClose" class="px-3 py-2 border rounded text-sm">Close</button>
@@ -647,541 +223,447 @@ section {
 </div>
 <!-- FILE LIST PANEL -->
 <div class="card glass-panel mt-4 p-3">
-    <h5 class="mb-3">Uploaded Files</h5>
+    <!-- <h5 class="mb-3">Uploaded Files</h5> -->
     <ul id="file-list" class="file-list"></ul>
 </div>
 
+
 <script>
-    // CSRF helper
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      document.cookie.split(';').forEach(cookie => {
-        const c = cookie.trim();
-        if (c.startsWith(name + '=')) cookieValue = decodeURIComponent(c.slice(name.length + 1));
-      });
-    }
-    return cookieValue;
+/* =========================
+   CSRF
+========================= */
+function getCookie(name) {
+  let v = null;
+  document.cookie?.split(";").forEach(c => {
+    c = c.trim();
+    if (c.startsWith(name + "=")) v = decodeURIComponent(c.slice(name.length + 1));
+  });
+  return v;
+}
+const csrftoken = getCookie("csrftoken");
+
+
+/* =========================
+   ELEMENTS
+========================= */
+const fileList = document.getElementById("fileList");
+const thumbsContainer = document.getElementById("thumbs");
+
+const bigPdfFrame = document.getElementById("bigPdfFrame");
+const bigImageFrame = document.getElementById("bigImageFrame");
+
+const noSelection = document.getElementById("noSelection");
+
+const bigPreviewTitle = document.getElementById("bigPreviewTitle");
+const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+const openModalBtn = document.getElementById("openFullBtn");
+
+const fileInfoBox = document.getElementById("fileInfoBox");
+
+/* =========================
+   STATE
+========================= */
+let currentFolder = "";
+let currentFile = null;
+let folderFiles = [];
+let analysisController = null;
+
+
+let rootFoldersCache = null; // initial state
+let isSearching = false;
+
+
+
+/* =========================
+   FOLDER LOADER (SINGLE SOURCE)
+========================= */
+let pathStack = [];
+
+function loadFolder(path = "") {
+  if (pathStack[pathStack.length - 1] !== path) {
+    pathStack.push(path);
   }
-  const csrftoken = getCookie('csrftoken');
-  let currentFolder = null;
-  let folderFiles = [];
 
-(function(){
-  const fileList = document.getElementById('fileList');
-  const bigPdfFrame = document.getElementById('bigPdfFrame');
-  const bigImageFrame = document.getElementById('bigImageFrame');
-  const bigPreviewTitle = document.getElementById('bigPreviewTitle');
-  const openModalBtn = document.getElementById('openFullBtn');
-  const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-  const noSelection = document.getElementById('noSelection');
-  const modal = document.getElementById('fullscreenModal');
-  const modalFrame = document.getElementById('modalFrame');
-  const modalImage = document.getElementById('modalImage');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalClose = document.getElementById('modalClose');
-  const modalDownloadBtn = document.getElementById('modalDownloadBtn');
-  const fileDropdown = document.getElementById('fileDropdown');
-  const fileSearch = document.getElementById('fileSearch');
-  const fileInfoBox = document.getElementById('fileInfoBox');
+  document.getElementById("currentPath").textContent =
+    "/" + pathStack.join("/");
 
-  let currentFile = null;
-  let allFiles = [];
+  fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
+    .then(r => r.json())
+    .then(data => {
+      renderFileList(data.folders, data.files);
+      renderThumbs(data.files);   // ✅ THIS WAS MISSING
+    });
+}
+
+document.getElementById("goBackBtn").onclick = () => {
+  pathStack.pop();
+  const prev = pathStack.pop() || "";
+  loadFolder(prev);
+};
 
 
-  // Load files into the list
-  function renderFileList(files) {
-    console.log("renderFileList called but no UI implemented.");
-    fileList.innerHTML = '';
-    allFiles = files;
-    
 
-    if (!files.length) {
-      fileList.innerHTML = `<li class="p-4 text-center text-gray-500">No files found.</li>`;
-      return;
+document.getElementById("goBackBtn").onclick = () => {
+  pathStack.pop(); // current
+  const prev = pathStack.pop() || "";
+  loadFolder(prev);
+};
+
+/* =========================
+   FILE LIST
+========================= */
+
+function renderFileList(folders, files) {
+  fileList.innerHTML = "";
+
+  // Folders
+  folders.forEach(folder => {
+    const li = document.createElement("li");
+    li.className = "p-2 cursor-pointer hover:bg-blue-50 flex items-center gap-2";
+    li.innerHTML = `📁 <strong>${folder.name}</strong>`;
+
+    li.onclick = () => loadFolder(folder.path);
+    fileList.appendChild(li);
+  });
+
+  // Files
+  files.forEach(file => {
+    const li = document.createElement("li");
+    li.className = "p-2 cursor-pointer hover:bg-gray-100";
+    li.innerHTML = `
+      <div class="font-medium">${file.name}</div>
+      <div class="text-xs text-gray-500">${file.extension || ""}</div>
+    `;
+
+    // 🔴 THIS WAS MISSING
+    li.onclick = () => loadBigPreview(file);
+    li.onclick = () => {
+  document.querySelectorAll("#fileList li")
+    .forEach(el => el.classList.remove("bg-blue-100"));
+
+  li.classList.add("bg-blue-100");
+  loadBigPreview(file);
+};
+
+    fileList.appendChild(li);
+  });
+
+  if (!folders.length && !files.length) {
+    fileList.innerHTML =
+      `<li class="p-3 text-gray-400">No results</li>`;
+  }
+}
+
+/* =========================
+   THUMBNAILS
+========================= */
+
+async function renderPdfThumbnail(file, container) {
+  await loadPdfJsIfNeeded();
+
+  const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+  const pdf = await pdfjsLib.getDocument(url).promise;
+  const page = await pdf.getPage(1);
+
+  const viewport = page.getViewport({ scale: 0.3 });
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+
+  await page.render({
+    canvasContext: canvas.getContext("2d"),
+    viewport
+  }).promise;
+
+  container.appendChild(canvas);
+}
+
+
+async function renderThumbs(files) {
+  thumbsContainer.innerHTML = "";
+
+  if (!files.length) {
+    thumbsContainer.innerHTML =
+      `<div class="text-sm text-gray-400">No previews</div>`;
+    return;
+  }
+
+  for (const file of files) {
+    const card = document.createElement("div");
+    card.className = "thumb-item cursor-pointer flex items-center justify-center";
+
+    const ext = file.name.split(".").pop().toLowerCase();
+
+
+    if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
+      const img = document.createElement("img");
+      img.src = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+      img.loading = "lazy";
+      img.style.maxHeight = "100%";
+      img.style.objectFit = "contain";
+      card.appendChild(img);
     }
-
-    files.forEach(file => {
-      const li = document.createElement('li');
-      li.className = "p-2 rounded file-item cursor-pointer hover:bg-gray-100 flex justify-between items-start";
-      li.setAttribute('data-path', file.path);
-      li.setAttribute('data-id', file.id || file.name);
-      li.setAttribute('data-cat', file.category || '');
-      li.setAttribute('data-name', file.name || file);
-      li.setAttribute('data-type', file.type || '');
-      li.setAttribute('data-size', file.size || '');
-      li.title = "Double-click to open full";
-
-      li.innerHTML = `
-        <div>
-          <div class="font-medium">${file.id || file.name}</div>
-          <div class="text-xs text-gray-500">${file.type || ''}</div>
-          <div class="text-xs text-gray-400 mt-2">${file.size || ''}</div>
+    else if (ext === "pdf") {
+      // 🔴 REAL PDF THUMBNAIL
+      renderPdfThumbnail(file, card);
+    }
+    else {
+      card.innerHTML = `
+        <div class="text-sm text-gray-500">
+          <i class="fas fa-file"></i><br>${ext.toUpperCase()}
         </div>
       `;
-
-      li.addEventListener('click', () => loadBigPreview(file));
-      li.addEventListener('dblclick', () => { loadBigPreview(file); openFullscreen(); });
-
-      fileList.appendChild(li);
-    });
-  }
-
-  // Load big preview
-  function loadBigPreview(file) {
-    currentFile = file;
-    const fileUrl = `/coreapi/serve-file/?path=${encodeURIComponent(file.path || file.name)}`;
-
-    bigPdfFrame.classList.add('hidden');
-    bigImageFrame.classList.add('hidden');
-    noSelection.style.display = 'none';
-
-    if ((file.name || file).match(/\.(jpg|jpeg|png|gif|bmp)$/i)) {
-      bigImageFrame.src = fileUrl;
-      bigImageFrame.classList.remove('hidden');
-    } else {
-      bigPdfFrame.src = fileUrl;
-      bigPdfFrame.classList.remove('hidden');
     }
 
-    bigPreviewTitle.textContent = file.id || file.name;
-    downloadPdfBtn.href = fileUrl + '&download=true';
-    downloadPdfBtn.classList.remove('hidden');
+    // 🔴 THIS WAS MISSING
+    card.onclick = () => loadBigPreview(file);
 
-    setFileInfo(file);
+    thumbsContainer.appendChild(card);
+  }
+}
+
+/* =========================
+   PREVIEW
+========================= */
+function loadBigPreview(file) {
+  currentFile = file;
+
+  // Hide everything first
+  pdfWrapper.classList.add("hidden");
+  bigImageFrame.classList.add("hidden");
+  noSelection.classList.add("hidden");
+
+  const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+  bigPreviewTitle.textContent = file.name;
+
+  const ext = file.name.split(".").pop().toLowerCase();
+
+  // IMAGE
+  if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
+    bigImageFrame.src = url;
+    bigImageFrame.classList.remove("hidden");
+    return;
   }
 
-  function setFileInfo(file) {
-    fileInfoBox.innerHTML = `
-      <div><strong>ID:</strong> ${file.id || file.name}</div>
-      <div class="mt-2"><strong>Name:</strong> ${file.name || file}</div>
-      <div class="mt-2"><strong>Type:</strong> ${file.type || ''}</div>
-      <div class="mt-2"><strong>Size:</strong> ${file.size || ''}</div>
-    `;
+  // PDF
+  if (ext === "pdf") {
+    pdfWrapper.classList.remove("hidden");
+    renderFullPdf(url);
+    return;
   }
 
-  // Fullscreen modal
-  function openFullscreen() {
-    if (!currentFile) return alert('Select a file first.');
+  // OTHER
+  noSelection.textContent = "Preview not available";
+  noSelection.classList.remove("hidden");
+}
 
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    modalTitle.textContent = currentFile.id || currentFile.name;
+/* =========================
+   FILE INFO
+========================= */
+function setFileInfo(file) {
+  fileInfoBox.innerHTML = `
+    <div><strong>Name:</strong> ${file.name}</div>
+    <div><strong>Type:</strong> ${file.extension || ""}</div>
+    <div><strong>Size:</strong> ${file.size || ""}</div>
+  `;
+}
 
-    const fileUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path || currentFile.name)}`;
 
-    modalFrame.classList.add('hidden');
-    modalImage.classList.add('hidden');
-
-    if ((currentFile.name || currentFile).match(/\.(jpg|jpeg|png|gif|bmp)$/i)) {
-      modalImage.src = fileUrl;
-      modalImage.classList.remove('hidden');
-    } else {
-      modalFrame.src = fileUrl;
-      modalFrame.classList.remove('hidden');
-    }
-
-    modalDownloadBtn.href = fileUrl + '&download=true';
-    modalDownloadBtn.download = currentFile.name || currentFile;
+/* =========================
+   ANALYSE (UNCHANGED LOGIC)
+========================= */
+function startAnalysis(files) {
+  if (analysisController) {
+    analysisController.abort();
   }
 
-  modalClose.addEventListener('click', () => {
-    modal.classList.remove('active');
-    modalFrame.src = '';
-    modalImage.src = '';
-    document.body.style.overflow = '';
+  analysisController = new AbortController();
+  document.getElementById("analyseLoading").classList.remove("hidden");
+
+  fetch("/coreapi/api/analyze/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrftoken
+    },
+    body: JSON.stringify({ files, folder: currentFolder }),
+    signal: analysisController.signal
+  })
+  .then(r => r.json())
+  .then(() => loadFolder(currentFolder))
+  .finally(() => {
+    document.getElementById("analyseLoading").classList.add("hidden");
+    analysisController = null;
   });
+}
 
-  modal.addEventListener('click', e => { if (e.target === modal) modalClose.click(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') modalClose.click(); });
 
-  openModalBtn.addEventListener('click', openFullscreen);
+// file search--------------
 
-  // Search filter
-  fileSearch.addEventListener('input', function() {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('#fileList li.file-item').forEach(li => {
-      const id = (li.getAttribute('data-id') || '').toLowerCase();
-      const name = (li.getAttribute('data-name') || '').toLowerCase();
-      const cat = (li.getAttribute('data-cat') || '').toLowerCase();
-      const dropdownVal = (fileDropdown.value || '').toLowerCase();
-      const matchesSearch = id.includes(q) || name.includes(q);
-      const matchesDropdown = !dropdownVal || cat === dropdownVal;
-      li.style.display = (matchesSearch && matchesDropdown) ? '' : 'none';
-    });
-  });
 
-  // Load folders into dropdown
-(function(){
-    const fileDropdown = document.getElementById('fileDropdown');
-    const fileList = document.getElementById('fileList');
+const searchInput = document.getElementById("fileSearch");
 
-    // Reusable folder loader
-    function loadFolders(refreshCurrent = true) {
-        fileDropdown.innerHTML = '<option value="">Select folder</option>';
+let searchTimer = null;
 
-        fetch("/coreapi/api/folders/")
-          .then(res => res.json())
-          .then(data => {
-            if (data.folders && Array.isArray(data.folders)) {
-              data.folders.forEach(folder => {
-                const option = document.createElement('option');
-                option.value = folder;
-                option.textContent = folder;
-                fileDropdown.appendChild(option);
-              });
-            }
+searchInput.addEventListener("input", e => {
+  const q = e.target.value.trim();
 
-            // If we have a currently selected folder, refresh its files
-            if (refreshCurrent && currentFolder) {
-                if ([...fileDropdown.options].some(opt => opt.value === currentFolder)) {
-                    fileDropdown.value = currentFolder; // keep selection
-                    loadFiles(currentFolder);
-                } else {
-                    // Folder no longer exists
-                    currentFolder = null;
-                    folderFiles = [];
-                    renderFileList([]);
-                }
-            }
+  clearTimeout(searchTimer);
 
-          })
-          .catch(err => console.error("Error fetching folders:", err));
-    }
-
-    // Reusable file loader
-    function loadFiles(folderName) {
-        fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(folderName)}`)
-          .then(res => res.json())
-          .then(data => {
-              folderFiles = data.files || [];
-              const files = folderFiles.map(f => ({
-                  path: `${folderName}/${f.name}`,
-                  id: f.id || f.name,
-                  name: f.name,
-                  type: f.type || '',
-                  size: f.size || '',
-                  category: folderName
-              }));
-              renderFileList(files);
-          })
-          .catch(err => {
-              console.error("Error fetching files:", err);
-              folderFiles = [];
-              renderFileList([]);
-          });
-    }
-
-    // Folder select event
-    fileDropdown.addEventListener('change', function() {
-        const folderName = this.value;
-        currentFolder = folderName || null;
-
-        if (!currentFolder) {
-            folderFiles = [];
-            renderFileList([]);
-            return;
-        }
-
-        loadFiles(currentFolder);
-    });
-
-    // Refresh button
-    const refreshBtn = document.getElementById("refreshFolders");
-    refreshBtn.addEventListener("click", () => {
-        loadFolders(true); // true = refresh current folder files too
-      if(currentFolder){
-        refreshFilesAndModal(currentFolder); // reload files + Analyse modal
-    }
-    });
-
-    // Initial load
-    loadFolders();
-
-})();
-
-  // On folder select
-  fileDropdown.addEventListener('change', function() {
-    const folderName = this.value;
-    if (!folderName){
-      renderFileList([]);
-      folderFiles = [];
-      currentFolder = null
+  searchTimer = setTimeout(() => {
+    if (!q) {
+      // RESET to original state
+      isSearching = false;
+      if (rootFoldersCache) {
+        renderFileList(
+          rootFoldersCache.folders || [],
+          rootFoldersCache.files || []
+        );
+        renderThumbs(rootFoldersCache.files || []);
+      } else {
+        loadFolder("");
+      }
       return;
     }
-    currentFolder = folderName
-    
 
-    fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(folderName)}`)
-      .then(res => res.json())
-      .then(data => {
-          folderFiles = data.files || [];
-          const files = folderFiles.map(f => ({
-              path: `${folderName}/${f.name}`,
-              id: f.id || f.name,
-              name: f.name,
-              type: f.type || '',
-              size: f.size || '',
-              category: folderName
-          }));
-          renderFileList(files);
-      })
-      .catch(err => {
-          console.error("Error fetching files:", err);
-          renderFileList([]);
-          folderFiles = [];
-      });
-});
-  // Initialize
-  renderFileList(Array.from(document.querySelectorAll('.file-list')).map(li => ({
-    path: li.dataset.path,
-    id: li.dataset.id,
-    name: li.dataset.name,
-    type: li.dataset.type,
-    size: li.dataset.size,
-    category: li.dataset.cat
-  })));
-
-  const modalShare = document.getElementById('modalShare');
-const shareContainer = document.getElementById('shareButtonsContainer');
-
-const shareWhatsapp = document.getElementById('shareWhatsapp');
-const shareTelegram = document.getElementById('shareTelegram');
-const shareEmail = document.getElementById('shareEmail');
-const shareCopy = document.getElementById('shareCopy');
-
-modalShare.addEventListener('click', function(e) {
-  e.preventDefault();
-  if (!currentFile) return alert('Select a file first.');
-  shareContainer.classList.toggle('hidden');
-});
-
-const fileUrl = () => window.location.origin + `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
-
-shareWhatsapp.addEventListener('click', function(e) {
-  e.preventDefault();
-  window.open(`https://wa.me/?text=${encodeURIComponent(fileUrl())}`, '_blank');
-});
-
-shareTelegram.addEventListener('click', function(e) {
-  e.preventDefault();
-  window.open(`https://t.me/share/url?url=${encodeURIComponent(fileUrl())}&text=${encodeURIComponent(currentFile.name)}`, '_blank');
-});
-
-shareEmail.addEventListener('click', function(e) {
-  e.preventDefault();
-  window.location.href = `mailto:?subject=${encodeURIComponent(currentFile.name)}&body=${encodeURIComponent(fileUrl())}`;
-});
-
-shareCopy.addEventListener('click', function(e) {
-  e.preventDefault();
-  navigator.clipboard.writeText(fileUrl());
-  alert('Link copied to clipboard!');
-});
-})();
-const analyseBtn = document.getElementById("analyseBtn");
-const analyseModal = document.getElementById("analyseModal");
-const analyseClose = document.getElementById("analyseClose");
-
-const analyseSelectFiles = document.getElementById("analyseSelectFiles");
-const analyseSelectAll = document.getElementById("analyseSelectAll");
-
-// Second modal
-const fileSelectModal = document.getElementById("fileSelectModal");
-const fileSelectClose = document.getElementById("fileSelectClose");
-const fileSelectList = document.getElementById("fileSelectList");
-const confirmFileSelection = document.getElementById("confirmFileSelection");
-
-// Stores selected files
-let selectedFiles = null;
-
-
-// Open Analyse Modal
-analyseBtn.addEventListener("click", () => {
-    if (!currentFolder) {
-        return alert("Select a folder first!");
-    }
-    analyseModal.classList.remove("hidden");
-});
-
-analyseClose.addEventListener("click", () => {
-    analyseModal.classList.add("hidden");
+    globalSearch(q);
+  }, 300); // debounce
 });
 
 
-// 1️⃣ Select Files Button
-analyseSelectFiles.addEventListener("click", () => {
-    if (!currentFolder) return alert("Select a folder first!");
-    
-    analyseModal.classList.add("hidden");
-    fileSelectModal.classList.remove("hidden");
-    renderAnalyseFileList();
-
-    if (!folderFiles.length) {
-        fileSelectList.innerHTML = "<p class='text-gray-500'>No files in this folder.</p>";
-        return;
-    }
-
-    // Show checkbox list
-    fileSelectList.innerHTML = folderFiles.map(f => `
-        <label class="flex items-center space-x-2 mb-2">
-            <input type="checkbox" class="file-checkbox" value="${f.path}">
-            <span>${f.name}</span>
-        </label>
-    `).join("");
-});
-
-fileSelectClose.addEventListener("click", () => {
-    fileSelectModal.classList.add("hidden");
-});
-
-// Confirm selected files
-confirmFileSelection.addEventListener("click", () => {
-    let checkboxes = document.querySelectorAll(".file-checkbox:checked");
-    selectedFiles = [...checkboxes].map(ch => {
-    let file = folderFiles.find(f => f.path === ch.value);
-    return {
-        file_id: file.name,   // send clean name
-        file_path: file.path  // send relative path
-    };
-});
-
-    if (selectedFiles.length === 0) {
-        return alert("Select at least one file!");
-    }
-
-    fileSelectModal.classList.add("hidden");
-    startAnalysis(selectedFiles);
-});
+// render full pdf
 
 
-// 2️⃣ Select All Files
-analyseSelectAll.addEventListener("click", () => {
-    if (!currentFolder) return alert("Select a folder first!");
-    if (!folderFiles.length) return alert("No files in this folder.");
+async function renderFullPdf(url) {
+  await loadPdfJsIfNeeded();
 
-    selectedFiles = folderFiles.map(f => ({
-        file_id: f.name,
-        file_path: f.path
-    }));
+  const pdf = await pdfjsLib.getDocument(url).promise;
+  pdfMain.innerHTML = "";
 
-    analyseModal.classList.add("hidden");
-    startAnalysis(selectedFiles);
-});
-let currentAnalysisController = null;
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
 
-function renderAnalyseFileList() {
-    if (!folderFiles.length) {
-        fileSelectList.innerHTML = "<p class='text-gray-500'>No files in this folder.</p>";
-        return;
-    }
+    const viewport = page.getViewport({ scale: 1.4 });
+    const canvas = document.createElement("canvas");
 
-    fileSelectList.innerHTML = folderFiles.map(f => `
-        <label class="flex items-center space-x-2 mb-2">
-            <input type="checkbox" class="file-checkbox" value="${f.path}">
-            <span>${f.name}</span>
-        </label>
-    `).join("");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({
+      canvasContext: canvas.getContext("2d"),
+      viewport
+    }).promise;
+
+    pdfMain.appendChild(canvas);
+  }
 }
 
 
-function startAnalysis(files) {
-    const overlay = document.querySelector(".loading-overlay");
-    overlay.classList.remove("hidden");
 
-    // Create AbortController to allow cancel
-    currentAnalysisController = new AbortController();
-    const { signal } = currentAnalysisController;
+// pdf.js loadeer===========
 
-    // Show Cancel button inside the overlay
-    let cancelBtn = document.getElementById("analysisCancelBtn");
-    if (!cancelBtn) {
-        cancelBtn = document.createElement("button");
-        cancelBtn.id = "analysisCancelBtn";
-        cancelBtn.textContent = "Cancel";
-        cancelBtn.className = "mt-4 px-4 py-2 rounded bg-red-600 text-white";
-        overlay.appendChild(cancelBtn);
-    }
-    cancelBtn.onclick = () => {
-        currentAnalysisController.abort();
-        overlay.classList.add("hidden");
-        alert("Analysis canceled!");
+let pdfJsLoaded = false;
+
+function loadPdfJsIfNeeded() {
+  if (window.pdfjsLib) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+
+    script.onload = () => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      resolve();
     };
 
-    // Prepare payload with all selected files and current folder
-    const payload = { files:files, folder: currentFolder };
-    console.log("Sending analysis request:", payload);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
 
-    fetch("/coreapi/api/analyze/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken
-        },
-        body: JSON.stringify(payload),
-        signal
+
+// Global search ============
+
+function globalSearch(query) {
+  isSearching = true;
+
+  fileList.innerHTML = `<li class="p-2 text-gray-400">Searching...</li>`;
+  thumbsContainer.innerHTML = "";
+
+  fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`)
+    .then(r => r.json())
+    .then(data => {
+      // Expected response:
+      // { folders: [...], files: [...] }
+
+      renderFileList(data.folders || [], data.files || []);
+      renderThumbs(data.files || []);
     })
-    .then(res => res.json())
-    .then(result => {
-    overlay.classList.add("hidden");
-
-    if (result.success) {
-        alert(result.message);
-        if(currentFolder){
-            fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(currentFolder)}`)
-                .then(res => res.json())
-                .then(data => {
-                    folderFiles = data.files || [];
-                    const files = folderFiles.map(f => ({
-                        path: `${currentFolder}/${f.name}`,
-                        id: f.id || f.name,
-                        name: f.name,
-                        type: f.type || '',
-                        size: f.size || '',
-                        category: currentFolder
-                    }));
-                    renderFileList(files);
-                });
-         }
-        } else {
-            alert("Analysis failed: " + (result.error || "Unknown error"));
-        }
-    })
-
-    .catch(err => {
-        overlay.classList.add("hidden");
-        if (err.name === "AbortError") return; // canceled
-        console.error(err);
-        alert("Analysis error: " + err.message);
+    .catch(() => {
+      fileList.innerHTML = `<li class="p-2 text-red-500">Search failed</li>`;
     });
 }
-function refreshFilesAndModal(folderName) {
-    if (!folderName) return;
 
-    fetch(`/coreapi/api/files-in-folder/?folder=${encodeURIComponent(folderName)}`)
-        .then(res => res.json())
-        .then(data => {
-            folderFiles = data.files || [];
 
-            const files = folderFiles.map(f => ({
-                path: `${folderName}/${f.name}`,
-                id: f.id || f.name,
-                name: f.name,
-                type: f.type || '',
-                size: f.size || '',
-                category: folderName
-            }));
+// reload------------
 
-            renderFileList(files);      // update main file list
-            renderAnalyseFileList();    // update Analyse modal checkboxes
-        })
-        .catch(err => {
-            console.error("Error fetching files:", err);
-            folderFiles = [];
-            renderFileList([]);
-            renderAnalyseFileList();
-        });
-}
+document.getElementById("refreshFolders").onclick = () => {
+  fetch("/coreapi/api/refresh/")
+    .then(() => {
+      rootFoldersCache = null;
+      searchInput.value = "";
+      loadFolder("");
+    });
+};
+
+
+
+// fullscreen modal -------------
+
+const fullscreenModal = document.getElementById("fullscreenModal");
+const modalFrame = document.getElementById("modalFrame");
+const modalImage = document.getElementById("modalImage");
+
+document.getElementById("openFullBtn").onclick = () => {
+  if (!currentFile) {
+    alert("Select a file first");
+    return;
+  }
+
+  const url = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
+  const ext = currentFile.name.split(".").pop().toLowerCase();
+
+  fullscreenModal.classList.add("active");
+
+  modalFrame.classList.add("hidden");
+  modalImage.classList.add("hidden");
+
+  if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
+    modalImage.src = url;
+    modalImage.classList.remove("hidden");
+  } else {
+    modalFrame.src = url;
+    modalFrame.classList.remove("hidden");
+  }
+};
+
+document.getElementById("modalClose").onclick = () => {
+  fullscreenModal.classList.remove("active");
+  modalFrame.src = "";
+  modalImage.src = "";
+};
+
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Dashboard JS loaded");
+  loadFolder("");
+});
 
 </script>
+
+
 {% endblock %}
