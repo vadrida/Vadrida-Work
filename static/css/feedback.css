@@ -1249,28 +1249,115 @@ html, body {
   font-size: 20px;
 }
 
-.compass {
-  width: 60px;
-  height: 60px;
-  position: relative;
+
+
+
+/* Wrapper for Textareas to hold the pencil icon */
+.input-wrapper {
+    position: relative;
+    width: 100%;
 }
 
-.compass-circle {
-  width: 100%;
-  height: 100%;
-  border: 2px solid #334155;
-  border-radius: 50%;
-  position: relative;
+.edit-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #4b5563;
+    z-index: 5;
+    transition: all 0.2s;
 }
 
-.compass-point {
-  position: absolute;
-  font-weight: 700;
-  font-size: 12px;
-  color: #0f172a;
+.edit-icon:hover {
+    background: #3b82f6;
+    color: white;
 }
 
-.compass-point.north { top: -8px; left: 50%; transform: translateX(-50%); }
-.compass-point.south { bottom: -8px; left: 50%; transform: translateX(-50%); }
-.compass-point.east  { right: -8px; top: 50%; transform: translateY(-50%); }
-.compass-point.west  { left: -8px; top: 50%; transform: translateY(-50%); }
+/* Thumbnail of saved sketch below textarea */
+.sketch-thumb {
+    display: block;
+    max-height: 100px;
+    border: 1px dashed #ccc;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+/* Full Screen Sketch Modal */
+.sketch-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+.sketch-toolbar {
+    background: white;
+    padding: 10px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #ccc;
+    flex-wrap: wrap;
+}
+
+.sketch-canvas-container {
+    flex-grow: 1;
+    background: #e5e5e5;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.canvas-layer {
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    cursor: crosshair;
+}
+
+.tool-btn {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background: #f9fafb;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.tool-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Main Sketch Section Specifics */
+.main-sketch-preview {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    border: 2px dashed #ccc;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compass-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 60px;
+    opacity: 0.8;
+    pointer-events: none;
+}

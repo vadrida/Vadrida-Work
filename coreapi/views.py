@@ -520,23 +520,30 @@ def feedback(request):
 @require_POST
 def save_feedback(request):
     # 1. IMMEDIATE CHECK: Is the user logged in?
+    user_id = request.session.get("user_id")
+    print(f"Debug: User id : {user_id}")
 
-    user_id=request.session.get("user_id")
-    print(f"Debug: User id : {user_id} ")
-    user_name=request.session.get("user_name")
-    print("User Name : ",user_name)
-
-    if not request.session.get("user_id"):
+    if not user_id:
         return JsonResponse({
             'success': False, 
-            'error': 'Authentication failed. Browser did not send session cookie.'
+            'error': 'Authentication failed. No user_id in session.'
         }, status=401)
+
+    # --- Fetch the actual User Object ---
+    try:
+        # Assuming UserProfile is linked to a generic User or is the primary model
+        # Adjust 'id' to 'user_id' or 'pk' depending on your model definition
+        current_user = UserProfile.objects.get(id=user_id)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({
+            'success': False, 
+            'error': 'User record not found in database.'
+        }, status=401)
+    # -----------------------------------------------
 
     try:
         # 2. Parse the JSON body
         payload = json.loads(request.body)
-        
-        # ... (Your existing helper function and logic) ...
         
         # Safe extraction helper
         def get_nested(data, key_path):
@@ -547,28 +554,32 @@ def save_feedback(request):
                 if val is None: return None
             return val
 
-        # Handle lowercase/uppercase mix
-        office_file_no = get_nested(payload, 'Valuers.Office_file_no') or get_nested(payload, 'valuers.Office_file_no')
-        applicant_name = get_nested(payload, 'Valuers.applicant_name') or get_nested(payload, 'valuers.applicant_name')
+        # Handle lowercase/uppercase mix safely
+        office_file_no = get_nested(payload, 'Valuers_Checklist.Office_file_no') or get_nested(payload, 'valuers.Office_file_no')
+        applicant_name = get_nested(payload, 'Valuers_Checklist.applicant_name') or get_nested(payload, 'valuers.applicant_name')
 
         # 3. Handle the Sketch
         sketch_file = None
         sketch_b64 = payload.get('sketch_data')
 
         if sketch_b64 and 'base64,' in sketch_b64:
-            format, imgstr = sketch_b64.split(';base64,')
-            ext = format.split('/')[-1]
+            format_str, imgstr = sketch_b64.split(';base64,')
+            ext = format_str.split('/')[-1]
+            # Use UUID to prevent filename collisions
             filename = f"sketch_{office_file_no or 'unknown'}_{uuid.uuid4()}.{ext}"
             sketch_file = ContentFile(base64.b64decode(imgstr), name=filename)
+            
+            # Update payload to indicate file is saved, removing the massive base64 string
             payload['sketch_data'] = "Saved as ImageField"
 
         # 4. Save to Database
-        # This line was crashing because request.user was Anonymous
+        # The 'form_data' field will contain the entire JSON, including 
+        # the Survey columns and Boundary dropdown selections.
         report = SiteVisitReport.objects.create(
-            user=user_name, 
+            user=current_user,  
             office_file_no=office_file_no,
             applicant_name=applicant_name,
-            form_data=payload,
+            form_data=payload, 
             sketch=sketch_file
         )
 

@@ -118,28 +118,28 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">1. Office File No.</label>
-                <input type="number" data-path="Valuers.Office_file_no" class="form-input">
+                <input type="number" data-path="Valuers_Checklist.Office_file_no" class="form-input">
               </div>
               <div class="form-group">
                 <label class="form-label">2. Applicant Name</label>
-                <input type="text" data-path="Valuers.applicant_name" class="form-input">
+                <input type="text" data-path="Valuers_Checklist.applicant_name" class="form-input">
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">3. Inspection Date</label>
-                <input type="date" data-path="Valuers.inspection_date" class="form-input">
+                <input type="date" data-path="Valuers_Checklist.inspection_date" class="form-input">
               </div>
               <div class="form-group">
                 <label class="form-label">4. Name of the person met at site</label>
-                <input type="text" data-path="Valuers.person_met" class="form-input">
+                <input type="text" data-path="Valuers_Checklist.person_met" class="form-input">
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">5. Product</label>
-              <select data-path="Valuers.product" class="form-select">
+              <select data-path="Valuers_Checklist.product" class="form-select">
                 <option value="notselected">Select Product</option>
                 <option value="1st purchase">1st Purchase</option>
                 <option value="construction">Construction</option>
@@ -157,20 +157,20 @@
             <div class="form-group">
               <label class="form-label">6. Documents Received</label>
               <div class="checkbox-grid">
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Agreement"> Agreement</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Encumbrance"> Encumbrance</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Building Permit"> Building Permit</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Declaration"> Declaration</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Location Sketch"> Location Sketch</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Development Permit"> Development Permit</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Title Deed"> Title Deed</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Survey Sketch"> Survey Sketch</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Building Certificate"> Building Certificate</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="LTR"> LTR</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Building Tax receipt"> Building Tax Receipt</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Approved plan"> Approved Plan</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Possession"> Possession</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Valuers.documents" value="Engineers plan"> Engineers Plan</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Agreement"> Agreement</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Encumbrance"> Encumbrance</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Building Permit"> Building Permit</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Declaration"> Declaration</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Location Sketch"> Location Sketch</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Development Permit"> Development Permit</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Title Deed"> Title Deed</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Survey Sketch"> Survey Sketch</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Building Certificate"> Building Certificate</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="LTR"> LTR</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Building Tax receipt"> Building Tax Receipt</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Approved plan"> Approved Plan</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Possession"> Possession</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Valuers_Checklist.documents_received" value="Engineers plan"> Engineers Plan</label>
               </div>
             </div>
           </div>
@@ -181,20 +181,26 @@
             
             <div class="form-group">
               <label class="form-label">1. Owner(s) Name</label>
-              <input type="text" data-path="Ownership.owners_name" class="form-input">
+              <input type="text" data-path="Ownership_Analysis.owners_name" class="form-input">
             </div>
             
             <div class="form-group">
               <label class="form-label">Document Verification</label>
               <div class="checkbox-group">
-                <label class="checkbox-label"><input type="checkbox" data-path="Ownership.ownership_check" value="same in all documents"> Same in all documents</label>
-                <label class="checkbox-label"><input type="checkbox" data-path="Ownership.ownership_check" value="discrepancy noted"> Discrepancy noted</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Ownership_Analysis.document_verification" value="same in all documents"> Same in all documents</label>
+                <label class="checkbox-label"><input type="checkbox" data-array="Ownership_Analysis.document_verification" value="discrepancy noted"> Discrepancy noted</label>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Notes</label>
-              <textarea data-path="Ownership.notes" class="form-textarea" rows="4"></textarea>
+           <div class="form-group">
+                <label class="form-label">Notes</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Ownership_Analysis.Ownership_Analysis_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Ownership_Analysis.Ownership_Analysis_notes" class="sketch-thumb hidden" />
             </div>
           </div>
 
@@ -211,14 +217,14 @@
                     </thead>
                     <tbody id="surveyBody">
                         <tr data-row-key="scedule_no"><td>Scedule No</td></tr>
-                        <tr data-row-key="re_sy_block"><td>Re-Sy Block No</td></tr>
+                        <tr data-row-key="re_sy_block_no"><td>Re-Sy Block No</td></tr>
                         <tr data-row-key="re_sy_no"><td>Re-Sy No</td></tr>
-                        <tr data-row-key="re_sy_subdiv"><td>Re-Sy Subdiv No</td></tr>
-                        <tr data-row-key="sy_block"><td>Sy Block No</td></tr>
+                        <tr data-row-key="re_sy_subdiv_no"><td>Re-Sy Subdiv No</td></tr>
+                        <tr data-row-key="sy_block_no"><td>Sy Block No</td></tr>
                         <tr data-row-key="sy_no"><td>Sy No</td></tr>
-                        <tr data-row-key="sy_subdiv"><td>Sy Subdiv No</td></tr>
+                        <tr data-row-key="sy_subdiv_no"><td>Sy Subdiv No</td></tr>
                         <tr data-row-key="land_extent"><td>Land Extent (Ares)</td></tr>
-                        <tr data-row-key="land_class"><td>Land Classification</td></tr>
+                        <tr data-row-key="land_classification"><td>Land Classification</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -229,8 +235,22 @@
 
             <div class="form-group mt-4">
                 <label class="form-label">Notes, % of wetland and dry lands...</label>
-                <textarea data-path="Survey.notes" class="form-textarea" rows="4"></textarea>
+                <div class="input-wrapper">
+                    <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Survey.survey_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Survey.survey_notes" class="sketch-thumb hidden" />
             </div>
+
+
+            <!-- <div class="form-group mt-4">
+                <label class="form-label">Notes, % of wetland and dry lands...</label>
+                <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4"></textarea>
+            </div> -->
+
+
         </div>
           <!-- III. Boundary Analysis and Property Identification -->
           <div class="form-section-group">
@@ -240,54 +260,84 @@
               <table class="analysis-table">
                 <thead>
                   <tr>
-                    <th>Direction</th>
-                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Boundary.demarcation_north" value="no demarcation"> Title Deed</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Boundary.demarcation_north" value="gi sheet fence"> Location</label>
-                     </td>
-                      <th>Translation Reason if any</th>
-                    <th>Site</th>
+                    <th style="width: 10%;">Direction</th>
+                    
+                    <th style="width: 25%;">
+                      <label class="text-xs font-bold block mb-1">Ref Doc 1</label>
+                      <select data-path="Boundary_analysis_property_identification.ref_doc_1_name" class="form-select dynamic-doc-dropdown" style="width: 100%; color: #000;">
+                          <option value="">Select Document</option>
+                      </select>
+                    </th>
+
+                    <th style="width: 25%;">
+                      <label class="text-xs font-bold block mb-1">Ref Doc 2</label>
+                      <select data-path="Boundary_analysis_property_identification.ref_doc_2_name" class="form-select dynamic-doc-dropdown" style="width: 100%; color:#000">
+                          <option value="">Select Document</option>
+                      </select>
+                    </th>
+
+                    <th style="width: 20%;">Translation Reason if any</th>
+                    <th style="width: 20%;">Site</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>North</td>
-                    <td><input type="text" data-path="Boundary.north" class="table-input"></td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
+                    
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_translation" class="table-input"></td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_site" class="table-input"></td>
+                  </tr>
                   
-                    <td><input type="text" data-path="Boundary.north" class="table-input"></td>
-                    <td><input type="text" data-path="Boundary.north" class="table-input"></td>
-                  </tr>
                   <tr>
-                    <td>East</td>
-                    <td><input type="text" data-path="Boundary.east" class="table-input"></td>
-            
-                    <td><input type="text" data-path="Boundary.east" class="table-input"></td>
-                    <td><input type="text" data-path="Boundary.east" class="table-input"></td>
+                      <td>East</td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.east_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.east_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
+
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.east_translation" class="table-input"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.east_site" class="table-input"></td>
                   </tr>
+                  
                   <tr>
-                    <td>South</td>
-                    <td><input type="text" data-path="Boundary.south" class="table-input"></td>
-               
-                    <td><input type="text" data-path="Boundary.south" class="table-input"></td>
-                    <td><input type="text" data-path="Boundary.south" class="table-input"></td>
+                      <td>South</td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
+
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_translation" class="table-input"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_site" class="table-input"></td>
                   </tr>
+                  
                   <tr>
-                    <td>West</td>
-                    <td><input type="text" data-path="Boundary.west" class="table-input"></td>
-                
-                    <td><input type="text" data-path="Boundary.west" class="table-input"></td>
-                    <td><input type="text" data-path="Boundary.west" class="table-input"></td>
+                      <td>West</td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.west_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.west_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
+
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.west_translation" class="table-input"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.west_site" class="table-input"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Notes if any/property identified with respect to documents..?</label>
-              <textarea data-path="Boundary.boundary_notes" class="form-textarea" rows="4"></textarea>
+                <label class="form-label">Notes if any/property identified with respect to documents..?</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Boundary_analysis_property_identification.Boundary_property_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Boundary_analysis_property_identification.Boundary_property_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Boundary_analysis_property_identification.Boundary_property_notes" class="sketch-thumb hidden" />
             </div>
-          </div>
 
+            <!-- <div class="form-group mt-3">
+              <label class="form-label">Notes if any/property identified with respect to documents..?</label>
+              <textarea data-path="Boundary_analysis_property_identification.Boundary_property_notes" class="form-textarea" rows="4"></textarea>
+            </div> -->
+
+
+          </div>
           <!-- IV. Demarcations -->
           <div class="form-section-group">
             <h4 class="form-section-title">IV. Demarcations</h4>
@@ -304,53 +354,53 @@
                   <tr>
                     <td>North</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="no demarcation"> No demarcation</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="gi sheet fence"> GI sheet fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="barbed wire"> Barbed wire</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="steel pegs"> Steel pegs</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="compound wall"> Compound wall</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="bio fence"> Bio fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="survey stone"> Survey stone</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_north" value="wooden pegs"> Wooden pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="no demarcation"> No demarcation</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="barbed wire"> Barbed wire</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="steel pegs"> Steel pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="compound wall"> Compound wall</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="bio fence"> Bio fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="survey stone"> Survey stone</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="wooden pegs"> Wooden pegs</label>
                     </td>
                   </tr>
                   <tr>
                     <td>East</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="no demarcation"> No demarcation</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="gi sheet fence"> GI sheet fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="barbed wire"> Barbed wire</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="steel pegs"> Steel pegs</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="compound wall"> Compound wall</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="bio fence"> Bio fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="survey stone"> Survey stone</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_east" value="wooden pegs"> Wooden pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="no demarcation"> No demarcation</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="barbed wire"> Barbed wire</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="steel pegs"> Steel pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="compound wall"> Compound wall</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="bio fence"> Bio fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="survey stone"> Survey stone</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="wooden pegs"> Wooden pegs</label>
                     </td>
                   </tr>
                   <tr>
                     <td>South</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="no demarcation"> No demarcation</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="gi sheet fence"> GI sheet fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="barbed wire"> Barbed wire</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="steel pegs"> Steel pegs</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="compound wall"> Compound wall</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="bio fence"> Bio fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="survey stone"> Survey stone</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_south" value="wooden pegs"> Wooden pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="no demarcation"> No demarcation</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="barbed wire"> Barbed wire</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="steel pegs"> Steel pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="compound wall"> Compound wall</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="bio fence"> Bio fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="survey stone"> Survey stone</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="wooden pegs"> Wooden pegs</label>
                     </td>
                   </tr>
                   <tr>
                     <td>West</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="no demarcation"> No demarcation</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="gi sheet fence"> GI sheet fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="barbed wire"> Barbed wire</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="steel pegs"> Steel pegs</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="compound wall"> Compound wall</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="bio fence"> Bio fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="survey stone"> Survey stone</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-path="Demarcation.demarcation_west" value="wooden pegs"> Wooden pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="no demarcation"> No demarcation</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="barbed wire"> Barbed wire</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="steel pegs"> Steel pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="compound wall"> Compound wall</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="bio fence"> Bio fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="survey stone"> Survey stone</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="wooden pegs"> Wooden pegs</label>
                     </td>
                   </tr>
                 </tbody>
@@ -358,20 +408,56 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">Notes if any</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Demarcation.demarcation_notes" class="form-textarea" rows="3"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Demarcation.demarcation_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Demarcation.demarcation_notes" class="sketch-thumb hidden" />
+            </div>
+
+            <!-- <div class="form-group">
               <label class="form-label">Notes if any</label>
               <textarea data-path="Demarcation.demarcation_notes" class="form-textarea" rows="3"></textarea>
-            </div>
+            </div> -->
+
 
             <div class="form-group">
+                <label class="form-label">Encroachment of subject building to neighbouring property, if any..?</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Demarcation.enroachment_subject_to_neighbour" class="form-textarea" rows="3"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Demarcation.enroachment_subject_to_neighbour')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Demarcation.enroachment_subject_to_neighbour" class="sketch-thumb hidden" />
+            </div>
+
+
+            <!-- <div class="form-group">
               <label class="form-label">Encroachment of subject building to neighbouring property, if any..?</label>
-              <textarea data-path="Demarcation.subject_encroachment" class="form-textarea" rows="3"></textarea>
+              <textarea data-path="Demarcation.enroachment_subject_to_neighbour" class="form-textarea" rows="3"></textarea>
+            </div> -->
+
+              <div class="form-group">
+                <label class="form-label">Encroachment of neighbour's building to subject property, if any..?</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Demarcation.enroachment_neighbour_to_subject" class="form-textarea" rows="3"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Demarcation.enroachment_neighbour_to_subject')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Demarcation.enroachment_neighbour_to_subject" class="sketch-thumb hidden" />
             </div>
 
-            <div class="form-group">
+
+            <!-- <div class="form-group">
               <label class="form-label">Encroachment of neighbour's building to subject property, if any..?</label>
-              <textarea data-path="Demarcation.neighbor_encroachment" class="form-textarea" rows="3"></textarea>
+              <textarea data-path="Demarcation.enroachment_neighbour_to_subject" class="form-textarea" rows="3"></textarea>
             </div>
-          </div>
+          </div> -->
 
           <!-- V. Access Nature/Right of Access -->
           <div class="form-section-group">
@@ -383,91 +469,102 @@
                   <tr>
                     <td>1. Type of access as per title deed</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="footway"> Footway</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="panchayat rd"> Panchayat Rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="corporation rd"> Corporation Rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="national highway"> National Highway</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="private way"> Private Way</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="municipal rd"> Municipal Rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="pwd road"> PWD Road</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_deed" value="land locked"> Land Locked</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="footway"> Footway</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="panchayat rd"> Panchayat Rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="corporation rd"> Corporation Rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="national highway"> National Highway</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="private way"> Private Way</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="municipal rd"> Municipal Rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="pwd road"> PWD Road</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_titledeed" value="land locked"> Land Locked</label>
                     </td>
                   </tr>
                   <tr>
                     <td>2. Type of access as per site visit</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="footway"> Footway</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="panchayat rd"> Panchayat Rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="corporation rd"> Corporation Rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="national highway"> National Highway</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="private way"> Private Way</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="municipal rd"> Municipal Rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="pwd road"> PWD Road</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.access_site" value="land locked"> Land Locked</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="footway"> Footway</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="panchayat rd"> Panchayat Rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="corporation rd"> Corporation Rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="national highway"> National Highway</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="private way"> Private Way</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="municipal rd"> Municipal Rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="pwd road"> PWD Road</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.typeofaccess_sitevisit" value="land locked"> Land Locked</label>
                     </td>
                   </tr>
                   <tr>
                     <td>3. If private way, no of users..?</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_users" value="self use"> Self use</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_users" value="self & 1 user"> Self & 1 user</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_users" value="self & 2 user"> Self & 2 user</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_users" value="self + family"> Self + family</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_no_user" value="self use"> Self use</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_no_user" value="self & 1 user"> Self & 1 user</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_no_user" value="self & 2 user"> Self & 2 user</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_no_user" value="self + family"> Self + family</label>
                     </td>
                   </tr>
                   <tr>
                     <td>4. Demarcation of private road</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="no demarcation"> No demarcation</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="gi sheet fence"> GI sheet fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="barbed wire"> Barbed wire</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="steel pegs"> Steel pegs</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="compound wall"> Compound wall</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="bio fence"> Bio fence</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="survey stone"> Survey stone</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.private_demarcation" value="wooden pegs"> Wooden pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="no demarcation"> No demarcation</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="barbed wire"> Barbed wire</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="steel pegs"> Steel pegs</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="compound wall"> Compound wall</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="bio fence"> Bio fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="survey stone"> Survey stone</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.private_rd_demarcation" value="wooden pegs"> Wooden pegs</label>
                     </td>
                   </tr>
                   <tr>
                     <td>5. Least width of main access in M</td>
-                    <td><input type="number" step="0.01" data-path="Deed.main_access_width" class="table-input"></td>
+                    <td><input type="number" step="0.01" data-path="Access.main_access_width" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>6. Vehicular access</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.vehicular_access" value="pedestrian"> Pedestrian</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.vehicular_access" value="2-wheeler"> 2-wheeler</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.vehicular_access" value="3-wheeler"> 3-wheeler</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.vehicular_access" value="4-wheeler"> 4-wheeler</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.vehicular_access" value="pedestrian"> Pedestrian</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.vehicular_access" value="2-wheeler"> 2-wheeler</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.vehicular_access" value="3-wheeler"> 3-wheeler</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.vehicular_access" value="4-wheeler"> 4-wheeler</label>
                     </td>
                   </tr>
                   <tr>
                     <td>7. Least width of internal roads, in case of plot development</td>
-                    <td><input type="number" step="0.01" data-path="Deed.internal_road_width" class="table-input"></td>
+                    <td><input type="number" step="0.01" data-path="Access.internal_road_width" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>8. Weather the internal rd. abutting the subject plot has connectivity to main access as per deed..?</td>
-                    <td><input type="text" data-path="Deed.internal_connectivity" class="table-input"></td>
+                    <td><input type="text" data-path="Access.internal_to_main_connectivity" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>9. Material of road</td>
                     <td class="checkbox-cell">
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.road_material" value="mud road"> Mud road</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.road_material" value="gravel road"> Gravel road</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.road_material" value="concrete road"> Concrete road</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.road_material" value="paving tile rd"> Paving tile rd</label>
-                      <label class="checkbox-label-small"><input type="checkbox" data-array="Deed.road_material" value="tar road"> Tar road</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="mud road"> Mud road</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="gravel road"> Gravel road</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="concrete road"> Concrete road</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="paving tile rd"> Paving tile rd</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="tar road"> Tar road</label>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Notes/Discrepancy if any..</label>
-              <textarea data-path="Deed.access_notes" class="form-textarea" rows="4"></textarea>
+             <div class="form-group">
+                <label class="form-label">Notes/Discrepancy if any..</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Access.access_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Access.access_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Access.access_notes" class="sketch-thumb hidden" />
             </div>
-          </div>
+
+            <!-- <div class="form-group">
+              <label class="form-label">Notes/Discrepancy if any..</label>
+              <textarea data-path="Access.access_notes" class="form-textarea" rows="4"></textarea>
+            </div>
+          </div> -->
 
           <!-- VI. For Purchase and Resale cases -->
           <div class="form-section-group">
@@ -478,45 +575,57 @@
                 <tbody>
                   <tr>
                     <td>1. Buyer name</td>
-                    <td><input type="text" data-path="Building.buyer_name" class="table-input"></td>
+                    <td><input type="text" data-path="Purchase_resale.buyer_name" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>2. Seller name</td>
-                    <td><input type="text" data-path="Building.seller_name" class="table-input"></td>
+                    <td><input type="text" data-path="Purchase_resale.seller_name" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>3. Relation b/w buyer and seller, if any</td>
-                    <td><input type="text" data-path="Building.buyer_seller_relation" class="table-input"></td>
+                    <td><input type="text" data-path="Purchase_resale.buyer_seller_relation" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>4. Since how long the property is up for sale..?</td>
-                    <td><input type="text" data-path="Building.property_sale_duration" class="table-input"></td>
+                    <td><input type="text" data-path="Purchase_resale.property_sale_duration" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>5. Brockers/OLX/99acers etc involved or how transaction happened..?</td>
-                    <td><input type="text" data-path="Building.transaction_method" class="table-input"></td>
+                    <td><input type="text" data-path="Purchase_resale.transaction_method" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>6. Land extend proposed for purchase..?</td>
-                    <td><input type="text" data-path="Building.purchase_land_extent" class="table-input"></td>
+                    <td><input type="text" data-path="Purchase_resale.purchase_land_extent" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>7. Price asked</td>
-                    <td><input type="number" data-path="Building.price_asked" class="table-input"></td>
+                    <td><input type="number" data-path="Purchase_resale.price_asked" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>8. Deal breaker value</td>
-                    <td><input type="number" data-path="Building.deal_breaker_value" class="table-input"></td>
+                    <td><input type="number" data-path="Purchase_resale.deal_breaker_value" class="table-input"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Notes/discrepancy if any..</label>
-              <textarea data-path="Building.purchase_notes" class="form-textarea" rows="4"></textarea>
+                <label class="form-label">Notes/Discrepancy if any..</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Purchase_resale.purchase_resale_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Purchase_resale.purchase_resale_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Purchase_resale.purchase_resale_notes" class="sketch-thumb hidden" />
             </div>
-          </div>
+
+
+            <!-- <div class="form-group">
+              <label class="form-label">Notes/discrepancy if any..</label>
+              <textarea data-path="Purchase_resale.purchase_resale_notes" class="form-textarea" rows="4"></textarea>
+            </div>
+          </div> -->
 
           <!-- VII. Building Analysis -->
           <div class="form-section-group">
@@ -538,84 +647,95 @@
                 <tbody>
                   <tr>
                     <td>BF-2</td>
-                    <td><input type="number" data-path="Building.BF-2Builtup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.BF-2Rooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.BF-2Kitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.BF-2Bathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.BF-2Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.BF-2Occupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_2_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_2_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_2_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_2_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.BF_2_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.BF_2_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>BF-1</td>
-                    <td><input type="number" data-path="Building.BF-1Builtup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.BF-1Rooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.BF-1Kitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.BF-1Bathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.BF-1Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.BF-1Occupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_1_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_1_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_1_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.BF_1_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.BF_1_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.BF_1_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>GF</td>
-                    <td><input type="number" data-path="Building.GFBuiltup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.GFRooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.GFKitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.GFBathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.GFUsage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.GFOccupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.GF_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.GF_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.GF_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.GF_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.GF_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.GF_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>1st Floor</td>
-                    <td><input type="number" data-path="Building.1stBuiltup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.1stRooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.1stKitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.1stBathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.1stUsage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.1stOccupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.first_flr_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.first_flr_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.first_flr_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.first_flr_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.first_flr_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.first_flr_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>2nd Floor</td>
-                    <td><input type="number" data-path="Building.2ndBuiltup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.2ndRooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.2ndKitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.2ndBathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.2ndUsage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.2ndOccupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.second_flr_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.second_flr_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.second_flr_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.second_flr_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.second_flr_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.second_flr_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>3rd Floor</td>
-                    <td><input type="number" data-path="Building.3rdBuiltup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.3rdRooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.3rdKitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.3rdBathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.3rdUsage"  class="table-input"></td>
-                    <td><input type="text" data-path="Building.3rdOccupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.third_flr_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.third_flr_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.third_flr_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.third_flr_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.third_flr_Usage"  class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.third_flr_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>4th Floor</td>
-                    <td><input type="number" data-path="Building.4thBuiltup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.4thRooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.4thKitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.4thBathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.4thUsage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.4thOccupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fourth_flr_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fourth_flr_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fourth_flr_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fourth_flr_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.fourth_flr_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.fourth_flr_Occupancy" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>5th Floor</td>
-                    <td><input type="number" data-path="Building.5thBuiltup" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building.5thRooms" class="table-input"></td>
-                    <td><input type="number" data-path="Building.5thKitchen" class="table-input"></td>
-                    <td><input type="number" data-path="Building.5thBathrooms" class="table-input"></td>
-                    <td><input type="text" data-path="Building.5thUsage" class="table-input"></td>
-                    <td><input type="text" data-path="Building.5thOccupancy" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fifth_flr_Builtup_area" step="0.01" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fifth_flr_Rooms_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fifth_flr_Kitchen_no" class="table-input"></td>
+                    <td><input type="number" data-path="Building_analysis.fifth_flr_Bathrooms_no" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.fifth_flr_Usage" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.fifth_flr_Occupancy" class="table-input"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
-              <textarea data-path="Building.building_analysis_notes" class="form-textarea" rows="4"></textarea>
+                <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Building_analysis.building_analysis_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Building_analysis.building_analysis_notes" class="sketch-thumb hidden" />
             </div>
+
+            <!-- <div class="form-group">
+              <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
+              <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea" rows="4"></textarea>
+            </div> -->
 
             <!-- Roof Type Table -->
             <div class="table-container">
@@ -623,23 +743,23 @@
                 <thead>
                   <tr>
                     <th>Roof Type</th>
-                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building.roof_type" value="RCC"> RCC</label>
+                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building_analysis.roof_type" value="RCC"> RCC</label>
                      </th>
-                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building.roof_type" value="Tiled">Tiled</label>
+                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building_analysis.roof_type" value="Tiled">Tiled</label>
                      </th>
-                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building.roof_type" value="Sheet"> Sheet</label>
+                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building_analysis.roof_type" value="Sheet"> Sheet</label>
                      </th>
-                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building.roof_type" value="Other"> Other</label>
+                    <th> <label class="checkbox-label-small"><input type="checkbox" data-array="Building_analysis.roof_type" value="Other"> Other</label>
                      </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>Roof Percentage</td>
-                    <td><input type="number" data-path="Building.RCCPer" step="0.01" class="table-input" placeholder="%"></td>
-                    <td><input type="number" data-path="Building.TiledPer" step="0.01" class="table-input" placeholder="%"></td>
-                    <td><input type="number" data-path="Building.SheetPer" step="0.01" class="table-input" placeholder="%"></td>
-                    <td><input type="number" data-path="Building.OtherPer" step="0.01" class="table-input" placeholder="%"></td>
+                    <td><input type="number" data-path="Building_analysis.RCC_Percentage" step="0.01" class="table-input" placeholder="%"></td>
+                    <td><input type="number" data-path="Building_analysis.Tiled_Percentage" step="0.01" class="table-input" placeholder="%"></td>
+                    <td><input type="number" data-path="Building_analysis.Sheet_Percentage" step="0.01" class="table-input" placeholder="%"></td>
+                    <td><input type="number" data-path="Building_analysis.Other_Percentage" step="0.01" class="table-input" placeholder="%"></td>
                   </tr>
                 </tbody>
               </table>
@@ -681,7 +801,7 @@
                         <td>
                         <input
                             type="number"
-                            data-path="Building.setback"
+                            data-path="Building_analysis.setback"
                             step="0.01"
                             class="table-input"
                             placeholder="Setback"
@@ -689,20 +809,20 @@
                         </td>
 
                         <!-- Front yard -->
-                        <td><input type="number" data-path="Frontmin" step="0.01" class="table-input" /></td>
-                        <td><input type="number" data-path="Frontmax" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.front_yard_min" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.front_yard_max" step="0.01" class="table-input" /></td>
 
                         <!-- Side-1 -->
-                        <td><input type="number" data-path="S1min" step="0.01" class="table-input" /></td>
-                        <td><input type="number" data-path="S1max" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.side1_yard_min" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.side1_yard_max" step="0.01" class="table-input" /></td>
 
                         <!-- Side-2 -->
-                        <td><input type="number" data-path="S2min" step="0.01" class="table-input" /></td>
-                        <td><input type="number" data-path="S2max" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.side2_yard_min" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.side2_yard_max" step="0.01" class="table-input" /></td>
 
                         <!-- Rear -->
-                        <td><input type="number" data-path="Rearmin" step="0.01" class="table-input" /></td>
-                        <td><input type="number" data-path="Rearmax" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.rear_yard_min" step="0.01" class="table-input" /></td>
+                        <td><input type="number" data-path="Building_analysis.rear_yard_max" step="0.01" class="table-input" /></td>
                     </tr>
                     </tbody>
                 </table>
@@ -714,55 +834,62 @@
                 <tbody>
                   <tr>
                     <td>Year of construction of foundation, other floors etc, if constructed in different timelines</td>
-                    <td><input type="text" data-path="Building.construction_timeline" class="table-input"></td>
+                    <td><input type="text" data-path="Building_analysis.construction_year" class="table-input"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
-              <textarea data-path="Building.amenities_notes" class="form-textarea" rows="4"></textarea>
+                <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
+                <div class="input-wrapper">
+                    <textarea data-path="Building_analysis.amenities_notes" class="form-textarea" rows="4"></textarea>
+                    <div class="edit-icon" onclick="openSketchPad('Building_analysis.amenities_notes')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                </div>
+                <img id="img_preview_Building_analysis.amenities_notes" class="sketch-thumb hidden" />
             </div>
-          </div>
+
+            <!-- <div class="form-group">
+              <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
+              <textarea data-path="Building_analysis.amenities_notes" class="form-textarea" rows="4"></textarea>
+            </div>
+          </div> -->
 
           <!-- VIII. Landmark and Layout (Handsketch) -->
           <div class="form-section-group">
-            <h4 class="form-section-title">VIII. Landmark and Layout (Handsketch)</h4>
-            
-            <div class="form-group">
-              <label class="form-label">Landmark</label>
-              <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
-            </div>
+  <h4 class="form-section-title">VIII. Landmark and Layout (Handsketch)</h4>
+  
+  <div class="form-group">
+    <label class="form-label">Landmark Description</label>
+    <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
+  </div>
 
-            <div class="sketch-container">
-              <div class="sketch-header">
-                <span>Drawing Area</span>
-                <div class="compass">
-                  <div class="compass-circle">
-                    <div class="compass-point north">N</div>
-                    <div class="compass-point east">E</div>
-                    <div class="compass-point south">S</div>
-                    <div class="compass-point west">W</div>
-                  </div>
-                </div>
-              </div>
-              <canvas id="sketchCanvas" class="sketch-canvas" width="600" height="400"></canvas>
-              <div class="sketch-controls">
-                <button type="button" id="clearCanvas" class="sketch-btn">Clear</button>
-                <button type="button" id="undoCanvas" class="sketch-btn">Undo</button>
-                <input type="color" id="colorPicker" value="#000000" class="color-picker">
-                <input type="range" id="brushSize" min="1" max="10" value="2" class="brush-size">
-                <span class="brush-label">Brush Size</span>
-              </div>
-            </div>
-          </div>
+  <div class="form-group mt-4">
+    <label class="form-label font-bold">Site Layout Sketch</label>
+    
+    <button type="button" class="modal-btn primary" style="width: 100%; margin-bottom: 10px;" onclick="openSketchPad('Sketch.main_layout')">
+        <i class="fas fa-drafting-compass mr-2"></i> Open Sketch Pad
+    </button>
+
+    <div class="main-sketch-preview" style="position: relative; border: 2px dashed #ccc; min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f9fafb;">
+        <img id="img_preview_Sketch_main_layout" class="hidden" style="max-width: 100%; max-height: 400px; z-index: 1;">
+        
+        <img src="{% static 'images/compass-icon.png' %}" style="position: absolute; top: 10px; right: 10px; width: 50px; opacity: 0.8; pointer-events: none; z-index: 2;" alt="N">
+        
+        <div id="placeholder_Sketch_main_layout" class="text-gray-400">
+            Click button above to draw layout
+        </div>
+    </div>
+  </div>
+</div>
 
           <button type="submit" class="submit-btn">Submit Feedback</button>
           <button type="button" 
                   onclick="localStorage.removeItem('vadrida_site_feedback_autosave'); location.reload();" 
                   style="background: #ef4444; color: white; padding: 10px; margin-top: 10px;">
-              ⚠️ Reset Form Data (Fix Stuck State)
+              ⚠️ Reset Form Data
           </button>
         </form>
 
@@ -825,8 +952,36 @@
     <button id="fileSelectClose" class="modal-btn">Cancel</button>
   </div>
 </div>
+<div id="sketchModal" class="sketch-modal-overlay hidden">
+    <div class="sketch-toolbar">
+        <div class="group">
+            <button type="button" class="tool-btn active" onclick="setTool('brush')" title="Freehand"><i class="fas fa-paint-brush"></i></button>
+            <button type="button" class="tool-btn" onclick="setTool('line')" title="Line"><i class="fas fa-slash"></i></button>
+            <button type="button" class="tool-btn" onclick="setTool('rect')" title="Rectangle"><i class="far fa-square"></i></button>
+            <button type="button" class="tool-btn" onclick="setTool('circle')" title="Circle"><i class="far fa-circle"></i></button>
+            <button type="button" class="tool-btn" onclick="setTool('text')" title="Text Tool"><i class="fas fa-font"></i></button>
+        </div>
+        
+        <div class="group border-l pl-2 ml-2">
+            <input type="color" id="sketchColor" value="#000000" class="h-8 w-8 cursor-pointer" title="Color">
+            <input type="range" id="sketchSize" min="1" max="20" value="2" class="w-24 align-middle" title="Brush Size">
+        </div>
 
+        <div class="group border-l pl-2 ml-2">
+            <button type="button" class="tool-btn" onclick="undoSketch()" title="Undo"><i class="fas fa-undo"></i></button>
+            <button type="button" class="tool-btn" onclick="clearSketch()" title="Clear All"><i class="fas fa-trash"></i></button>
+        </div>
 
+        <div class="group border-l pl-2 ml-2 flex-grow text-right">
+            <button type="button" class="modal-btn" onclick="closeSketchModal()">Cancel</button>
+            <button type="button" class="modal-btn primary" onclick="saveSketchModal()">Save Sketch</button>
+        </div>
+    </div>
+
+    <div class="sketch-canvas-container" id="sketchContainer">
+        <canvas id="proCanvas" class="canvas-layer"></canvas>
+    </div>
+</div>
 
 <script>
 /* =========================
@@ -1543,297 +1698,106 @@ document.getElementById("brushSize").oninput = e => {
 
 
 
-
 /* =========================
-   FORM STATE & AUTOSAVE
+   FORM STATE & LOGIC
 ========================= */
+
+// 1. Define State Structure
+/* =========================
+   1. STATE INITIALIZATION
+========================= */
+const STORAGE_KEY = 'vadrida_site_feedback_autosave';
+let activeSketchPath = null; 
+
+// YOUR EXACT FORM STATE + 'images' object for sketches
 let formState = {
-    // Combine everything into Capital 'Valuers'
-    Valuers: {
-        documents: [], // This holds the checkbox values
+    Valuers_Checklist: {
+        documents_received: [], 
         product: "",
         Office_file_no: "",
         applicant_name: "",
         inspection_date: "",
         person_met: ""
     },
-    // ... rest of your state (Ownership, Survey, etc.)
-    Ownership: { ownership_check: [], notes: "", owners_name: "" },
-    Survey: { docs: [], notes: "" },
-    Boundary: {},
-    Demarcation: {},
-    Deed: {
-        access_deed: [], access_site: [], private_users: [],
-        private_demarcation: [], vehicular_access: [], road_material: []
+    Ownership_Analysis : { document_verification : [], Ownership_Analysis_notes : "", owners_name : "" },
+    Survey: { docs: [], survey_notes: "" },
+
+    Boundary_analysis_property_identification: { 
+        ref_doc_1_name: "", ref_doc_2_name: "",
+        north_doc1: "", north_doc2: "",
+        east_doc1:  "", east_doc2: "",
+        south_doc1: "", south_doc2: "",
+        west_doc1:  "", west_doc2: "",
+        north_translation:"", north_site:"", 
+        east_translation:"", east_site:"", 
+        south_translation:"", south_site:"", 
+        west_translation:"", west_site:"", 
+        Boundary_property_notes : ""
     },
-    Building: { roof_type: [], setback: "" },
-    Sketch: {},
+    Demarcation: {north: [],east:[],south:[],west:[],demarcation_notes:"",enroachment_subject_to_neighbour:"",enroachment_neighbour_to_subject:""},
+    Access : {access_notes:"",typeofaccess_titledeed : [], typeofaccess_sitevisit : [],private_no_user :[],
+    private_rd_demarcation:[],main_access_width:"",vehicular_access:[],internal_road_width:"",internal_to_main_connectivity:"",
+    road_material:[]
+    },
+    Purchase_resale : {Purchase_resale_notes:"",buyer_name:"",seller_name:"",buyer_seller_relation:"",property_sale_duration:"",
+      transaction_method:"",purchase_land_extent:"",price_asked:"",deal_breaker_value:""
+    },
+    Building_analysis: { Building_analysis_notes:"", roof_type: [], setback: "", construction_year:"", amenities_notes:"" ,
+      Bf_2_Builtup_area:"",Bf_2_Rooms_no:"",Bf_2_Kitchen_no:"",Bf_2_Bathrooms_no:"",Bf_2_Usage:"",Bf_2_Occupancy:"",
+      Bf_1_Builtup_area:"",Bf_1_Rooms_no:"",Bf_1_Kitchen_no:"",Bf_1_Bathrooms_no:"",Bf_1_Usage:"",Bf_1_Occupancy:"",
+      Gf_Builtup_area:"",Gf_Rooms_no:"",Gf_Kitchen_no:"",Gf_Bathrooms_no:"",Gf_Usage:"",Gf_Occupancy:"",
+      first_flr_Builtup_area:"",first_flr_Rooms_no:"",first_flr_Kitchen_no:"",first_flr_Bathrooms_no:"",first_flr_Usage:"",first_flr_Occupancy:"",
+      second_flr_Builtup_area:"",second_flr_Rooms_no:"",second_flr_Kitchen_no:"",second_flr_Bathrooms_no:"",second_flr_Usage:"",second_flr_Occupancy:"",
+      third_flr_Builtup_area:"",third_flr_Rooms_no:"",third_flr_Kitchen_no:"",third_flr_Bathrooms_no:"",third_flr_Usage:"",third_flr_Occupancy:"",
+      fourth_flr_Builtup_area:"",fourth_flr_Rooms_no:"",fourth_flr_Kitchen_no:"",fourth_flr_Bathrooms_no:"",fourth_flr_Usage:"",fourth_flr_Occupancy:"",
+      fifth_flr_Builtup_area:"",fifth_flr_Rooms_no:"",fifth_flr_Kitchen_no:"",fifth_flr_Bathrooms_no:"",fifth_flr_Usage:"",fifth_flr_Occupancy:"",
+      // Added missing setback fields to match UI if necessary
+      front_yard_min:"", front_yard_max:"", side1_yard_min:"", side1_yard_max:"", 
+      side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:""
+    },
+    Sketch: { landmark_description: "", main_layout: "" }, 
+    sketch_data: null, // Legacy support
     
-    // Root level variables (for Setback table)
-    Frontmin: "", Frontmax: "",
-    S1min: "", S1max: "",
-    S2min: "", S2max: "",
-    Rearmin: "", Rearmax: "",
-    
-    sketch_data: null
+    // NEW: Stores base64 images separately. 
+    // Key = data-path (e.g., "Ownership_Analysis.Ownership_Analysis_notes")
+    // Value = "data:image/png;base64,..."
+    images: {} 
 };
-const STORAGE_KEY = 'vadrida_site_feedback_autosave';
-
-// Initialize
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Dashboard JS loaded");
-    
-    // 1. Load Folder logic (Keep your existing logic here)
-    loadFolder("");
-    enforceTabletLandscape();
-
-    // 2. Load Form State
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            // Merge carefully to preserve structure
-            formState = { ...formState, ...parsed };
-            
-            // Fix for survey docs if missing
-            if (!Array.isArray(formState.survey.docs)) {
-                formState.survey.docs = [];
-            }
-        }
-    } catch (e) {
-        console.error("Corrupt save data, resetting:", e);
-        localStorage.removeItem(STORAGE_KEY);
-    }
-
-    // 3. Render the Dynamic Table FIRST 
-    // (This creates the DOM elements for the survey columns based on state)
-    try {
-        renderSurveyColumns(); 
-    } catch (e) {
-        console.error("Table render failed:", e);
-    }
-
-    // 4. NOW Sync the rest of the UI (Inputs, Checkboxes, Canvas)
-    // This fills the static fields and checkboxes
-    try {
-        syncStateToUI(); 
-    } catch (e) {
-        console.error("UI Sync failed:", e);
-    }
-});
-
-
-
 
 /* =========================
-   STATE SYNC UTILITIES
-   (Add this before DOMContentLoaded)
+   2. DATA HANDLING HELPERS
 ========================= */
 
-// Helper to safely get deep values (e.g., "Valuers.applicant_name")
+// Update deeply nested objects safely
+function updateNestedState(obj, path, value) {
+    if (!path) return;
+    const keys = path.split('.');
+    let current = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) current[keys[i]] = {};
+        current = current[keys[i]];
+    }
+    current[keys[keys.length - 1]] = value;
+}
+
+// Get deeply nested values safely
 function getNestedValue(obj, path) {
     if (!path) return undefined;
     return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
 }
 
-function syncStateToUI() {
-    console.log("Syncing State to UI...", formState);
-
-    // 1. Handle Standard Inputs (Text, Number, Date, Selects, Radio) bound by data-path
-    document.querySelectorAll('[data-path]').forEach(el => {
-        const path = el.getAttribute('data-path');
-        const value = getNestedValue(formState, path);
-
-        if (value !== undefined && value !== null) {
-            if (el.type === 'checkbox') {
-                // If it's a checkbox using data-path (boolean or specific string match)
-                if (Array.isArray(value)) {
-                    // Edge case: if user used data-path for an array accidentally
-                    el.checked = value.includes(el.value);
-                } else {
-                    el.checked = (el.value === value) || (value === true);
-                }
-            } else if (el.type === 'radio') {
-                el.checked = (el.value === value);
-            } else {
-                // Standard inputs
-                el.value = value;
-            }
-        }
-    });
-
-    // 2. Handle Multi-Select Checkboxes bound by data-array
-    document.querySelectorAll('[data-array]').forEach(el => {
-        const path = el.getAttribute('data-array');
-        const arr = getNestedValue(formState, path);
-        
-        if (Array.isArray(arr) && arr.includes(el.value)) {
-            el.checked = true;
-        }
-    });
-
-    // 3. Restore Sketch/Canvas
-    if (formState.sketch_data) {
-        const canvas = document.getElementById("sketchCanvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-        img.onload = function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-        };
-        img.src = formState.sketch_data;
-    }
-}
-
-
-
-
-// Update State from standard inputs
-document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
-    const target = e.target;
-    const path = target.getAttribute('data-path');
-    const arrayPath = target.getAttribute('data-array');
-    
-    if (path) {
-        updateNestedState(formState, path, target.value);
-    } else if (arrayPath) {
-        updateArrayState(formState, arrayPath, target.value, target.checked);
-    }
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-});
-
-/* =========================
-   DYNAMIC SURVEY TABLE LOGIC
-========================= */
-function addSurveyColumn() {
-    // Changed formState.survey -> formState.Survey (Capital S)
-    if (formState.Survey.docs.length >= 20) return alert("Max 20 documents allowed");
-    
-    formState.Survey.docs.push({
-        name: `Doc ${formState.Survey.docs.length + 1}`,
-        scedule_no: "", re_sy_block: "", re_sy_no: "", re_sy_subdiv: "",
-        sy_block: "", sy_no: "", sy_subdiv: "",
-        land_extent: "", land_class: ""
-    });
-    
-    renderSurveyColumns();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-}
-
-
-function renderSurveyColumns() {
-    const headerRow = document.getElementById('surveyHeader');
-    const bodyRows = document.querySelectorAll('#surveyBody tr');
-
-    if (!headerRow || bodyRows.length === 0) return;
-
-    // 1. Clear existing dynamic cells
-    headerRow.querySelectorAll('.dyn-col').forEach(el => el.remove());
-    bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
-
-    // 2. SAFELY get the documents list using Capital 'V'
-    // This looks into formState.Valuers.documents
-    const availableDocs = (formState.Valuers && formState.Valuers.documents) ? formState.Valuers.documents : [];
-
-    // 3. Render Columns
-    // Ensure formState.Survey exists
-    if (!formState.Survey || !formState.Survey.docs) return;
-
-    formState.Survey.docs.forEach((doc, index) => {
-        let optionsHtml = '<option value="">Select Document</option>';
-        
-        // Populate dropdown with checked items
-        availableDocs.forEach(docName => {
-            const isSelected = (doc.name === docName) ? 'selected' : '';
-            optionsHtml += `<option value="${docName}" ${isSelected}>${docName}</option>`;
-        });
-
-        // Create Header (Dropdown)
-        const th = document.createElement('th');
-        th.className = 'dyn-col';
-        th.style.minWidth = "150px";
-        th.innerHTML = `
-            <select class="form-select" style="width: 100%; color:black;"
-                    onchange="updateSurveyDoc(${index}, 'name', this.value)">
-                ${optionsHtml}
-            </select>
-        `;
-        headerRow.appendChild(th);
-
-        // Create Body Cells (Inputs)
-        bodyRows.forEach(row => {
-            const key = row.getAttribute('data-row-key');
-            if(key) {
-                const td = document.createElement('td');
-                td.className = 'dyn-cell';
-                td.innerHTML = `
-                    <input type="text" class="table-input" 
-                           value="${doc[key] || ''}" 
-                           oninput="updateSurveyDoc(${index}, '${key}', this.value)">
-                `;
-                row.appendChild(td);
-            }
-        });
-    });
-}
-
-function updateSurveyDoc(index, key, value) {
-    // Changed formState.survey -> formState.Survey (Capital S)
-    formState.Survey.docs[index][key] = value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-}
-
-// dropdown from checkbox logic 
-document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
-    const target = e.target;
-    const path = target.getAttribute('data-path');
-    const arrayPath = target.getAttribute('data-array');
-    
-    // 1. Update State
-    if (path) {
-        updateNestedState(formState, path, target.value);
-    } else if (arrayPath) {
-        // Handle Checkboxes
-        // Note: target.checked returns true/false
-        updateArrayState(formState, arrayPath, target.value, target.checked);
-        
-        // 2. TRIGGER RE-RENDER
-        // Check if the changed item was "Valuers.documents" (Capital V)
-        if (arrayPath === 'Valuers.documents') {
-            console.log("Documents changed, re-rendering table..."); // Debug line
-            renderSurveyColumns();
-        }
-    }
-    
-    // 3. Autosave
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-});
-
-/* =========================
-   UTILITIES & SUBMISSION
-========================= */
-function updateNestedState(obj, path, value) {
-    const keys = path.split('.');
-    let current = obj;
-    while (keys.length > 1) {
-        const k = keys.shift();
-        current[k] = current[k] || {};
-        current = current[k];
-    }
-    current[keys[0]] = value;
-}
-
+// Handle arrays (checkboxes)
 function updateArrayState(obj, path, value, isChecked) {
+    if (!path) return;
     const keys = path.split('.');
     let current = obj;
-    while (keys.length > 1) {
-        const k = keys.shift();
-        current[k] = current[k] || {};
-        current = current[k];
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) current[keys[i]] = {};
+        current = current[keys[i]];
     }
-    const lastKey = keys[0];
-    current[lastKey] = current[lastKey] || [];
+    const lastKey = keys[keys.length - 1];
+    if (!Array.isArray(current[lastKey])) current[lastKey] = [];
+    
     if (isChecked) {
         if (!current[lastKey].includes(value)) current[lastKey].push(value);
     } else {
@@ -1841,32 +1805,595 @@ function updateArrayState(obj, path, value, isChecked) {
     }
 }
 
-// Submit to Django
-document.getElementById('siteFeedbackForm').onsubmit = async (e) => {
-    e.preventDefault();
+// Save to LocalStorage
+function saveLocal() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+}
+
+/* =========================
+   3. AUTOMATIC PENCIL INJECTION
+   (Adds the button to all textareas automatically)
+========================= */
+function injectPencilIcons() {
+    // Find all textareas that have a data-path attribute
+    const textareas = document.querySelectorAll('textarea[data-path]');
     
-    // Add Sketch data
-    const canvas = document.getElementById("sketchCanvas");
-    formState.sketch_data = canvas.toDataURL();
+    textareas.forEach(textarea => {
+        // Prevent double injection if run multiple times
+        if (textarea.parentElement.classList.contains('input-wrapper')) return;
 
-    const response = await fetch('/coreapi/api/save-feedback/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        credentials:'include',
-        body: JSON.stringify(formState)
+        const path = textarea.getAttribute('data-path');
+        const safeId = path.replace(/\./g, '_'); // Replace dots with underscores for valid IDs
+        
+        // 1. Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-wrapper';
+        
+        // 2. Insert wrapper before textarea, then move textarea inside
+        textarea.parentNode.insertBefore(wrapper, textarea);
+        wrapper.appendChild(textarea);
+        
+        // 3. Create Pencil Button
+        const btn = document.createElement('div');
+        btn.className = 'edit-icon';
+        btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+        btn.title = 'Sketch / Handwriting';
+        btn.onclick = () => openSketchPad(path);
+        wrapper.appendChild(btn);
+
+        // 4. Create Image Preview Container (Hidden by default)
+        // This appears below the textarea
+        const img = document.createElement('img');
+        img.id = `img_preview_${safeId}`; 
+        img.className = 'sketch-thumb hidden';
+        img.alt = 'Sketch Preview';
+        img.onclick = () => openSketchPad(path); // Clicking preview re-opens editor
+        
+        // Append preview image after the wrapper (so it sits below the text box)
+        wrapper.parentNode.insertBefore(img, wrapper.nextSibling);
     });
+}
 
-    const res = await response.json();
-    if(res.success) {
-        alert("Saved Successfully");
-        localStorage.removeItem(STORAGE_KEY);
+/* =========================
+   4. SKETCH PAD LOGIC
+========================= */
+
+const sketchModal = document.getElementById('sketchModal');
+
+// Canvas State
+let isDrawing = false;
+let startX, startY;
+let currentTool = 'brush';
+let snapshot; 
+let historyArr = [];
+
+// Setup Canvas Size
+function resizeCanvas() {
+    canvas.width = window.innerWidth - 40;
+    canvas.height = window.innerHeight - 100;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    // Fill white background (important for saving)
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// 1. Open Modal
+function openSketchPad(path) {
+    activeSketchPath = path;
+    sketchModal.classList.remove('hidden');
+    
+    // Small delay to ensure modal is visible before resizing/drawing
+    setTimeout(() => {
+        resizeCanvas();
+        
+        // Load existing image if any
+        if (formState.images && formState.images[path]) {
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0);
+            img.src = formState.images[path];
+        }
+        
+        // Initialize History
+        historyArr = [canvas.toDataURL()];
+    }, 50);
+}
+
+// 2. Close Modal
+function closeSketchModal() {
+    sketchModal.classList.add('hidden');
+    activeSketchPath = null;
+}
+
+// 3. Tools
+function setTool(tool) {
+    currentTool = tool;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+}
+
+function clearSketch() {
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+}
+
+function undoSketch() {
+    if (historyArr.length > 1) {
+        historyArr.pop(); 
+        const prevData = historyArr[historyArr.length - 1];
+        const img = new Image();
+        img.onload = () => {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = prevData;
+    }
+}
+
+function saveHistory() {
+    if(historyArr.length > 10) historyArr.shift();
+    historyArr.push(canvas.toDataURL());
+}
+
+// 4. Drawing Logic
+const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+};
+
+const startDraw = (e) => {
+    isDrawing = true;
+    const pos = getPos(e);
+    startX = pos.x;
+    startY = pos.y;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    
+    ctx.strokeStyle = document.getElementById('sketchColor').value;
+    ctx.lineWidth = document.getElementById('sketchSize').value;
+    ctx.fillStyle = ctx.strokeStyle; // For text/shapes fill
+    
+    // Save snapshot for shapes (to avoid trailing lines)
+    snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+};
+
+const draw = (e) => {
+    if (!isDrawing) return;
+    if(e.type === 'touchmove') e.preventDefault(); 
+    
+    const pos = getPos(e);
+    
+    if (currentTool === 'brush') {
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    } else if (['line', 'rect', 'circle'].includes(currentTool)) {
+        ctx.putImageData(snapshot, 0, 0); // Clear current stroke
+        ctx.beginPath();
+        
+        if (currentTool === 'line') {
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(pos.x, pos.y);
+        } else if (currentTool === 'rect') {
+            ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
+        } else if (currentTool === 'circle') {
+            let radius = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+            ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+        }
+        ctx.stroke();
     }
 };
 
+const stopDraw = (e) => {
+    if (!isDrawing) return;
+    isDrawing = false;
+    
+    // Text Tool Special Case
+    if (currentTool === 'text') {
+        const text = prompt("Enter text:", "");
+        if (text) {
+            const pos = getPos(e.changedTouches ? e.changedTouches[0] : e);
+            ctx.font = (document.getElementById('sketchSize').value * 5) + "px Arial";
+            ctx.fillText(text, pos.x, pos.y);
+        }
+    }
+    
+    ctx.closePath();
+    saveHistory();
+};
 
+// Listeners
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDraw);
+canvas.addEventListener('touchstart', startDraw);
+canvas.addEventListener('touchmove', draw);
+canvas.addEventListener('touchend', stopDraw);
+
+// 5. Save Sketch Logic
+function saveSketchModal() {
+    if (!activeSketchPath) return;
+    
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    // Update State
+    if (!formState.images) formState.images = {};
+    formState.images[activeSketchPath] = dataUrl;
+    
+    // Update UI Preview
+    const safeId = activeSketchPath.replace(/\./g, '_');
+    const previewImg = document.getElementById(`img_preview_${safeId}`);
+    
+    if (previewImg) {
+        previewImg.src = dataUrl;
+        previewImg.classList.remove('hidden');
+    }
+    
+    // Special case for Main Layout Placeholder Text
+    if(activeSketchPath === 'Sketch.main_layout') {
+        const ph = document.getElementById(`placeholder_${safeId}`);
+        if(ph) ph.classList.add('hidden');
+    }
+
+    saveLocal();
+    closeSketchModal();
+}
+
+/* =========================
+   5. INIT & EVENT LISTENERS
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Load LocalStorage
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            // Merge saved state into default state to ensure structure
+            formState = { ...formState, ...parsed };
+            // Ensure images object exists
+            if(!formState.images) formState.images = {};
+        } catch(e) { console.error(e); }
+    }
+
+    // 2. Inject Pencils
+    injectPencilIcons();
+
+    // 3. Render Previews & Inputs
+    syncStateToUI();
+    renderSurveyColumns();
+    updateAllDocumentDropdowns();
+    
+    // 4. Render existing sketch images
+    Object.keys(formState.images).forEach(path => {
+        const safeId = path.replace(/\./g, '_');
+        const previewImg = document.getElementById(`img_preview_${safeId}`);
+        if (previewImg) {
+            previewImg.src = formState.images[path];
+            previewImg.classList.remove('hidden');
+            
+            // Hide placeholder for main layout
+            if(path === 'Sketch.main_layout') {
+                const ph = document.getElementById(`placeholder_${safeId}`);
+                if(ph) ph.classList.add('hidden');
+            }
+        }
+    });
+});
+
+function syncStateToUI() {
+    // Text Inputs
+    document.querySelectorAll('[data-path]').forEach(el => {
+        const val = getNestedValue(formState, el.getAttribute('data-path'));
+        if (val !== undefined) el.value = val;
+    });
+
+    // Checkboxes
+    document.querySelectorAll('[data-array]').forEach(el => {
+        const arr = getNestedValue(formState, el.getAttribute('data-array'));
+        if (Array.isArray(arr) && arr.includes(el.value)) {
+            el.checked = true;
+        }
+    });
+}
+
+// Global Input Listener
+document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
+    const target = e.target;
+    const path = target.getAttribute('data-path');
+    const arrayPath = target.getAttribute('data-array');
+    
+    if (path) {
+        updateNestedState(formState, path, target.value);
+    } else if (arrayPath) {
+        updateArrayState(formState, arrayPath, target.value, target.checked);
+        if (arrayPath === 'Valuers_Checklist.documents_received') {
+            renderSurveyColumns();
+            updateAllDocumentDropdowns();
+        }
+    }
+    saveLocal();
+});
+
+// Submit Handler
+document.getElementById('siteFeedbackForm').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    // Get CSRF Token (Helper function required)
+    function getCookie(name) {
+        let v = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(c => {
+                c = c.trim();
+                if (c.startsWith(name + '=')) v = decodeURIComponent(c.substring(name.length + 1));
+            });
+        }
+        return v;
+    }
+
+    try {
+        const response = await fetch('/coreapi/api/save-feedback/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie("csrftoken")
+            },
+            body: JSON.stringify(formState)
+        });
+
+        const res = await response.json();
+        if(res.success) {
+            alert("Report Saved Successfully!");
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload(); 
+        } else {
+            alert("Error: " + (res.error || "Unknown error"));
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Network Error");
+    }
+};
+
+/* =========================
+   6. HELPER: Table/Dropdown Logic (Existing)
+========================= */
+// ... (Keep your renderSurveyColumns, addSurveyColumn, updateAllDocumentDropdowns functions exactly as they were) ...
+// Since I cannot see your previous helper functions, I assume you have them. 
+// If not, paste the ones from the previous working code below here.
+// Below are the essential ones needed for the form to work:
+
+function updateAllDocumentDropdowns() {
+    const docs = formState.Valuers_Checklist.documents_received || [];
+    const dropdowns = document.querySelectorAll('.dynamic-doc-dropdown');
+    dropdowns.forEach(select => {
+        const currentSelection = select.value;
+        select.innerHTML = '<option value="">Select Document</option>';
+        docs.forEach(docName => {
+            const opt = document.createElement('option');
+            opt.value = docName;
+            opt.textContent = docName;
+            select.appendChild(opt);
+        });
+        if (docs.includes(currentSelection)) select.value = currentSelection;
+    });
+}
+
+function renderSurveyColumns() {
+    const headerRow = document.getElementById('surveyHeader');
+    const bodyRows = document.querySelectorAll('#surveyBody tr');
+    if (!headerRow) return;
+
+    headerRow.querySelectorAll('.dyn-col').forEach(el => el.remove());
+    bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
+
+    const availableDocs = formState.Valuers_Checklist.documents_received || [];
+    const surveyDocs = formState.Survey.docs || [];
+
+    surveyDocs.forEach((docObj, index) => {
+        const th = document.createElement('th');
+        th.className = 'dyn-col';
+        th.style.minWidth = "150px";
+        let optionsHtml = `<option value="">Select Doc</option>`;
+        availableDocs.forEach(d => {
+            const sel = (d === docObj.name) ? "selected" : "";
+            optionsHtml += `<option value="${d}" ${sel}>${d}</option>`;
+        });
+        th.innerHTML = `<select class="form-select" style="width: 100%; color:black;" onchange="updateSurveyDocName(${index}, this.value)">${optionsHtml}</select>`;
+        headerRow.appendChild(th);
+
+        bodyRows.forEach(row => {
+            const key = row.getAttribute('data-row-key');
+            if(key) {
+                const td = document.createElement('td');
+                td.className = 'dyn-cell';
+                td.innerHTML = `<input type="text" class="table-input" value="${docObj[key] || ''}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
+                row.appendChild(td);
+            }
+        });
+    });
+}
+
+function addSurveyColumn() {
+    if (!formState.Survey.docs) formState.Survey.docs = [];
+    formState.Survey.docs.push({ name: "", scedule_no: "", re_sy_block_no: "", re_sy_no: "", re_sy_subdiv_no: "", sy_block_no: "", sy_no: "", sy_subdiv_no: "", land_extent: "", land_classification: "" });
+    renderSurveyColumns();
+    saveLocal();
+}
+
+window.updateSurveyDocName = (index, value) => {
+    formState.Survey.docs[index].name = value;
+    saveLocal();
+};
+
+window.updateSurveyDocData = (index, key, value) => {
+    formState.Survey.docs[index][key] = value;
+    saveLocal();
+};
+
+function updateAllDocumentDropdowns() {
+    const docs = formState.Valuers_Checklist.documents_received || [];
+    const dropdowns = document.querySelectorAll('.dynamic-doc-dropdown');
+    dropdowns.forEach(select => {
+        const currentSelection = select.value;
+        select.innerHTML = '<option value="">Select Document</option>';
+        docs.forEach(docName => {
+            const opt = document.createElement('option');
+            opt.value = docName;
+            opt.textContent = docName;
+            select.appendChild(opt);
+        });
+        if (docs.includes(currentSelection)) select.value = currentSelection;
+    });
+}
+
+// 2. Renders Section II (Survey Table) Columns
+function renderSurveyColumns() {
+    const headerRow = document.getElementById('surveyHeader');
+    const bodyRows = document.querySelectorAll('#surveyBody tr');
+    if (!headerRow) return;
+
+    // Clear dynamic columns
+    headerRow.querySelectorAll('.dyn-col').forEach(el => el.remove());
+    bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
+
+    const availableDocs = formState.Valuers_Checklist.documents_received || [];
+    const surveyDocs = formState.Survey.docs || [];
+
+    surveyDocs.forEach((docObj, index) => {
+        // Create Header with Dropdown
+        const th = document.createElement('th');
+        th.className = 'dyn-col';
+        th.style.minWidth = "150px";
+        
+        // Build Options
+        let optionsHtml = `<option value="">Select Doc</option>`;
+        availableDocs.forEach(d => {
+            const sel = (d === docObj.name) ? "selected" : "";
+            optionsHtml += `<option value="${d}" ${sel}>${d}</option>`;
+        });
+
+        th.innerHTML = `
+            <select class="form-select" style="width: 100%; color:black;" onchange="updateSurveyDocName(${index}, this.value)">
+                ${optionsHtml}
+            </select>
+        `;
+        headerRow.appendChild(th);
+
+        // Create Cells
+        bodyRows.forEach(row => {
+            const key = row.getAttribute('data-row-key');
+            if(key) {
+                const td = document.createElement('td');
+                td.className = 'dyn-cell';
+                td.innerHTML = `
+                    <input type="text" class="table-input" 
+                           value="${docObj[key] || ''}" 
+                           oninput="updateSurveyDocData(${index}, '${key}', this.value)">
+                `;
+                row.appendChild(td);
+            }
+        });
+    });
+}
+
+// Add new column to Survey Table
+function addSurveyColumn() {
+    if (!formState.Survey.docs) formState.Survey.docs = [];
+    if (formState.Survey.docs.length >= 15) return alert("Limit reached");
+
+    formState.Survey.docs.push({
+        name: "", // Will be selected from dropdown
+        scedule_no: "", re_sy_block_no: "", re_sy_no: "", re_sy_subdiv_no: "",
+        sy_block_no: "", sy_no: "", sy_subdiv_no: "",
+        land_extent: "", land_classification: ""
+    });
+    
+    renderSurveyColumns();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+}
+
+// Update functions for Survey Table
+window.updateSurveyDocName = (index, value) => {
+    formState.Survey.docs[index].name = value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+};
+
+window.updateSurveyDocData = (index, key, value) => {
+    formState.Survey.docs[index][key] = value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+};
+
+/* =========================
+   UI SYNC (Load Data to Screen)
+========================= */
+function syncStateToUI() {
+    // Sync Inputs/Selects
+    document.querySelectorAll('[data-path]').forEach(el => {
+        const val = getNestedValue(formState, el.getAttribute('data-path'));
+        if (val !== undefined) {
+            if(el.type === 'checkbox') el.checked = (val === true);
+            else el.value = val;
+        }
+    });
+
+    // Sync Checkboxes Arrays
+    document.querySelectorAll('[data-array]').forEach(el => {
+        const arr = getNestedValue(formState, el.getAttribute('data-array'));
+        if (Array.isArray(arr) && arr.includes(el.value)) {
+            el.checked = true;
+        }
+    });
+
+    // Sync Sketch
+    if (formState.sketch_data) {
+        const cvs = document.getElementById("sketchCanvas");
+        const ctx = cvs.getContext("2d");
+        const img = new Image();
+        img.onload = () => { ctx.clearRect(0,0,cvs.width,cvs.height); ctx.drawImage(img,0,0); };
+        img.src = formState.sketch_data;
+    }
+}
+
+// Submit Handler
+document.getElementById('siteFeedbackForm').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    // Save Canvas
+    const canvas = document.getElementById("sketchCanvas");
+    formState.sketch_data = canvas.toDataURL();
+
+    // Check auth via cookie (defined in your original script)
+    // const csrftoken = getCookie("csrftoken"); 
+
+    try {
+        const response = await fetch('/coreapi/api/save-feedback/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(formState)
+        });
+
+        const res = await response.json();
+        if(res.success) {
+            alert("Saved Successfully! ID: " + res.report_id);
+            localStorage.removeItem(STORAGE_KEY);
+            // location.reload(); // Optional
+        } else {
+            alert("Error: " + res.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Network Error");
+    }
+};
 </script>
 
 

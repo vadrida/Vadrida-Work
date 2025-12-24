@@ -1,105 +1,12 @@
 {% load static %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/feedback.css' %}">
-
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCGJZVM9r8imm3X9m0N64VbzNs-5afoj5o&callback=initMap&libraries=places" async defer></script>
+<script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.28/build/spline-viewer.js"></script>
+<spline-viewer url="https://prod.spline.design/9g9sZdEoGYTv9D38/scene.splinecode"></spline-viewer>
+<style>
+    body{
+    background:url("static\images\VADRIDA LOGO.png");
+    }
+</style>
 {% endblock %}
-<div class="form-section-group">
-  <h4 class="form-section-title">VIII. Landmark and Layout</h4>
 
-  <div class="form-group">
-    <label class="form-label">Pin Location (Click on map to mark site)</label>
-    <div id="map" style="height: 1000px; width: 100%; border-radius: 8px; z-index: 1;"></div>
-    
-    <div class="form-row mt-2">
-       <div class="form-group">
-           <label class="text-xs">Latitude</label>
-           <input type="text" data-path="Location.lat" class="table-input" readonly placeholder="Lat">
-       </div>
-       <div class="form-group">
-           <label class="text-xs">Longitude</label>
-           <input type="text" data-path="Location.long" class="table-input" readonly placeholder="Long">
-       </div>
-    </div>
-  </div>
 
-  <div class="form-group">
-    <label class="form-label">Landmark</label>
-    <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
-  </div>
-  
-  </div>
-
-<script>
-
-    // --- GOOGLE MAPS LOGIC ---
-let map, marker;
-
-// This function is called automatically by the API script URL (callback=initMap)
-function initMap() {
-    // 1. Default Location (Ernakulam as example)
-    const defaultLoc = { lat: 9.9312, lng: 76.2673 };
-
-    // 2. Initialize Map with "Google Earth" style settings
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: defaultLoc,
-        zoom: 18,               // High zoom for detailed view
-        mapTypeId: 'hybrid',    // 'hybrid' = Satellite + Road Names
-        tilt: 45,               // Enables 45-degree 3D imagery (Google Earth look)
-        heading: 0,             // North up
-        mapTypeControl: true,   // Allow user to switch back to Map/Road view
-        streetViewControl: true // Allow user to drop into Street View
-    });
-
-    // 3. Add Click Listener to Drop Pin
-    map.addListener("click", (e) => {
-        const lat = e.latLng.lat().toFixed(6);
-        const lng = e.latLng.lng().toFixed(6);
-
-        placeMarker(e.latLng);
-
-        // Update Form State & UI
-        updateNestedState(formState, 'Location.lat', lat);
-        updateNestedState(formState, 'Location.long', lng);
-
-        // Update Visible Inputs
-        const latInput = document.querySelector('[data-path="Location.lat"]');
-        const longInput = document.querySelector('[data-path="Location.long"]');
-        
-        if(latInput) latInput.value = lat;
-        if(longInput) longInput.value = lng;
-
-        // Trigger Autosave
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-    });
-}
-
-function placeMarker(latLng) {
-    // If marker exists, move it; otherwise create it
-    if (marker) {
-        marker.setPosition(latLng);
-    } else {
-        marker = new google.maps.Marker({
-            position: latLng,
-            map: map,
-            animation: google.maps.Animation.DROP,
-            title: "Property Location"
-        });
-    }
-}
-function syncStateToUI() {
-    // ... (Your existing input syncing code) ...
-
-    // --- GOOGLE MAPS RESTORE ---
-    const savedLat = parseFloat(getNestedValue(formState, 'Location.lat'));
-    const savedLng = parseFloat(getNestedValue(formState, 'Location.long'));
-
-    // We check if 'map' is loaded (it might load a split second after DOM)
-    if (savedLat && savedLng && typeof google !== 'undefined' && map) {
-        const savedPos = { lat: savedLat, lng: savedLng };
-        placeMarker(savedPos);
-        map.setCenter(savedPos);
-        map.setZoom(19); // Zoom in on the saved spot
-    }
-}
-</script>
