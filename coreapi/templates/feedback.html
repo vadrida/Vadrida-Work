@@ -192,17 +192,11 @@
               </div>
             </div>
 
-           <div class="form-group">
-                <label class="form-label">Notes</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Ownership_Analysis.Ownership_Analysis_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Ownership_Analysis.Ownership_Analysis_notes" class="sketch-thumb hidden" />
+
+          <div class="form-group mt-3">
+              <label class="form-label">Notes</label>
+              <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4"></textarea>
             </div>
-          </div>
 
           <!-- II. Survey Number and Land Extend Analysis -->
           <div class="form-section-group">
@@ -233,22 +227,11 @@
                 + Add Survey Document Column
             </button>
 
+      
             <div class="form-group mt-4">
                 <label class="form-label">Notes, % of wetland and dry lands...</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Survey.survey_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Survey.survey_notes" class="sketch-thumb hidden" />
-            </div>
-
-
-            <!-- <div class="form-group mt-4">
-                <label class="form-label">Notes, % of wetland and dry lands...</label>
                 <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4"></textarea>
-            </div> -->
+            </div>
 
 
         </div>
@@ -320,21 +303,11 @@
               </table>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Notes if any/property identified with respect to documents..?</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Boundary_analysis_property_identification.Boundary_property_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Boundary_analysis_property_identification.Boundary_property_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Boundary_analysis_property_identification.Boundary_property_notes" class="sketch-thumb hidden" />
-            </div>
 
-            <!-- <div class="form-group mt-3">
+            <div class="form-group mt-3">
               <label class="form-label">Notes if any/property identified with respect to documents..?</label>
               <textarea data-path="Boundary_analysis_property_identification.Boundary_property_notes" class="form-textarea" rows="4"></textarea>
-            </div> -->
+            </div>
 
 
           </div>
@@ -408,56 +381,22 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Notes if any</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Demarcation.demarcation_notes" class="form-textarea" rows="3"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Demarcation.demarcation_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Demarcation.demarcation_notes" class="sketch-thumb hidden" />
-            </div>
-
-            <!-- <div class="form-group">
               <label class="form-label">Notes if any</label>
               <textarea data-path="Demarcation.demarcation_notes" class="form-textarea" rows="3"></textarea>
-            </div> -->
+            </div>
 
 
             <div class="form-group">
-                <label class="form-label">Encroachment of subject building to neighbouring property, if any..?</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Demarcation.enroachment_subject_to_neighbour" class="form-textarea" rows="3"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Demarcation.enroachment_subject_to_neighbour')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Demarcation.enroachment_subject_to_neighbour" class="sketch-thumb hidden" />
-            </div>
-
-
-            <!-- <div class="form-group">
               <label class="form-label">Encroachment of subject building to neighbouring property, if any..?</label>
               <textarea data-path="Demarcation.enroachment_subject_to_neighbour" class="form-textarea" rows="3"></textarea>
-            </div> -->
-
-              <div class="form-group">
-                <label class="form-label">Encroachment of neighbour's building to subject property, if any..?</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Demarcation.enroachment_neighbour_to_subject" class="form-textarea" rows="3"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Demarcation.enroachment_neighbour_to_subject')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Demarcation.enroachment_neighbour_to_subject" class="sketch-thumb hidden" />
             </div>
 
 
-            <!-- <div class="form-group">
+            <div class="form-group">
               <label class="form-label">Encroachment of neighbour's building to subject property, if any..?</label>
               <textarea data-path="Demarcation.enroachment_neighbour_to_subject" class="form-textarea" rows="3"></textarea>
             </div>
-          </div> -->
+          </div>
 
           <!-- V. Access Nature/Right of Access -->
           <div class="form-section-group">
@@ -528,11 +467,11 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>7. Least width of internal roads, in case of plot development</td>
+                    <td>7. Least width of internal roads,<br> in case of plot development</td>
                     <td><input type="number" step="0.01" data-path="Access.internal_road_width" class="table-input"></td>
                   </tr>
                   <tr>
-                    <td>8. Weather the internal rd. abutting the subject plot has connectivity to main access as per deed..?</td>
+                    <td>8. Weather the internal rd. <br> abutting the subject plot has <br> connectivity to main access <br> as per deed..?</td>
                     <td><input type="text" data-path="Access.internal_to_main_connectivity" class="table-input"></td>
                   </tr>
                   <tr>
@@ -548,23 +487,12 @@
                 </tbody>
               </table>
             </div>
-
-             <div class="form-group">
-                <label class="form-label">Notes/Discrepancy if any..</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Access.access_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Access.access_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Access.access_notes" class="sketch-thumb hidden" />
-            </div>
-
-            <!-- <div class="form-group">
+           
+            <div class="form-group">
               <label class="form-label">Notes/Discrepancy if any..</label>
               <textarea data-path="Access.access_notes" class="form-textarea" rows="4"></textarea>
             </div>
-          </div> -->
+          </div>
 
           <!-- VI. For Purchase and Resale cases -->
           <div class="form-section-group">
@@ -609,23 +537,12 @@
               </table>
             </div>
 
+
             <div class="form-group">
-                <label class="form-label">Notes/Discrepancy if any..</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Purchase_resale.purchase_resale_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Purchase_resale.purchase_resale_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Purchase_resale.purchase_resale_notes" class="sketch-thumb hidden" />
-            </div>
-
-
-            <!-- <div class="form-group">
               <label class="form-label">Notes/discrepancy if any..</label>
               <textarea data-path="Purchase_resale.purchase_resale_notes" class="form-textarea" rows="4"></textarea>
             </div>
-          </div> -->
+          </div>
 
           <!-- VII. Building Analysis -->
           <div class="form-section-group">
@@ -720,22 +637,11 @@
                 </tbody>
               </table>
             </div>
-
+          
             <div class="form-group">
-                <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Building_analysis.building_analysis_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Building_analysis.building_analysis_notes" class="sketch-thumb hidden" />
-            </div>
-
-            <!-- <div class="form-group">
               <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
               <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea" rows="4"></textarea>
-            </div> -->
+            </div>
 
             <!-- Roof Type Table -->
             <div class="table-container">
@@ -841,56 +747,44 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
-                <div class="input-wrapper">
-                    <textarea data-path="Building_analysis.amenities_notes" class="form-textarea" rows="4"></textarea>
-                    <div class="edit-icon" onclick="openSketchPad('Building_analysis.amenities_notes')">
-                        <i class="fas fa-pencil-alt"></i>
-                    </div>
-                </div>
-                <img id="img_preview_Building_analysis.amenities_notes" class="sketch-thumb hidden" />
-            </div>
-
-            <!-- <div class="form-group">
               <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
               <textarea data-path="Building_analysis.amenities_notes" class="form-textarea" rows="4"></textarea>
             </div>
-          </div> -->
+          </div>
 
           <!-- VIII. Landmark and Layout (Handsketch) -->
           <div class="form-section-group">
-  <h4 class="form-section-title">VIII. Landmark and Layout (Handsketch)</h4>
-  
-  <div class="form-group">
-    <label class="form-label">Landmark Description</label>
-    <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
-  </div>
+            <h4 class="form-section-title">VIII. Landmark and Layout (Handsketch)</h4>
+            
+            <div class="form-group">
+              <label class="form-label">Landmark Description</label>
+              <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
+            </div>
 
-  <div class="form-group mt-4">
-    <label class="form-label font-bold">Site Layout Sketch</label>
-    
-    <button type="button" class="modal-btn primary" style="width: 100%; margin-bottom: 10px;" onclick="openSketchPad('Sketch.main_layout')">
-        <i class="fas fa-drafting-compass mr-2"></i> Open Sketch Pad
-    </button>
+            <div class="form-group mt-4">
+              <label class="form-label font-bold">Site Layout Sketch</label>
+              
+              <button type="button" class="modal-btn primary" style="width: 100%; margin-bottom: 10px;" onclick="openSketchPad('Sketch.main_layout')">
+                  <i class="fas fa-drafting-compass mr-2"></i> Open Sketch Pad
+              </button>
 
-    <div class="main-sketch-preview" style="position: relative; border: 2px dashed #ccc; min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f9fafb;">
-        <img id="img_preview_Sketch_main_layout" class="hidden" style="max-width: 100%; max-height: 400px; z-index: 1;">
-        
-        <img src="{% static 'images/compass-icon.png' %}" style="position: absolute; top: 10px; right: 10px; width: 50px; opacity: 0.8; pointer-events: none; z-index: 2;" alt="N">
-        
-        <div id="placeholder_Sketch_main_layout" class="text-gray-400">
-            Click button above to draw layout
-        </div>
-    </div>
-  </div>
-</div>
+              <div class="main-sketch-preview" style="position: relative; border: 2px dashed #ccc; min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f9fafb;">
+                  <img id="img_preview_Sketch_main_layout" class="hidden" style="max-width: 100%; max-height: 400px; z-index: 1;">
+                  
+              </div>
+            </div>
+          </div>
 
-          <button type="submit" class="submit-btn">Submit Feedback</button>
-          <button type="button" 
-                  onclick="localStorage.removeItem('vadrida_site_feedback_autosave'); location.reload();" 
-                  style="background: #ef4444; color: white; padding: 10px; margin-top: 10px;">
+         <div class="form-group mt-4" style="gap: 10px;">
+          <button type="button" id="triggerSubmitBtn" class="submit-btn" style="width: 100%;">
+            Submit Feedback
+          </button>
+
+          <button type="button" id="triggerResetBtn" 
+                  style="background: #ef4444; color: white; padding: 12px; border-radius: 8px; border:none; width: 100%; cursor: pointer; font-weight: 600;">
               ⚠️ Reset Form Data
           </button>
+        </div>
         </form>
 
       </div>
@@ -955,11 +849,16 @@
 <div id="sketchModal" class="sketch-modal-overlay hidden">
     <div class="sketch-toolbar">
         <div class="group">
-            <button type="button" class="tool-btn active" onclick="setTool('brush')" title="Freehand"><i class="fas fa-paint-brush"></i></button>
-            <button type="button" class="tool-btn" onclick="setTool('line')" title="Line"><i class="fas fa-slash"></i></button>
-            <button type="button" class="tool-btn" onclick="setTool('rect')" title="Rectangle"><i class="far fa-square"></i></button>
-            <button type="button" class="tool-btn" onclick="setTool('circle')" title="Circle"><i class="far fa-circle"></i></button>
-            <button type="button" class="tool-btn" onclick="setTool('text')" title="Text Tool"><i class="fas fa-font"></i></button>
+          <button type="button" class="tool-btn" onclick="setTool('select')" title="Select & Move"><i class="fas fa-mouse-pointer"></i></button>
+          
+          <button type="button" class="tool-btn active" onclick="setTool('brush')" title="Brush"><i class="fas fa-paint-brush"></i></button>
+          
+          <button type="button" class="tool-btn" onclick="setTool('eraser')" title="Rubber / Eraser"><i class="fas fa-eraser"></i></button>
+
+          <button type="button" class="tool-btn" onclick="setTool('line')" title="Line"><i class="fas fa-slash"></i></button>
+          <button type="button" class="tool-btn" onclick="setTool('rect')" title="Rectangle"><i class="far fa-square"></i></button>
+          <button type="button" class="tool-btn" onclick="setTool('circle')" title="Circle"><i class="far fa-circle"></i></button>
+          <button type="button" class="tool-btn" onclick="setTool('text')" title="Text"><i class="fas fa-font"></i></button>
         </div>
         
         <div class="group border-l pl-2 ml-2">
@@ -969,7 +868,9 @@
 
         <div class="group border-l pl-2 ml-2">
             <button type="button" class="tool-btn" onclick="undoSketch()" title="Undo"><i class="fas fa-undo"></i></button>
-            <button type="button" class="tool-btn" onclick="clearSketch()" title="Clear All"><i class="fas fa-trash"></i></button>
+            <button type="button" class="tool-btn" onclick="triggerClearSketch()" title="Clear All">
+                <i class="fas fa-trash"></i>
+            </button>
         </div>
 
         <div class="group border-l pl-2 ml-2 flex-grow text-right">
@@ -983,35 +884,40 @@
     </div>
 </div>
 
+<div id="confirmationModal" class="modal hidden">
+  <div class="modal-content" style="max-width: 400px; text-align: center;">
+    <div style="margin-bottom: 15px; font-size: 40px; color: #f59e0b;">
+      <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <h2 id="confirmTitle" class="modal-title">Are you sure?</h2>
+    <p id="confirmMessage" class="modal-text">Do you really want to proceed?</p>
+    
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button id="confirmYesBtn" class="modal-btn primary" style="background: #ef4444; border-color: #ef4444;">Yes, do it</button>
+      <button id="confirmNoBtn" class="modal-btn">No, Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================
-   CSRF
+   1. UTILITIES & CONFIG
 ========================= */
 function getCookie(name) {
   let v = null;
-  document.cookie?.split(";").forEach(c => {
-    c = c.trim();
-    if (c.startsWith(name + "=")) v = decodeURIComponent(c.slice(name.length + 1));
-  });
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + '=')) v = decodeURIComponent(c.substring(name.length + 1));
+    });
+  }
   return v;
 }
 const csrftoken = getCookie("csrftoken");
+const STORAGE_KEY = 'vadrida_site_feedback_autosave';
 
 /* =========================
-   ELEMENTS
-========================= */
-const fileList = document.getElementById("fileList");
-const thumbsContainer = document.getElementById("thumbs");
-const bigImageFrame = document.getElementById("bigImageFrame");
-const noSelection = document.getElementById("noSelection");
-const bigPreviewTitle = document.getElementById("bigPreviewTitle");
-const openModalBtn = document.getElementById("openFullBtn");
-const fileInfoBox = document.getElementById("fileInfoBox");
-const pdfWrapper = document.getElementById("pdfWrapper");
-const pdfMain = document.getElementById("pdfMain");
-
-/* =========================
-   STATE
+   2. STATE MANAGEMENT
 ========================= */
 let currentFolder = "";
 let currentFile = null;
@@ -1021,38 +927,96 @@ let selectedAnalysisFiles = [];
 let rootFoldersCache = null;
 let isSearching = false;
 let currentPreviewUrl = null;
+let activeSketchPath = null;
+
+// Unified Form State
+let formState = {
+    Valuers_Checklist: {
+        documents_received: [], 
+        product: "",
+        Office_file_no: "",
+        applicant_name: "",
+        inspection_date: "",
+        person_met: ""
+    },
+    Ownership_Analysis : { document_verification : [], Ownership_Analysis_notes : "", owners_name : "" },
+    Survey: { docs: [], survey_notes: "" },
+
+    Boundary_analysis_property_identification: { 
+        ref_doc_1_name: "", ref_doc_2_name: "",
+        north_doc1: "", north_doc2: "", east_doc1: "", east_doc2: "",
+        south_doc1: "", south_doc2: "", west_doc1: "", west_doc2: "",
+        north_translation:"", north_site:"", east_translation:"", east_site:"", 
+        south_translation:"", south_site:"", west_translation:"", west_site:"", 
+        Boundary_property_notes : ""
+    },
+    Demarcation: {north: [],east:[],south:[],west:[],demarcation_notes:"",enroachment_subject_to_neighbour:"",enroachment_neighbour_to_subject:""},
+    Access : {
+        access_notes:"", typeofaccess_titledeed : [], typeofaccess_sitevisit : [], private_no_user :[],
+        private_rd_demarcation:[], main_access_width:"", vehicular_access:[], internal_road_width:"",
+        internal_to_main_connectivity:"", road_material:[]
+    },
+    Purchase_resale : {
+        Purchase_resale_notes:"", buyer_name:"", seller_name:"", buyer_seller_relation:"",
+        property_sale_duration:"", transaction_method:"", purchase_land_extent:"", price_asked:"", deal_breaker_value:""
+    },
+    Building_analysis: { 
+        Building_analysis_notes:"", roof_type: [], setback: "", construction_year:"", amenities_notes:"" ,
+        Bf_2_Builtup_area:"",Bf_2_Rooms_no:"",Bf_2_Kitchen_no:"",Bf_2_Bathrooms_no:"",Bf_2_Usage:"",Bf_2_Occupancy:"",
+        Bf_1_Builtup_area:"",Bf_1_Rooms_no:"",Bf_1_Kitchen_no:"",Bf_1_Bathrooms_no:"",Bf_1_Usage:"",Bf_1_Occupancy:"",
+        Gf_Builtup_area:"",Gf_Rooms_no:"",Gf_Kitchen_no:"",Gf_Bathrooms_no:"",Gf_Usage:"",Gf_Occupancy:"",
+        first_flr_Builtup_area:"",first_flr_Rooms_no:"",first_flr_Kitchen_no:"",first_flr_Bathrooms_no:"",first_flr_Usage:"",first_flr_Occupancy:"",
+        second_flr_Builtup_area:"",second_flr_Rooms_no:"",second_flr_Kitchen_no:"",second_flr_Bathrooms_no:"",second_flr_Usage:"",second_flr_Occupancy:"",
+        third_flr_Builtup_area:"",third_flr_Rooms_no:"",third_flr_Kitchen_no:"",third_flr_Bathrooms_no:"",third_flr_Usage:"",third_flr_Occupancy:"",
+        fourth_flr_Builtup_area:"",fourth_flr_Rooms_no:"",fourth_flr_Kitchen_no:"",fourth_flr_Bathrooms_no:"",fourth_flr_Usage:"",fourth_flr_Occupancy:"",
+        fifth_flr_Builtup_area:"",fifth_flr_Rooms_no:"",fifth_flr_Kitchen_no:"",fifth_flr_Bathrooms_no:"",fifth_flr_Usage:"",fifth_flr_Occupancy:"",
+        front_yard_min:"", front_yard_max:"", side1_yard_min:"", side1_yard_max:"", 
+        side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:""
+    },
+    Sketch: { landmark_description: "", main_layout: "" }, 
+    images: {} ,
+    vectors : {}
+};
 
 /* =========================
-   FOLDER LOADER
+   3. DOM ELEMENTS
+========================= */
+const fileList = document.getElementById("fileList");
+const thumbsContainer = document.getElementById("thumbs");
+const bigImageFrame = document.getElementById("bigImageFrame");
+const noSelection = document.getElementById("noSelection");
+const bigPreviewTitle = document.getElementById("bigPreviewTitle");
+const fileInfoBox = document.getElementById("fileInfoBox");
+const pdfWrapper = document.getElementById("pdfWrapper");
+const pdfMain = document.getElementById("pdfMain");
+
+// Sketch Elements - Pointing to PRO CANVAS (Modal)
+const sketchModal = document.getElementById('sketchModal');
+const canvas = document.getElementById("proCanvas"); 
+const ctx = canvas ? canvas.getContext("2d") : null;
+
+/* =========================
+   4. FILE EXPLORER LOGIC
 ========================= */
 function loadFolder(path = "") {
   currentFolder = path;
   document.getElementById("currentPath").textContent = "/" + (path || "");
-  
-  // Show loading state
   fileList.innerHTML = `<li class="file-item loading">Loading...</li>`;
   thumbsContainer.innerHTML = `<div class="no-thumbs">Loading...</div>`;
 
-  console.log("Loading folder:", path); // Debug log
-
   fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
-    .then(response => {
-      console.log("Response status:", response.status); // Debug log
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return response.json();
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
     })
     .then(data => {
-      console.log("Received data:", data); // Debug log
       currentFolderFiles = data.files || [];
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
     })
     .catch(error => {
-      console.error("Error loading folder:", error);
-      fileList.innerHTML = `<li class="file-item error">Error loading folder: ${error.message}</li>`;
-      thumbsContainer.innerHTML = `<div class="no-thumbs">Error loading files</div>`;
+      fileList.innerHTML = `<li class="file-item error">Error: ${error.message}</li>`;
+      thumbsContainer.innerHTML = `<div class="no-thumbs">Error loading</div>`;
     });
 }
 
@@ -1063,85 +1027,40 @@ document.getElementById("goBackBtn").onclick = () => {
   loadFolder(parts.join("/"));
 };
 
-/* =========================
-   FILE LIST
-========================= */
 function renderFileList(folders, files) {
-  console.log("Rendering file list - Folders:", folders.length, "Files:", files.length); // Debug log
-  
   fileList.innerHTML = "";
-
-  // Render folders first
   folders.forEach(folder => {
     const li = document.createElement("li");
     li.className = "file-item folder-item";
     li.innerHTML = `📁 <strong>${folder.name}</strong>`;
-    li.onclick = () => {
-      console.log("Clicking folder:", folder.path); // Debug log
-      loadFolder(folder.path);
-    };
+    li.onclick = () => loadFolder(folder.path);
     fileList.appendChild(li);
   });
 
-  // Render files
   files.forEach(file => {
     const li = document.createElement("li");
     li.className = "file-item";
-    li.innerHTML = `
-      <div class="file-details">
-        <div class="file-name">${file.name}</div>
-        <div class="file-ext">${file.extension || ""}</div>
-      </div>
-    `;
-
+    li.innerHTML = `<div class="file-details"><div class="file-name">${file.name}</div><div class="file-ext">${file.extension || ""}</div></div>`;
     li.onclick = () => {
-      console.log("Clicking file:", file.name); // Debug log
       document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
       li.classList.add("selected");
       loadBigPreview(file);
       setFileInfo(file);
     };
-
     fileList.appendChild(li);
   });
 
-  // Show message if no items
   if (!folders.length && !files.length) {
     fileList.innerHTML = `<li class="no-results">No files or folders found</li>`;
   }
 }
 
 /* =========================
-   THUMBNAILS
+   5. THUMBNAILS & PREVIEWS
 ========================= */
-async function renderPdfThumbnail(file, container) {
-  try {
-    await loadPdfJsIfNeeded();
-
-    const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-    const pdf = await pdfjsLib.getDocument(url).promise;
-    const page = await pdf.getPage(1);
-
-    const viewport = page.getViewport({ scale: 0.3 });
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    await page.render({
-      canvasContext: canvas.getContext("2d"),
-      viewport
-    }).promise;
-
-    container.appendChild(canvas);
-  } catch (error) {
-    console.error("Error rendering PDF thumbnail:", error);
-    container.innerHTML = `
-      <div class="file-icon">
-        <i class="fas fa-file-pdf"></i><br>PDF
-      </div>
-    `;
-  }
-}
+/* =========================
+   UPDATED THUMBNAIL RENDERER
+========================= */
 
 async function renderThumbs(files) {
   console.log("Rendering thumbnails for", files.length, "files"); // Debug log
@@ -1191,355 +1110,194 @@ async function renderThumbs(files) {
   }
 }
 
-/* =========================
-   PREVIEW
-========================= */
 function loadBigPreview(file) {
-  console.log("Loading preview for:", file.name); // Debug log
   currentFile = file;
-
-  // Hard reset
-  pdfMain.innerHTML = "";
-  pdfWrapper.classList.add("hidden");
-  bigImageFrame.classList.add("hidden");
-  noSelection.classList.add("hidden");
-  bigImageFrame.src = "";
-
   const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
   currentPreviewUrl = url;
   bigPreviewTitle.textContent = file.name;
 
+  pdfMain.innerHTML = "";
+  pdfWrapper.classList.add("hidden");
+  bigImageFrame.classList.add("hidden");
+  noSelection.classList.add("hidden");
+
   const ext = file.name.split(".").pop().toLowerCase();
 
-  // IMAGE
   if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
     bigImageFrame.src = url;
     bigImageFrame.onload = () => {
       bigImageFrame.classList.remove("hidden");
       document.getElementById("downloadPdfBtn").classList.remove("hidden");
     };
-    bigImageFrame.onerror = () => {
-      noSelection.textContent = "Error loading image";
-      noSelection.classList.remove("hidden");
-    };
-    return;
-  }
-
-  // PDF
-  if (ext === "pdf") {
+  } else if (ext === "pdf") {
     pdfWrapper.classList.remove("hidden");
     document.getElementById("downloadPdfBtn").classList.remove("hidden");
     renderFullPdf(url);
-    return;
+  } else {
+    noSelection.textContent = "Preview not available";
+    noSelection.classList.remove("hidden");
   }
-
-  // OTHER FILES
-  noSelection.textContent = "Preview not available for this file type";
-  noSelection.classList.remove("hidden");
-  document.getElementById("downloadPdfBtn").classList.add("hidden");
 }
 
-/* =========================
-   FILE INFO
-========================= */
 function setFileInfo(file) {
   fileInfoBox.innerHTML = `
     <div class="info-row"><strong>Name:</strong> <span>${file.name}</span></div>
     <div class="info-row"><strong>Type:</strong> ${file.extension || "Unknown"}</div>
     <div class="info-row"><strong>Size:</strong> ${file.size || "N/A"}</div>
-    <div class="info-row"><strong>Path:</strong> <span>${file.path || "N/A"}</span></div>
   `;
 }
 
 /* =========================
-   ANALYSE
+   6. PDF & ANALYSIS TOOLS
 ========================= */
-function startAnalysis(files) {
-  if (analysisController) {
-    analysisController.abort();
+async function renderFullPdf(url) {
+  try {
+    await loadPdfJsIfNeeded();
+    const pdf = await pdfjsLib.getDocument(url).promise;
+    pdfMain.innerHTML = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: window.innerWidth < 768 ? 1.2 : 1.5 });
+      const cvs = document.createElement("canvas");
+      cvs.width = viewport.width;
+      cvs.height = viewport.height;
+      cvs.style.marginBottom = "10px";
+      cvs.style.display = "block";
+      cvs.style.border = "1px solid #e5e7eb";
+      await page.render({ canvasContext: cvs.getContext("2d"), viewport }).promise;
+      pdfMain.appendChild(cvs);
+    }
+    pdfMain.style.overflowY = "auto";
+  } catch (error) {
+    pdfMain.innerHTML = `<div class="error">Error loading PDF</div>`;
   }
+}
 
+function loadPdfJsIfNeeded() {
+  if (window.pdfjsLib) return Promise.resolve();
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    script.onload = () => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// Analysis Controls
+const analyseBtn = document.getElementById("analyseBtn");
+const analyseModal = document.getElementById("analyseModal");
+const fileSelectModal = document.getElementById("fileSelectModal");
+const fileSelectList = document.getElementById("fileSelectList");
+
+function startAnalysis(files) {
+  if (analysisController) analysisController.abort();
   analysisController = new AbortController();
   document.getElementById("analyseLoading").classList.remove("hidden");
 
   fetch("/coreapi/api/analyze/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrftoken
-    },
+    headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
     body: JSON.stringify({ files, folder: currentFolder }),
     signal: analysisController.signal
   })
-  .then(r => {
-    if (!r.ok) {
-      throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-    }
-    return r.json();
-  })
-  .then(() => {
-    console.log("Analysis completed");
-    loadFolder(currentFolder);
-  })
-  .catch(error => {
-    if (error.name !== 'AbortError') {
-      console.error("Analysis error:", error);
-      alert("Analysis failed: " + error.message);
-    }
-  })
+  .then(r => r.json())
+  .then(() => loadFolder(currentFolder))
+  .catch(e => { if (e.name !== 'AbortError') alert("Analysis failed"); })
   .finally(() => {
     document.getElementById("analyseLoading").classList.add("hidden");
     analysisController = null;
   });
 }
 
-const analyseBtn = document.getElementById("analyseBtn");
-const analyseModal = document.getElementById("analyseModal");
-
 analyseBtn.onclick = () => {
-  if (!currentFolder && currentFolderFiles.length === 0) {
-    alert("No files available for analysis");
-    return;
-  }
+  if (!currentFolder && currentFolderFiles.length === 0) return alert("No files");
   analyseModal.classList.remove("hidden");
 };
 
 document.getElementById("analyseSelectAll").onclick = () => {
-  if (!currentFolderFiles.length) {
-    alert("No files in current location");
-    return;
-  }
-
+  if (!currentFolderFiles.length) return alert("No files");
   const files = currentFolderFiles.map(f => ({ file_path: f.path }));
   analyseModal.classList.add("hidden");
   startAnalysis(files);
 };
 
-const fileSelectModal = document.getElementById("fileSelectModal");
-const fileSelectList = document.getElementById("fileSelectList");
-
 document.getElementById("analyseSelectFiles").onclick = () => {
-  if (!currentFolderFiles.length) {
-    alert("No files in current location");
-    return;
-  }
-
+  if (!currentFolderFiles.length) return alert("No files");
   fileSelectList.innerHTML = "";
   selectedAnalysisFiles = [];
-
   currentFolderFiles.forEach(file => {
     const row = document.createElement("label");
     row.className = "flex items-center gap-2 mb-2 cursor-pointer";
-    row.innerHTML = `
-      <input type="checkbox" value="${file.path}" />
-      <span class="truncate">${file.name}</span>
-    `;
-
-    const checkbox = row.querySelector("input");
-    checkbox.onchange = () => {
-      if (checkbox.checked) {
-        selectedAnalysisFiles.push({ file_path: checkbox.value });
-      } else {
-        selectedAnalysisFiles = selectedAnalysisFiles.filter(f => f.file_path !== checkbox.value);
-      }
+    row.innerHTML = `<input type="checkbox" value="${file.path}" /> <span class="truncate">${file.name}</span>`;
+    row.querySelector("input").onchange = (e) => {
+      if (e.target.checked) selectedAnalysisFiles.push({ file_path: e.target.value });
+      else selectedAnalysisFiles = selectedAnalysisFiles.filter(f => f.file_path !== e.target.value);
     };
-
     fileSelectList.appendChild(row);
   });
-
   analyseModal.classList.add("hidden");
   fileSelectModal.classList.remove("hidden");
 };
 
 document.getElementById("confirmFileSelection").onclick = () => {
-  if (!selectedAnalysisFiles.length) {
-    alert("Select at least one file");
-    return;
-  }
-
+  if (!selectedAnalysisFiles.length) return alert("Select a file");
   fileSelectModal.classList.add("hidden");
   startAnalysis(selectedAnalysisFiles);
 };
 
-document.getElementById("analyseClose").onclick = () => {
-  analyseModal.classList.add("hidden");
-};
+document.getElementById("analyseClose").onclick = () => analyseModal.classList.add("hidden");
+document.getElementById("fileSelectClose").onclick = () => fileSelectModal.classList.add("hidden");
 
-document.getElementById("fileSelectClose").onclick = () => {
-  fileSelectModal.classList.add("hidden");
-};
-
-/* =========================
-   FILE SEARCH
-========================= */
+// Search
 const searchInput = document.getElementById("fileSearch");
 let searchTimer = null;
-
 searchInput.addEventListener("input", e => {
   const q = e.target.value.trim();
   clearTimeout(searchTimer);
-
   searchTimer = setTimeout(() => {
-    if (!q) {
-      isSearching = false;
-      if (rootFoldersCache) {
-        renderFileList(rootFoldersCache.folders || [], rootFoldersCache.files || []);
-        renderThumbs(rootFoldersCache.files || []);
-      } else {
-        loadFolder(currentFolder);
-      }
-      return;
-    }
-
+    if (!q) { loadFolder(currentFolder); return; }
     globalSearch(q);
   }, 300);
 });
 
-/* =========================
-   RENDER FULL PDF - ENHANCED WITH SCROLLING
-========================= */
-async function renderFullPdf(url) {
-  try {
-    await loadPdfJsIfNeeded();
-
-    const pdf = await pdfjsLib.getDocument(url).promise;
-    pdfMain.innerHTML = "";
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const scale = window.innerWidth < 768 ? 1.2 : 1.5;
-      const viewport = page.getViewport({ scale });
-
-      const canvas = document.createElement("canvas");
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      canvas.style.marginBottom = "10px";
-      canvas.style.display = "block";
-      canvas.style.border = "1px solid #e5e7eb";
-
-      await page.render({
-        canvasContext: canvas.getContext("2d"),
-        viewport
-      }).promise;
-
-      pdfMain.appendChild(canvas);
-    }
-    
-    // Ensure PDF container is scrollable
-    pdfMain.style.overflowY = "auto";
-    pdfMain.style.maxHeight = "100%";
-    
-  } catch (error) {
-    console.error("Error rendering PDF:", error);
-    pdfMain.innerHTML = `<div class="error">Error loading PDF: ${error.message}</div>`;
-  }
-}
-
-/* =========================
-   PDF.JS LOADER
-========================= */
-function loadPdfJsIfNeeded() {
-  if (window.pdfjsLib) return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-
-    script.onload = () => {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      resolve();
-    };
-
-    script.onerror = () => {
-      console.error("Failed to load PDF.js");
-      reject(new Error("Failed to load PDF.js"));
-    };
-    document.head.appendChild(script);
-  });
-}
-
-/* =========================
-   GLOBAL SEARCH
-========================= */
 function globalSearch(query) {
-  isSearching = true;
   fileList.innerHTML = `<li class="file-item loading">Searching...</li>`;
-  thumbsContainer.innerHTML = `<div class="no-thumbs">Searching...</div>`;
-
   fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`)
-    .then(r => {
-      if (!r.ok) {
-        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-      }
-      return r.json();
-    })
+    .then(r => r.json())
     .then(data => {
-      console.log("Search results:", data);
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
-    })
-    .catch(error => {
-      console.error("Search error:", error);
-      fileList.innerHTML = `<li class="file-item error">Search failed: ${error.message}</li>`;
-      thumbsContainer.innerHTML = `<div class="no-thumbs">Search failed</div>`;
     });
 }
 
-/* =========================
-   REFRESH
-========================= */
 document.getElementById("refreshFolders").onclick = () => {
-  console.log("Refreshing folders");
-  fetch("/coreapi/api/refresh/", {
-    method: "POST",
-    headers: {
-      "X-CSRFToken": csrftoken
-    }
-  })
-  .then(r => {
-    if (!r.ok) {
-      throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-    }
-    return r.json();
-  })
-  .then(() => {
-    rootFoldersCache = null;
-    searchInput.value = "";
-    currentFolder = "";
-    loadFolder("");
-  })
-  .catch(error => {
-    console.error("Refresh error:", error);
-    alert("Refresh failed: " + error.message);
-  });
+  fetch("/coreapi/api/refresh/", { method: "POST", headers: { "X-CSRFToken": csrftoken } })
+    .then(() => {
+      searchInput.value = "";
+      loadFolder("");
+    });
 };
 
 /* =========================
-   FULLSCREEN MODAL
+   7. MODAL & PREVIEW UI
 ========================= */
 const fullscreenModal = document.getElementById("fullscreenModal");
 const modalFrame = document.getElementById("modalFrame");
 const modalImage = document.getElementById("modalImage");
 
 document.getElementById("openFullBtn").onclick = () => {
-  if (!currentFile || !currentPreviewUrl) {
-    alert("Select a file first");
-    return;
-  }
-  const ext = currentFile.name.split(".").pop().toLowerCase();
-
-  // Mobile → open native viewer
+  if (!currentFile) return alert("Select a file");
   if (window.innerWidth < 768) {
     window.open(currentPreviewUrl, "_blank");
     return;
   }
-
-  // Desktop → modal
   fullscreenModal.setAttribute("aria-hidden", "false");
   modalFrame.classList.add("hidden");
   modalImage.classList.add("hidden");
-
+  const ext = currentFile.name.split(".").pop().toLowerCase();
   if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
     modalImage.src = currentPreviewUrl;
     modalImage.classList.remove("hidden");
@@ -1548,80 +1306,34 @@ document.getElementById("openFullBtn").onclick = () => {
     modalFrame.classList.remove("hidden");
   }
 };
-
 document.getElementById("modalClose").onclick = () => {
   fullscreenModal.setAttribute("aria-hidden", "true");
-  modalFrame.src = "";
-  modalImage.src = "";
+  modalFrame.src = ""; modalImage.src = "";
 };
-
-/* =========================
-   SHARE & DOWNLOAD
-========================= */
-const modalShareBtn = document.getElementById("modalShare");
-const shareButtonsContainer = document.getElementById("shareButtonsContainer");
-
-modalShareBtn.onclick = async (e) => {
-  e.preventDefault();
-
-  if (navigator.share && currentPreviewUrl) {
-    try {
-      await navigator.share({
-        title: "Document",
-        url: window.location.origin + currentPreviewUrl
-      });
-    } catch (error) {
-      console.log("Share failed:", error);
-    }
-  } else {
-    shareButtonsContainer.classList.toggle("hidden");
-  }
-};
-
-function updateShareLinks(url) {
-  const encoded = encodeURIComponent(window.location.origin + url);
-
-  document.getElementById("shareWhatsapp").href = `https://wa.me/?text=${encoded}`;
-  document.getElementById("shareTelegram").href = `https://t.me/share/url?url=${encoded}`;
-  document.getElementById("shareEmail").href = `mailto:?subject=Document&body=${encoded}`;
-
-  document.getElementById("shareCopy").onclick = (e) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(window.location.origin + url).then(() => {
-      alert("Link copied to clipboard");
-    }).catch(error => {
-      console.error("Copy failed:", error);
-      alert("Failed to copy link");
-    });
-  };
-}
 
 const modalDownloadBtn = document.getElementById("modalDownloadBtn");
-
 modalDownloadBtn.onclick = () => {
-  if (!currentFile) {
-    alert("No file selected");
-    return;
-  }
-
-  const downloadUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
-  window.location.href = downloadUrl;
+  if (currentFile) window.location.href = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
 };
 
+
+// Enforce Landscape
 /* =========================
-   INIT
+   UPDATED ORIENTATION LOGIC
 ========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Dashboard JS loaded");
-  loadFolder("");
-});
-
-// enforce landscape 
-
 function enforceTabletLandscape() {
+  const sketchModal = document.getElementById('sketchModal');
+  
+  // 1. If Sketch Modal is Open, ALLOW Portrait (Do not block)
+  if (sketchModal && !sketchModal.classList.contains('hidden')) {
+      document.getElementById("orientationBlocker").classList.add("hidden");
+      document.body.style.overflow = "hidden"; // Keep scrolling locked
+      return; 
+  }
+
+  // 2. Standard Logic for Dashboard
   const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
   const isPortrait = window.innerHeight > window.innerWidth;
-
   const blocker = document.getElementById("orientationBlocker");
 
   if (isTablet && isPortrait) {
@@ -1633,142 +1345,471 @@ function enforceTabletLandscape() {
   }
 }
 
+// Add a specific resize listener to handle canvas resizing when rotating
+window.addEventListener("resize", () => {
+    enforceTabletLandscape();
+    // If sketch modal is open, resize the canvas to fit the new orientation
+    if (!document.getElementById('sketchModal').classList.contains('hidden')) {
+        resizeCanvas();
+    }
+});
+
 window.addEventListener("resize", enforceTabletLandscape);
 window.addEventListener("orientationchange", enforceTabletLandscape);
-document.addEventListener("DOMContentLoaded", enforceTabletLandscape);
 
+/* =========================
+   8. SKETCH PAD & DRAWING LOGIC
+========================= */
+/* =========================
+   ADVANCED SKETCH LOGIC (Vector Based)
+========================= */
 
-// sketch............
+// STATE
+let elements = []; // Stores all shapes
+let historyStack = []; // For Undo
+let selectedElement = null; // The shape currently being moved/edited
 
-const canvas = document.getElementById("sketchCanvas");
-const ctx = canvas.getContext("2d");
+// INTERACTION STATE
+let isDrawing = false;
+let isDragging = false;
+let isResizing = false;
+let isPromptOpen = false; // Prevents double text boxes
 
-let drawing = false;
-let history = [];
-let brushColor = "#000";
-let brushSize = 2;
+let startX, startY;
+let currentTool = 'brush';
 
-function saveState() {
-  history.push(canvas.toDataURL());
-  if (history.length > 20) history.shift();
+// CANVAS SETUP
+
+function resizeCanvas() {
+    if(!canvas) return;
+    // Save current drawing
+    const saved = JSON.stringify(elements);
+    
+    canvas.width = window.innerWidth - 40;
+    canvas.height = window.innerHeight - 100;
+    
+    // Restore
+    if(saved) elements = JSON.parse(saved);
+    renderScene();
 }
 
-canvas.addEventListener("mousedown", e => {
-  drawing = true;
-  ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
-  saveState();
-});
+function openSketchPad(path) {
+    activeSketchPath = path;
+    sketchModal.classList.remove('hidden');
 
-canvas.addEventListener("mousemove", e => {
-  if (!drawing) return;
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.strokeStyle = brushColor;
-  ctx.lineWidth = brushSize;
-  ctx.lineCap = "round";
-  ctx.stroke();
-});
+    // 1. Request Full Screen
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) elem.requestFullscreen().catch(err => console.log(err));
+    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
 
-canvas.addEventListener("mouseup", () => {
-  drawing = false;
-  ctx.closePath();
-});
+    // 2. Handle Compass Overlay (Only for Main Layout)
+    const container = document.getElementById('sketchContainer');
+    const existingCompass = document.getElementById('sketchCompassOverlay');
+    if (existingCompass) existingCompass.remove();
 
-document.getElementById("clearCanvas").onclick = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-};
+    if (path === 'Sketch.main_layout') {
+        const compass = document.createElement('img');
+        compass.id = 'sketchCompassOverlay';
+        compass.src = "{% static 'images/compass-icon.png' %}";
+        compass.alt = "N";
+        Object.assign(compass.style, {
+            position: 'absolute', top: '20px', right: '25px', width: '60px',
+            opacity: '0.8', pointerEvents: 'none', zIndex: '100'
+        });
+        container.appendChild(compass);
+    }
 
-document.getElementById("undoCanvas").onclick = () => {
-  if (!history.length) return;
-  const img = new Image();
-  img.src = history.pop();
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-  };
-};
+    // 3. Initialize Canvas & Restore Data
+    setTimeout(() => {
+        resizeCanvas();
+        
+        // CRITICAL FIX: Restore the Vector Elements
+        if (formState.vectors && formState.vectors[path]) {
+            // Restore saved shapes
+            elements = JSON.parse(JSON.stringify(formState.vectors[path]));
+        } else {
+            // Start fresh
+            elements = []; 
+        }
+        
+        // Force a redraw immediately so the user sees their old sketch
+        renderScene();
+    }, 100); 
+}
 
-document.getElementById("colorPicker").onchange = e => {
-  brushColor = e.target.value;
-};
+function closeSketchModal() {
+    sketchModal.classList.add('hidden');
+    activeSketchPath = null;
 
-document.getElementById("brushSize").oninput = e => {
-  brushSize = e.target.value;
-};
-
-
-
-/* =========================
-   FORM STATE & LOGIC
-========================= */
-
-// 1. Define State Structure
-/* =========================
-   1. STATE INITIALIZATION
-========================= */
-const STORAGE_KEY = 'vadrida_site_feedback_autosave';
-let activeSketchPath = null; 
-
-// YOUR EXACT FORM STATE + 'images' object for sketches
-let formState = {
-    Valuers_Checklist: {
-        documents_received: [], 
-        product: "",
-        Office_file_no: "",
-        applicant_name: "",
-        inspection_date: "",
-        person_met: ""
-    },
-    Ownership_Analysis : { document_verification : [], Ownership_Analysis_notes : "", owners_name : "" },
-    Survey: { docs: [], survey_notes: "" },
-
-    Boundary_analysis_property_identification: { 
-        ref_doc_1_name: "", ref_doc_2_name: "",
-        north_doc1: "", north_doc2: "",
-        east_doc1:  "", east_doc2: "",
-        south_doc1: "", south_doc2: "",
-        west_doc1:  "", west_doc2: "",
-        north_translation:"", north_site:"", 
-        east_translation:"", east_site:"", 
-        south_translation:"", south_site:"", 
-        west_translation:"", west_site:"", 
-        Boundary_property_notes : ""
-    },
-    Demarcation: {north: [],east:[],south:[],west:[],demarcation_notes:"",enroachment_subject_to_neighbour:"",enroachment_neighbour_to_subject:""},
-    Access : {access_notes:"",typeofaccess_titledeed : [], typeofaccess_sitevisit : [],private_no_user :[],
-    private_rd_demarcation:[],main_access_width:"",vehicular_access:[],internal_road_width:"",internal_to_main_connectivity:"",
-    road_material:[]
-    },
-    Purchase_resale : {Purchase_resale_notes:"",buyer_name:"",seller_name:"",buyer_seller_relation:"",property_sale_duration:"",
-      transaction_method:"",purchase_land_extent:"",price_asked:"",deal_breaker_value:""
-    },
-    Building_analysis: { Building_analysis_notes:"", roof_type: [], setback: "", construction_year:"", amenities_notes:"" ,
-      Bf_2_Builtup_area:"",Bf_2_Rooms_no:"",Bf_2_Kitchen_no:"",Bf_2_Bathrooms_no:"",Bf_2_Usage:"",Bf_2_Occupancy:"",
-      Bf_1_Builtup_area:"",Bf_1_Rooms_no:"",Bf_1_Kitchen_no:"",Bf_1_Bathrooms_no:"",Bf_1_Usage:"",Bf_1_Occupancy:"",
-      Gf_Builtup_area:"",Gf_Rooms_no:"",Gf_Kitchen_no:"",Gf_Bathrooms_no:"",Gf_Usage:"",Gf_Occupancy:"",
-      first_flr_Builtup_area:"",first_flr_Rooms_no:"",first_flr_Kitchen_no:"",first_flr_Bathrooms_no:"",first_flr_Usage:"",first_flr_Occupancy:"",
-      second_flr_Builtup_area:"",second_flr_Rooms_no:"",second_flr_Kitchen_no:"",second_flr_Bathrooms_no:"",second_flr_Usage:"",second_flr_Occupancy:"",
-      third_flr_Builtup_area:"",third_flr_Rooms_no:"",third_flr_Kitchen_no:"",third_flr_Bathrooms_no:"",third_flr_Usage:"",third_flr_Occupancy:"",
-      fourth_flr_Builtup_area:"",fourth_flr_Rooms_no:"",fourth_flr_Kitchen_no:"",fourth_flr_Bathrooms_no:"",fourth_flr_Usage:"",fourth_flr_Occupancy:"",
-      fifth_flr_Builtup_area:"",fifth_flr_Rooms_no:"",fifth_flr_Kitchen_no:"",fifth_flr_Bathrooms_no:"",fifth_flr_Usage:"",fifth_flr_Occupancy:"",
-      // Added missing setback fields to match UI if necessary
-      front_yard_min:"", front_yard_max:"", side1_yard_min:"", side1_yard_max:"", 
-      side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:""
-    },
-    Sketch: { landmark_description: "", main_layout: "" }, 
-    sketch_data: null, // Legacy support
+    // Exit Full Screen
+    if (document.exitFullscreen) {
+        document.exitFullscreen().catch(err => console.log(err));
+    } else if (document.webkitExitFullscreen) { /* Safari */
+        document.webkitExitFullscreen();
+    }
     
-    // NEW: Stores base64 images separately. 
-    // Key = data-path (e.g., "Ownership_Analysis.Ownership_Analysis_notes")
-    // Value = "data:image/png;base64,..."
-    images: {} 
+    // Re-check orientation (put blocker back if needed)
+    enforceTabletLandscape();
+}
+// ================= TOOLBAR FUNCTIONS =================
+function setTool(tool) {
+    currentTool = tool;
+    selectedElement = null; // Deselect when changing tools
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    // Find the button that called this (hacky but works)
+    const btn = document.querySelector(`button[onclick="setTool('${tool}')"]`);
+    if(btn) btn.classList.add('active');
+    renderScene();
+}
+
+
+function triggerClearSketch() {
+   
+    if (elements.length === 0) return; 
+    showConfirm(
+        "Clear Drawing?", 
+        "Are you sure you want to delete the entire drawing? This cannot be undone.", 
+        performClearSketch
+    );
+}
+
+function performClearSketch() {
+    elements = [];
+    renderScene();
+}
+
+function undoSketch() {
+    if (elements.length > 0) {
+        elements.pop();
+        renderScene();
+    }
+}
+
+// ================= CORE RENDERING ENGINE =================
+function renderScene() {
+    // 1. Clear Canvas
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 2. Draw All Elements
+    elements.forEach(el => {
+        ctx.beginPath();
+        ctx.strokeStyle = el.color;
+        ctx.lineWidth = el.size;
+        ctx.fillStyle = el.color;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (el.type === 'brush') {
+            if(el.points.length > 0) {
+                ctx.moveTo(el.points[0].x, el.points[0].y);
+                el.points.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.stroke();
+            }
+        } 
+        else if (el.type === 'line') {
+            ctx.moveTo(el.x, el.y);
+            ctx.lineTo(el.endX, el.endY);
+            ctx.stroke();
+        } 
+        else if (el.type === 'rect') {
+            ctx.strokeRect(el.x, el.y, el.w, el.h);
+            // Text inside Rect
+            if(el.text) {
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(el.text, el.x + el.w/2, el.y + el.h/2);
+            }
+        } 
+        else if (el.type === 'circle') {
+            ctx.arc(el.x, el.y, el.r, 0, 2 * Math.PI);
+            ctx.stroke();
+             // Text inside Circle
+             if(el.text) {
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(el.text, el.x, el.y);
+            }
+        } 
+        else if (el.type === 'text') {
+            ctx.font = (el.size * 5) + "px Arial";
+            ctx.fillText(el.text, el.x, el.y);
+        }
+    });
+
+    // 3. Draw Selection Box (if something is selected)
+    if (selectedElement) {
+        ctx.strokeStyle = "#3b82f6"; // Blue selection color
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]); // Dotted line
+        
+        // Draw bounding box based on type
+        if(selectedElement.type === 'rect') {
+            ctx.strokeRect(selectedElement.x - 5, selectedElement.y - 5, selectedElement.w + 10, selectedElement.h + 10);
+            // Draw Resize Handle
+            ctx.fillStyle = "#3b82f6";
+            ctx.fillRect(selectedElement.x + selectedElement.w - 5, selectedElement.y + selectedElement.h - 5, 10, 10);
+        } 
+        // (Simplified selection logic for brevity)
+        
+        ctx.setLineDash([]); // Reset dash
+    }
+}
+
+// ================= INTERACTION HANDLERS =================
+
+// Helper: Get X/Y from Touch or Mouse
+const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    let cx, cy;
+    if (e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+    else if (e.changedTouches && e.changedTouches.length > 0) { cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY; }
+    else { cx = e.clientX; cy = e.clientY; }
+    return { x: cx - rect.left, y: cy - rect.top };
 };
 
-/* =========================
-   2. DATA HANDLING HELPERS
-========================= */
+// Helper: Check if point is inside an element
+function isHit(el, x, y) {
+    if (el.type === 'rect') {
+        return (x >= el.x && x <= el.x + el.w && y >= el.y && y <= el.y + el.h);
+    }
+    if (el.type === 'circle') {
+        const dist = Math.sqrt((x-el.x)**2 + (y-el.y)**2);
+        return dist <= el.r;
+    }
+    if (el.type === 'text') {
+        // Approximate text hit box
+        return (x >= el.x && x <= el.x + 100 && y >= el.y - 20 && y <= el.y);
+    }
+    // Lines and Brush are harder to select, skipping for simplicity in this version
+    return false;
+}
 
-// Update deeply nested objects safely
+const handleStart = (e) => {
+    if(e.type === 'touchstart') e.preventDefault();
+    const pos = getPos(e);
+    startX = pos.x;
+    startY = pos.y;
+
+    // SELECT TOOL LOGIC (Keep as is)
+    if (currentTool === 'select') {
+        selectedElement = null; isResizing = false;
+        for (let i = elements.length - 1; i >= 0; i--) {
+            if (isHit(elements[i], startX, startY)) {
+                selectedElement = elements[i];
+                isDragging = true;
+                if(selectedElement.type === 'rect' && 
+                   Math.abs(startX - (selectedElement.x + selectedElement.w)) < 20 && 
+                   Math.abs(startY - (selectedElement.y + selectedElement.h)) < 20) {
+                    isResizing = true; isDragging = false;
+                }
+                break;
+            }
+        }
+        renderScene();
+        return;
+    }
+
+    // DRAWING LOGIC
+    isDrawing = true;
+    
+    // 1. Get Base Values from UI
+    let uiColor = document.getElementById('sketchColor').value;
+    let uiSize = document.getElementById('sketchSize').value;
+    
+    // 2. Override for Eraser
+    let finalColor = uiColor;
+    let finalSize = uiSize;
+    
+    if (currentTool === 'eraser') {
+        finalColor = '#FFFFFF'; // Force White
+        finalSize = 30;         // Force Thick
+    }
+
+    // 3. Create Element with FINAL values
+    if (currentTool === 'brush' || currentTool === 'eraser') {
+        // Treat eraser as just a white brush
+        elements.push({ 
+            type: 'brush', 
+            points: [{x: startX, y: startY}], 
+            color: finalColor, 
+            size: finalSize 
+        });
+    } 
+    else if (currentTool === 'line') {
+        elements.push({ type: 'line', x: startX, y: startY, endX: startX, endY: startY, color: finalColor, size: finalSize });
+    } 
+    else if (currentTool === 'rect') {
+        elements.push({ type: 'rect', x: startX, y: startY, w: 0, h: 0, color: finalColor, size: finalSize, text: '' });
+    } 
+    else if (currentTool === 'circle') {
+        elements.push({ type: 'circle', x: startX, y: startY, r: 0, color: finalColor, size: finalSize, text: '' });
+    }
+};
+
+const handleMove = (e) => {
+    if(e.type === 'touchmove') e.preventDefault();
+    const pos = getPos(e);
+
+    // 1. Dragging / Resizing
+    if (currentTool === 'select' && selectedElement) {
+        const dx = pos.x - startX;
+        const dy = pos.y - startY;
+
+        if (isDragging) {
+            // Move Logic
+            if(selectedElement.type === 'brush') {
+                selectedElement.points.forEach(p => { p.x += dx; p.y += dy; });
+            } else if (selectedElement.type === 'line') {
+                selectedElement.x += dx; selectedElement.y += dy;
+                selectedElement.endX += dx; selectedElement.endY += dy;
+            } else {
+                selectedElement.x += dx;
+                selectedElement.y += dy;
+            }
+            startX = pos.x;
+            startY = pos.y;
+            renderScene();
+        } 
+        else if (isResizing && selectedElement.type === 'rect') {
+            // Resize Logic (Rect only)
+            selectedElement.w = pos.x - selectedElement.x;
+            selectedElement.h = pos.y - selectedElement.y;
+            renderScene();
+        }
+        return;
+    }
+
+    // 2. Creating
+    if (!isDrawing) return;
+    
+    // Get the element we are currently drawing (it's the last one)
+    const activeEl = elements[elements.length - 1];
+
+    if (currentTool === 'brush' || currentTool === 'eraser') {
+        activeEl.points.push({x: pos.x, y: pos.y});
+    } else if (currentTool === 'line') {
+        activeEl.endX = pos.x;
+        activeEl.endY = pos.y;
+    } else if (currentTool === 'rect') {
+        activeEl.w = pos.x - startX;
+        activeEl.h = pos.y - startY;
+    } else if (currentTool === 'circle') {
+        activeEl.r = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+    }
+
+    renderScene();
+};
+
+const handleEnd = (e) => {
+    if(e.type === 'touchend') e.preventDefault();
+    isDrawing = false;
+    isDragging = false;
+    isResizing = false;
+
+    // Handle Text Tool Click (Single click to add text)
+    if (currentTool === 'text' && !isDragging) {
+        addText(startX, startY);
+    }
+};
+
+// ================= TEXT HANDLING =================
+
+// Single click to add new text
+function addText(x, y) {
+    if (isPromptOpen) return;
+    isPromptOpen = true;
+    
+    setTimeout(() => {
+        const text = prompt("Enter text:", "");
+        if (text) {
+            const color = document.getElementById('sketchColor').value;
+            const size = document.getElementById('sketchSize').value;
+            elements.push({ type: 'text', text, x, y, color, size });
+            renderScene();
+        }
+        isPromptOpen = false;
+    }, 100);
+}
+
+// Double Click to Edit Text inside shapes
+canvas.addEventListener('dblclick', (e) => {
+    const pos = getPos(e);
+    
+    // Find clicked element
+    for (let i = elements.length - 1; i >= 0; i--) {
+        if (isHit(elements[i], pos.x, pos.y)) {
+            const el = elements[i];
+            
+            // Edit existing text inside shape
+            if (isPromptOpen) return;
+            isPromptOpen = true;
+
+            setTimeout(() => {
+                const currentTxt = el.text || "";
+                const newText = prompt("Edit Text:", currentTxt);
+                if (newText !== null) {
+                    el.text = newText;
+                    renderScene();
+                }
+                isPromptOpen = false;
+            }, 100);
+            return; // Stop searching
+        }
+    }
+});
+
+// ================= LISTENERS =================
+if (canvas) {
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('mousemove', handleMove);
+    canvas.addEventListener('mouseup', handleEnd);
+    
+    canvas.addEventListener('touchstart', handleStart, {passive: false});
+    canvas.addEventListener('touchmove', handleMove, {passive: false});
+    canvas.addEventListener('touchend', handleEnd, {passive: false});
+}
+
+function saveSketchModal() {
+    if (!activeSketchPath) return;
+    
+    // 1. Save Image (For the Preview Thumbnail on the main page)
+    // Optional: Draw Compass onto canvas context temporarily if needed, 
+    // but usually the HTML overlay is enough for the user context.
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    if (!formState.images) formState.images = {};
+    formState.images[activeSketchPath] = dataUrl;
+
+    // 2. SAVE VECTORS (The Critical Fix)
+    // This remembers every line and shape you drew so you can edit them later.
+    if (!formState.vectors) formState.vectors = {};
+    // We use JSON.parse/stringify to create a clean copy of the array
+    formState.vectors[activeSketchPath] = JSON.parse(JSON.stringify(elements));
+    
+    // 3. Update UI Preview
+    const safeId = activeSketchPath.replace(/\./g, '_');
+    const previewImg = document.getElementById(`img_preview_${safeId}`);
+    if (previewImg) {
+        previewImg.src = dataUrl;
+        previewImg.classList.remove('hidden');
+    }
+    
+    // Hide placeholder text for main layout
+    if(activeSketchPath === 'Sketch.main_layout') {
+        const ph = document.getElementById(`placeholder_${safeId}`);
+        if(ph) ph.classList.add('hidden');
+    }
+    
+    saveLocal();
+    closeSketchModal();
+}
+
+/* =========================
+   9. DATA SYNC & SUBMISSION
+========================= */
 function updateNestedState(obj, path, value) {
     if (!path) return;
     const keys = path.split('.');
@@ -1780,13 +1821,11 @@ function updateNestedState(obj, path, value) {
     current[keys[keys.length - 1]] = value;
 }
 
-// Get deeply nested values safely
 function getNestedValue(obj, path) {
     if (!path) return undefined;
     return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
 }
 
-// Handle arrays (checkboxes)
 function updateArrayState(obj, path, value, isChecked) {
     if (!path) return;
     const keys = path.split('.');
@@ -1797,390 +1836,50 @@ function updateArrayState(obj, path, value, isChecked) {
     }
     const lastKey = keys[keys.length - 1];
     if (!Array.isArray(current[lastKey])) current[lastKey] = [];
-    
-    if (isChecked) {
-        if (!current[lastKey].includes(value)) current[lastKey].push(value);
-    } else {
-        current[lastKey] = current[lastKey].filter(v => v !== value);
-    }
+    if (isChecked) { if (!current[lastKey].includes(value)) current[lastKey].push(value); } 
+    else { current[lastKey] = current[lastKey].filter(v => v !== value); }
 }
 
-// Save to LocalStorage
 function saveLocal() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
 }
 
-/* =========================
-   3. AUTOMATIC PENCIL INJECTION
-   (Adds the button to all textareas automatically)
-========================= */
-function injectPencilIcons() {
-    // Find all textareas that have a data-path attribute
-    const textareas = document.querySelectorAll('textarea[data-path]');
-    
-    textareas.forEach(textarea => {
-        // Prevent double injection if run multiple times
-        if (textarea.parentElement.classList.contains('input-wrapper')) return;
-
-        const path = textarea.getAttribute('data-path');
-        const safeId = path.replace(/\./g, '_'); // Replace dots with underscores for valid IDs
-        
-        // 1. Create wrapper
-        const wrapper = document.createElement('div');
-        wrapper.className = 'input-wrapper';
-        
-        // 2. Insert wrapper before textarea, then move textarea inside
-        textarea.parentNode.insertBefore(wrapper, textarea);
-        wrapper.appendChild(textarea);
-        
-        // 3. Create Pencil Button
-        const btn = document.createElement('div');
-        btn.className = 'edit-icon';
-        btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-        btn.title = 'Sketch / Handwriting';
-        btn.onclick = () => openSketchPad(path);
-        wrapper.appendChild(btn);
-
-        // 4. Create Image Preview Container (Hidden by default)
-        // This appears below the textarea
-        const img = document.createElement('img');
-        img.id = `img_preview_${safeId}`; 
-        img.className = 'sketch-thumb hidden';
-        img.alt = 'Sketch Preview';
-        img.onclick = () => openSketchPad(path); // Clicking preview re-opens editor
-        
-        // Append preview image after the wrapper (so it sits below the text box)
-        wrapper.parentNode.insertBefore(img, wrapper.nextSibling);
-    });
-}
-
-/* =========================
-   4. SKETCH PAD LOGIC
-========================= */
-
-const sketchModal = document.getElementById('sketchModal');
-
-// Canvas State
-let isDrawing = false;
-let startX, startY;
-let currentTool = 'brush';
-let snapshot; 
-let historyArr = [];
-
-// Setup Canvas Size
-function resizeCanvas() {
-    canvas.width = window.innerWidth - 40;
-    canvas.height = window.innerHeight - 100;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    // Fill white background (important for saving)
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-// 1. Open Modal
-function openSketchPad(path) {
-    activeSketchPath = path;
-    sketchModal.classList.remove('hidden');
-    
-    // Small delay to ensure modal is visible before resizing/drawing
-    setTimeout(() => {
-        resizeCanvas();
-        
-        // Load existing image if any
-        if (formState.images && formState.images[path]) {
-            const img = new Image();
-            img.onload = () => ctx.drawImage(img, 0, 0);
-            img.src = formState.images[path];
-        }
-        
-        // Initialize History
-        historyArr = [canvas.toDataURL()];
-    }, 50);
-}
-
-// 2. Close Modal
-function closeSketchModal() {
-    sketchModal.classList.add('hidden');
-    activeSketchPath = null;
-}
-
-// 3. Tools
-function setTool(tool) {
-    currentTool = tool;
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-}
-
-function clearSketch() {
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    saveHistory();
-}
-
-function undoSketch() {
-    if (historyArr.length > 1) {
-        historyArr.pop(); 
-        const prevData = historyArr[historyArr.length - 1];
-        const img = new Image();
-        img.onload = () => {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-        };
-        img.src = prevData;
-    }
-}
-
-function saveHistory() {
-    if(historyArr.length > 10) historyArr.shift();
-    historyArr.push(canvas.toDataURL());
-}
-
-// 4. Drawing Logic
-const getPos = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
-};
-
-const startDraw = (e) => {
-    isDrawing = true;
-    const pos = getPos(e);
-    startX = pos.x;
-    startY = pos.y;
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    
-    ctx.strokeStyle = document.getElementById('sketchColor').value;
-    ctx.lineWidth = document.getElementById('sketchSize').value;
-    ctx.fillStyle = ctx.strokeStyle; // For text/shapes fill
-    
-    // Save snapshot for shapes (to avoid trailing lines)
-    snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-};
-
-const draw = (e) => {
-    if (!isDrawing) return;
-    if(e.type === 'touchmove') e.preventDefault(); 
-    
-    const pos = getPos(e);
-    
-    if (currentTool === 'brush') {
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-    } else if (['line', 'rect', 'circle'].includes(currentTool)) {
-        ctx.putImageData(snapshot, 0, 0); // Clear current stroke
-        ctx.beginPath();
-        
-        if (currentTool === 'line') {
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(pos.x, pos.y);
-        } else if (currentTool === 'rect') {
-            ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
-        } else if (currentTool === 'circle') {
-            let radius = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
-            ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-        }
-        ctx.stroke();
-    }
-};
-
-const stopDraw = (e) => {
-    if (!isDrawing) return;
-    isDrawing = false;
-    
-    // Text Tool Special Case
-    if (currentTool === 'text') {
-        const text = prompt("Enter text:", "");
-        if (text) {
-            const pos = getPos(e.changedTouches ? e.changedTouches[0] : e);
-            ctx.font = (document.getElementById('sketchSize').value * 5) + "px Arial";
-            ctx.fillText(text, pos.x, pos.y);
-        }
-    }
-    
-    ctx.closePath();
-    saveHistory();
-};
-
-// Listeners
-canvas.addEventListener('mousedown', startDraw);
-canvas.addEventListener('mousemove', draw);
-canvas.addEventListener('mouseup', stopDraw);
-canvas.addEventListener('touchstart', startDraw);
-canvas.addEventListener('touchmove', draw);
-canvas.addEventListener('touchend', stopDraw);
-
-// 5. Save Sketch Logic
-function saveSketchModal() {
-    if (!activeSketchPath) return;
-    
-    const dataUrl = canvas.toDataURL('image/png');
-    
-    // Update State
-    if (!formState.images) formState.images = {};
-    formState.images[activeSketchPath] = dataUrl;
-    
-    // Update UI Preview
-    const safeId = activeSketchPath.replace(/\./g, '_');
-    const previewImg = document.getElementById(`img_preview_${safeId}`);
-    
-    if (previewImg) {
-        previewImg.src = dataUrl;
-        previewImg.classList.remove('hidden');
-    }
-    
-    // Special case for Main Layout Placeholder Text
-    if(activeSketchPath === 'Sketch.main_layout') {
-        const ph = document.getElementById(`placeholder_${safeId}`);
-        if(ph) ph.classList.add('hidden');
-    }
-
-    saveLocal();
-    closeSketchModal();
-}
-
-/* =========================
-   5. INIT & EVENT LISTENERS
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Load LocalStorage
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            // Merge saved state into default state to ensure structure
-            formState = { ...formState, ...parsed };
-            // Ensure images object exists
-            if(!formState.images) formState.images = {};
-        } catch(e) { console.error(e); }
-    }
-
-    // 2. Inject Pencils
-    injectPencilIcons();
-
-    // 3. Render Previews & Inputs
-    syncStateToUI();
-    renderSurveyColumns();
-    updateAllDocumentDropdowns();
-    
-    // 4. Render existing sketch images
-    Object.keys(formState.images).forEach(path => {
-        const safeId = path.replace(/\./g, '_');
-        const previewImg = document.getElementById(`img_preview_${safeId}`);
-        if (previewImg) {
-            previewImg.src = formState.images[path];
-            previewImg.classList.remove('hidden');
-            
-            // Hide placeholder for main layout
-            if(path === 'Sketch.main_layout') {
-                const ph = document.getElementById(`placeholder_${safeId}`);
-                if(ph) ph.classList.add('hidden');
-            }
-        }
-    });
-});
-
 function syncStateToUI() {
-    // Text Inputs
+    // Inputs
     document.querySelectorAll('[data-path]').forEach(el => {
         const val = getNestedValue(formState, el.getAttribute('data-path'));
         if (val !== undefined) el.value = val;
     });
-
     // Checkboxes
     document.querySelectorAll('[data-array]').forEach(el => {
         const arr = getNestedValue(formState, el.getAttribute('data-array'));
-        if (Array.isArray(arr) && arr.includes(el.value)) {
-            el.checked = true;
-        }
+        if (Array.isArray(arr) && arr.includes(el.value)) el.checked = true;
     });
 }
 
-// Global Input Listener
-document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
-    const target = e.target;
-    const path = target.getAttribute('data-path');
-    const arrayPath = target.getAttribute('data-array');
-    
-    if (path) {
-        updateNestedState(formState, path, target.value);
-    } else if (arrayPath) {
-        updateArrayState(formState, arrayPath, target.value, target.checked);
-        if (arrayPath === 'Valuers_Checklist.documents_received') {
-            renderSurveyColumns();
-            updateAllDocumentDropdowns();
-        }
-    }
-    saveLocal();
-});
+function injectPencilIcons() {
+    const textareas = document.querySelectorAll('textarea[data-path]');
+    textareas.forEach(textarea => {
+        if (textarea.parentElement.classList.contains('input-wrapper')) return;
+        const path = textarea.getAttribute('data-path');
+        const safeId = path.replace(/\./g, '_');
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-wrapper';
+        textarea.parentNode.insertBefore(wrapper, textarea);
+        wrapper.appendChild(textarea);
+        
+        const btn = document.createElement('div');
+        btn.className = 'edit-icon';
+        btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+        btn.onclick = () => openSketchPad(path);
+        wrapper.appendChild(btn);
 
-// Submit Handler
-document.getElementById('siteFeedbackForm').onsubmit = async (e) => {
-    e.preventDefault();
-    
-    // Get CSRF Token (Helper function required)
-    function getCookie(name) {
-        let v = null;
-        if (document.cookie && document.cookie !== '') {
-            document.cookie.split(';').forEach(c => {
-                c = c.trim();
-                if (c.startsWith(name + '=')) v = decodeURIComponent(c.substring(name.length + 1));
-            });
-        }
-        return v;
-    }
-
-    try {
-        const response = await fetch('/coreapi/api/save-feedback/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie("csrftoken")
-            },
-            body: JSON.stringify(formState)
-        });
-
-        const res = await response.json();
-        if(res.success) {
-            alert("Report Saved Successfully!");
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload(); 
-        } else {
-            alert("Error: " + (res.error || "Unknown error"));
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Network Error");
-    }
-};
-
-/* =========================
-   6. HELPER: Table/Dropdown Logic (Existing)
-========================= */
-// ... (Keep your renderSurveyColumns, addSurveyColumn, updateAllDocumentDropdowns functions exactly as they were) ...
-// Since I cannot see your previous helper functions, I assume you have them. 
-// If not, paste the ones from the previous working code below here.
-// Below are the essential ones needed for the form to work:
-
-function updateAllDocumentDropdowns() {
-    const docs = formState.Valuers_Checklist.documents_received || [];
-    const dropdowns = document.querySelectorAll('.dynamic-doc-dropdown');
-    dropdowns.forEach(select => {
-        const currentSelection = select.value;
-        select.innerHTML = '<option value="">Select Document</option>';
-        docs.forEach(docName => {
-            const opt = document.createElement('option');
-            opt.value = docName;
-            opt.textContent = docName;
-            select.appendChild(opt);
-        });
-        if (docs.includes(currentSelection)) select.value = currentSelection;
+        const img = document.createElement('img');
+        img.id = `img_preview_${safeId}`; 
+        img.className = 'sketch-thumb hidden';
+        img.onclick = () => openSketchPad(path);
+        wrapper.parentNode.insertBefore(img, wrapper.nextSibling);
     });
 }
 
@@ -2219,13 +1918,6 @@ function renderSurveyColumns() {
     });
 }
 
-function addSurveyColumn() {
-    if (!formState.Survey.docs) formState.Survey.docs = [];
-    formState.Survey.docs.push({ name: "", scedule_no: "", re_sy_block_no: "", re_sy_no: "", re_sy_subdiv_no: "", sy_block_no: "", sy_no: "", sy_subdiv_no: "", land_extent: "", land_classification: "" });
-    renderSurveyColumns();
-    saveLocal();
-}
-
 window.updateSurveyDocName = (index, value) => {
     formState.Survey.docs[index].name = value;
     saveLocal();
@@ -2236,165 +1928,176 @@ window.updateSurveyDocData = (index, key, value) => {
     saveLocal();
 };
 
+function addSurveyColumn() {
+    if (!formState.Survey.docs) formState.Survey.docs = [];
+    formState.Survey.docs.push({ name: "", scedule_no: "" });
+    renderSurveyColumns();
+    saveLocal();
+}
+
 function updateAllDocumentDropdowns() {
     const docs = formState.Valuers_Checklist.documents_received || [];
-    const dropdowns = document.querySelectorAll('.dynamic-doc-dropdown');
-    dropdowns.forEach(select => {
+    document.querySelectorAll('.dynamic-doc-dropdown').forEach(select => {
         const currentSelection = select.value;
         select.innerHTML = '<option value="">Select Document</option>';
         docs.forEach(docName => {
             const opt = document.createElement('option');
-            opt.value = docName;
-            opt.textContent = docName;
+            opt.value = docName; opt.textContent = docName;
             select.appendChild(opt);
         });
         if (docs.includes(currentSelection)) select.value = currentSelection;
     });
 }
 
-// 2. Renders Section II (Survey Table) Columns
-function renderSurveyColumns() {
-    const headerRow = document.getElementById('surveyHeader');
-    const bodyRows = document.querySelectorAll('#surveyBody tr');
-    if (!headerRow) return;
-
-    // Clear dynamic columns
-    headerRow.querySelectorAll('.dyn-col').forEach(el => el.remove());
-    bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
-
-    const availableDocs = formState.Valuers_Checklist.documents_received || [];
-    const surveyDocs = formState.Survey.docs || [];
-
-    surveyDocs.forEach((docObj, index) => {
-        // Create Header with Dropdown
-        const th = document.createElement('th');
-        th.className = 'dyn-col';
-        th.style.minWidth = "150px";
-        
-        // Build Options
-        let optionsHtml = `<option value="">Select Doc</option>`;
-        availableDocs.forEach(d => {
-            const sel = (d === docObj.name) ? "selected" : "";
-            optionsHtml += `<option value="${d}" ${sel}>${d}</option>`;
-        });
-
-        th.innerHTML = `
-            <select class="form-select" style="width: 100%; color:black;" onchange="updateSurveyDocName(${index}, this.value)">
-                ${optionsHtml}
-            </select>
-        `;
-        headerRow.appendChild(th);
-
-        // Create Cells
-        bodyRows.forEach(row => {
-            const key = row.getAttribute('data-row-key');
-            if(key) {
-                const td = document.createElement('td');
-                td.className = 'dyn-cell';
-                td.innerHTML = `
-                    <input type="text" class="table-input" 
-                           value="${docObj[key] || ''}" 
-                           oninput="updateSurveyDocData(${index}, '${key}', this.value)">
-                `;
-                row.appendChild(td);
-            }
-        });
-    });
-}
-
-// Add new column to Survey Table
-function addSurveyColumn() {
-    if (!formState.Survey.docs) formState.Survey.docs = [];
-    if (formState.Survey.docs.length >= 15) return alert("Limit reached");
-
-    formState.Survey.docs.push({
-        name: "", // Will be selected from dropdown
-        scedule_no: "", re_sy_block_no: "", re_sy_no: "", re_sy_subdiv_no: "",
-        sy_block_no: "", sy_no: "", sy_subdiv_no: "",
-        land_extent: "", land_classification: ""
-    });
-    
-    renderSurveyColumns();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-}
-
-// Update functions for Survey Table
-window.updateSurveyDocName = (index, value) => {
-    formState.Survey.docs[index].name = value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-};
-
-window.updateSurveyDocData = (index, key, value) => {
-    formState.Survey.docs[index][key] = value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
-};
-
-/* =========================
-   UI SYNC (Load Data to Screen)
-========================= */
-function syncStateToUI() {
-    // Sync Inputs/Selects
-    document.querySelectorAll('[data-path]').forEach(el => {
-        const val = getNestedValue(formState, el.getAttribute('data-path'));
-        if (val !== undefined) {
-            if(el.type === 'checkbox') el.checked = (val === true);
-            else el.value = val;
+// Global Event Listeners
+document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
+    const target = e.target;
+    const path = target.getAttribute('data-path');
+    const arrayPath = target.getAttribute('data-array');
+    if (path) {
+        updateNestedState(formState, path, target.value);
+    } else if (arrayPath) {
+        updateArrayState(formState, arrayPath, target.value, target.checked);
+        if (arrayPath === 'Valuers_Checklist.documents_received') {
+            renderSurveyColumns();
+            updateAllDocumentDropdowns();
         }
-    });
-
-    // Sync Checkboxes Arrays
-    document.querySelectorAll('[data-array]').forEach(el => {
-        const arr = getNestedValue(formState, el.getAttribute('data-array'));
-        if (Array.isArray(arr) && arr.includes(el.value)) {
-            el.checked = true;
-        }
-    });
-
-    // Sync Sketch
-    if (formState.sketch_data) {
-        const cvs = document.getElementById("sketchCanvas");
-        const ctx = cvs.getContext("2d");
-        const img = new Image();
-        img.onload = () => { ctx.clearRect(0,0,cvs.width,cvs.height); ctx.drawImage(img,0,0); };
-        img.src = formState.sketch_data;
     }
+    saveLocal();
+});
+
+
+let pendingAction = null;
+const confirmModal = document.getElementById('confirmationModal');
+const confirmTitle = document.getElementById('confirmTitle');
+const confirmMessage = document.getElementById('confirmMessage');
+
+function showConfirm(title, message, actionCallback) {
+    confirmTitle.textContent = title;
+    confirmMessage.textContent = message;
+    pendingAction = actionCallback;
+    confirmModal.classList.remove('hidden');
 }
 
-// Submit Handler
-document.getElementById('siteFeedbackForm').onsubmit = async (e) => {
+document.getElementById('confirmNoBtn').onclick = () => {
+    confirmModal.classList.add('hidden');
+    pendingAction = null;
+};
+
+document.getElementById('confirmYesBtn').onclick = () => {
+    if (pendingAction) pendingAction();
+    confirmModal.classList.add('hidden');
+};
+
+// 1. TRIGGER SUBMIT
+document.getElementById('triggerSubmitBtn').onclick = (e) => {
     e.preventDefault();
+    showConfirm(
+        "Submit Report?", 
+        "Are you sure you want to submit this feedback? This cannot be undone.", 
+        performSubmit
+    );
+};
+
+// 2. TRIGGER RESET
+document.getElementById('triggerResetBtn').onclick = (e) => {
+    e.preventDefault();
+    showConfirm(
+        "Clear All Data?", 
+        "This will delete all your text, checkboxes, and sketches. Are you sure?", 
+        performReset
+    );
+};
+
+// ACTUAL SUBMIT FUNCTION
+async function performSubmit() {
+    // Save Canvas state one last time before sending
+    if(canvas) formState.sketch_data = canvas.toDataURL();
     
-    // Save Canvas
-    const canvas = document.getElementById("sketchCanvas");
-    formState.sketch_data = canvas.toDataURL();
-
-    // Check auth via cookie (defined in your original script)
-    // const csrftoken = getCookie("csrftoken"); 
-
     try {
+        // Show a loading text on the button
+        const btn = document.getElementById('triggerSubmitBtn');
+        const originalText = btn.textContent;
+        btn.textContent = "Submitting...";
+        btn.disabled = true;
+
         const response = await fetch('/coreapi/api/save-feedback/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
             body: JSON.stringify(formState)
         });
-
         const res = await response.json();
+        
+        btn.textContent = originalText;
+        btn.disabled = false;
+
         if(res.success) {
-            alert("Saved Successfully! ID: " + res.report_id);
-            localStorage.removeItem(STORAGE_KEY);
-            // location.reload(); // Optional
+            alert("✅ Report Saved Successfully! ID: " + res.report_id);
+            performReset(); // Clear local storage and reload
         } else {
-            alert("Error: " + res.error);
+            alert("❌ Error: " + (res.error || "Unknown error"));
         }
     } catch (err) {
         console.error(err);
-        alert("Network Error");
+        alert("❌ Network Error. Please check your connection.");
+        document.getElementById('triggerSubmitBtn').disabled = false;
+        document.getElementById('triggerSubmitBtn').textContent = "Submit Feedback";
     }
-};
-</script>
+}
 
+// ACTUAL RESET FUNCTION
+function performReset() {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+}
+
+/* =========================
+   10. APP INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  
+    console.log("App Initializing...");
+    loadFolder("");
+    enforceTabletLandscape();
+
+    // Load LocalStorage
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            formState = { ...formState, ...parsed };
+            if(!formState.images) formState.images = {};
+            if(!formState.vectors) formState.vectors = {};
+        } catch(e) { console.error(e); }
+    }
+    const confirmModal = document.getElementById('confirmationModal');
+    if (confirmModal && confirmModal.parentNode !== document.body) {
+        document.body.appendChild(confirmModal);
+    }
+
+    // Setup UI
+    injectPencilIcons();
+    syncStateToUI();
+    renderSurveyColumns();
+    updateAllDocumentDropdowns();
+
+    // Load saved images
+    Object.keys(formState.images).forEach(path => {
+        const safeId = path.replace(/\./g, '_');
+        const previewImg = document.getElementById(`img_preview_${safeId}`);
+        if (previewImg) {
+            previewImg.src = formState.images[path];
+            previewImg.classList.remove('hidden');
+            if(path === 'Sketch.main_layout') {
+                const ph = document.getElementById(`placeholder_${safeId}`);
+                if(ph) ph.classList.add('hidden');
+            }
+        }
+    });
+});
+
+
+</script>
 
 {% endblock %}

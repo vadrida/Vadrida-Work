@@ -326,65 +326,150 @@ function renderFileList(folders, files) {
 /* =========================
    THUMBNAILS
 ========================= */
-async function renderPdfThumbnail(file, container) {
-  await loadPdfJsIfNeeded();
+/* =========================
+   THUMBNAILS (PDF FIX)
+========================= */
 
-  const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-  const pdf = await pdfjsLib.getDocument(url).promise;
-  const page = await pdf.getPage(1);
-
-  const viewport = page.getViewport({ scale: 0.3 });
-  const canvas = document.createElement("canvas");
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-
-  await page.render({
-    canvasContext: canvas.getContext("2d"),
-    viewport
-  }).promise;
-
-  container.appendChild(canvas);
+// 1. Helper to load PDF.js library if not present
+function loadPdfJsIfNeeded() {
+  if (window.pdfjsLib) return Promise.resolve();
+  
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    // Using a reliable CDN version
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    
+    script.onload = () => {
+      // Set the worker source immediately after loading
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      resolve();
+    };
+    
+    script.onerror = () => reject(new Error("Could not load PDF.js"));
+    document.head.appendChild(script);
+  });
 }
 
+// 2. Render PDF Thumbnail (Now accepts a direct URL)
+async function renderPdfThumbnail(pdfUrl, container) {
+  try {
+    await loadPdfJsIfNeeded();
+
+    // Fetch the PDF using the calculated URL
+    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    const pdf = await loadingTask.promise;
+    
+    // Get the first page
+    const page = await pdf.getPage(1);
+
+    // Calculate scale to fit the thumbnail container (approx 100x100)
+    // We render slightly larger (scale 0.5) for sharpness, then resize via CSS
+    const viewport = page.getViewport({ scale: 0.5 });
+    
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    
+    // Force CSS styles to ensure it stays inside the thumbnail box
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.objectFit = "contain";
+
+    await page.render({
+      canvasContext: context,
+      viewport: viewport
+    }).promise;
+
+    container.appendChild(canvas);
+    
+  } catch (error) {
+    console.error("PDF Thumb Error:", error);
+    // Fallback Icon
+    container.innerHTML = `
+      <div class="file-icon" style="color: #dc2626; text-align: center;">
+        <i class="fas fa-file-pdf" style="font-size: 24px;"></i><br>
+        <span style="font-size: 10px;">PDF</span>
+      </div>`;
+  }
+}
+
+// 3. Main Thumbnail Function
 async function renderThumbs(files) {
   thumbsContainer.innerHTML = "";
 
-  if (!files.length) {
-    thumbsContainer.innerHTML = `<div class="text-sm text-gray-400">No previews</div>`;
+  if (!files || !files.length) {
+    thumbsContainer.innerHTML = `<div class="no-thumbs" style="padding:10px; color:#999;">No files</div>`;
     return;
   }
 
   for (const file of files) {
     const card = document.createElement("div");
-    card.className = "thumb-item cursor-pointer flex items-center justify-center";
+    card.className = "thumb-item";
+    
+    // --- PATH BUILDING LOGIC (CRITICAL) ---
+    let fullPath = file.path;
+    if (!fullPath) {
+        // If path is missing from API, build it: currentFolder + filename
+        const folderPrefix = currentFolder ? currentFolder.replace(/\/$/, '') + '/' : '';
+        fullPath = folderPrefix + file.name;
+    }
+    // Create the valid URL
+    const fileUrl = `/coreapi/serve-file/?path=${encodeURIComponent(fullPath)}`;
+    // --------------------------------------
 
-    const ext = file.name.split(".").pop().toLowerCase();
+    const ext = file.name.includes('.') ? file.name.split(".").pop().toLowerCase() : 'file';
 
-    if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
+    // IMAGE
+    if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
       const img = document.createElement("img");
-      img.src = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+      img.src = fileUrl;
       img.loading = "lazy";
-      img.style.maxHeight = "100%";
-      img.style.maxWidth = "100%";
-      img.style.objectFit = "contain";
+      img.style.objectFit = "cover";
+      img.style.width = "100%";
+      img.style.height = "100%";
+      
+      img.onerror = () => {
+        card.innerHTML = `<div class="file-icon"><i class="fas fa-image"></i></div>`;
+      };
       card.appendChild(img);
-    }
+    } 
+    // PDF (Pass the URL, not the file object)
     else if (ext === "pdf") {
-      renderPdfThumbnail(file, card);
-    }
+      // Create a loading placeholder first
+      card.innerHTML = `<div class="file-icon"><i class="fas fa-spinner fa-spin"></i></div>`;
+      // Call the renderer
+      await renderPdfThumbnail(fileUrl, card);
+      // Remove spinner if canvas is added (renderPdfThumbnail appends, doesn't replace)
+      const spinner = card.querySelector('.file-icon');
+      if(spinner && card.querySelector('canvas')) spinner.remove();
+    } 
+    // OTHER
     else {
       card.innerHTML = `
-        <div class="text-sm text-gray-500 text-center">
-          <i class="fas fa-file"></i><br>${ext.toUpperCase()}
-        </div>
-      `;
+        <div class="file-icon" style="text-align: center; color: #6b7280;">
+          <i class="fas fa-file" style="font-size: 24px;"></i><br>
+          <span style="font-size: 10px; text-transform: uppercase;">${ext}</span>
+        </div>`;
     }
 
-    card.onclick = () => loadBigPreview(file);
+    // Click to Open
+    card.onclick = () => {
+        document.querySelectorAll('.thumb-item').forEach(el => el.style.borderColor = '#fff');
+        card.style.borderColor = '#3b82f6';
+        
+        // Ensure the global file object has the path for the big preview
+        if (!file.path) file.path = fullPath;
+        
+        loadBigPreview(file);
+        setFileInfo(file);
+    };
+    
     thumbsContainer.appendChild(card);
   }
 }
-
 /* =========================
    PREVIEW
 ========================= */

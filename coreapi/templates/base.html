@@ -116,6 +116,7 @@
 
             <!-- Desktop Menu -->
             <ul class="hidden md:flex gap-8 font-montserrat text-gray-800 font-medium">
+                <li>Welcome {{ request.session.user_name }}</li>
                 <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
                 <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
                 <!-- <li><a href="#" class="nav-link">Reports</a></li>
