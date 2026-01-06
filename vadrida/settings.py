@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 
 
-
+import mimetypes
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -28,14 +28,23 @@ SECRET_KEY = 'django-insecure-_ig@9s8_3u#jib24eap(oydc$olvq)=)#4pb@9%u^=2)y8!6*$
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '.ngrok-free.app',
+    '.ngrok-free.dev',
     "localhost",
     "127.0.0.1",
     "192.168.29.118",
+    'www.vadrida.com',
+    'vadrida.com'
 ]
 
 
+
 CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',
+    'https://*.ngrok-free.dev',
     "http://192.168.29.118:8000",
+    'https://www.vadrida.com',
+    'https://vadrida.com'
 ]
 # CSRF_TRUSTED_ORIGINS = [
 #     "http://127.0.0.1:8000",
@@ -66,6 +75,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -199,7 +209,7 @@ FULL_DATA_ROOT = os.path.join(BASE_DIR, "data")
 GENERATED_PDFS_ROOT = os.path.join(BASE_DIR , "generated_pdfs")
 # Ensure directories exist
 os.makedirs(GENERATED_PDFS_ROOT, exist_ok=True)
-DOCUMENTS_ROOT = r"C:\Users\asus\2025-2026_Invoices"
+DOCUMENTS_ROOT = r"G:\My Drive\APP_TEST"
 
 CHANNEL_LAYERS = {
     "default": {
@@ -221,3 +231,9 @@ os.makedirs(os.path.join(MEDIA_ROOT, 'feedback_pdfs'), exist_ok=True)
 os.makedirs(os.path.join(MEDIA_ROOT, 'chat_uploads'), exist_ok=True)  # Keep for chat
 
 LOGIN_URL = '/coreapi/login/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+mimetypes.add_type("text/css", ".css", True)
+mimetypes.add_type("text/javascript", ".js", True)

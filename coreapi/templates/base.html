@@ -6,7 +6,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>{% block title %}Vadrida Property Valuations{% endblock %}</title>
-    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}">
 
 
     <!-- FontAwesome & Tailwind CDN -->
@@ -49,6 +49,9 @@
             background: rgba(255,255,255,0.45);
             backdrop-filter: blur(18px);
             border-bottom: 1px solid rgba(255,255,255,0.4);
+            z-index: 1000;
+            position: relative;
+            background: white;
         }
 
         .nav-link {
@@ -106,7 +109,7 @@
 <body class="text-gray-800 bg-gray-50">
 
     <!-- NAVBAR -->
-    <nav class="w-full fixed top-0 left-0 z-50 glass-effect shadow-md">
+    <nav class="w-full fixed top-0 left-0 glass-effect shadow-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
             <!-- Logo -->

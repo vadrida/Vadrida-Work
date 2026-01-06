@@ -184,11 +184,18 @@
               <input type="text" data-path="Ownership_Analysis.owners_name" class="form-input">
             </div>
             
-            <div class="form-group">
+           <div class="form-group">
               <label class="form-label">Document Verification</label>
               <div class="checkbox-group">
-                <label class="checkbox-label"><input type="checkbox" data-array="Ownership_Analysis.document_verification" value="same in all documents"> Same in all documents</label>
-                <label class="checkbox-label"><input type="checkbox" data-array="Ownership_Analysis.document_verification" value="discrepancy noted"> Discrepancy noted</label>
+                <label class="checkbox-label">
+                  <input type="radio" name="doc_verification" data-path="Ownership_Analysis.document_verification" value="same in all documents"> 
+                  Same in all documents
+                </label>
+                
+                <label class="checkbox-label">
+                  <input type="radio" name="doc_verification" data-path="Ownership_Analysis.document_verification" value="discrepancy noted"> 
+                  Discrepancy noted
+                </label>
               </div>
             </div>
 
@@ -223,9 +230,9 @@
                 </table>
             </div>
 
-            <button type="button" class="add-row-btn" onclick="addSurveyColumn()">
-                + Add Survey Document Column
-            </button>
+            <button type="button" class="timeline-btn add-btn" onclick="addSurveyColumn()" title="Add Column">
+                          <i class="fas fa-plus"></i>
+                        </button>
 
       
             <div class="form-group mt-4">
@@ -260,7 +267,16 @@
                     </th>
 
                     <th style="width: 20%;">Translation Reason if any</th>
-                    <th style="width: 20%;">Site</th>
+                    
+                    <th style="width: 20%;">
+                        Site
+                        <div style="margin-top: 5px;">
+                            <label style="font-size: 11px; font-weight: normal; color: white; display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">
+                                <input type="checkbox" onchange="copyAllDocsToSites(this)" style="width: 12px; height: 12px;"> 
+                                Same as in doc (All)
+                            </label>
+                        </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -268,7 +284,6 @@
                     <td>North</td>
                     <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
                     <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
-                    
                     <td><input type="text" data-path="Boundary_analysis_property_identification.north_translation" class="table-input"></td>
                     <td><input type="text" data-path="Boundary_analysis_property_identification.north_site" class="table-input"></td>
                   </tr>
@@ -277,7 +292,6 @@
                       <td>East</td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
-
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_translation" class="table-input"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_site" class="table-input"></td>
                   </tr>
@@ -286,7 +300,6 @@
                       <td>South</td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
-
                       <td><input type="text" data-path="Boundary_analysis_property_identification.south_translation" class="table-input"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.south_site" class="table-input"></td>
                   </tr>
@@ -295,7 +308,6 @@
                       <td>West</td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.west_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.west_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
-
                       <td><input type="text" data-path="Boundary_analysis_property_identification.west_translation" class="table-input"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.west_site" class="table-input"></td>
                   </tr>
@@ -329,6 +341,7 @@
                     <td class="checkbox-cell">
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="no demarcation"> No demarcation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="Foundation"> Foundation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="barbed wire"> Barbed wire</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="steel pegs"> Steel pegs</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.north" value="compound wall"> Compound wall</label>
@@ -342,6 +355,7 @@
                     <td class="checkbox-cell">
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="no demarcation"> No demarcation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="Foundation"> Foundation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="barbed wire"> Barbed wire</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="steel pegs"> Steel pegs</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.east" value="compound wall"> Compound wall</label>
@@ -355,6 +369,7 @@
                     <td class="checkbox-cell">
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="no demarcation"> No demarcation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="Foundation"> Foundation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="barbed wire"> Barbed wire</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="steel pegs"> Steel pegs</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.south" value="compound wall"> Compound wall</label>
@@ -368,6 +383,7 @@
                     <td class="checkbox-cell">
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="no demarcation"> No demarcation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="gi sheet fence"> GI sheet fence</label>
+                      <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="Foundation"> Foundation</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="barbed wire"> Barbed wire</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="steel pegs"> Steel pegs</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Demarcation.west" value="compound wall"> Compound wall</label>
@@ -472,7 +488,7 @@
                   </tr>
                   <tr>
                     <td>8. Weather the internal rd. <br> abutting the subject plot has <br> connectivity to main access <br> as per deed..?</td>
-                    <td><input type="text" data-path="Access.internal_to_main_connectivity" class="table-input"></td>
+                    <td><input type="text" data-path="Access.internal_to_main_connectivity" class="table-input h-20"></td>
                   </tr>
                   <tr>
                     <td>9. Material of road</td>
@@ -510,19 +526,19 @@
                     <td><input type="text" data-path="Purchase_resale.seller_name" class="table-input"></td>
                   </tr>
                   <tr>
-                    <td>3. Relation b/w buyer and seller, if any</td>
+                    <td>3. Relation b/w buyer <br> and seller, if any</td>
                     <td><input type="text" data-path="Purchase_resale.buyer_seller_relation" class="table-input"></td>
                   </tr>
                   <tr>
-                    <td>4. Since how long the property is up for sale..?</td>
+                    <td>4. Since how long the <br> property is up for sale..?</td>
                     <td><input type="text" data-path="Purchase_resale.property_sale_duration" class="table-input"></td>
                   </tr>
                   <tr>
-                    <td>5. Brockers/OLX/99acers etc involved or how transaction happened..?</td>
+                    <td>5. Brockers/OLX/99acers etc <br> involved or how transaction happened..?</td>
                     <td><input type="text" data-path="Purchase_resale.transaction_method" class="table-input"></td>
                   </tr>
                   <tr>
-                    <td>6. Land extend proposed for purchase..?</td>
+                    <td>6. Land extend proposed <br> for purchase..?</td>
                     <td><input type="text" data-path="Purchase_resale.purchase_land_extent" class="table-input"></td>
                   </tr>
                   <tr>
@@ -561,80 +577,207 @@
                     <th>Occupancy (Owner/Applicant/Rented/Vacant)</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>BF-2</td>
-                    <td><input type="number" data-path="Building_analysis.BF_2_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.BF_2_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.BF_2_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.BF_2_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.BF_2_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.BF_2_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>BF-1</td>
-                    <td><input type="number" data-path="Building_analysis.BF_1_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.BF_1_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.BF_1_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.BF_1_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.BF_1_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.BF_1_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>GF</td>
-                    <td><input type="number" data-path="Building_analysis.GF_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.GF_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.GF_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.GF_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.GF_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.GF_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>1st Floor</td>
-                    <td><input type="number" data-path="Building_analysis.first_flr_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.first_flr_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.first_flr_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.first_flr_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.first_flr_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.first_flr_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>2nd Floor</td>
-                    <td><input type="number" data-path="Building_analysis.second_flr_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.second_flr_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.second_flr_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.second_flr_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.second_flr_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.second_flr_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>3rd Floor</td>
-                    <td><input type="number" data-path="Building_analysis.third_flr_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.third_flr_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.third_flr_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.third_flr_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.third_flr_Usage"  class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.third_flr_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>4th Floor</td>
-                    <td><input type="number" data-path="Building_analysis.fourth_flr_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.fourth_flr_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.fourth_flr_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.fourth_flr_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.fourth_flr_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.fourth_flr_Occupancy" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>5th Floor</td>
-                    <td><input type="number" data-path="Building_analysis.fifth_flr_Builtup_area" step="0.01" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.fifth_flr_Rooms_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.fifth_flr_Kitchen_no" class="table-input"></td>
-                    <td><input type="number" data-path="Building_analysis.fifth_flr_Bathrooms_no" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.fifth_flr_Usage" class="table-input"></td>
-                    <td><input type="text" data-path="Building_analysis.fifth_flr_Occupancy" class="table-input"></td>
-                  </tr>
-                </tbody>
+                  <tbody>
+                    <tr>
+                      <td>BF-2</td>
+                      <td><input type="number" data-path="Building_analysis.BF_2_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.BF_2_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.BF_2_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.BF_2_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>BF-1</td>
+                      <td><input type="number" data-path="Building_analysis.BF_1_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.BF_1_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.BF_1_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.BF_1_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>GF</td>
+                      <td><input type="number" data-path="Building_analysis.GF_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.GF_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.GF_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.GF_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>1st Floor</td>
+                      <td><input type="number" data-path="Building_analysis.first_flr_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.first_flr_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.first_flr_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.first_flr_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>2nd Floor</td>
+                      <td><input type="number" data-path="Building_analysis.second_flr_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.second_flr_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.second_flr_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.second_flr_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>3rd Floor</td>
+                      <td><input type="number" data-path="Building_analysis.third_flr_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.third_flr_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.third_flr_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.third_flr_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>4th Floor</td>
+                      <td><input type="number" data-path="Building_analysis.fourth_flr_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.fourth_flr_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.fourth_flr_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.fourth_flr_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>5th Floor</td>
+                      <td><input type="number" data-path="Building_analysis.fifth_flr_Builtup_area" step="0.01" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.fifth_flr_Rooms_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.fifth_flr_Kitchen_no" class="table-input"></td>
+                      <td><input type="number" data-path="Building_analysis.fifth_flr_Bathrooms_no" class="table-input"></td>
+                      
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Usage" value="Residential"> Residential</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Usage" value="Commercial"> Commercial</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Usage" value="Industrial"> Industrial</label>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="radio-cell-group">
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Owner"> Owner</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Applicant"> Applicant</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Rented"> Rented</label>
+                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Vacant"> Vacant</label>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
               </table>
             </div>
           
@@ -687,7 +830,7 @@
                     </tr>
                     <tr>
                         <!-- Sub headers -->
-                        <th>Min</th>
+                        <th style="z-index: auto;">Min</th>
                         <th>Max</th>
 
                         <th>Min</th>
@@ -735,16 +878,32 @@
             </div>
 
             <!-- Construction Timeline Table -->
-            <div class="table-container">
-              <table class="analysis-table">
-                <tbody>
-                  <tr>
-                    <td>Year of construction of foundation, other floors etc, if constructed in different timelines</td>
-                    <td><input type="text" data-path="Building_analysis.construction_year" class="table-input"></td>
+         <div class="table-container">
+            <table class="analysis-table" id="timelineTable" style="table-layout: fixed; width: 100%;">
+              <tbody>
+                <tr id="row_percent">
+                  <td style="width: 100px; background: #f0f0f0; font-weight: bold;">% Area</td>
+                  
+                  <td rowspan="2" id="controlCell" style="width: 40px; text-align: center; vertical-align: middle; background: #e8f0fe; border-left: 2px solid #ccc;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; align-items: center;">
+                        <button type="button" class="timeline-btn add-btn" onclick="manualAddColumn()" title="Add Column">
+                          <i class="fas fa-plus"></i>
+                        </button>
+                        <button type="button" class="timeline-btn remove-btn" onclick="removeLastColumn()" title="Remove Last">
+                          <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr id="row_year">
+                  <td style="width: 100px; background: #f0f0f0; font-weight: bold;">Year</td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
+              </tbody>
+            </table>
+          </div>
+
+          <input type="hidden" data-path="Building_analysis.construction_year" id="finalConstructionString">
 
             <div class="form-group">
               <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
@@ -821,10 +980,13 @@
         <button id="modalClose" class="control-btn">Close</button>
       </div>
     </div>
-    <div id="modalBody" class="modal-body">
-      <iframe id="modalFrame" class="hidden" src=""></iframe>
-      <img id="modalImage" class="hidden" src="" alt="preview" />
-    </div>
+  <div id="modalBody" class="modal-body" style="overflow: hidden; display: flex; justify-content: center; background: #f0f0f0;">
+    <iframe id="modalFrame" class="hidden" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+    
+    <img id="modalImage" class="hidden" src="" alt="preview" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+    
+    <div id="modalPdfContainer" class="hidden pdf-scroll-container" style="width: 100%; height: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center;"></div>
+  </div>
   </div>
 </div>
 
@@ -847,43 +1009,92 @@
   </div>
 </div>
 <div id="sketchModal" class="sketch-modal-overlay hidden">
-    <div class="sketch-toolbar">
-        <div class="group">
-          <button type="button" class="tool-btn" onclick="setTool('select')" title="Select & Move"><i class="fas fa-mouse-pointer"></i></button>
+    <div class="sketch-toolbar-container">
+      
+      <div class="toolbar-section">
+          <div class="section-label">Tools</div>
+          <div class="tools-grid">
+              <button onclick="setTool('select')" class="tool-btn" title="Select / Pan (V)"><i class="fas fa-hand-paper"></i></button>
+              <button onclick="setTool('brush')" class="tool-btn active" title="Pencil (P)"><i class="fas fa-pencil-alt"></i></button>
+              <button onclick="setTool('eraser')" class="tool-btn" title="Eraser (E)"><i class="fas fa-eraser"></i></button>
+              <button onclick="setTool('text')" class="tool-btn" title="Text (T)"><i class="fas fa-font"></i></button>
+              <button onclick="fillSelected()" class="tool-btn" title="Fill Shape Color"><i class="fas fa-fill-drip"></i></button>
+          </div>
+      </div>
+
+      <div class="toolbar-section">
+          <div class="section-label">Shapes</div>
+          <div class="tools-grid">
+              <button onclick="setTool('line')" class="tool-btn"><i class="fas fa-slash"></i></button>
+              <button onclick="setTool('rect')" class="tool-btn"><i class="far fa-square"></i></button>
+              <button onclick="setTool('circle')" class="tool-btn"><i class="far fa-circle"></i></button>
+              <button onclick="setTool('arrow')" class="tool-btn"><i class="fas fa-long-arrow-alt-right"></i></button>
+              <button onclick="setTool('triangle')" class="tool-btn"><i class="fas fa-caret-up"></i></button>
+          </div>
+      </div>
+
+      <div class="toolbar-section" style="min-width: 240px;">
+          <div class="section-label">Properties</div>
           
-          <button type="button" class="tool-btn active" onclick="setTool('brush')" title="Brush"><i class="fas fa-paint-brush"></i></button>
+          <div class="prop-row">
+              <label>Size:</label>
+              <input type="range" id="strokeSize" min="1" max="50" value="3" oninput="updateProp('size', this.value)">
+              <span id="strokeVal" style="width: 35px;">3px</span>
+          </div>
           
-          <button type="button" class="tool-btn" onclick="setTool('eraser')" title="Rubber / Eraser"><i class="fas fa-eraser"></i></button>
+          <div class="prop-row">
+              <label>Style:</label>
+              <select id="lineStyle" onchange="updateProp('style', this.value)" class="prop-select">
+                  <option value="solid">Solid ────</option>
+                  <option value="dashed">Dashed - - -</option>
+                  <option value="dotted">Dotted . . .</option>
+              </select>
+          </div>
 
-          <button type="button" class="tool-btn" onclick="setTool('line')" title="Line"><i class="fas fa-slash"></i></button>
-          <button type="button" class="tool-btn" onclick="setTool('rect')" title="Rectangle"><i class="far fa-square"></i></button>
-          <button type="button" class="tool-btn" onclick="setTool('circle')" title="Circle"><i class="far fa-circle"></i></button>
-          <button type="button" class="tool-btn" onclick="setTool('text')" title="Text"><i class="fas fa-font"></i></button>
-        </div>
-        
-        <div class="group border-l pl-2 ml-2">
-            <input type="color" id="sketchColor" value="#000000" class="h-8 w-8 cursor-pointer" title="Color">
-            <input type="range" id="sketchSize" min="1" max="20" value="2" class="w-24 align-middle" title="Brush Size">
-        </div>
+          <div class="prop-row parallel-box">
+              <label style="color: #d97706; font-weight:bold;">
+                  <input type="checkbox" id="parallelToggle"> Parallel Mode
+              </label>
+              <input type="number" id="parallelDist" value="20" class="tiny-input" title="Distance"> px
+          </div>
+      </div>
 
-        <div class="group border-l pl-2 ml-2">
-            <button type="button" class="tool-btn" onclick="undoSketch()" title="Undo"><i class="fas fa-undo"></i></button>
-            <button type="button" class="tool-btn" onclick="triggerClearSketch()" title="Clear All">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
+      <div class="toolbar-section">
+          <div class="section-label">Colors</div>
+          <div class="color-picker-row">
+              <input type="color" id="mainColor" value="#000000" onchange="updateProp('color', this.value)">
+              <div class="quick-colors">
+                  <div class="c-swatch" style="background:black" onclick="setColor('#000000')"></div>
+                  <div class="c-swatch" style="background:red" onclick="setColor('#ff0000')"></div>
+                  <div class="c-swatch" style="background:blue" onclick="setColor('#0000ff')"></div>
+                  <div class="c-swatch" style="background:green" onclick="setColor('#008000')"></div>
+              </div>
+          </div>
+      </div>
 
-        <div class="group border-l pl-2 ml-2 flex-grow text-right">
-            <button type="button" class="modal-btn" onclick="closeSketchModal()">Cancel</button>
-            <button type="button" class="modal-btn primary" onclick="saveSketchModal()">Save Sketch</button>
-        </div>
-    </div>
+      <div class="toolbar-section action-section">
+          <div class="section-label">View & Actions</div>
+          <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+              <button onclick="zoomCanvas(0.1)" class="tool-btn small" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+              <button onclick="zoomCanvas(-0.1)" class="tool-btn small" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+              <button onclick="resetZoom()" class="tool-btn small" title="Reset View"><i class="fas fa-compress"></i></button>
+          </div>
+          <div style="display: flex; gap: 5px;">
+              <button onclick="undoSketch()" class="tool-btn" title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+              <button onclick="redoSketch()" class="tool-btn" title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
+              <button onclick="triggerClearSketch()" class="tool-btn danger" title="Clear All"><i class="fas fa-trash"></i></button>
+          </div>
+          <div style="margin-top: 8px; display:flex; gap:5px; width:100%;">
+              <button class="modal-btn primary small" style="flex:1;" onclick="triggerSaveSketch()">Save</button>
+              <button class="modal-btn small" style="flex:1;" onclick="closeSketchModal()">Exit</button>
+          </div>
+      </div>
+  </div>
 
     <div class="sketch-canvas-container" id="sketchContainer">
         <canvas id="proCanvas" class="canvas-layer"></canvas>
     </div>
 </div>
-
 <div id="confirmationModal" class="modal hidden">
   <div class="modal-content" style="max-width: 400px; text-align: center;">
     <div style="margin-bottom: 15px; font-size: 40px; color: #f59e0b;">
@@ -929,8 +1140,10 @@ let isSearching = false;
 let currentPreviewUrl = null;
 let activeSketchPath = null;
 
-// Unified Form State
+
+// REPLACE your existing formState with this corrected version
 let formState = {
+  report_id: null,
     Valuers_Checklist: {
         documents_received: [], 
         product: "",
@@ -939,7 +1152,7 @@ let formState = {
         inspection_date: "",
         person_met: ""
     },
-    Ownership_Analysis : { document_verification : [], Ownership_Analysis_notes : "", owners_name : "" },
+    Ownership_Analysis : { document_verification : "", Ownership_Analysis_notes : "", owners_name : "" },
     Survey: { docs: [], survey_notes: "" },
 
     Boundary_analysis_property_identification: { 
@@ -960,22 +1173,29 @@ let formState = {
         Purchase_resale_notes:"", buyer_name:"", seller_name:"", buyer_seller_relation:"",
         property_sale_duration:"", transaction_method:"", purchase_land_extent:"", price_asked:"", deal_breaker_value:""
     },
+    // --- CORRECTION HERE: Keys now match HTML "data-path" (e.g., BF, GF) ---
     Building_analysis: { 
         Building_analysis_notes:"", roof_type: [], setback: "", construction_year:"", amenities_notes:"" ,
-        Bf_2_Builtup_area:"",Bf_2_Rooms_no:"",Bf_2_Kitchen_no:"",Bf_2_Bathrooms_no:"",Bf_2_Usage:"",Bf_2_Occupancy:"",
-        Bf_1_Builtup_area:"",Bf_1_Rooms_no:"",Bf_1_Kitchen_no:"",Bf_1_Bathrooms_no:"",Bf_1_Usage:"",Bf_1_Occupancy:"",
-        Gf_Builtup_area:"",Gf_Rooms_no:"",Gf_Kitchen_no:"",Gf_Bathrooms_no:"",Gf_Usage:"",Gf_Occupancy:"",
-        first_flr_Builtup_area:"",first_flr_Rooms_no:"",first_flr_Kitchen_no:"",first_flr_Bathrooms_no:"",first_flr_Usage:"",first_flr_Occupancy:"",
-        second_flr_Builtup_area:"",second_flr_Rooms_no:"",second_flr_Kitchen_no:"",second_flr_Bathrooms_no:"",second_flr_Usage:"",second_flr_Occupancy:"",
-        third_flr_Builtup_area:"",third_flr_Rooms_no:"",third_flr_Kitchen_no:"",third_flr_Bathrooms_no:"",third_flr_Usage:"",third_flr_Occupancy:"",
-        fourth_flr_Builtup_area:"",fourth_flr_Rooms_no:"",fourth_flr_Kitchen_no:"",fourth_flr_Bathrooms_no:"",fourth_flr_Usage:"",fourth_flr_Occupancy:"",
-        fifth_flr_Builtup_area:"",fifth_flr_Rooms_no:"",fifth_flr_Kitchen_no:"",fifth_flr_Bathrooms_no:"",fifth_flr_Usage:"",fifth_flr_Occupancy:"",
+        
+        // Corrected Casing (BF instead of Bf)
+        BF_2_Builtup_area:"", BF_2_Rooms_no:"", BF_2_Kitchen_no:"", BF_2_Bathrooms_no:"", BF_2_Usage:[], BF_2_Occupancy:[],
+        BF_1_Builtup_area:"", BF_1_Rooms_no:"", BF_1_Kitchen_no:"", BF_1_Bathrooms_no:"", BF_1_Usage:[], BF_1_Occupancy:[],
+        GF_Builtup_area:"",   GF_Rooms_no:"",   GF_Kitchen_no:"",   GF_Bathrooms_no:"",   GF_Usage:[],   GF_Occupancy:[],
+        
+        first_flr_Builtup_area:"", first_flr_Rooms_no:"", first_flr_Kitchen_no:"", first_flr_Bathrooms_no:"", first_flr_Usage:[], first_flr_Occupancy:[],
+        second_flr_Builtup_area:"",second_flr_Rooms_no:"",second_flr_Kitchen_no:"",second_flr_Bathrooms_no:"",second_flr_Usage:[],second_flr_Occupancy:[],
+        third_flr_Builtup_area:"", third_flr_Rooms_no:"", third_flr_Kitchen_no:"", third_flr_Bathrooms_no:"", third_flr_Usage:[], third_flr_Occupancy:[],
+        fourth_flr_Builtup_area:"",fourth_flr_Rooms_no:"",fourth_flr_Kitchen_no:"",fourth_flr_Bathrooms_no:"",fourth_flr_Usage:[],fourth_flr_Occupancy:[],
+        fifth_flr_Builtup_area:"", fifth_flr_Rooms_no:"", fifth_flr_Kitchen_no:"", fifth_flr_Bathrooms_no:"", fifth_flr_Usage:[], fifth_flr_Occupancy:[],
+        
         front_yard_min:"", front_yard_max:"", side1_yard_min:"", side1_yard_max:"", 
-        side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:""
+        side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:"",
+        
+        RCC_Percentage:"", Tiled_Percentage:"", Sheet_Percentage:"", Other_Percentage:"" 
     },
     Sketch: { landmark_description: "", main_layout: "" }, 
     images: {} ,
-    vectors : {}
+    vectors : {} // We keep this for local reload, but will delete before submit
 };
 
 /* =========================
@@ -1062,9 +1282,10 @@ function renderFileList(folders, files) {
    UPDATED THUMBNAIL RENDERER
 ========================= */
 
+/* =========================
+   UPDATED RENDER THUMBS
+========================= */
 async function renderThumbs(files) {
-  console.log("Rendering thumbnails for", files.length, "files"); // Debug log
-  
   thumbsContainer.innerHTML = "";
 
   if (!files.length) {
@@ -1072,41 +1293,111 @@ async function renderThumbs(files) {
     return;
   }
 
-  for (const file of files) {
+  // Create all card elements first
+  const fileMap = files.map(file => {
     const card = document.createElement("div");
     card.className = "thumb-item";
+    
+    // Default Loading State
+    card.innerHTML = `<div class="file-icon"><i class="fas fa-spinner fa-spin"></i></div>`;
+    
+    // Click Event
+    card.onclick = () => {
+      // Highlight selected file in list
+      document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
+      // Try to find the list item and select it (optional UI sync)
+      loadBigPreview(file);
+      setFileInfo(file);
+    };
 
+    thumbsContainer.appendChild(card);
+    return { file, card };
+  });
+
+  // Process previews in parallel
+  const promises = fileMap.map(async ({ file, card }) => {
     const ext = file.name.split(".").pop().toLowerCase();
 
     if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
       const img = document.createElement("img");
       img.src = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
       img.loading = "lazy";
+      img.onload = () => { card.innerHTML = ""; card.appendChild(img); };
       img.onerror = () => {
-        card.innerHTML = `
-          <div class="file-icon">
-            <i class="fas fa-image"></i><br>${ext.toUpperCase()}
-          </div>
-        `;
+        card.innerHTML = `<div class="file-icon"><i class="fas fa-image"></i><br>${ext.toUpperCase()}</div>`;
       };
-      card.appendChild(img);
     }
     else if (ext === "pdf") {
+      // Call the function we just added above
       await renderPdfThumbnail(file, card);
     }
     else {
+      // Generic Icon
       card.innerHTML = `
         <div class="file-icon">
-          <i class="fas fa-file"></i><br>${ext.toUpperCase()}
+          <i class="fas fa-file-alt"></i><br>${ext.toUpperCase()}
         </div>
       `;
     }
+  });
 
-    card.onclick = () => {
-      console.log("Clicking thumbnail for:", file.name); // Debug log
-      loadBigPreview(file);
-    };
-    thumbsContainer.appendChild(card);
+  await Promise.allSettled(promises);
+}
+/* =========================
+   ADD THIS MISSING FUNCTION
+========================= */
+async function renderPdfThumbnail(file, container) {
+  try {
+    // 1. Ensure PDF.js is loaded
+    await loadPdfJsIfNeeded();
+
+    // 2. Prepare Canvas
+    const canvas = document.createElement("canvas");
+    // specific style for thumbnail canvas to fit container
+    canvas.style.width = "100%"; 
+    canvas.style.height = "auto";
+    canvas.style.display = "block";
+    const ctx = canvas.getContext("2d");
+
+    // 3. Get File URL
+    const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+
+    // 4. Load Document
+    const loadingTask = pdfjsLib.getDocument(url);
+    const pdf = await loadingTask.promise;
+
+    // 5. Get First Page
+    const page = await pdf.getPage(1);
+
+    // 6. Calculate Scale (Make it small for thumbnail)
+    // We assume a thumbnail width of approx 150px
+    const desiredWidth = 200; 
+    const originalViewport = page.getViewport({ scale: 1 });
+    const scale = desiredWidth / originalViewport.width;
+    const viewport = page.getViewport({ scale: scale });
+
+    // 7. Resize Canvas
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    // 8. Render
+    await page.render({
+      canvasContext: ctx,
+      viewport: viewport
+    }).promise;
+
+    // 9. Append to Card
+    container.innerHTML = ""; // Clear loader
+    container.appendChild(canvas);
+
+  } catch (error) {
+    console.error("Error rendering PDF thumb:", file.name, error);
+    // Fallback icon if PDF is corrupt or password protected
+    container.innerHTML = `
+      <div class="file-icon" style="color: #ef4444;">
+        <i class="fas fa-file-pdf"></i><br>PDF
+      </div>
+    `;
   }
 }
 
@@ -1150,26 +1441,42 @@ function setFileInfo(file) {
 /* =========================
    6. PDF & ANALYSIS TOOLS
 ========================= */
-async function renderFullPdf(url) {
+// Updated to accept a 'targetContainer' argument
+// Updated to accept a 'targetContainer' argument
+async function renderFullPdf(url, targetContainer = null) {
   try {
     await loadPdfJsIfNeeded();
+    
+    // Default to sidebar if no container specified
+    const container = targetContainer || document.getElementById("pdfMain");
+    container.innerHTML = '<div style="color:white; text-align:center; padding:20px;">Loading PDF...</div>';
+
     const pdf = await pdfjsLib.getDocument(url).promise;
-    pdfMain.innerHTML = "";
+    container.innerHTML = ""; // Clear loader
+
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale: window.innerWidth < 768 ? 1.2 : 1.5 });
+      
+      // Calculate scale: fit width of container
+      // If in modal (targetContainer exists), use larger scale
+      const baseScale = targetContainer ? 1.5 : (window.innerWidth < 768 ? 1.2 : 1.5);
+      const viewport = page.getViewport({ scale: baseScale });
+
       const cvs = document.createElement("canvas");
       cvs.width = viewport.width;
       cvs.height = viewport.height;
       cvs.style.marginBottom = "10px";
       cvs.style.display = "block";
-      cvs.style.border = "1px solid #e5e7eb";
+      cvs.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)"; // Add shadow for better look
+      
+      // Render
       await page.render({ canvasContext: cvs.getContext("2d"), viewport }).promise;
-      pdfMain.appendChild(cvs);
+      container.appendChild(cvs);
     }
-    pdfMain.style.overflowY = "auto";
   } catch (error) {
-    pdfMain.innerHTML = `<div class="error">Error loading PDF</div>`;
+    console.error(error);
+    const container = targetContainer || document.getElementById("pdfMain");
+    container.innerHTML = `<div class="error">Error loading PDF</div>`;
   }
 }
 
@@ -1290,22 +1597,43 @@ const modalImage = document.getElementById("modalImage");
 
 document.getElementById("openFullBtn").onclick = () => {
   if (!currentFile) return alert("Select a file");
+
+  // Mobile Handling
   if (window.innerWidth < 768) {
     window.open(currentPreviewUrl, "_blank");
     return;
   }
+
+  // 1. Show Modal
   fullscreenModal.setAttribute("aria-hidden", "false");
+
+  // 2. Reset All Containers
   modalFrame.classList.add("hidden");
   modalImage.classList.add("hidden");
+  const pdfContainer = document.getElementById("modalPdfContainer");
+  pdfContainer.classList.add("hidden");
+  pdfContainer.innerHTML = ""; // Clear previous PDF
+
   const ext = currentFile.name.split(".").pop().toLowerCase();
+
+  // 3. Route based on file type
   if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+    // IMAGE
     modalImage.src = currentPreviewUrl;
     modalImage.classList.remove("hidden");
-  } else {
+  } 
+  else if (ext === 'pdf') {
+    // PDF (Use our renderer, not iframe)
+    pdfContainer.classList.remove("hidden");
+    renderFullPdf(currentPreviewUrl, pdfContainer);
+  } 
+  else {
+    // OTHER (Text, etc.) - Try Iframe
     modalFrame.src = currentPreviewUrl;
     modalFrame.classList.remove("hidden");
   }
 };
+
 document.getElementById("modalClose").onclick = () => {
   fullscreenModal.setAttribute("aria-hidden", "true");
   modalFrame.src = ""; modalImage.src = "";
@@ -1356,39 +1684,39 @@ window.addEventListener("resize", () => {
 
 window.addEventListener("resize", enforceTabletLandscape);
 window.addEventListener("orientationchange", enforceTabletLandscape);
-
 /* =========================
-   8. SKETCH PAD & DRAWING LOGIC
-========================= */
-/* =========================
-   ADVANCED SKETCH LOGIC (Vector Based)
+   8. SKETCH PAD & DRAWING LOGIC (COMPLETE & FIXED)
 ========================= */
 
-// STATE
-let elements = []; // Stores all shapes
-let historyStack = []; // For Undo
-let selectedElement = null; // The shape currently being moved/edited
+// --- STATE ---
+let elements = [];       // Current shapes
+let redoStack = [];      // For Redo functionality
+let selectedElement = null; 
+let clipboard = null;    
 
-// INTERACTION STATE
+// --- VIEWPORT STATE (Zoom/Pan) ---
+let camera = { x: 0, y: 0, z: 1 }; // x/y = pan, z = zoom level
+
+// --- INTERACTION STATE ---
 let isDrawing = false;
 let isDragging = false;
 let isResizing = false;
-let isPromptOpen = false; // Prevents double text boxes
+let isPanning = false; 
+let isPromptOpen = false;
 
-let startX, startY;
-let currentTool = 'brush';
+let startX, startY; // Screen coordinates
+let lastX, lastY;   // For panning calculations
+let currentTool = 'brush'; 
 
-// CANVAS SETUP
-
+// --- CANVAS SETUP ---
 function resizeCanvas() {
     if(!canvas) return;
-    // Save current drawing
     const saved = JSON.stringify(elements);
-    
+    // Make canvas slightly smaller than window to fit UI
     canvas.width = window.innerWidth - 40;
-    canvas.height = window.innerHeight - 100;
+    canvas.height = window.innerHeight - 140; 
     
-    // Restore
+    // Restore logic
     if(saved) elements = JSON.parse(saved);
     renderScene();
 }
@@ -1397,12 +1725,13 @@ function openSketchPad(path) {
     activeSketchPath = path;
     sketchModal.classList.remove('hidden');
 
-    // 1. Request Full Screen
     const elem = document.documentElement;
-    if (elem.requestFullscreen) elem.requestFullscreen().catch(err => console.log(err));
-    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+    if (elem.requestFullscreen) elem.requestFullscreen().catch(e=>console.log(e));
 
-    // 2. Handle Compass Overlay (Only for Main Layout)
+    // --- CHANGE: Start exactly at MIN_ZOOM ---
+    camera = { x: 0, y: 0, z: MIN_ZOOM };
+
+    // Update Compass
     const container = document.getElementById('sketchContainer');
     const existingCompass = document.getElementById('sketchCompassOverlay');
     if (existingCompass) existingCompass.remove();
@@ -1410,7 +1739,7 @@ function openSketchPad(path) {
     if (path === 'Sketch.main_layout') {
         const compass = document.createElement('img');
         compass.id = 'sketchCompassOverlay';
-        compass.src = "{% static 'images/compass-icon.png' %}";
+        compass.src = "/static/images/compass-icon.png"; 
         compass.alt = "N";
         Object.assign(compass.style, {
             position: 'absolute', top: '20px', right: '25px', width: '60px',
@@ -1419,20 +1748,20 @@ function openSketchPad(path) {
         container.appendChild(compass);
     }
 
-    // 3. Initialize Canvas & Restore Data
     setTimeout(() => {
         resizeCanvas();
-        
-        // CRITICAL FIX: Restore the Vector Elements
         if (formState.vectors && formState.vectors[path]) {
-            // Restore saved shapes
             elements = JSON.parse(JSON.stringify(formState.vectors[path]));
         } else {
-            // Start fresh
             elements = []; 
         }
+        redoStack = []; 
         
-        // Force a redraw immediately so the user sees their old sketch
+        // --- CHANGE: Center the canvas for the zoomed-out view ---
+        // This ensures the "sheet" looks centered when you open it
+        camera.x = (canvas.width - (canvas.width * MIN_ZOOM)) / 2;
+        camera.y = (canvas.height - (canvas.height * MIN_ZOOM)) / 2;
+
         renderScene();
     }, 100); 
 }
@@ -1440,65 +1769,190 @@ function openSketchPad(path) {
 function closeSketchModal() {
     sketchModal.classList.add('hidden');
     activeSketchPath = null;
-
-    // Exit Full Screen
-    if (document.exitFullscreen) {
-        document.exitFullscreen().catch(err => console.log(err));
-    } else if (document.webkitExitFullscreen) { /* Safari */
-        document.webkitExitFullscreen();
-    }
-    
-    // Re-check orientation (put blocker back if needed)
+    if (document.exitFullscreen) document.exitFullscreen().catch(e=>console.log(e));
     enforceTabletLandscape();
 }
+
+// ================= ZOOM & PAN LOGIC =================
+
+// Smart Zoom Function
+// --- CONFIGURATION ---
+const MIN_ZOOM = 0.5; // This is your "Full Zoom Out" limit
+const MAX_ZOOM = 5.0;
+
+function zoomToPoint(newScale, screenX, screenY) {
+    // 1. Enforce Limits
+    if (newScale < MIN_ZOOM) newScale = MIN_ZOOM; // Cannot zoom out past start
+    if (newScale > MAX_ZOOM) newScale = MAX_ZOOM;
+
+    // 2. Calculate World Position
+    const worldX = (screenX - camera.x) / camera.z;
+    const worldY = (screenY - camera.y) / camera.z;
+
+    // 3. Update Scale
+    camera.z = newScale;
+
+    // 4. Update Camera Position to keep focus stable
+    camera.x = screenX - (worldX * newScale);
+    camera.y = screenY - (worldY * newScale);
+
+    renderScene();
+}
+
+// Button Zoom (defaults to center of screen)
+function zoomCanvas(amount) {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    zoomToPoint(camera.z + amount, centerX, centerY);
+}
+function resetZoom() {
+    camera = { x: 0, y: 0, z: 1 };
+    renderScene();
+}
+
+// Convert Screen Coordinates (Mouse) to World Coordinates (Canvas Drawing)
+function toWorld(screenX, screenY) {
+    return {
+        x: (screenX - camera.x) / camera.z,
+        y: (screenY - camera.y) / camera.z
+    };
+}
+
 // ================= TOOLBAR FUNCTIONS =================
 function setTool(tool) {
     currentTool = tool;
-    selectedElement = null; // Deselect when changing tools
+    selectedElement = null;
     document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    // Find the button that called this (hacky but works)
+    
+    // Highlight active button
     const btn = document.querySelector(`button[onclick="setTool('${tool}')"]`);
     if(btn) btn.classList.add('active');
+    
+    // Cursor handling
+    if(tool === 'select') canvas.style.cursor = 'grab';
+    else if(tool === 'text') canvas.style.cursor = 'text';
+    else canvas.style.cursor = 'crosshair';
+
     renderScene();
 }
 
+function updateProp(prop, value) {
+    // Update UI
+    if (prop === 'size') document.getElementById('strokeVal').innerText = value + 'px';
+    if (prop === 'color') document.getElementById('mainColor').value = value;
 
-function triggerClearSketch() {
-   
-    if (elements.length === 0) return; 
-    showConfirm(
-        "Clear Drawing?", 
-        "Are you sure you want to delete the entire drawing? This cannot be undone.", 
-        performClearSketch
-    );
-}
-
-function performClearSketch() {
-    elements = [];
-    renderScene();
-}
-
-function undoSketch() {
-    if (elements.length > 0) {
-        elements.pop();
+    // Update Selected Element
+    if (selectedElement) {
+        saveState(); // Save for undo before changing
+        selectedElement[prop] = value;
         renderScene();
     }
 }
 
+function setColor(hex) {
+    updateProp('color', hex);
+}
+
+// ================= ACTION FUNCTIONS =================
+
+// Save current state to history stack
+function saveState() {
+    // Deep copy current elements to redoStack isn't linked
+    // NOTE: For standard Undo, we push current state to history. 
+    // But here we are using a simplified approach: elements IS the state.
+    // So 'undo' means popping from elements.
+    // However, for Property changes, we need more complex history. 
+    // For now, this Undo logic focuses on ADDED/REMOVED shapes.
+}
+
+function fillSelected() {
+    if (selectedElement && ['rect','circle','triangle'].includes(selectedElement.type)) {
+        const color = document.getElementById('mainColor').value;
+        selectedElement.fill = color;
+        renderScene();
+    } else {
+        alert("Select a shape (Rect, Circle, Triangle) to fill.");
+    }
+}
+
+function undoSketch() {
+    if (elements.length > 0) {
+        const popped = elements.pop();
+        redoStack.push(popped);
+        renderScene();
+    }
+}
+
+function redoSketch() {
+    if (redoStack.length > 0) {
+        const popped = redoStack.pop();
+        elements.push(popped);
+        renderScene();
+    }
+}
+
+// Trigger with Popup
+function triggerClearSketch() {
+    if (elements.length === 0) return; 
+    // Use the existing global showConfirm function
+    showConfirm(
+        "Clear Drawing?",
+        "Are you sure you want to delete everything? This cannot be undone.",
+        () => {
+            elements = [];
+            redoStack = [];
+            renderScene();
+        }
+    );
+}
+
+// Trigger Save with Popup
+function triggerSaveSketch() {
+    showConfirm(
+        "Save Sketch?",
+        "Do you want to save this drawing and close the sketch pad?",
+        () => {
+            saveSketchModal(); // Call the actual save logic
+        }
+    );
+}
+
 // ================= CORE RENDERING ENGINE =================
 function renderScene() {
-    // 1. Clear Canvas
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!ctx) return;
     
-    // 2. Draw All Elements
+    // 1. Clear Screen
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 2. Save Context & Apply Camera Transform
+    ctx.save();
+    ctx.translate(camera.x, camera.y);
+    ctx.scale(camera.z, camera.z);
+
+    // 3. Draw White Background (World Space)
+    // We draw a huge rectangle so it looks like an infinite canvas
+    ctx.fillStyle = "white";
+    // Draw slightly larger than viewport to ensure coverage
+    const worldTopLeft = toWorld(0,0);
+    const worldBotRight = toWorld(canvas.width, canvas.height);
+    ctx.fillRect(worldTopLeft.x, worldTopLeft.y, 
+                 (worldBotRight.x - worldTopLeft.x), 
+                 (worldBotRight.y - worldTopLeft.y));
+
+    // 4. Draw All Elements
     elements.forEach(el => {
+        ctx.save(); 
+        
         ctx.beginPath();
         ctx.strokeStyle = el.color;
         ctx.lineWidth = el.size;
-        ctx.fillStyle = el.color;
+        ctx.fillStyle = el.fill || 'transparent';
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
+
+        if (el.style === 'dashed') ctx.setLineDash([15, 10]);
+        else if (el.style === 'dotted') ctx.setLineDash([3, 8]);
+        else ctx.setLineDash([]);
 
         if (el.type === 'brush') {
             if(el.points.length > 0) {
@@ -1512,257 +1966,410 @@ function renderScene() {
             ctx.lineTo(el.endX, el.endY);
             ctx.stroke();
         } 
+        else if (el.type === 'arrow') {
+            drawArrow(ctx, el.x, el.y, el.endX, el.endY, el.size);
+        }
         else if (el.type === 'rect') {
-            ctx.strokeRect(el.x, el.y, el.w, el.h);
-            // Text inside Rect
-            if(el.text) {
-                ctx.font = "16px Arial";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(el.text, el.x + el.w/2, el.y + el.h/2);
-            }
-        } 
-        else if (el.type === 'circle') {
-            ctx.arc(el.x, el.y, el.r, 0, 2 * Math.PI);
+            ctx.rect(el.x, el.y, el.w, el.h);
+            if(el.fill) ctx.fill();
             ctx.stroke();
-             // Text inside Circle
-             if(el.text) {
-                ctx.font = "16px Arial";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(el.text, el.x, el.y);
-            }
+            if(el.text) drawTextCenter(ctx, el.text, el.x + el.w/2, el.y + el.h/2, el.size);
+        } 
+        else if (el.type === 'triangle') {
+            ctx.beginPath();
+            ctx.moveTo(el.x + el.w/2, el.y); 
+            ctx.lineTo(el.x, el.y + el.h);   
+            ctx.lineTo(el.x + el.w, el.y + el.h); 
+            ctx.closePath();
+            if(el.fill) ctx.fill();
+            ctx.stroke();
+        }
+        else if (el.type === 'circle') {
+            ctx.beginPath();
+            ctx.arc(el.x, el.y, el.r, 0, 2 * Math.PI);
+            if(el.fill) ctx.fill();
+            ctx.stroke();
+            if(el.text) drawTextCenter(ctx, el.text, el.x, el.y, el.size);
         } 
         else if (el.type === 'text') {
-            ctx.font = (el.size * 5) + "px Arial";
-            ctx.fillText(el.text, el.x, el.y);
+            ctx.font = (el.size * 3) + "px Arial"; // Scale font with size
+            ctx.fillStyle = el.color; 
+            ctx.fillText(el.text || "", el.x, el.y); // Fix undefined text
         }
+
+        ctx.restore(); 
     });
 
-    // 3. Draw Selection Box (if something is selected)
+    // 5. Draw Selection Box
     if (selectedElement) {
-        ctx.strokeStyle = "#3b82f6"; // Blue selection color
-        ctx.lineWidth = 1;
-        ctx.setLineDash([5, 5]); // Dotted line
+        ctx.save();
+        ctx.strokeStyle = "#3b82f6"; 
+        ctx.lineWidth = 2 / camera.z; // Keep selection line thin regardless of zoom
+        ctx.setLineDash([5, 5]);
         
-        // Draw bounding box based on type
-        if(selectedElement.type === 'rect') {
-            ctx.strokeRect(selectedElement.x - 5, selectedElement.y - 5, selectedElement.w + 10, selectedElement.h + 10);
-            // Draw Resize Handle
+        let b = getBounds(selectedElement);
+        if(b) {
+            ctx.strokeRect(b.x - 5, b.y - 5, b.w + 10, b.h + 10);
+            // Resize Handle
             ctx.fillStyle = "#3b82f6";
-            ctx.fillRect(selectedElement.x + selectedElement.w - 5, selectedElement.y + selectedElement.h - 5, 10, 10);
-        } 
-        // (Simplified selection logic for brevity)
-        
-        ctx.setLineDash([]); // Reset dash
+            ctx.fillRect(b.x + b.w - 5, b.y + b.h - 5, 10, 10);
+        }
+        ctx.restore();
     }
+
+    // 6. Restore Camera (End Frame)
+    ctx.restore();
+}
+
+// Helper: Draw Arrow
+function drawArrow(ctx, fromx, fromy, tox, toy, width) {
+    const headlen = width * 5; 
+    const dx = tox - fromx;
+    const dy = toy - fromy;
+    const angle = Math.atan2(dy, dx);
+    
+    ctx.moveTo(fromx, fromy);
+    ctx.lineTo(tox, toy);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(tox, toy);
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fill();
+}
+
+function drawTextCenter(ctx, text, x, y, size) {
+    if(!text) return;
+    ctx.fillStyle = "black";
+    ctx.font = ((size || 20) * 0.8) + "px Arial"; // Relative font size
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, x, y);
+}
+
+function getBounds(el) {
+    if(!el) return null;
+    if(el.type === 'rect' || el.type === 'triangle') return {x: el.x, y: el.y, w: el.w, h: el.h};
+    if(el.type === 'circle') return {x: el.x - el.r, y: el.y - el.r, w: el.r*2, h: el.r*2};
+    if(el.type === 'text') {
+        ctx.font = (el.size * 3) + "px Arial";
+        const width = ctx.measureText(el.text || "").width;
+        return {x: el.x, y: el.y - (el.size*3), w: width, h: (el.size*3)};
+    }
+    if(el.type === 'line' || el.type === 'arrow') {
+        let minX = Math.min(el.x, el.endX), maxX = Math.max(el.x, el.endX);
+        let minY = Math.min(el.y, el.endY), maxY = Math.max(el.y, el.endY);
+        return {x: minX, y: minY, w: maxX-minX, h: maxY-minY};
+    }
+    return null;
 }
 
 // ================= INTERACTION HANDLERS =================
-
-// Helper: Get X/Y from Touch or Mouse
 const getPos = (e) => {
     const rect = canvas.getBoundingClientRect();
     let cx, cy;
     if (e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
     else if (e.changedTouches && e.changedTouches.length > 0) { cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY; }
     else { cx = e.clientX; cy = e.clientY; }
+    
+    // Return raw screen coordinates here, convert to world later
     return { x: cx - rect.left, y: cy - rect.top };
 };
 
-// Helper: Check if point is inside an element
-function isHit(el, x, y) {
-    if (el.type === 'rect') {
-        return (x >= el.x && x <= el.x + el.w && y >= el.y && y <= el.y + el.h);
-    }
-    if (el.type === 'circle') {
-        const dist = Math.sqrt((x-el.x)**2 + (y-el.y)**2);
-        return dist <= el.r;
-    }
-    if (el.type === 'text') {
-        // Approximate text hit box
-        return (x >= el.x && x <= el.x + 100 && y >= el.y - 20 && y <= el.y);
-    }
-    // Lines and Brush are harder to select, skipping for simplicity in this version
+// Hit Test (must use World Coordinates)
+function isHit(el, wx, wy) {
+    const b = getBounds(el);
+    if(b) return (wx >= b.x && wx <= b.x + b.w && wy >= b.y && wy <= b.y + b.h);
     return false;
 }
 
-const handleStart = (e) => {
-    if(e.type === 'touchstart') e.preventDefault();
-    const pos = getPos(e);
-    startX = pos.x;
-    startY = pos.y;
+// --- INTERACTION STATE UPDATES ---
+let isPinching = false;
+let startPinchDist = 0;
+let startZoomLevel = 1;
+let startPinchCenter = { x: 0, y: 0 }; // Track where we started pinching
 
-    // SELECT TOOL LOGIC (Keep as is)
+// --- TOUCH STATE ---
+let pinchStartWorld = { x: 0, y: 0 }; // The anchor point in World Coords
+
+const handleStart = (e) => {
+    // 1. PINCH ZOOM START
+    if (e.touches && e.touches.length === 2) {
+        e.preventDefault();
+        if (isDrawing) { elements.pop(); isDrawing = false; }
+        isPinching = true;
+        isDragging = false;
+        isPanning = false;
+        
+        startPinchDist = getTouchDistance(e);
+        startZoomLevel = camera.z;
+        startPinchCenter = getTouchCenter(e); 
+        pinchStartWorld = toWorld(startPinchCenter.x, startPinchCenter.y);
+        return;
+    }
+
+    if(e.type === 'touchstart') e.preventDefault();
+    const screenPos = getPos(e);
+    const worldPos = toWorld(screenPos.x, screenPos.y);
+
+    startX = worldPos.x;
+    startY = worldPos.y;
+    lastX = screenPos.x; 
+    lastY = screenPos.y;
+
+    // 2. PANNING (Select Tool)
     if (currentTool === 'select') {
-        selectedElement = null; isResizing = false;
+        let hitFound = false;
         for (let i = elements.length - 1; i >= 0; i--) {
             if (isHit(elements[i], startX, startY)) {
+                hitFound = true; 
                 selectedElement = elements[i];
-                isDragging = true;
-                if(selectedElement.type === 'rect' && 
-                   Math.abs(startX - (selectedElement.x + selectedElement.w)) < 20 && 
-                   Math.abs(startY - (selectedElement.y + selectedElement.h)) < 20) {
-                    isResizing = true; isDragging = false;
+                if(selectedElement.size) document.getElementById('strokeSize').value = selectedElement.size;
+                if(selectedElement.color) document.getElementById('mainColor').value = selectedElement.color;
+                
+                const b = getBounds(selectedElement);
+                if(b && Math.abs(startX - (b.x + b.w)) < (20/camera.z) && Math.abs(startY - (b.y + b.h)) < (20/camera.z)) {
+                    isResizing = true; 
+                } else {
+                    isDragging = true;
                 }
                 break;
             }
+        }
+        
+        if (!hitFound) {
+            selectedElement = null;
+            isPanning = true;      
+            canvas.style.cursor = 'grabbing';
         }
         renderScene();
         return;
     }
 
-    // DRAWING LOGIC
+    // 3. DRAWING
     isDrawing = true;
+    redoStack = []; 
     
-    // 1. Get Base Values from UI
-    let uiColor = document.getElementById('sketchColor').value;
-    let uiSize = document.getElementById('sketchSize').value;
+    let color = document.getElementById('mainColor').value;
+    let size = parseInt(document.getElementById('strokeSize').value);
+    let style = document.getElementById('lineStyle').value;
+    let isParallel = document.getElementById('parallelToggle').checked;
     
-    // 2. Override for Eraser
-    let finalColor = uiColor;
-    let finalSize = uiSize;
-    
-    if (currentTool === 'eraser') {
-        finalColor = '#FFFFFF'; // Force White
-        finalSize = 30;         // Force Thick
+    if (currentTool === 'eraser') { color = '#FFFFFF'; style = 'solid'; }
+
+    // Create Main Element
+    let newEl = { type: currentTool, color, size, style, x: startX, y: startY };
+
+    if (currentTool === 'brush' || currentTool === 'eraser') {
+        newEl.type = 'brush'; 
+        newEl.points = [{x: startX, y: startY}];
+    } else if (currentTool === 'line' || currentTool === 'arrow') {
+        newEl.endX = startX; newEl.endY = startY;
+    } else if (['rect','triangle'].includes(currentTool)) {
+        newEl.w = 0; newEl.h = 0; newEl.text = "";
+    } else if (currentTool === 'circle') {
+        newEl.r = 0; newEl.text = "";
     }
 
-    // 3. Create Element with FINAL values
-    if (currentTool === 'brush' || currentTool === 'eraser') {
-        // Treat eraser as just a white brush
-        elements.push({ 
-            type: 'brush', 
-            points: [{x: startX, y: startY}], 
-            color: finalColor, 
-            size: finalSize 
-        });
-    } 
-    else if (currentTool === 'line') {
-        elements.push({ type: 'line', x: startX, y: startY, endX: startX, endY: startY, color: finalColor, size: finalSize });
-    } 
-    else if (currentTool === 'rect') {
-        elements.push({ type: 'rect', x: startX, y: startY, w: 0, h: 0, color: finalColor, size: finalSize, text: '' });
-    } 
-    else if (currentTool === 'circle') {
-        elements.push({ type: 'circle', x: startX, y: startY, r: 0, color: finalColor, size: finalSize, text: '' });
+    elements.push(newEl);
+    
+    // --- UPDATED: PARALLEL MODE FOR BRUSH & LINES ---
+    if (isParallel && (currentTool === 'line' || currentTool === 'brush')) {
+        let dist = parseInt(document.getElementById('parallelDist').value) || 20;
+        
+        // Clone the main element
+        let parallelEl = JSON.parse(JSON.stringify(newEl));
+        
+        // Offset properties
+        parallelEl.x += dist; 
+        parallelEl.y += dist; 
+        
+        if (parallelEl.endX !== undefined) {
+             parallelEl.endX += dist; 
+             parallelEl.endY += dist;
+        }
+        
+        // CRITICAL: Offset the points array for Brush
+        if (parallelEl.points) {
+            parallelEl.points = parallelEl.points.map(p => ({
+                x: p.x + dist,
+                y: p.y + dist
+            }));
+        }
+
+        parallelEl.isGhost = true; // Tag it so handleMove updates it correctly
+        elements.push(parallelEl);
     }
 };
 
 const handleMove = (e) => {
     if(e.type === 'touchmove') e.preventDefault();
-    const pos = getPos(e);
 
-    // 1. Dragging / Resizing
+    // 1. PINCH ZOOM MOVE (SMART ZOOM)
+    if (isPinching && e.touches && e.touches.length === 2) {
+        const currentDist = getTouchDistance(e);
+        const currentCenter = getTouchCenter(e); // Center moves slightly as fingers move
+        
+        const scaleFactor = currentDist / startPinchDist;
+        const newZoom = startZoomLevel * scaleFactor;
+        
+        // Use the smart zoom function with the pinch center
+        zoomToPoint(newZoom, currentCenter.x, currentCenter.y);
+        return;
+    }
+
+    const screenPos = getPos(e);
+    const worldPos = toWorld(screenPos.x, screenPos.y);
+    const dx = worldPos.x - startX;
+    const dy = worldPos.y - startY;
+
+    // 2. PANNING
+    if (isPanning) {
+        camera.x += (screenPos.x - lastX);
+        camera.y += (screenPos.y - lastY);
+        lastX = screenPos.x;
+        lastY = screenPos.y;
+        renderScene();
+        return;
+    }
+
+    // 3. MANIPULATION
     if (currentTool === 'select' && selectedElement) {
-        const dx = pos.x - startX;
-        const dy = pos.y - startY;
-
         if (isDragging) {
-            // Move Logic
             if(selectedElement.type === 'brush') {
                 selectedElement.points.forEach(p => { p.x += dx; p.y += dy; });
-            } else if (selectedElement.type === 'line') {
+            } else if (['line','arrow'].includes(selectedElement.type)) {
                 selectedElement.x += dx; selectedElement.y += dy;
                 selectedElement.endX += dx; selectedElement.endY += dy;
             } else {
-                selectedElement.x += dx;
-                selectedElement.y += dy;
+                selectedElement.x += dx; selectedElement.y += dy;
             }
-            startX = pos.x;
-            startY = pos.y;
+            startX = worldPos.x; startY = worldPos.y; 
             renderScene();
-        } 
-        else if (isResizing && selectedElement.type === 'rect') {
-            // Resize Logic (Rect only)
-            selectedElement.w = pos.x - selectedElement.x;
-            selectedElement.h = pos.y - selectedElement.y;
+        } else if (isResizing) {
+            if(['rect','triangle'].includes(selectedElement.type)) {
+                selectedElement.w = worldPos.x - selectedElement.x;
+                selectedElement.h = worldPos.y - selectedElement.y;
+            } else if (selectedElement.type === 'circle') {
+                selectedElement.r = Math.sqrt((worldPos.x - selectedElement.x)**2 + (worldPos.y - selectedElement.y)**2);
+            } else if (['line','arrow'].includes(selectedElement.type)) {
+                selectedElement.endX = worldPos.x;
+                selectedElement.endY = worldPos.y;
+            }
             renderScene();
         }
         return;
     }
 
-    // 2. Creating
+    // 4. DRAWING
     if (!isDrawing) return;
     
-    // Get the element we are currently drawing (it's the last one)
-    const activeEl = elements[elements.length - 1];
-
-    if (currentTool === 'brush' || currentTool === 'eraser') {
-        activeEl.points.push({x: pos.x, y: pos.y});
-    } else if (currentTool === 'line') {
-        activeEl.endX = pos.x;
-        activeEl.endY = pos.y;
-    } else if (currentTool === 'rect') {
-        activeEl.w = pos.x - startX;
-        activeEl.h = pos.y - startY;
-    } else if (currentTool === 'circle') {
-        activeEl.r = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+    let activeEls = [elements[elements.length - 1]];
+    if (elements.length > 1 && elements[elements.length-1].isGhost) {
+        activeEls.push(elements[elements.length - 2]);
     }
+
+    activeEls.forEach((activeEl) => {
+        let currX = worldPos.x; 
+        let currY = worldPos.y;
+        
+        if (activeEl.isGhost) {
+             let dist = parseInt(document.getElementById('parallelDist').value) || 20;
+             currX += dist; currY += dist;
+        }
+
+        if (activeEl.type === 'brush') {
+            activeEl.points.push({x: currX, y: currY});
+        } else if (['line','arrow'].includes(activeEl.type)) {
+            activeEl.endX = currX; activeEl.endY = currY;
+        } else if (['rect','triangle'].includes(activeEl.type)) {
+            activeEl.w = currX - startX;
+            activeEl.h = currY - startY;
+        } else if (activeEl.type === 'circle') {
+            activeEl.r = Math.sqrt(Math.pow(currX - startX, 2) + Math.pow(currY - startY, 2));
+        }
+    });
 
     renderScene();
 };
 
 const handleEnd = (e) => {
     if(e.type === 'touchend') e.preventDefault();
+    
+    // Reset States
+    isPinching = false;
     isDrawing = false;
     isDragging = false;
     isResizing = false;
+    isPanning = false;
+    
+    if(currentTool === 'select') canvas.style.cursor = 'grab';
 
-    // Handle Text Tool Click (Single click to add text)
-    if (currentTool === 'text' && !isDragging) {
+    elements.forEach(el => delete el.isGhost);
+
+    if (currentTool === 'text' && !isDragging && !isPinching) {
         addText(startX, startY);
     }
 };
 
-// ================= TEXT HANDLING =================
-
-// Single click to add new text
+// ================= TEXT HANDLING (FIXED) =================
 function addText(x, y) {
     if (isPromptOpen) return;
     isPromptOpen = true;
     
     setTimeout(() => {
         const text = prompt("Enter text:", "");
-        if (text) {
-            const color = document.getElementById('sketchColor').value;
-            const size = document.getElementById('sketchSize').value;
-            elements.push({ type: 'text', text, x, y, color, size });
+        if (text && text.trim() !== "") {
+            const color = document.getElementById('mainColor').value;
+            const size = parseInt(document.getElementById('strokeSize').value);
+            // Default size if slider is too small for text
+            const finalSize = size < 10 ? 12 : size; 
+            
+            elements.push({ 
+                type: 'text', 
+                text: text, 
+                x: x, y: y, 
+                color: color, 
+                size: finalSize 
+            });
+            redoStack = []; // Clear redo
             renderScene();
         }
         isPromptOpen = false;
     }, 100);
 }
 
-// Double Click to Edit Text inside shapes
-canvas.addEventListener('dblclick', (e) => {
-    const pos = getPos(e);
-    
-    // Find clicked element
-    for (let i = elements.length - 1; i >= 0; i--) {
-        if (isHit(elements[i], pos.x, pos.y)) {
-            const el = elements[i];
-            
-            // Edit existing text inside shape
-            if (isPromptOpen) return;
-            isPromptOpen = true;
+// Double click to edit text
+if(canvas) {
+    canvas.addEventListener('dblclick', (e) => {
+        const screenPos = getPos(e);
+        const worldPos = toWorld(screenPos.x, screenPos.y);
 
-            setTimeout(() => {
-                const currentTxt = el.text || "";
-                const newText = prompt("Edit Text:", currentTxt);
-                if (newText !== null) {
-                    el.text = newText;
-                    renderScene();
-                }
-                isPromptOpen = false;
-            }, 100);
-            return; // Stop searching
+        for (let i = elements.length - 1; i >= 0; i--) {
+            if (isHit(elements[i], worldPos.x, worldPos.y)) {
+                const el = elements[i];
+                if(el.type !== 'text') continue;
+
+                if (isPromptOpen) return;
+                isPromptOpen = true;
+
+                setTimeout(() => {
+                    const newText = prompt("Edit Text:", el.text || "");
+                    if (newText !== null) {
+                        el.text = newText;
+                        renderScene();
+                    }
+                    isPromptOpen = false;
+                }, 100);
+                return;
+            }
         }
-    }
-});
+    });
 
-// ================= LISTENERS =================
-if (canvas) {
+    // LISTENERS
     canvas.addEventListener('mousedown', handleStart);
     canvas.addEventListener('mousemove', handleMove);
     canvas.addEventListener('mouseup', handleEnd);
@@ -1770,43 +2377,124 @@ if (canvas) {
     canvas.addEventListener('touchstart', handleStart, {passive: false});
     canvas.addEventListener('touchmove', handleMove, {passive: false});
     canvas.addEventListener('touchend', handleEnd, {passive: false});
+    
+    // Key shortcuts
+    window.addEventListener('keydown', (e) => {
+        if (sketchModal.classList.contains('hidden')) return;
+        if (e.key === 'Delete') triggerClearSketch(); 
+        if (e.ctrlKey && e.key === 'c') copyShape();
+        if (e.ctrlKey && e.key === 'v') pasteShape();
+        if (e.ctrlKey && e.key === 'z') undoSketch();
+        if (e.ctrlKey && e.key === 'y') redoSketch();
+    });
+    // Mouse Wheel Zoom
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Determine zoom direction
+      const zoomIntensity = 0.1;
+      const delta = e.deltaY < 0 ? zoomIntensity : -zoomIntensity;
+      
+      // Call smart zoom
+      zoomToPoint(camera.z + delta, mouseX, mouseY);
+  }, { passive: false });
 }
+
+// --- HELPER FUNCTIONS ---
+
+// Distance between two fingers
+function getTouchDistance(e) {
+    return Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+    );
+}
+
+// Center point between two fingers (Screen Coordinates)
+function getTouchCenter(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left,
+        y: ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top
+    };
+}
+// ============================================
 
 function saveSketchModal() {
     if (!activeSketchPath) return;
     
-    // 1. Save Image (For the Preview Thumbnail on the main page)
-    // Optional: Draw Compass onto canvas context temporarily if needed, 
-    // but usually the HTML overlay is enough for the user context.
+    // 1. Generate Base64 Image
     const dataUrl = canvas.toDataURL('image/png');
     
+    // 2. Save Image to State
     if (!formState.images) formState.images = {};
     formState.images[activeSketchPath] = dataUrl;
 
-    // 2. SAVE VECTORS (The Critical Fix)
-    // This remembers every line and shape you drew so you can edit them later.
+    // 3. Save Vectors (Critical for re-editing later)
     if (!formState.vectors) formState.vectors = {};
-    // We use JSON.parse/stringify to create a clean copy of the array
     formState.vectors[activeSketchPath] = JSON.parse(JSON.stringify(elements));
     
-    // 3. Update UI Preview
+    // 4. Update UI Preview (The little thumbnail)
     const safeId = activeSketchPath.replace(/\./g, '_');
     const previewImg = document.getElementById(`img_preview_${safeId}`);
-    if (previewImg) {
+    
+    // Handle the Main Layout specific preview
+    if(activeSketchPath === 'Sketch.main_layout') {
+        const mainPreview = document.getElementById('img_preview_Sketch_main_layout');
+        if(mainPreview) {
+             mainPreview.src = dataUrl;
+             mainPreview.classList.remove('hidden');
+        }
+    } 
+    // Handle Pencil Icon previews
+    else if (previewImg) {
         previewImg.src = dataUrl;
         previewImg.classList.remove('hidden');
-    }
-    
-    // Hide placeholder text for main layout
-    if(activeSketchPath === 'Sketch.main_layout') {
-        const ph = document.getElementById(`placeholder_${safeId}`);
-        if(ph) ph.classList.add('hidden');
     }
     
     saveLocal();
     closeSketchModal();
 }
+function cleanPayload(obj) {
+    // If null or not an object, return as is
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
 
+    // Handle Arrays
+    if (Array.isArray(obj)) {
+        const cleanedArray = obj
+            .map(item => cleanPayload(item))
+            .filter(item => item !== "" && item !== null && item !== undefined);
+        return cleanedArray.length > 0 ? cleanedArray : undefined;
+    }
+
+    // Handle Objects
+    const cleanedObj = {};
+    let hasData = false;
+
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = cleanPayload(obj[key]);
+
+            // Keep value if it is not empty string, null, or undefined
+            if (value !== "" && value !== null && value !== undefined) {
+                // If it's an object (and not array), check if it has keys
+                if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                    continue; 
+                }
+                cleanedObj[key] = value;
+                hasData = true;
+            }
+        }
+    }
+
+    return hasData ? cleanedObj : undefined;
+}
 /* =========================
    9. DATA SYNC & SUBMISSION
 ========================= */
@@ -1845,12 +2533,35 @@ function saveLocal() {
 }
 
 function syncStateToUI() {
-    // Inputs
+    // 1. Handle Text Inputs, Textareas, Selects, and RADIO BUTTONS
     document.querySelectorAll('[data-path]').forEach(el => {
         const val = getNestedValue(formState, el.getAttribute('data-path'));
-        if (val !== undefined) el.value = val;
+        
+        // --- LOGIC FOR RADIO BUTTONS ---
+        if (el.type === 'radio') {
+            // Only compare if we actually have a saved value
+            if (val !== undefined && val !== null && val !== "") {
+                // Convert both to string and trim to avoid " " mismatches
+                const savedValStr = String(val).trim();
+                const inputValStr = String(el.value).trim();
+                
+                if (savedValStr === inputValStr) {
+                    el.checked = true;
+                }
+            }
+        } 
+        // --- LOGIC FOR CHECKBOXES (Single Boolean) ---
+        // (If you use the checkbox trick we made earlier)
+        else if (el.type === 'checkbox' && !el.hasAttribute('data-array')) {
+             if (val === el.value) el.checked = true;
+        }
+        // --- LOGIC FOR STANDARD INPUTS ---
+        else if (val !== undefined) {
+            el.value = val;
+        }
     });
-    // Checkboxes
+
+    // 2. Handle Arrays (Standard Checkboxes)
     document.querySelectorAll('[data-array]').forEach(el => {
         const arr = getNestedValue(formState, el.getAttribute('data-array'));
         if (Array.isArray(arr) && arr.includes(el.value)) el.checked = true;
@@ -2009,39 +2720,50 @@ document.getElementById('triggerResetBtn').onclick = (e) => {
     );
 };
 
-// ACTUAL SUBMIT FUNCTION
 async function performSubmit() {
-    // Save Canvas state one last time before sending
-    if(canvas) formState.sketch_data = canvas.toDataURL();
-    
+    if (!document.getElementById('sketchModal').classList.contains('hidden')) {
+        saveSketchModal();
+    }
+
     try {
-        // Show a loading text on the button
         const btn = document.getElementById('triggerSubmitBtn');
         const originalText = btn.textContent;
         btn.textContent = "Submitting...";
         btn.disabled = true;
 
+        let payload = JSON.parse(JSON.stringify(formState));
+        
+        // Ensure the ID is in the payload (it will be null the first time)
+        payload.report_id = formState.report_id; 
+        payload.target_folder = currentFolder; 
+
+        if(payload.vectors) delete payload.vectors;
+        payload = cleanPayload(payload);
+        if (!payload) payload = {};
+
         const response = await fetch('/coreapi/api/save-feedback/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-            body: JSON.stringify(formState)
+            body: JSON.stringify({ payload })
         });
+        
         const res = await response.json();
         
-        btn.textContent = originalText;
-        btn.disabled = false;
-
         if(res.success) {
-            alert("✅ Report Saved Successfully! ID: " + res.report_id);
-            performReset(); // Clear local storage and reload
+            // --- NEW: Save the ID so next click updates instead of creates ---
+            formState.report_id = res.report_id;
+            saveLocal(); // Update localStorage
+            // -------------------------------------------------------------
+
+            window.location.href = res.redirect_url;
         } else {
-            alert("❌ Error: " + (res.error || "Unknown error"));
+            btn.textContent = originalText;
+            btn.disabled = false;
+            alert("Error: " + res.error);
         }
     } catch (err) {
         console.error(err);
-        alert("❌ Network Error. Please check your connection.");
-        document.getElementById('triggerSubmitBtn').disabled = false;
-        document.getElementById('triggerSubmitBtn').textContent = "Submit Feedback";
+        alert("Network Error");
     }
 }
 
@@ -2097,7 +2819,263 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+function copyAllDocsToSites(checkbox) {
+    const directions = ['north', 'east', 'south', 'west'];
+    const prefix = "Boundary_analysis_property_identification";
 
+    if (checkbox.checked) {
+        // --- CHECKED STATE: COPY VALUES ---
+        directions.forEach(direction => {
+            const doc1Input = document.querySelector(`input[data-path="${prefix}.${direction}_doc1"]`);
+            const doc2Input = document.querySelector(`input[data-path="${prefix}.${direction}_doc2"]`);
+            const siteInput = document.querySelector(`input[data-path="${prefix}.${direction}_site"]`);
+
+            if (siteInput) {
+                const v1 = doc1Input ? doc1Input.value.trim() : "";
+                const v2 = doc2Input ? doc2Input.value.trim() : "";
+                
+                let combinedValue = "";
+                if (v1 && v2) {
+                    combinedValue = `${v1}, ${v2}`;
+                } else {
+                    combinedValue = v1 || v2;
+                }
+
+                siteInput.value = combinedValue;
+                
+                // Trigger Auto-Save
+                siteInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+    } else {
+        // --- UNCHECKED STATE: CLEAR VALUES ---
+        directions.forEach(direction => {
+            const siteInput = document.querySelector(`input[data-path="${prefix}.${direction}_site"]`);
+
+            if (siteInput) {
+                // Clear the value
+                siteInput.value = "";
+                
+                // Trigger Auto-Save (so the empty state is saved)
+                siteInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+    }
+}
+
+/* =========================
+   STRICT TIMELINE LOGIC (No Ghost Columns)
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const savedStr = getNestedValue(formState, "Building_analysis.construction_year");
+        if(savedStr) {
+            parseTimelineString(savedStr);
+        } else {
+            createColumnAtIndex(0, "");
+        }
+    }, 200);
+});
+
+// --- 1. CORE: Recalculate State ---
+function handlePercentInput(e) {
+    const currentInput = e.target;
+    let currentVal = parseFloat(currentInput.value);
+
+    // STEP 1: If input is invalid/empty, just cleanup and STOP.
+    // Do not try to auto-fill the next column yet.
+    if (isNaN(currentVal) || currentVal <= 0) {
+        // If this is the LAST column, just do nothing (let user type)
+        // If this is NOT the last column, deleting it is tricky because focus might get lost.
+        // Better approach: Just don't trigger the "add next column" logic.
+        
+        // However, we MUST clean up any columns *after* this one, 
+        // because if I change 50 to 0, the next column (50) is now invalid logic.
+        const allInputs = Array.from(document.querySelectorAll('.timeline-percent'));
+        const currentIndex = allInputs.indexOf(currentInput);
+        
+        // Remove everything to the right immediately
+        for (let i = allInputs.length - 1; i > currentIndex; i--) {
+            removeColumnAtIndex(i);
+        }
+        
+        updateTimelineString();
+        return; 
+    }
+
+    // STEP 2: Logic for Valid Inputs
+    // Get fresh list of inputs after potential cleanups
+    const allInputs = Array.from(document.querySelectorAll('.timeline-percent'));
+    const currentIndex = allInputs.indexOf(currentInput);
+
+    // Calculate sum UP TO this column
+    let sumSoFar = 0;
+    for(let i=0; i<currentIndex; i++) {
+        sumSoFar += parseFloat(allInputs[i].value) || 0;
+    }
+
+    // Cap at 100% logic
+    if (sumSoFar + currentVal > 100) {
+        currentVal = 100 - sumSoFar;
+        currentInput.value = currentVal;
+    }
+    
+    sumSoFar += currentVal;
+    const remainder = 100 - sumSoFar;
+
+    // STEP 3: Handle the Remainder
+    // A. If 100% reached, delete everything to the right
+    if (remainder <= 0) {
+        for (let i = allInputs.length - 1; i > currentIndex; i--) {
+            removeColumnAtIndex(i);
+        }
+    } 
+    // B. If there is remainder, FORCE the next column to match it
+    else {
+        // Is there already a next column?
+        if (currentIndex + 1 < allInputs.length) {
+            const nextInput = allInputs[currentIndex + 1];
+            // Only update it if it's different (prevents cursor jumping issues sometimes)
+            if (parseFloat(nextInput.value) !== remainder) {
+                nextInput.value = remainder;
+            }
+            // Ensure nothing exists after that neighbor
+            for (let i = allInputs.length - 1; i > currentIndex + 1; i--) {
+                removeColumnAtIndex(i);
+            }
+        } 
+        // No next column? Create it (Max 5 limit)
+        else if (allInputs.length < 5) {
+            createColumnAtIndex(currentIndex + 1, remainder);
+        }
+    }
+
+    updateTimelineString();
+}
+
+// --- 2. DOM Helper: Create Column ---
+function createColumnAtIndex(index, percentVal = "", yearVal = "") {
+    const rowPercent = document.getElementById('row_percent');
+    const rowYear = document.getElementById('row_year');
+    const controlCell = document.getElementById('controlCell');
+
+    // Percent Input
+    const tdP = document.createElement('td');
+    const inpP = document.createElement('input');
+    inpP.type = "number";
+    inpP.className = "table-input timeline-percent";
+    inpP.placeholder = "%";
+    inpP.value = percentVal;
+    inpP.addEventListener('input', handlePercentInput);
+    tdP.appendChild(inpP);
+
+    // Year Input
+    const tdY = document.createElement('td');
+    const inpY = document.createElement('input');
+    inpY.type = "number";
+    inpY.className = "table-input timeline-year";
+    inpY.placeholder = "Year";
+    inpY.value = yearVal;
+    inpY.addEventListener('input', updateTimelineString);
+    tdY.appendChild(inpY);
+
+    // Insert BEFORE the control cell
+    rowPercent.insertBefore(tdP, controlCell);
+    rowYear.appendChild(tdY);
+}
+
+// --- 3. DOM Helper: Remove Column ---
+function removeColumnAtIndex(index) {
+    const rowPercent = document.getElementById('row_percent');
+    const rowYear = document.getElementById('row_year');
+    
+    // Safety check: Don't delete the control buttons cell
+    const pChildren = Array.from(rowPercent.children); // [Label, Input1, Input2, Buttons]
+    const yChildren = Array.from(rowYear.children);    // [Label, Input1, Input2]
+
+    // Actual index in DOM is index + 1 (skipping label)
+    const domIndex = index + 1;
+
+    // Remove Percent Cell (if it's not the button cell)
+    if (pChildren[domIndex] && !pChildren[domIndex].hasAttribute('rowspan')) {
+        pChildren[domIndex].remove();
+    }
+    // Remove Year Cell
+    if (yChildren[domIndex]) {
+        yChildren[domIndex].remove();
+    }
+}
+
+// --- 4. Manual Buttons ---
+function manualAddColumn() {
+    const allPercents = Array.from(document.querySelectorAll('.timeline-percent'));
+    if (allPercents.length >= 5) { alert("Max 5 columns."); return; }
+
+    let sum = 0;
+    allPercents.forEach(p => sum += parseFloat(p.value) || 0);
+    if (sum >= 100) { alert("Total is already 100%. Adjust previous values."); return; }
+
+    createColumnAtIndex(allPercents.length, "");
+}
+
+function removeLastColumn() {
+    const allPercents = document.querySelectorAll('.timeline-percent');
+    if (allPercents.length <= 1) return; // Keep at least 1
+    removeColumnAtIndex(allPercents.length - 1);
+    updateTimelineString();
+}
+
+// --- 5. Save & Parse ---
+function updateTimelineString() {
+    const percents = document.querySelectorAll('.timeline-percent');
+    const years = document.querySelectorAll('.timeline-year');
+    
+    let parts = [];
+    percents.forEach((p, index) => {
+        const pVal = p.value;
+        const yVal = years[index] ? years[index].value : "";
+        // Only save if there is data, but respect 0
+        if (pVal !== "" || yVal !== "") {
+            parts.push(`${yVal} (${pVal}%)`);
+        }
+    });
+
+    const finalString = parts.join(", ");
+    const hiddenInput = document.getElementById('finalConstructionString');
+    if(hiddenInput) {
+        hiddenInput.value = finalString;
+        hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+}
+
+function parseTimelineString(str) {
+    // Clear existing dynamic cells (Keep Label at 0 and Button at end)
+    const rowPercent = document.getElementById('row_percent');
+    const rowYear = document.getElementById('row_year');
+    
+    // Careful removal: remove everything between Label and Button
+    // Percent Row: Label is index 0. Button is lastChild.
+    while (rowPercent.children.length > 2) { 
+        rowPercent.removeChild(rowPercent.children[1]); 
+    }
+    // Year Row: Label is index 0.
+    while (rowYear.children.length > 1) { 
+        rowYear.removeChild(rowYear.children[1]); 
+    }
+
+    if(!str) { createColumnAtIndex(0, ""); return; }
+
+    const parts = str.split(', ');
+    parts.forEach((part, idx) => {
+        const match = part.match(/(\d+)\s*\((\d+)%\)/);
+        if(match) {
+            createColumnAtIndex(idx, match[2], match[1]); // Percent, Year
+        } else {
+            createColumnAtIndex(idx, "", "");
+        }
+    });
+}
 </script>
 
 {% endblock %}

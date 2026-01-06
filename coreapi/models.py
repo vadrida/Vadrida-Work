@@ -21,21 +21,35 @@ class UserProfile(models.Model):
         return f"{self.user_name} ({self.role})"
 
 class SiteVisitReport(models.Model):
-    # Meta info
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    # Key Searchable Fields (Extracted from the JSON for easy indexing)
+    
     office_file_no = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     applicant_name = models.CharField(max_length=255, blank=True, null=True)
-
-    # The Main Data Dump
-    # This stores the entire formState (Valuers, Ownership, Survey, etc.)
+    
+    # Store the text data here (cleaned, without images)
     form_data = models.JSONField(default=dict)
 
-    # The Hand Sketch (Decoded from Base64)
-    sketch = models.ImageField(upload_to='site_sketches/', blank=True, null=True)
+    # Optional: Keep this for the "Main" layout if you want it easily accessible, 
+    # or you can move it to the child model too.
+    main_sketch = models.ImageField(upload_to='main_sketches/', blank=True, null=True)
 
     def __str__(self):
-        return f"Report {self.office_file_no} - {self.applicant_name}"
+        return f"Report {self.office_file_no}"
+
+# --- NEW MODEL FOR HANDLING ALL NOTE SKETCHES ---
+class ReportSketch(models.Model):
+    # Link to the parent report
+    report = models.ForeignKey(SiteVisitReport, related_name='sketches', on_delete=models.CASCADE)
+    
+    # Stores the "Path" from your JS (e.g., "Ownership_Analysis.Ownership_Analysis_notes")
+    source_key = models.CharField(max_length=255, db_index=True)
+    
+    # The actual image file
+    image = models.ImageField(upload_to='note_sketches/')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Sketch for {self.source_key} (Report {self.report.id})"

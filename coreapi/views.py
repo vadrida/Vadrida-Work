@@ -8,7 +8,7 @@ from django_ratelimit.decorators import ratelimit
 import os,io
 import mimetypes
 from django.http import JsonResponse, FileResponse, Http404
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.http import require_http_methods, require_POST, require_GET
 from PyPDF2 import PdfMerger
 from PIL import Image
 from datetime import datetime
@@ -19,11 +19,18 @@ from docx import Document
 import openpyxl
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
 import base64
 from django.db.models import Q, Max
 import uuid
 from django.contrib.auth.decorators import login_required
-from .models import SiteVisitReport
+from weasyprint import HTML, CSS
+from .models import UserProfile, SiteVisitReport, ReportSketch
+import fitz  
+from .utils import generate_site_report_pdf
+from django.shortcuts import render, get_object_or_404
+import shutil
+
 
 
 def refresh_files(request):
@@ -50,7 +57,7 @@ def dashboard(request):
     role = request.session.get("user_role")
     # if role == "admin":
     #     return redirect("coreapi:admin_dashboard")
-    if role in ["office", "IT"]:
+    if role in ["office", "IT", "site"]:
         return redirect("coreapi:office_dashboard")
     return JsonResponse({"error": "Invalid"}, status=401)
 
@@ -519,78 +526,318 @@ def feedback(request):
 @csrf_protect
 @require_POST
 def save_feedback(request):
-    # 1. IMMEDIATE CHECK: Is the user logged in?
     user_id = request.session.get("user_id")
-    print(f"Debug: User id : {user_id}")
-
-    if not user_id:
-        return JsonResponse({
-            'success': False, 
-            'error': 'Authentication failed. No user_id in session.'
-        }, status=401)
-
-    # --- Fetch the actual User Object ---
-    try:
-        # Assuming UserProfile is linked to a generic User or is the primary model
-        # Adjust 'id' to 'user_id' or 'pk' depending on your model definition
-        current_user = UserProfile.objects.get(id=user_id)
-    except UserProfile.DoesNotExist:
-        return JsonResponse({
-            'success': False, 
-            'error': 'User record not found in database.'
-        }, status=401)
-    # -----------------------------------------------
+    if not user_id: 
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
 
     try:
-        # 2. Parse the JSON body
-        payload = json.loads(request.body)
+        user = UserProfile.objects.get(id=user_id)
+        request_data = json.loads(request.body)
         
-        # Safe extraction helper
-        def get_nested(data, key_path):
-            keys = key_path.split('.')
-            val = data
-            for k in keys:
-                val = val.get(k)
-                if val is None: return None
-            return val
+        # 1. Get the payload wrapper
+        payload = request_data.get('payload', {})
+        
+        # 2. Extract Data for Columns
+        checklist_data = payload.get('Valuers_Checklist', {})
+        office_file_no_val = checklist_data.get('Office_file_no')
+        applicant_name_val = checklist_data.get('applicant_name')
 
-        # Handle lowercase/uppercase mix safely
-        office_file_no = get_nested(payload, 'Valuers_Checklist.Office_file_no') or get_nested(payload, 'valuers.Office_file_no')
-        applicant_name = get_nested(payload, 'Valuers_Checklist.applicant_name') or get_nested(payload, 'valuers.applicant_name')
+        # 3. CHECK IF REPORT ID EXISTS (Update vs Create)
+        report_id = payload.get('report_id')
 
-        # 3. Handle the Sketch
-        sketch_file = None
-        sketch_b64 = payload.get('sketch_data')
-
-        if sketch_b64 and 'base64,' in sketch_b64:
-            format_str, imgstr = sketch_b64.split(';base64,')
-            ext = format_str.split('/')[-1]
-            # Use UUID to prevent filename collisions
-            filename = f"sketch_{office_file_no or 'unknown'}_{uuid.uuid4()}.{ext}"
-            sketch_file = ContentFile(base64.b64decode(imgstr), name=filename)
-            
-            # Update payload to indicate file is saved, removing the massive base64 string
-            payload['sketch_data'] = "Saved as ImageField"
-
-        # 4. Save to Database
-        # The 'form_data' field will contain the entire JSON, including 
-        # the Survey columns and Boundary dropdown selections.
-        report = SiteVisitReport.objects.create(
-            user=current_user,  
-            office_file_no=office_file_no,
-            applicant_name=applicant_name,
-            form_data=payload, 
-            sketch=sketch_file
-        )
+        if report_id:
+            # --- UPDATE EXISTING ---
+            try:
+                report = SiteVisitReport.objects.get(id=report_id, user=user)
+                report.form_data = payload
+                report.office_file_no = office_file_no_val
+                report.applicant_name = applicant_name_val
+                report.save()
+            except SiteVisitReport.DoesNotExist:
+                # If ID sent but not found (rare), create new
+                report = SiteVisitReport.objects.create(
+                    user=user,
+                    form_data=payload,
+                    office_file_no=office_file_no_val,
+                    applicant_name=applicant_name_val
+                )
+        else:
+            # --- CREATE NEW ---
+            report = SiteVisitReport.objects.create(
+                user=user,
+                form_data=payload,
+                office_file_no=office_file_no_val,
+                applicant_name=applicant_name_val
+            )
 
         return JsonResponse({
             'success': True, 
-            'message': 'Report saved successfully',
-            'report_id': report.id
+            'report_id': report.id,
+            'redirect_url': f"/coreapi/pdf-editor/{report.id}/"
         })
 
-    except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
-        print(f"Error saving report: {str(e)}") 
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)\
+            
+            
+# --- STEP 2: RENDER EDITOR PAGE ---
+def pdf_editor_page(request, report_id):
+    return render(request, "pdf_editor.html", {'report_id': report_id})
+def pdf_editor_page(request, report_id):
+    """Renders the HTML Editor page you provided"""
+    # Verify report exists to prevent 404s later
+    get_object_or_404(SiteVisitReport, id=report_id)
+    return render(request, "pdf_editor.html", {'report_id': report_id})
+
+@require_GET
+def get_report_data(request, report_id):
+    """API called by the PDF Editor JS to load data"""
+    report = get_object_or_404(SiteVisitReport, id=report_id)
+    return JsonResponse(report.form_data)
+
+@csrf_protect
+@require_POST
+def finalize_pdf(request):
+    try:
+        # 1. Parse Data
+        payload = json.loads(request.body)
+        report_id = payload.get('report_id')
+        target_path = payload.get('target_folder', '')
+        html_content = payload.get('html_content', '')
+
+        if not html_content:
+            return JsonResponse({'success': False, 'error': "No HTML content received"}, status=400)
+
+        # 2. Update DB
+        db_payload = {k: v for k, v in payload.items() if k != 'html_content'}
+        report = SiteVisitReport.objects.get(id=report_id)
+        report.form_data = db_payload
+        report.save()
+
+        # 3. Determine Save Directory
+        if not target_path or target_path == "/":
+            save_dir = settings.DOCUMENTS_ROOT
+        else:
+            clean_target = target_path.lstrip('/')
+            save_dir = os.path.join(settings.DOCUMENTS_ROOT, clean_target)
+        
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+
+        # =========================================================
+        # 4. VERSIONING LOGIC (OfficeFile_Name_1.pdf)
+        # =========================================================
+        checklist = payload.get('Valuers_Checklist', {})
+        
+        # Get raw values and fallback if empty
+        raw_file_no = checklist.get('Office_file_no') or 'Draft'
+        raw_name = checklist.get('applicant_name') or 'Report'
+
+        # Sanitize strings (remove spaces, slashes, etc. to prevent path errors)
+        safe_file_no = str(raw_file_no).strip().replace(' ', '_').replace('/', '-')
+        safe_name = str(raw_name).strip().replace(' ', '_').replace('/', '-')
+
+        # Create the base name: "123_JohnDoe"
+        base_filename = f"{safe_file_no}_{safe_name}"
+        
+        counter = 1
+        while True:
+            # Construct: "123_JohnDoe_1.pdf"
+            pdf_filename = f"{base_filename}_{counter}.pdf"
+            full_save_path = os.path.join(save_dir, pdf_filename)
+            
+            # Check if this exact file already exists on disk
+            if not os.path.exists(full_save_path):
+                # If it doesn't exist, this is our file! Break the loop.
+                break
+            
+            # If it exists, increment counter and try again (e.g., try _2.pdf)
+            counter += 1
+        # =========================================================
+
+        # 5. Construct HTML Wrapper
+        base_url = request.build_absolute_uri('/')
+        
+        full_html_string = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                @page {{ size: A4; margin: 0; }}
+                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; }}
+                
+                /* Layout Styles */
+                .pdf-sheet {{
+                    width: 210mm; min-height: 297mm; background: white; padding: 15mm;
+                    page-break-after: always; box-sizing: border-box; margin: 0 auto;
+                }}
+                
+                h1 {{ margin: 0 0 10px 0; font-size: 16pt; text-transform: uppercase; text-align: center; color: #333; }}
+                .section-title {{ background: #e0e0e0; padding: 4px 8px; font-weight: bold; border: 1px solid #999; margin-top: 15px; margin-bottom: 5px; font-size: 10pt; }}
+                
+                .row {{ display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-start; }}
+                label {{ font-weight: bold; color: #555; font-size: 8pt; margin-right: 5px; white-space: nowrap; }}
+                
+                .field-box {{ 
+                    border-bottom: 1px dotted #000; min-height: 18px; line-height: 1.4;
+                    background: #fcfcfc; color: #000; flex-grow: 1; 
+                    white-space: pre-wrap; overflow-wrap: break-word; display: block;
+                }}
+                
+                .report-table {{ width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 8pt; table-layout: fixed; }}
+                .report-table th, .report-table td {{ border: 1px solid #999; padding: 3px; text-align: center; vertical-align: top; overflow-wrap: break-word; }}
+                .report-table th {{ background: #f0f0f0; }}
+                .report-table .field-box {{ border-bottom: none; }}
+                
+                .checkbox-group {{ display: flex; flex-wrap: wrap; gap: 10px; }}
+                .checkbox-item {{ display: flex; align-items: center; gap: 3px; font-size: 8pt; }}
+                
+                .img-wrapper {{ border: 2px dashed #ddd; margin: 10px 0; min-height: 150px; display:flex; justify-content:center; align-items: center; }}
+                .img-wrapper img {{ max-width: 100%; max-height: 400px; display: block; }}
+                
+                /* Hide UI elements */
+                .floating-save, .nav-left, button, .btn-save {{ display: none !important; }}
+            </style>
+        </head>
+        <body>
+            {html_content}
+        </body>
+        </html>
+        """
+
+        # 6. Generate PDF
+        HTML(string=full_html_string, base_url=base_url).write_pdf(full_save_path)
+
+        try:
+            # Define backup directory: Project Root / generated_pdfs
+            backup_dir = os.path.join(settings.BASE_DIR, 'generated_pdfs')
+            
+            # Ensure folder exists
+            if not os.path.exists(backup_dir):
+                os.makedirs(backup_dir, exist_ok=True)
+            
+            # Define backup path
+            backup_save_path = os.path.join(backup_dir, pdf_filename)
+            
+            # Copy the newly created file to the backup folder
+            shutil.copy2(full_save_path, backup_save_path)
+            
+            print(f"Backup saved to: {backup_save_path}")
+            
+        except Exception as copy_error:
+            print(f"Warning: Could not save backup copy: {copy_error}")
+            # We don't stop the response, just log the error
+        # =========================================================
+        
+        return JsonResponse({'success': True, 'file_path': full_save_path})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        
+# ==========================================
+#  PDF GENERATION UTILS
+# ==========================================
+
+def fill_site_report_pdf(data, images_dict, target_folder_path, filename):
+    """
+    Fills 'Sitefeedbackform.pdf' template using PyMuPDF (fitz).
+    """
+    # 1. Setup Paths
+    template_path = os.path.join(settings.BASE_DIR, 'static', 'pdf_templates', 'Sitefeedbackform.pdf')
+    
+    # Handle User Selected Folder
+    if not target_folder_path or target_folder_path == "/":
+        save_dir = settings.DOCUMENTS_ROOT
+    else:
+        # Remove leading slash if present to join correctly
+        clean_target = target_folder_path.lstrip('/')
+        save_dir = os.path.join(settings.DOCUMENTS_ROOT, clean_target)
+    
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir, exist_ok=True)
+        
+    output_path = os.path.join(save_dir, filename)
+
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"PDF Template not found at: {template_path}")
+
+    # 2. Flatten JSON
+    flat_data = {}
+    
+    def flatten(y, prefix=""):
+        for k, v in y.items():
+            full_key = f"{prefix}.{k}" if prefix else k
+            if isinstance(v, dict):
+                flatten(v, full_key)
+            elif isinstance(v, list):
+                flat_data[full_key] = v 
+                # Check items for checkboxes
+                for item in v:
+                    flat_data[f"{full_key}.{item}"] = True
+            else:
+                flat_data[full_key] = v
+                flat_data[k] = v 
+
+    flatten(data)
+
+    # 3. Open PDF & Fill
+    doc = fitz.open(template_path)
+
+    for page in doc:
+        widgets = list(page.widgets())
+        
+        for widget in widgets:
+            name = widget.field_name
+            
+            # --- A. IMAGE INSERTION ---
+            if name in images_dict:
+                b64_img = images_dict[name]
+                if b64_img and 'base64,' in b64_img:
+                    try:
+                        img_data = base64.b64decode(b64_img.split('base64,')[1])
+                        rect = widget.rect
+                        page.insert_image(rect, stream=img_data, keep_proportion=True)
+                        page.delete_widget(widget)
+                        continue 
+                    except Exception as e:
+                        print(f"Image error for {name}: {e}")
+
+            # --- B. DATA FILLING ---
+            
+            # Checkbox Logic
+            if widget.field_type == fitz.PDF_WIDGET_TYPE_CHECKBOX:
+                is_checked = False
+                
+                # Case 1: Boolean match (e.g. data is True)
+                if name in flat_data and flat_data[name] is True:
+                    is_checked = True
+                # Case 2: String match (e.g. data is "true")
+                elif name in flat_data and str(flat_data[name]).lower() == "true":
+                    is_checked = True
+                # Case 3: List membership (Value inside a list)
+                else:
+                    for key, val in flat_data.items():
+                        if isinstance(val, list) and name in val:
+                            is_checked = True
+                            break
+                            
+                if is_checked:
+                    widget.field_value = True
+                    widget.update()
+
+            # Text Field Logic
+            elif name in flat_data:
+                val = flat_data[name]
+                if val is not None and not isinstance(val, list) and not isinstance(val, dict):
+                    widget.field_value = str(val)
+                    widget.update()
+
+    # 4. Save
+    doc.flatten_form_fields()
+    doc.save(output_path)
+    doc.close()
+    
+    return output_path

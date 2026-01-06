@@ -167,9 +167,12 @@
       </div>
     </div>
 
-    <div id="modalBody" class="modal-inner">
-      <iframe id="modalFrame" class="w-full h-full border-0 hidden" src=""></iframe>
-      <img id="modalImage" class="w-full h-full object-contain hidden" src="" alt="preview" />
+    <div id="modalBody" class="modal-inner" style="overflow: hidden; display: flex; justify-content: center; background: #f0f0f0; height: calc(100% - 60px);">
+      <iframe id="modalFrame" class="hidden" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+      
+      <img id="modalImage" class="hidden" src="" alt="preview" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+      
+      <div id="modalPdfContainer" class="hidden pdf-scroll-container" style="width: 100%; height: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center;"></div>
     </div>
   </div>
 </div>
@@ -652,30 +655,54 @@ searchInput.addEventListener("input", e => {
 /* =========================
    RENDER FULL PDF
 ========================= */
-async function renderFullPdf(url) {
-  await loadPdfJsIfNeeded();
+/* =========================
+   RENDER FULL PDF (Updated for Modal Support)
+========================= */
+async function renderFullPdf(url, targetContainer = null) {
+  try {
+    await loadPdfJsIfNeeded();
 
-  const pdf = await pdfjsLib.getDocument(url).promise;
-  pdfMain.innerHTML = "";
+    // Default to sidebar (pdfMain) if no specific container is passed
+    const container = targetContainer || document.getElementById("pdfMain");
+    
+    // Show loading state
+    container.innerHTML = '<div style="color:gray; text-align:center; padding:20px;">Loading PDF...</div>';
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const scale = window.innerWidth < 768 ? 1 : 1.4;
-    const viewport = page.getViewport({ scale });
+    const pdf = await pdfjsLib.getDocument(url).promise;
+    container.innerHTML = ""; // Clear loader
 
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      
+      // Determine Zoom Level
+      // If in Modal (targetContainer exists), make it bigger (1.5). 
+      // If in Sidebar (no targetContainer), keep it smaller.
+      const baseScale = targetContainer ? 1.5 : (window.innerWidth < 768 ? 1.0 : 1.4);
+      
+      const viewport = page.getViewport({ scale: baseScale });
 
-    await page.render({
-      canvasContext: canvas.getContext("2d"),
-      viewport
-    }).promise;
+      const cvs = document.createElement("canvas");
+      cvs.width = viewport.width;
+      cvs.height = viewport.height;
+      cvs.style.marginBottom = "10px";
+      cvs.style.display = "block";
+      cvs.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)"; // Nice shadow
+      cvs.style.backgroundColor = "white";
 
-    pdfMain.appendChild(canvas);
+      // Render
+      await page.render({ 
+          canvasContext: cvs.getContext("2d"), 
+          viewport: viewport 
+      }).promise;
+
+      container.appendChild(cvs);
+    }
+  } catch (error) {
+    console.error("PDF Render Error:", error);
+    const container = targetContainer || document.getElementById("pdfMain");
+    container.innerHTML = `<div class="p-4 text-red-500 text-center">Error loading PDF content</div>`;
   }
 }
-
 /* =========================
    PDF.JS LOADER
 ========================= */
@@ -729,7 +756,7 @@ document.getElementById("refreshFolders").onclick = () => {
 };
 
 /* =========================
-   FULLSCREEN MODAL
+   FULLSCREEN MODAL LOGIC (Updated)
 ========================= */
 const fullscreenModal = document.getElementById("fullscreenModal");
 const modalFrame = document.getElementById("modalFrame");
@@ -740,32 +767,63 @@ document.getElementById("openFullBtn").onclick = () => {
     alert("Select a file first");
     return;
   }
-  const ext = currentFile.name.split(".").pop().toLowerCase();
 
-  // Mobile → open native viewer
-  if (window.innerWidth < 768) {
-    window.open(currentPreviewUrl, "_blank");
-    return;
-  }
+  // 1. Open Modal (Active on ALL devices now)
+  fullscreenModal.classList.add("active"); // Ensure your CSS supports .active for display block
 
-  // Desktop → modal
-  fullscreenModal.classList.add("active");
+  // If your CSS uses Aria-Hidden instead of a class for visibility:
+  fullscreenModal.setAttribute("aria-hidden", "false"); 
+
+  // 2. Reset All Containers
   modalFrame.classList.add("hidden");
   modalImage.classList.add("hidden");
+  const pdfContainer = document.getElementById("modalPdfContainer");
+  pdfContainer.classList.add("hidden");
+  pdfContainer.innerHTML = ""; // Clear previous
 
-  if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
+  const ext = currentFile.name.split(".").pop().toLowerCase();
+
+  // 3. Route based on file type
+  if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+    // === IMAGE ===
     modalImage.src = currentPreviewUrl;
     modalImage.classList.remove("hidden");
-  } else {
-    modalFrame.src = currentPreviewUrl;
-    modalFrame.classList.remove("hidden");
+  } 
+  else if (ext === 'pdf') {
+    // === PDF (Direct Render) ===
+    pdfContainer.classList.remove("hidden");
+    renderFullPdf(currentPreviewUrl, pdfContainer);
+  } 
+  else {
+    // === UNSUPPORTED (Docx, Excel, etc.) ===
+    // Show clean "No Preview" UI instead of broken iframe
+    pdfContainer.classList.remove("hidden");
+    pdfContainer.innerHTML = `
+        <div style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
+            <div style="font-size: 60px; color: #cbd5e1; margin-bottom: 20px;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h3 style="font-size: 20px; color: #334155; margin: 0; font-weight: 600;">No Preview Available</h3>
+            <p style="color: #64748b; margin-top: 10px;">
+                .${ext.toUpperCase()} files cannot be previewed in the browser.
+            </p>
+            <a href="${currentPreviewUrl}&download=true" 
+               style="background-color: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 20px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+               <i class="fas fa-download"></i> Download File
+            </a>
+        </div>
+    `;
   }
 };
 
 document.getElementById("modalClose").onclick = () => {
+  // Close logic supporting both class and aria attribute
   fullscreenModal.classList.remove("active");
+  fullscreenModal.setAttribute("aria-hidden", "true");
+  
   modalFrame.src = "";
   modalImage.src = "";
+  document.getElementById("modalPdfContainer").innerHTML = "";
 };
 
 /* =========================

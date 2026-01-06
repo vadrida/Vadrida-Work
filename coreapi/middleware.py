@@ -19,6 +19,9 @@ class LoginRequiredMiddleware:
         # Allow static + media
         if request.path.startswith("/static/") or request.path.startswith("/media/"):
             return self.get_response(request)
+        if request.path.startswith("/admin/"):
+            return self.get_response(request)
+
 
         # Skip login API
         if request.path.startswith("/coreapi/login/api/"):
