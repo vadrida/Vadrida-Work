@@ -627,29 +627,27 @@ document.getElementById("fileSelectClose").onclick = () => {
 };
 
 /* =========================
-   FILE SEARCH
+   SEARCH DEBOUNCE (Prevents Spamming Server)
 ========================= */
 const searchInput = document.getElementById("fileSearch");
 let searchTimer = null;
 
 searchInput.addEventListener("input", e => {
   const q = e.target.value.trim();
+  
+  // Clear any existing timer
   clearTimeout(searchTimer);
 
+  // Wait 500ms before sending the request
   searchTimer = setTimeout(() => {
-    if (!q) {
-      isSearching = false;
-      if (rootFoldersCache) {
-        renderFileList(rootFoldersCache.folders || [], rootFoldersCache.files || []);
-        renderThumbs(rootFoldersCache.files || []);
-      } else {
-        loadFolder("");
-      }
-      return;
+    if (!q) { 
+        loadFolder(currentFolder); 
+        return; 
     }
-
+    
+    // Only search if the user stopped typing for 500ms
     globalSearch(q);
-  }, 300);
+  }, 500); // Increased from 300ms to 500ms
 });
 
 /* =========================

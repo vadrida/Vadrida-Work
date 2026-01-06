@@ -32,11 +32,14 @@ from django.shortcuts import render, get_object_or_404
 import shutil
 
 
-
+@csrf_protect
 def refresh_files(request):
-    refresh_index()
-    return JsonResponse({"status": "ok"})
-
+    try:
+        # Rebuild the index synchronously
+        refresh_index()
+        return JsonResponse({"status": "success", "message": "Index refreshed"})
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
 # ----------------------------
 # Login / Logout / Dashboard
 # ----------------------------
@@ -119,53 +122,45 @@ def logout_api(request):
 # ----------------------------
 DOCUMENTS_FOLDER = settings.DOCUMENTS_ROOT
 
-def office_dashboard(request):
-    """Main dashboard view"""
-    folders, files = scan_folder_tree(DOCUMENTS_FOLDER)
+# views.py
 
+def office_dashboard(request):
+    """
+    Loads the dashboard instantly. 
+    Only fetches the top-level folders to populate the sidebar/initial view.
+    No files are loaded yet.
+    """
+    # Only scan the immediate root directory, do NOT walk the whole tree
+    folders = scan_root_folders_only(DOCUMENTS_FOLDER) 
+    
     context = {
         "folders": folders,
-        "files": files,
+        "files": [], # Empty on purpose. JS will fetch files when a user clicks a folder.
     }
     return render(request, "office_dashboard.html", context)
 
-def scan_folder_tree(base_folder):
+def scan_root_folders_only(base_folder):
+    """
+    LIGHTWEIGHT SCANNER: Uses os.scandir for maximum speed.
+    Only returns folders in the immediate root.
+    """
     folders = []
-    files = []
-
-    for root, dirnames, filenames in os.walk(base_folder):
-        rel_root = os.path.relpath(root, base_folder)
-        if rel_root == ".":
-            rel_root = ""
-
-        for d in dirnames:
-            folders.append({
-                "id": os.path.join(rel_root, d),
-                "name": d,
-                "path": os.path.join(rel_root, d)
-            })
-
-        for f in filenames:
-            full_path = os.path.join(root, f)
-            stat = os.stat(full_path)
-            ext = os.path.splitext(f)[1].lower()
-            mime, _ = mimetypes.guess_type(f)
-
-            files.append({
-                "id": f,
-                "name": f,
-                "path": os.path.join(rel_root, f),
-                "folder": rel_root,
-                "extension": ext,
-                "mime_type": mime or "application/octet-stream",
-                "size": format_file_size(stat.st_size),
-                "size_bytes": stat.st_size,
-                "modified": stat.st_mtime,
-                "type": get_file_type_description(ext),
-            })
-
-    return folders, files
-
+    try:
+        # os.scandir is significantly faster than os.listdir or os.walk
+        with os.scandir(base_folder) as it:
+            for entry in it:
+                if entry.is_dir():
+                    folders.append({
+                        "id": entry.name,
+                        "name": entry.name,
+                        "path": entry.name, # Relative path at root is just the name
+                        "type": "folder"
+                    })
+    except Exception as e:
+        print(f"Error scanning root: {e}")
+        
+    # Sort alphabetically
+    return sorted(folders, key=lambda x: x['name'].lower())
 
 
 def categorize_file(extension):
@@ -210,7 +205,7 @@ def format_file_size(size_bytes):
 @require_http_methods(["GET"])
 def search_folders_api(request):
     q = request.GET.get("q", "").lower()
-    folders, _ = scan_folder_tree(DOCUMENTS_FOLDER)
+    folders, _ = scan_root_folders_only(DOCUMENTS_FOLDER)
 
     if q:
         folders = [f for f in folders if q in f["name"].lower() or q in f["id"].lower()]
@@ -221,30 +216,29 @@ def search_folders_api(request):
 
 def search_files(request):
     q = request.GET.get("q", "").strip().lower()
-
-    if not q:
+    
+    # 1. Validate Input (Don't search for empty strings)
+    if not q or len(q) < 2:
         return JsonResponse({"folders": [], "files": []})
 
+    # 2. Get the index (This is now fast because it's cached)
     index = get_index()
-
-    folders = [f for f in index["folders"] if q in f["name"].lower()]
-    files = [f for f in index["files"] if q in f["name"].lower()]
+    
+    # 3. Filter Results
+    # Limit to 50 results to keep the UI snappy
+    matched_folders = [f for f in index.get("folders", []) if q in f["name"].lower()][:20]
+    matched_files = [f for f in index.get("files", []) if q in f["name"].lower()][:50]
 
     return JsonResponse({
-        "folders": folders[:100],  # limit for safety
-        "files": files[:100]
+        "folders": matched_folders,
+        "files": matched_files
     })
-
 
 @require_http_methods(["GET"])
 def get_folder_contents_api(request):
     rel_path = request.GET.get("path", "")
     base = os.path.realpath(DOCUMENTS_FOLDER)
     abs_path = os.path.realpath(os.path.join(base, rel_path))
-    print("DOCUMENTS_ROOT =", settings.DOCUMENTS_ROOT)
-    print("ABS PATH =", abs_path)
-    print("EXISTS =", os.path.exists(abs_path))
-    print("IS DIR =", os.path.isdir(abs_path))
 
     # Security check
     if not abs_path.startswith(base) or not os.path.isdir(abs_path):
@@ -253,36 +247,40 @@ def get_folder_contents_api(request):
     folders = []
     files = []
 
-    for entry in os.listdir(abs_path):
-        full = os.path.join(abs_path, entry)
-        rel = os.path.join(rel_path, entry).replace("\\", "/")
+    try:
+        # PERFORMANCE BOOST: os.scandir gets name AND stats in one go
+        with os.scandir(abs_path) as it:
+            for entry in it:
+                if entry.is_dir():
+                    folders.append({
+                        "name": entry.name,
+                        "path": os.path.join(rel_path, entry.name).replace("\\", "/"),
+                        "type": "folder"
+                    })
+                else:
+                    # entry.stat() is cached from the scan! No extra disk access.
+                    stats = entry.stat() 
+                    ext = os.path.splitext(entry.name)[1].lower()
+                    
+                    files.append({
+                        "name": entry.name,
+                        "path": os.path.join(rel_path, entry.name).replace("\\", "/"),
+                        "type": "file",
+                        "extension": ext,
+                        "mime_type": "application/octet-stream", # Calculate real mime only if needed to save time
+                        "size": format_file_size(stats.st_size),
+                    })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
-        if os.path.isdir(full):
-            folders.append({
-                "name": entry,
-                "path": rel,
-                "type": "folder"
-            })
-        else:
-            stat = os.stat(full)
-            ext = os.path.splitext(entry)[1].lower()
-            mime, _ = mimetypes.guess_type(entry)
-
-            files.append({
-                "name": entry,
-                "path": rel,
-                "type": "file",
-                "extension": ext,
-                "mime_type": mime or "application/octet-stream",
-                "size": format_file_size(stat.st_size),
-            })
+    # Sort results
+    folders.sort(key=lambda x: x["name"].lower())
+    files.sort(key=lambda x: x["name"].lower())
 
     return JsonResponse({
-        "folders": sorted(folders, key=lambda x: x["name"].lower()),
-        "files": sorted(files, key=lambda x: x["name"].lower())
+        "folders": folders,
+        "files": files
     })
-
-
 
 
 @require_http_methods(["GET"])

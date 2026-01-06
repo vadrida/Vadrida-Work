@@ -1441,45 +1441,64 @@ function setFileInfo(file) {
 /* =========================
    6. PDF & ANALYSIS TOOLS
 ========================= */
-// Updated to accept a 'targetContainer' argument
-// Updated to accept a 'targetContainer' argument
+/* =========================
+   RENDER PDF (High Scale / Fit Width)
+========================= */
 async function renderFullPdf(url, targetContainer = null) {
   try {
     await loadPdfJsIfNeeded();
     
     // Default to sidebar if no container specified
     const container = targetContainer || document.getElementById("pdfMain");
+    
+    // Show loading state
     container.innerHTML = '<div style="color:white; text-align:center; padding:20px;">Loading PDF...</div>';
 
     const pdf = await pdfjsLib.getDocument(url).promise;
     container.innerHTML = ""; // Clear loader
 
+    // --- NEW SCALING LOGIC: FIT WIDTH ---
+    const page1 = await pdf.getPage(1);
+    
+    // Get the width of the grey viewer box
+    // We use 'bigViewer' because 'container' might be shrinking to fit content
+    const viewerContainer = document.getElementById('bigViewer');
+    const availableWidth = viewerContainer.clientWidth - 40; // Subtract padding
+    
+    const unscaledViewport = page1.getViewport({ scale: 1 });
+    
+    // Calculate scale to fill the width
+    let scale = availableWidth / unscaledViewport.width;
+    
+    // Force a minimum scale if "Fit Width" is still too small
+    // (e.g., never render smaller than 1.25x zoom)
+    if (scale < 1.25) scale = 1.25; 
+
+    // --- RENDER ALL PAGES ---
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
-      
-      // Calculate scale: fit width of container
-      // If in modal (targetContainer exists), use larger scale
-      const baseScale = targetContainer ? 1.5 : (window.innerWidth < 768 ? 1.2 : 1.5);
-      const viewport = page.getViewport({ scale: baseScale });
+      const viewport = page.getViewport({ scale: scale });
 
       const cvs = document.createElement("canvas");
       cvs.width = viewport.width;
       cvs.height = viewport.height;
+      
+      // Styling to make pages distinct
       cvs.style.marginBottom = "10px";
       cvs.style.display = "block";
-      cvs.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)"; // Add shadow for better look
-      
+      cvs.style.boxShadow = "0 4px 8px rgba(0,0,0,0.3)";
+      cvs.style.backgroundColor = "white";
+
       // Render
       await page.render({ canvasContext: cvs.getContext("2d"), viewport }).promise;
       container.appendChild(cvs);
     }
   } catch (error) {
-    console.error(error);
+    console.error("PDF Error:", error);
     const container = targetContainer || document.getElementById("pdfMain");
-    container.innerHTML = `<div class="error">Error loading PDF</div>`;
+    container.innerHTML = `<div class="error" style="color:white;">Error loading PDF</div>`;
   }
 }
-
 function loadPdfJsIfNeeded() {
   if (window.pdfjsLib) return Promise.resolve();
   return new Promise((resolve) => {
@@ -1558,36 +1577,80 @@ document.getElementById("confirmFileSelection").onclick = () => {
 document.getElementById("analyseClose").onclick = () => analyseModal.classList.add("hidden");
 document.getElementById("fileSelectClose").onclick = () => fileSelectModal.classList.add("hidden");
 
-// Search
+
+/* =========================
+   SEARCH DEBOUNCE (Updated)
+========================= */
 const searchInput = document.getElementById("fileSearch");
 let searchTimer = null;
+let currentSearchController = null; // Store the abort controller
+
 searchInput.addEventListener("input", e => {
   const q = e.target.value.trim();
+  
+  // 1. Clear the timer (Stop previous countdown)
   clearTimeout(searchTimer);
+
+  // 2. Cancel any currently running network request
+  if (currentSearchController) {
+      currentSearchController.abort();
+  }
+
+  // 3. Wait 800ms (0.8 seconds) before sending the new request
   searchTimer = setTimeout(() => {
-    if (!q) { loadFolder(currentFolder); return; }
+    if (!q) { 
+        loadFolder(currentFolder); 
+        return; 
+    }
     globalSearch(q);
-  }, 300);
+  }, 800); 
 });
 
 function globalSearch(query) {
   fileList.innerHTML = `<li class="file-item loading">Searching...</li>`;
-  fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`)
+  
+  // Create a new controller for this specific request
+  currentSearchController = new AbortController();
+  const signal = currentSearchController.signal;
+
+  fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`, { signal })
     .then(r => r.json())
     .then(data => {
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
+    })
+    .catch(err => {
+        if (err.name === 'AbortError') {
+            console.log('Search aborted');
+        } else {
+            console.error('Search failed', err);
+        }
     });
 }
+/* =========================
+   REFRESH BUTTON (Fixed)
+========================= */
+const refreshBtn = document.getElementById("refreshFolders");
 
-document.getElementById("refreshFolders").onclick = () => {
+refreshBtn.onclick = () => {
+  // 1. Visual Feedback (Spin the icon)
+  refreshBtn.classList.add("rotating"); 
+  refreshBtn.disabled = true;
+
+  // 2. Simply reload the current folder (Live Disk Read)
+  // We add a timestamp to force the browser to not use cache
+  loadFolder(currentFolder);
+  
+  // 3. Optional: Trigger background index rebuild for Search (Don't wait for it)
   fetch("/coreapi/api/refresh/", { method: "POST", headers: { "X-CSRFToken": csrftoken } })
-    .then(() => {
-      searchInput.value = "";
-      loadFolder("");
-    });
-};
+    .catch(err => console.log("Background index update failed (non-critical):", err));
 
+  // 4. Stop spinning after 1 second (UI Feel)
+  setTimeout(() => {
+    refreshBtn.classList.remove("rotating");
+    refreshBtn.disabled = false;
+  }, 1000);
+};
 /* =========================
    7. MODAL & PREVIEW UI
 ========================= */

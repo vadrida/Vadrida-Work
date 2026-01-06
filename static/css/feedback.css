@@ -70,37 +70,51 @@ html, body {
 }
 
 /* ========================= MAIN LAYOUT ========================= */
+/* ========================= MAIN LAYOUT ========================= */
 .feedback-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: calc(100vh - 120px);
+  grid-template-columns: minmax(0, 50%) minmax(0, 50%);
+  
+  /* ✅ FIXED HEIGHT: Lock to screen size (minus navbar) */
+  height: calc(100vh - 80px); 
+  
+  /* Disable main window scrolling */
+  overflow: hidden; 
+  
   gap: 16px;
   padding: 16px;
   background: #f8fafc;
-  /* ADD THIS: Ensures the columns are equal height, creating a track for the sticky element */
   align-items: stretch; 
 }
-/* ========================= LEFT COLUMN ========================= */
-.left-column {
-  display: flex;       /* Changed from grid to flex */
-  flex-direction: column;
-  gap: 16px;
-  min-height: 0;
-  height: 100%;        /* Ensure it takes full height of the parent grid */
+
+.right-column,
+.file-section,
+.form-section {
+
+  min-width: 0; 
+  overflow: hidden;
 }
+
+/* Ensure the table scrolls internally, not expanding the page */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+
 /* ========================= FILE SECTION ========================= */
 .file-section {
+  flex: none;         /* Don't shrink */
+  height: 600px;      /* Your requested size */
+  
+  display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
-  min-height: 300px;
-  /* max-height: 400px; */
 }
-
 .section-header {
   display: flex;
   align-items: center;
@@ -155,6 +169,7 @@ html, body {
   align-items: center;
   gap: 8px;
   font-size: 14px;
+  flex-wrap: wrap;
 }
 
 .nav-btn {
@@ -169,12 +184,11 @@ html, body {
 .nav-btn:hover {
   background: #f3f4f6;
 }
-
 .file-list-container {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 16px;
   min-height: 0;
+  border: 1px solid #f1f5f9;
 }
 
 .file-list {
@@ -207,12 +221,19 @@ html, body {
 
 .file-details {
   flex: 1;
+  min-width: 0;
+  padding-right: 8px;
+  width: 0;
 }
 
 .file-name {
   font-weight: 500;
   color: #1f2937;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .file-ext {
@@ -249,22 +270,14 @@ html, body {
 
 /* ========================= PREVIEW SECTION ========================= */
 .preview-section {
-  /* Remove Sticky */
-  position: static;
+  flex: none;         /* Don't shrink */
+  height: 800px;      /* Your requested size */
   
-  /* Layout: Grow to fill the column height so the PDF can track down */
-  flex: 1;
   display: flex;
   flex-direction: column;
-  
-  /* Remove Box Styling (We will move this to the PDF container) */
-  background: transparent;
-  box-shadow: none;
-  border: none;
-  overflow: visible; /* Critical: Allows the sticky child to move */
-  min-height: 0;
+  /* Margin to ensure spacing at bottom of scroll */
+  margin-bottom: 20px; 
 }
-
 
 /* Style the Buttons header and Thumbnails separately */
 .preview-section .section-header, 
@@ -365,37 +378,15 @@ html, body {
   color: #6b7280;
   font-size: 12px;
 }
-
 .preview-container {
-  /* 1. Sticky Behavior */
-  position: -webkit-sticky;
-  position: sticky;
-  
-  /* 2. GAP FROM TOP (Navbar Height + Padding) */
-  /* If Navbar is ~60px, set this to 80px so it doesn't touch the nav */
-  top: 90px; 
-  
-  /* 3. STRICT HEIGHT CALCULATION (Crucial) */
-  /* This prevents the bottom-of-page collision. 
-     Logic: 100vh - Top Offset (80px) - Bottom Padding (20px) */
-  height: calc(100vh - 100px);
-  max-height: calc(100vh - 100px); /* Double safety */
-  
-  /* 4. Layering */
-  z-index: 50; /* Lower than navbar (1000) */
-  
-  /* 5. Scroll INSIDE this box */
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  /* 6. Styling */
+  height: 100%;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
-
 .preview-header {
   display: flex;
   align-items: center;
@@ -430,18 +421,27 @@ html, body {
 /* ========================= PDF SCROLLING FIX ========================= */
 .preview-viewer {
   flex: 1;
-  position: relative;
-  background: #f8fafc;
-  min-height: 0;
-  
-  /* CHANGE THIS: Allow vertical scrolling inside the viewer */
-  overflow-y: auto; 
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;    /* Allow scrolling inside the PDF */
   overflow-x: hidden;
-  
-  display: flex;
+  min-height: 0;
+  background: #525659; /* Standard PDF Grey */
+  display: flex;       /* Use flex to center content */
   flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 
+.preview-viewer,
+.pdf-container,
+.pdf-scroll-container {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  background: #525659;
+  display: block;
+}
 .no-selection {
   position: absolute;
   top: 50%;
@@ -485,35 +485,59 @@ html, body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* ========================= RIGHT COLUMN: COMPREHENSIVE FORM ========================= */
+/* ========================= COLUMNS ========================= */
+.left-column,
 .right-column {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  gap: 16px;
+  
+  /* ✅ Force Full Height of the grid cell */
+  height: 100%; 
+  
+  /* ✅ Enable INDEPENDENT SCROLLING inside the column */
+  overflow-y: auto; 
+  
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  
+  /* Hide scrollbar visually but keep functionality (Optional - for cleaner look) */
+  scrollbar-width: thin;
 }
-
 .form-section {
+  /* Allow form container to grow as needed inside the scrollable column */
+  flex: none; 
+  min-height: 100%;
+  
+  display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  margin-bottom: 20px; /* Space at bottom */
 }
-
 .form-header {
   padding: 20px 20px 0 20px;
   flex-shrink: 0;
 }
 
+/* Add to your CSS */
+.rotating {
+  animation: spin 1s linear infinite;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .feedback-form {
-  padding: 20px;
-  overflow-y: auto;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  padding: 20px;
+  /* No overflow needed here, the parent (.right-column) handles the scroll */
+  overflow: visible; 
 }
 
 /* Form Section Groups */
@@ -903,7 +927,7 @@ html, body {
 /* ================= TABLET LANDSCAPE (768px - 1024px) ================= */
 @media (min-width: 768px) and (max-width: 1024px) {
   .feedback-layout {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
     gap: 12px;
     padding: 12px;
     overflow-y: auto;
@@ -912,7 +936,7 @@ html, body {
   }
 
   .left-column {
-    grid-template-rows: minmax(250px, 35%) 1fr;
+    grid-template-rows: minmax(250px, 35%) 2fr;
   }
 
   .file-section {
@@ -978,15 +1002,15 @@ html, body {
   }
 
   .feedback-layout {
-    grid-template-columns: 1fr;
-    /* grid-template-rows: auto auto auto;
-    gap: 12px;
-    padding: 12px;
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto; */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); 
+    
+    min-height: calc(100vh - 120px);
+    gap: 16px;
+    padding: 16px;
+    background: #f8fafc;
+    align-items: stretch; 
   }
-
   .left-column {
     display: none;
   }
