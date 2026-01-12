@@ -98,9 +98,9 @@
   <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10">
     <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
     <div class="flex items-center gap-2">
-      <button id="pdfZoomOut" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-minus"></i></button>
-      <span id="zoomLevelDisplay" class="text-xs w-12 text-center">100%</span>
-      <button id="pdfZoomIn" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-plus"></i></button>
+      <button id="pdfZoomOut"></i></button>
+      <span id="zoomLevelDisplay"></span>
+      <button id="pdfZoomIn"i></button>
     </div>
   </div>
 
@@ -1062,6 +1062,15 @@
                 <div style="display:flex; align-items:center; gap:5px; flex:1; justify-content:end;">
                     <input type="range" id="strokeSize" min="1" max="50" value="3" oninput="updateProp('size', this.value)" style="width: 60px;">
                     <span id="strokeVal" style="width: 25px; text-align:right;">3px</span>
+                    <input 
+                        type="number" 
+                        id="pencilSize" 
+                        value="3" 
+                        min="1" 
+                        max="100" 
+                        oninput="updateProp('size', this.value)" 
+                        class="border border-gray-300 rounded px-2 py-1 w-16 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                    >
                 </div>
             </div>
             
@@ -1104,11 +1113,11 @@
                 <button onclick="resetZoom()" class="tool-btn" title="Reset View"><i class="fas fa-compress"></i></button>
             </div>
 
-            <button onclick="triggerClearSketch()" class="tool-btn" style="width:100%; background:#fee2e2; color:#dc2626; border-color:#fca5a5; margin-bottom: 10px;">
+            <button onclick="triggerClearSketch()" class="tool-btn" style="width:100%; height:30px; background:#fee2e2; color:#dc2626; border-color:#fca5a5; margin-bottom: 10px;">
                 <i class="fas fa-trash mr-2"></i> Clear Canvas
             </button>
 
-            <div style="display:flex; gap:5px;">
+            <div style="display:flex; gap:5px; margin-bottom: 100px;">
                 <button class="modal-btn primary small" style="flex:1;" onclick="triggerSaveSketch()">Save</button>
                 <button class="modal-btn small" style="flex:1;" onclick="closeSketchModal()">Exit</button>
             </div>
@@ -1800,15 +1809,51 @@ function setTool(tool) {
 
     renderScene();
 }
-
 function updateProp(prop, value) {
-    // Update UI
-    if (prop === 'size') document.getElementById('strokeVal').innerText = value + 'px';
-    if (prop === 'color') document.getElementById('mainColor').value = value;
+    // 1. HANDLE SIZE CHANGES
+    if (prop === 'size') {
+        // If value is empty (user deleted everything), stop here to let them type
+        if (value === "") return;
 
-    // Update Selected Element
+        const intVal = parseInt(value, 10);
+        if (isNaN(intVal)) return;
+
+        // Update Text Label
+        const label = document.getElementById('strokeVal');
+        if(label) label.innerText = intVal + 'px';
+
+        const slider = document.getElementById('strokeSize');
+        const numInput = document.getElementById('pencilSize');
+
+        // SCENARIO A: User is typing in the Number Box
+        if (document.activeElement === numInput) {
+            // Only update the slider
+            if (slider && parseInt(slider.value) !== intVal) {
+                slider.value = intVal;
+            }
+        } 
+        // SCENARIO B: User is dragging the Slider
+        else if (document.activeElement === slider) {
+            // Only update the number input
+            if (numInput && parseInt(numInput.value) !== intVal) {
+                numInput.value = intVal;
+            }
+        }
+        // SCENARIO C: Code triggering update (e.g., loading saved state)
+        else {
+            if (slider) slider.value = intVal;
+            if (numInput) numInput.value = intVal;
+        }
+    }
+
+    // 2. HANDLE COLOR CHANGES
+    if (prop === 'color') {
+        document.getElementById('mainColor').value = value;
+    }
+
+    // 3. UPDATE SELECTED ELEMENT
     if (selectedElement) {
-        saveState(); // Save for undo before changing
+        saveState(); 
         selectedElement[prop] = value;
         renderScene();
     }
@@ -2119,7 +2164,9 @@ const handleStart = (e) => {
     redoStack = []; 
     
     let color = document.getElementById('mainColor').value;
-    let size = parseInt(document.getElementById('strokeSize').value);
+    let sizeInput = document.getElementById('pencilSize');
+    let sliderInput = document.getElementById('strokeSize');
+    let size = parseInt(sizeInput.value) || parseInt(sliderInput.value) || 3;
     let style = document.getElementById('lineStyle').value;
     let isParallel = document.getElementById('parallelToggle').checked;
     
@@ -2389,53 +2436,159 @@ function getTouchCenter(e) {
 }
 // ============================================
 
+/* ==========================================
+   SMART SAVE: CROP CANVAS TO CONTENT
+   ========================================== */
 function saveSketchModal() {
     if (!activeSketchPath) return;
-    
-    // 1. SAVE CURRENT VIEW STATE
-    const previousCamera = { ...camera };
 
-    // 2. RESET CAMERA TO DEFAULT (Full View / No Zoom)
-    // This forces the canvas to draw elements at their actual 1:1 positions
-    camera = { x: 0, y: 0, z: 1 }; 
-    
-    // Force a render with the "Clean" camera
+    // 1. Check if empty
+    if (elements.length === 0) {
+        alert("Canvas is empty!");
+        return;
+    }
+
+    // 2. FIND BOUNDARIES (Min/Max X & Y)
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+    elements.forEach(el => {
+        if (el.type === 'brush') {
+            el.points.forEach(p => {
+                minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+            });
+        } 
+        else if (['line', 'arrow'].includes(el.type)) {
+            minX = Math.min(minX, el.x, el.endX); minY = Math.min(minY, el.y, el.endY);
+            maxX = Math.max(maxX, el.x, el.endX); maxY = Math.max(maxY, el.y, el.endY);
+        }
+        else if (el.type === 'circle') {
+            minX = Math.min(minX, el.x - el.r); minY = Math.min(minY, el.y - el.r);
+            maxX = Math.max(maxX, el.x + el.r); maxY = Math.max(maxY, el.y + el.r);
+        }
+        else {
+            // Rect, Triangle, Text
+            const w = el.w || 0; const h = el.h || 0;
+            minX = Math.min(minX, el.x); minY = Math.min(minY, el.y);
+            maxX = Math.max(maxX, el.x + w); maxY = Math.max(maxY, el.y + h);
+        }
+    });
+
+    // 3. DEFINE CROP DIMENSIONS (With Padding)
+    const padding = 20; // 20px breathing room
+    const cropWidth = (maxX - minX) + (padding * 2);
+    const cropHeight = (maxY - minY) + (padding * 2);
+
+    // 4. SAVE CURRENT STATE
+    const prevCanvasWidth = canvas.width;
+    const prevCanvasHeight = canvas.height;
+    const prevCamera = { ...camera };
+
+    // 5. RESIZE CANVAS & RE-CENTER CAMERA (The Magic Step)
+    // We physically shrink the canvas to the size of the drawing
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+
+    // Move camera so the drawing starts at (padding, padding)
+    camera = {
+        x: -minX + padding, 
+        y: -minY + padding, 
+        z: 1 // Save at 100% scale (No zoom distortion)
+    };
+
+    // 6. RENDER & CAPTURE
+    renderScene(); 
+    const dataUrl = canvas.toDataURL('image/png');
+
+    // 7. RESTORE ORIGINAL STATE (So user can keep editing)
+    canvas.width = prevCanvasWidth;
+    canvas.height = prevCanvasHeight;
+    camera = prevCamera;
     renderScene();
 
-    // 3. GENERATE IMAGE (Now capturing the full un-zoomed canvas)
-    const dataUrl = canvas.toDataURL('image/png');
-    
-    // 4. RESTORE USER'S VIEW (So they don't get disoriented)
-    camera = previousCamera;
-    renderScene(); 
-
-    // 5. Save Image to Form State
+    // 8. SAVE TO FORM (Standard Logic)
     if (!formState.images) formState.images = {};
     formState.images[activeSketchPath] = dataUrl;
 
-    // 6. Save Vectors (For re-editing)
     if (!formState.vectors) formState.vectors = {};
     formState.vectors[activeSketchPath] = JSON.parse(JSON.stringify(elements));
     
-    // 7. Update UI Thumbnail
+    // Update Thumbnails
     const safeId = activeSketchPath.replace(/\./g, '_');
-    const previewImg = document.getElementById(`img_preview_${safeId}`);
-    
     if(activeSketchPath === 'Sketch.main_layout') {
         const mainPreview = document.getElementById('img_preview_Sketch_main_layout');
         if(mainPreview) {
              mainPreview.src = dataUrl;
              mainPreview.classList.remove('hidden');
+             mainPreview.style.display = 'block'; 
         }
-    } 
-    else if (previewImg) {
-        previewImg.src = dataUrl;
-        previewImg.classList.remove('hidden');
+    } else {
+        const previewImg = document.getElementById(`img_preview_${safeId}`);
+        if (previewImg) {
+            previewImg.src = dataUrl;
+            previewImg.classList.remove('hidden');
+            previewImg.style.display = 'block';
+        }
     }
     
     saveLocal();
     closeSketchModal();
 }
+/* ==========================================
+   HELPER: CALCULATE 'FIT TO CONTENT' VIEW
+   ========================================== */
+function fitCameraToContent() {
+    if (elements.length === 0) return { x: 0, y: 0, z: 1 };
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+    // 1. Loop through all elements to find edges
+    elements.forEach(el => {
+        if (el.type === 'brush') {
+            el.points.forEach(p => {
+                minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+            });
+        } 
+        else if (['line', 'arrow'].includes(el.type)) {
+            minX = Math.min(minX, el.x, el.endX); minY = Math.min(minY, el.y, el.endY);
+            maxX = Math.max(maxX, el.x, el.endX); maxY = Math.max(maxY, el.y, el.endY);
+        }
+        else if (el.type === 'circle') {
+            minX = Math.min(minX, el.x - el.r); minY = Math.min(minY, el.y - el.r);
+            maxX = Math.max(maxX, el.x + el.r); maxY = Math.max(maxY, el.y + el.r);
+        }
+        else {
+            // Rect, Triangle, Text
+            const w = el.w || 0; const h = el.h || 0;
+            minX = Math.min(minX, el.x); minY = Math.min(minY, el.y);
+            maxX = Math.max(maxX, el.x + w); maxY = Math.max(maxY, el.y + h);
+        }
+    });
+
+    // 2. Add padding so it looks nice (50px margin)
+    const padding = 50; 
+    const contentW = (maxX - minX) + (padding * 2);
+    const contentH = (maxY - minY) + (padding * 2);
+
+    // 3. Calculate Scale to fit
+    const scaleX = canvas.width / contentW;
+    const scaleY = canvas.height / contentH;
+    let newZoom = Math.min(scaleX, scaleY);
+
+    // Optional: Prevent zooming IN (only zoom out if drawing is huge)
+    if (newZoom > 1) newZoom = 1; 
+
+    // 4. Center the Camera
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    
+    const newX = (canvas.width / 2) - (centerX * newZoom);
+    const newY = (canvas.height / 2) - (centerY * newZoom);
+
+    return { x: newX, y: newY, z: newZoom };
+}
+
 function cleanPayload(obj) {
     // If null or not an object, return as is
     if (obj === null || typeof obj !== 'object') {
@@ -3265,160 +3418,239 @@ document.getElementById("pdfZoomOut").onclick = () => {
     }
 };
 
-
 /* ==========================================
-   UPDATED: FULLSCREEN MODAL LOGIC (Server-Side Sync)
+   FULLSCREEN MODAL LOGIC (FINAL FIX)
    ========================================== */
 
+// 1. Elements
 const fullscreenModal = document.getElementById("fullscreenModal");
-const modalFrame = document.getElementById("modalFrame");
-const modalImage = document.getElementById("modalImage");
-const modalPdfContainer = document.getElementById("modalPdfContainer");
 const modalTitle = document.getElementById("modalTitle");
 
-// 1. Modal State
+// Containers
+const modalFrame = document.getElementById("modalFrame");
+const imageZoomWrapper = document.getElementById("imageZoomWrapper"); 
+const modalPdfContainer = document.getElementById("modalPdfContainer");
+const modalImage = document.getElementById("modalImage");
+const modalZoomDisplay = document.getElementById("modalZoomLevel"); 
+
+// State
+let currentModalZoom = 1.0; 
 let modalState = {
     path: null,
     nextPage: 0,
     isLoading: false,
-    isFinished: false, // True when we hit the last page
-    observer: null
+    isFinished: false,
+    observer: null,
+    mode: 'none'
 };
 
-// 2. Open Modal Button Logic
+/* --- 1. OPEN MODAL --- */
 document.getElementById("openFullBtn").onclick = () => {
-    if (!currentFile) {
-        alert("Select a file first");
-        return;
-    }
+    if (!currentFile) return alert("Select a file first");
 
-    // A. Show Modal
-    const fullscreenModal = document.getElementById("fullscreenModal");
-    const modalTitle = document.getElementById("modalTitle");
+    // Show Modal
+    fullscreenModal.classList.remove("hidden");
+    fullscreenModal.classList.add("flex");
     fullscreenModal.setAttribute("aria-hidden", "false");
     modalTitle.textContent = currentFile.name;
 
-    // B. Reset Containers
-    const modalFrame = document.getElementById("modalFrame");
-    const modalImage = document.getElementById("modalImage");
-    const modalPdfContainer = document.getElementById("modalPdfContainer");
+    // Reset Layers
+    [modalFrame, imageZoomWrapper, modalPdfContainer, modalImage].forEach(el => {
+        if(el) {
+            el.classList.add("hidden");
+            el.classList.remove("flex"); 
+            el.style.display = "none";   
+        }
+    });
+    
+    if(modalPdfContainer) modalPdfContainer.innerHTML = "";
+    currentModalZoom = 1.0;
+    updateZoomDisplay();
 
-    modalFrame.classList.add("hidden");
-    modalImage.classList.add("hidden");
-    modalPdfContainer.classList.add("hidden");
-    modalPdfContainer.innerHTML = ""; // Wipe old pages
-
-    const ext = currentFile.name.split(".").pop().toLowerCase();
     modalState.path = currentFile.path;
+    const ext = currentFile.name.split(".").pop().toLowerCase();
 
-    // --- CASE 1: PDF (Infinite Scroll) ---
+    // CASE A: PDF
     if (ext === 'pdf') {
-        modalPdfContainer.classList.remove("hidden");
-        
-        // Reset State
-        modalState.nextPage = 0;
-        modalState.isLoading = false;
-        modalState.isFinished = false;
-
-        // Create the "Sentinel" (The Spinner at the bottom)
-        const sentinel = document.createElement("div");
-        sentinel.id = "modalSentinel";
-        sentinel.className = "w-full h-24 flex items-center justify-center py-4";
-        sentinel.innerHTML = '<div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-8 h-8 animate-spin"></div>';
-        modalPdfContainer.appendChild(sentinel);
-
-        // Disconnect old observer if exists
-        if (modalState.observer) modalState.observer.disconnect();
-
-        // Create New Observer
-        // When 'sentinel' is visible inside 'modalPdfContainer', load next page
-        modalState.observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                loadNextModalPage(sentinel);
-            }
-        }, { 
-            root: modalPdfContainer, // IMPORTANT: The scrollable container
-            threshold: 0.1 
-        });
-
-        // Start watching
-        modalState.observer.observe(sentinel);
-        
-        // Trigger first load immediately
-        loadNextModalPage(sentinel);
+        modalState.mode = 'pdf';
+        if(modalPdfContainer) {
+            modalPdfContainer.classList.remove("hidden");
+            modalPdfContainer.classList.add("flex");
+            modalPdfContainer.style.display = "flex";
+            initPdfModal(); // Start Loading
+        }
     } 
-    
-    // --- CASE 2: IMAGE ---
+    // CASE B: IMAGE
     else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
-        modalImage.src = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
-        modalImage.classList.remove("hidden");
-    } 
-    
-    // --- CASE 3: OTHER ---
+        modalState.mode = 'image';
+        
+        if(imageZoomWrapper && modalImage) {
+            imageZoomWrapper.classList.remove("hidden");
+            imageZoomWrapper.classList.add("flex");
+            imageZoomWrapper.style.display = "flex";
+            
+            modalImage.classList.remove("hidden");
+            modalImage.style.display = "block";
+            
+            // Add timestamp to force refresh
+            modalImage.src = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&t=${new Date().getTime()}`;
+            
+            // Reset Styles
+            modalImage.style.transform = "scale(1)";
+            modalImage.style.maxWidth = "100%";
+            modalImage.style.maxHeight = "100%";
+            modalImage.style.margin = "0";
+        }
+    }
+    // CASE C: OTHER
     else {
-        modalPdfContainer.classList.remove("hidden");
-        modalPdfContainer.innerHTML = `
-            <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#666;">
-                <i class="fas fa-file-alt" style="font-size:48px; margin-bottom:15px;"></i>
-                <p>Preview not available.</p>
-                <button onclick="triggerDownload()" style="margin-top:10px; padding:8px 16px; background:#2563eb; color:white; border-radius:6px;">Download File</button>
-            </div>
-        `;
+        if(modalPdfContainer) {
+            modalPdfContainer.classList.remove("hidden");
+            modalPdfContainer.classList.add("flex");
+            modalPdfContainer.style.display = "flex";
+            modalPdfContainer.innerHTML = `<div class="text-gray-500 m-auto">Preview not available</div>`;
+        }
     }
 };
 
-// 3. The Page Loader Function
+/* --- 2. CLOSE MODAL --- */
+document.getElementById("modalClose").onclick = () => {
+    fullscreenModal.classList.add("hidden");
+    fullscreenModal.classList.remove("flex");
+    fullscreenModal.setAttribute("aria-hidden", "true");
+    
+    if(modalImage) modalImage.src = "";
+    if(modalPdfContainer) modalPdfContainer.innerHTML = "";
+    if (modalState.observer) modalState.observer.disconnect();
+};
+
+/* --- 3. ZOOM LOGIC (Full Width Fix) --- */
+function updateZoomDisplay() {
+    if(modalZoomDisplay) modalZoomDisplay.textContent = Math.round(currentModalZoom * 100) + "%";
+}
+function applyModalZoom() {
+    if(typeof updateZoomDisplay === "function") updateZoomDisplay();
+
+    if (modalState.mode === 'image' && modalImage) {
+        if (currentModalZoom > 1.0) {
+            modalImage.style.maxWidth = "none";
+            modalImage.style.maxHeight = "none";
+            modalImage.style.transform = `scale(${currentModalZoom})`;
+            modalImage.style.margin = "100px"; 
+        } else {
+            modalImage.style.maxWidth = "100%";
+            modalImage.style.maxHeight = "100%";
+            modalImage.style.transform = "scale(1)";
+            modalImage.style.margin = "0";
+        }
+    } 
+    else if (modalState.mode === 'pdf' && modalPdfContainer) {
+        // Enforce 100% width based on zoom
+        const widthPercent = Math.round(currentModalZoom * 100); 
+        const pages = modalPdfContainer.querySelectorAll("img");
+        pages.forEach(p => {
+            p.style.width = `${widthPercent}%`;
+            p.style.maxWidth = "none";
+            
+            // Recalculate height on zoom to prevent distortion/gaps
+            const currentW = p.getBoundingClientRect().width;
+            p.style.minHeight = `${currentW * 1.414}px`;
+        });
+    }
+}
+
+// Button Listeners
+const zoomIn = document.getElementById("modalZoomIn");
+if(zoomIn) zoomIn.onclick = () => { 
+    if (currentModalZoom < 3.0) { currentModalZoom += 0.25; applyModalZoom(); } 
+};
+
+const zoomOut = document.getElementById("modalZoomOut");
+if(zoomOut) zoomOut.onclick = () => { 
+    if (currentModalZoom > 0.25) { currentModalZoom -= 0.25; applyModalZoom(); } 
+};
+
+const zoomReset = document.getElementById("modalZoomReset");
+if(zoomReset) zoomReset.onclick = () => { currentModalZoom = 1.0; applyModalZoom(); };
+
+
+/* --- 4. PDF SCROLL LOGIC (Robust) --- */
+function initPdfModal() {
+    modalState.nextPage = 0;
+    modalState.isLoading = false;
+    modalState.isFinished = false;
+
+    // Sentinel (Spinner)
+    const sentinel = document.createElement("div");
+    sentinel.className = "w-full h-24 flex items-center justify-center py-4";
+    sentinel.style.flexShrink = "0"; // CRITICAL: Stop shrinking height
+    sentinel.innerHTML = '<div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-8 h-8 animate-spin"></div>';
+    
+    if(modalPdfContainer) modalPdfContainer.appendChild(sentinel);
+
+    if (modalState.observer) modalState.observer.disconnect();
+    
+    if(modalPdfContainer) {
+        modalState.observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) loadNextModalPage(sentinel);
+        }, { root: modalPdfContainer, threshold: 0.1 });
+        
+        modalState.observer.observe(sentinel);
+        
+        // Initial Trigger
+        loadNextModalPage(sentinel);
+    }
+}
+
 function loadNextModalPage(sentinel) {
     if (modalState.isLoading || modalState.isFinished) return;
-
     modalState.isLoading = true;
-    
-    // Create Image Element
-    const img = document.createElement("img");
-    img.style.width = "auto";
-    img.style.maxWidth = "100%";
-    img.style.marginBottom = "10px";
-    img.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
-    img.style.minHeight = "400px"; // Placeholder height to prevent jitter
-    img.style.backgroundColor = "white";
-    
-    // Request High Quality Page (Zoom 1.5)
-    img.src = `/coreapi/render-page/?path=${encodeURIComponent(modalState.path)}&page=${modalState.nextPage}&zoom=1.5`;
 
+    const img = document.createElement("img");
+    
+    // 1. Setup Sizing
+    const containerWidth = modalPdfContainer.clientWidth || window.innerWidth;
+    const widthPercent = Math.round(currentModalZoom * 100);
+    const estimatedHeight = (containerWidth * (widthPercent/100)) * 1.414;
+
+    img.style.width = `${widthPercent}%`;
+    img.style.maxWidth = "none";
+    img.style.marginBottom = "20px";
+    img.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+    img.style.backgroundColor = "white";
+    img.style.flexShrink = "0"; 
+    img.style.minHeight = `${estimatedHeight}px`; 
+
+    // 2. Request Page
+    img.src = `/coreapi/render-page/?path=${encodeURIComponent(modalState.path)}&page=${modalState.nextPage}&zoom=2.0`;
+
+    // 3. Success Handler
     img.onload = () => {
         modalState.isLoading = false;
         modalState.nextPage++;
         
-        // If the page loaded very fast and the spinner is still visible (large screens), load another one
-        // This prevents getting stuck on Page 1 if Page 1 is short
-        if(modalState.observer && sentinel.getBoundingClientRect().top < window.innerHeight) {
+        // Auto-load next if screen isn't full
+        if(sentinel.parentElement && sentinel.getBoundingClientRect().top < window.innerHeight) {
              loadNextModalPage(sentinel);
         }
     };
-
+    
+    // 4. Error/End of PDF Handler (THE FIX)
     img.onerror = () => {
-        // Error 404 usually means we reached the end of the PDF
-        console.log("End of document.");
+        // console.log("End of document reached.");
         modalState.isFinished = true;
         modalState.isLoading = false;
-        sentinel.remove(); // Remove spinner
+        
+        // REMOVE THE BROKEN IMAGE IMMEDIATELY
+        img.remove(); 
+        
+        // Stop the loading spinner
+        if(sentinel.parentElement) sentinel.remove();
         if(modalState.observer) modalState.observer.disconnect();
     };
 
-    // Insert Image BEFORE the spinner
-    const container = document.getElementById("modalPdfContainer");
-    container.insertBefore(img, sentinel);
+    if(modalPdfContainer) modalPdfContainer.insertBefore(img, sentinel);
 }
-
-// 4. Close Modal Cleanup
-document.getElementById("modalClose").onclick = () => {
-    document.getElementById("fullscreenModal").setAttribute("aria-hidden", "true");
-    
-    // Clean up memory
-    document.getElementById("modalImage").src = "";
-    document.getElementById("modalPdfContainer").innerHTML = "";
-    if (modalState.observer) modalState.observer.disconnect();
-};
 /* ==========================================
    UPDATED: DOWNLOAD BUTTONS
    ========================================== */
@@ -3442,8 +3674,9 @@ function triggerDownload() {
     }
     // Points to the standard serve-file view with download=true
     const url = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
-    window.location.href = url;
+  window.location.href = url;
 }
+
 
 /* =========================
    ADVANCED FILE SHARING (Sends Actual File)

@@ -30,7 +30,7 @@ class SiteVisitReport(models.Model):
     
     # Store the text data here (cleaned, without images)
     form_data = models.JSONField(default=dict)
-
+    target_folder = models.CharField(max_length=500, blank=True, null=True, default="")
     # Optional: Keep this for the "Main" layout if you want it easily accessible, 
     # or you can move it to the child model too.
     main_sketch = models.ImageField(upload_to='main_sketches/', blank=True, null=True)

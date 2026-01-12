@@ -7,9 +7,10 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     body { background-color: #525659; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    *, *:before, *:after { box-sizing: border-box; }
 
     .paper-container {
         margin-top: 50px; display: flex; flex-direction: column; align-items: center; gap: 30px; margin-bottom: 100px;
@@ -20,22 +21,17 @@
         width: 210mm; 
         min-height: 297mm; 
         background: white; 
-        padding: 15mm; /* Keep padding for content */
+        padding: 15mm; 
         box-shadow: 0 0 10px rgba(0,0,0,0.5); 
         font-size: 9pt; 
-        position: relative; /* Critical for absolute positioning of logo */
+        position: relative; 
         box-sizing: border-box;
-        overflow: hidden;
+        overflow: hidden; /* Keeps content inside A4 page */
     }
 
     /* --- LOGO STYLING --- */
     .header-logo {
-        position: absolute;
-        top: 10mm;   /* Adjust top spacing */
-        right: 15mm; /* Align with right padding */
-        width: 100px; /* Adjust size as needed */
-        height: auto;
-        object-fit: contain;
+        position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;
     }
 
     /* Typography & Layout */
@@ -46,17 +42,13 @@
         border: 1px solid #999; margin-top: 15px; margin-bottom: 5px; font-size: 10pt;
     }
     
-    /* Improved Row Alignment */
     .row { 
-        display: flex; 
-        gap: 10px; 
-        margin-bottom: 5px; 
-        align-items: baseline; /* Aligns text with input lines better */
+        display: flex; gap: 10px; margin-bottom: 5px; align-items: baseline; 
     }
     
     label { font-weight: bold; color: #555; font-size: 8pt; margin-right: 5px; white-space: nowrap; }
 
-    /* --- FIXED INPUT SIMULATION (TEXT WRAPPING) --- */
+    /* --- IMPROVED FIELD BOX (THE FIX) --- */
     .field-box { 
         border-bottom: 1px dotted #000; 
         min-height: 18px; 
@@ -64,77 +56,126 @@
         background: #fcfcfc; 
         color: #000; 
         flex-grow: 1; 
-        padding: 0 4px;
+        padding: 2px 4px;
         
-        /* Forces text to wrap inside the box */
-        white-space: pre-wrap;       /* Preserves lines but wraps text */
-        word-wrap: break-word;       /* Legacy support */
-        overflow-wrap: break-word;   /* Modern standard */
-        word-break: break-word;      /* Break long words if necessary */
+        /* Text Wrapping Logic */
+        white-space: pre-wrap;       /* Preserves spaces/newlines, wraps text */
+        word-wrap: break-word;       /* Breaks long words */
+        overflow-wrap: break-word;   /* Standard property for breaking */
+        word-break: break-word;      
         
+        /* Display Logic */
         display: block; 
         width: 100%; 
-        box-sizing: border-box; 
+        overflow: visible;           /* ALLOWS EXPANSION */
     }
 
     [contenteditable="true"]:focus { background-color: #e8f0fe; outline: none; border-bottom: 1px solid blue; }
     [contenteditable="true"]:hover { background-color: #fffde7; cursor: text; }
 
-    /* --- IMPROVED TABLE ALIGNMENT --- */
+    /* --- TABLE STYLES (STRICT) --- */
     .report-table { 
         width: 100%; 
         border-collapse: collapse; 
-        margin-top: 5px; 
-        font-size: 8pt; 
-        table-layout: fixed; /* Ensures columns respect widths */
+        table-layout: fixed; /* STRICT COLUMN WIDTHS */
+        margin-bottom: 10px;
     }
     .report-table th, .report-table td { 
         border: 1px solid #999; 
         padding: 4px; 
         text-align: center; 
-        vertical-align: middle; /* Centers content vertically */
+        vertical-align: middle; 
         
-        /* Ensure table text wraps */
+        /* Allow cell to grow vertically, but not horizontally */
         overflow-wrap: break-word; 
-        word-wrap: break-word;
+        word-break: break-word;
     }
     .report-table th { background: #f0f0f0; font-weight: bold; }
-    .report-table .field-box { border-bottom: none; background: transparent; width: 100%; min-height: auto; }
+    
+    /* Input inside table cells */
+    .report-table .field-box { 
+        border-bottom: none; 
+        background: transparent; 
+        width: 100%; 
+        min-height: 100%; 
+        text-align: center;
+    }
 
-    /* Checkbox Alignment Fixes */
+    /* --- HEADER INPUT WRAPPER (BOUNDARY TABLE) --- */
+    .header-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        width: 100%; /* Force it to fit the TH */
+    }
+
+    .header-input {
+        border-bottom: 1px solid #ccc !important; /* Force line visibility */
+        background: transparent;
+        width: 100%; 
+        min-height: 18px;
+        font-weight: bold;
+        text-align: center;
+        font-size: 8pt;
+        outline: none;
+    }
+
+    /* --- STACKED ROWS (NOTES) --- */
+    .row-stacked {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    .row-stacked label { font-weight: bold; color: #555; font-size: 9pt; }
+    .row-stacked .field-box {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px;
+        min-height: 60px; /* Taller default for notes */
+    }
+
+    /* Checkbox Styles */
     .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
     .checkbox-item { display: flex; align-items: center; gap: 4px; font-size: 8pt; cursor: pointer; }
     .checkbox-item input { margin: 0; cursor: pointer; }
+    .checkbox-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 4px; width: 100%; text-align: left; }
+    .checkbox-grid-2 .checkbox-item { font-size: 7.5pt; justify-content: flex-start; }
 
-    /* Grid for tight spaces (Usage/Occupancy) */
-    .checkbox-grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2px 4px;
-        width: 100%;
-        text-align: left;
-    }
-    .checkbox-grid-2 .checkbox-item {
-        font-size: 7.5pt; /* Slightly smaller for tight tables */
-        justify-content: flex-start;
-    }
+    /* Image Wrapper */
+    .img-wrapper { width: 100%; min-height: 50px; margin: 10px 0; display: flex; justify-content: center; align-items: center; }
+    .img-wrapper img { max-width: 100%; max-height: 500px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto; }
 
-    /* Print Styles */
+    /* Save UI */
+    .floating-save { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+    .btn-save { background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 50px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; }
+    
+    /* Print Hiding */
     @media print {
         .floating-save, .nav-left, .btn-save, button, .modal-overlay { display: none !important; }
         body { background-color: white; }
         .paper-container { margin: 0; }
-        .pdf-sheet { box-shadow: none; margin: 0; width: 100%; height: auto; }
-        .field-box { background: transparent !important; } /* Remove grey bg on print */
+        .pdf-sheet { box-shadow: none; margin: 0; width: 100%; height: auto; page-break-after: always; }
     }
 
-    /* ... (Keep your modal styles from before) ... */
-    .floating-save { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-    .btn-save { background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 50px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; }
-    .hidden { display: none !important; }
+    /* Modal Styles (kept compact for brevity, use your existing ones if they differ) */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-    .save-dialog { width: 650px; height: 500px; background: white; border-radius: 8px; display: flex; flex-direction: column; }
-    /* ... Add rest of modal styles here ... */
+    .hidden { display: none !important; }
+    .save-dialog { width: 600px; height: 500px; background: white; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .dialog-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
+    .dialog-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .toolbar-row { display: flex; gap: 10px; padding: 10px 15px; border-bottom: 1px solid #eee; background: #fff; align-items: center; }
+    .path-bar { flex: 1; display: flex; align-items: center; gap: 8px; background: #f1f3f4; padding: 6px 10px; border-radius: 4px; border: 1px solid #ddd; }
+    .path-input { border: none; background: transparent; width: 100%; outline: none; }
+    .folder-list { flex: 1; overflow-y: auto; padding: 5px 0; }
+    .folder-item { display: flex; align-items: center; padding: 10px 20px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
+    .folder-item:hover { background-color: #e8f0fe; }
+    .dialog-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; background: #f8f9fa; }
+    .btn-dialog { padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+    .btn-cancel { background: white; border: 1px solid #ddd; color: #555; }
+    .btn-confirm { background: #1a73e8; color: white; }
 </style>
 {% endblock %}
 
@@ -148,7 +189,12 @@
     </div>
 
     <div class="pdf-sheet">
-        <img src="{% static 'images/VADRIDA LOGO.png' %}" alt="Logo" class="header-logo">
+        <img 
+            src="{% static 'images/VADRIDA LOGO.png' %}" 
+            alt="Logo" 
+            class="header-logo" 
+            style="position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;"
+        >
         <h1>Valuers Checklist</h1>
         
         <div class="section-title">1. General Information</div>
@@ -205,7 +251,7 @@
             <label class="checkbox-item"><input type="radio" name="doc_verification" data-bind-radio="Ownership_Analysis.document_verification" value="same in all documents"> Same in all documents</label>
             <label class="checkbox-item"><input type="radio" name="doc_verification" data-bind-radio="Ownership_Analysis.document_verification" value="discrepancy noted"> Discrepancy noted</label>
         </div>
-        <div class="row"><label>Notes:</label><div class="field-box" contenteditable="true" data-path="Ownership_Analysis.Ownership_Analysis_notes"></div></div>
+        <div class="row-stacked"><label>Notes:</label><div class="field-box" contenteditable="true" data-path="Ownership_Analysis.Ownership_Analysis_notes"></div></div>
         <div class="img-wrapper" id="wrap_Ownership_Analysis_Ownership_Analysis_notes"></div>
 
         <div class="section-title">II. Survey Number & Land Extent</div>
@@ -226,57 +272,70 @@
             </thead>
             <tbody id="survey_dynamic_body"></tbody>
         </table>
-        <div class="row" style="margin-top:5px;"><label>Notes, % of wetland and Dry lands...?</label><div class="field-box" contenteditable="true" data-path="Survey.survey_notes"></div></div>
+        <div class="row-stacked" style="margin-top:5px;"><label>Notes, % of wetland and Dry lands...?</label><div class="field-box" contenteditable="true" data-path="Survey.survey_notes"></div></div>
         <div class="img-wrapper" id="wrap_Survey_survey_notes"></div>
 
         <div class="section-title">III. Boundary Analysis</div>
-        <table class="report-table">
-            <thead>
-                <tr>
-                    <th style="width: 10%;">Direction</th>
-                    <th style="width: 25%;">
-                        <div class="field-box" style="font-weight:bold; background:transparent; border:none;" data-path="Boundary_analysis_property_identification.ref_doc_1_name">Ref Doc 1</div>
-                    </th>
-                    <th style="width: 25%;">
-                        <div class="field-box" style="font-weight:bold; background:transparent; border:none;" data-path="Boundary_analysis_property_identification.ref_doc_2_name">Ref Doc 2</div>
-                    </th>
-                    <th style="width: 20%;">Translation Reason</th>
-                    <th style="width: 20%;">Site</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>North</td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_doc1"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_doc2"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_translation"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_site"></div></td>
-                </tr>
-                <tr>
-                    <td>East</td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_doc1"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_doc2"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_translation"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_site"></div></td>
-                </tr>
-                <tr>
-                    <td>South</td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_doc1"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_doc2"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_translation"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_site"></div></td>
-                </tr>
-                <tr>
-                    <td>West</td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_doc1"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_doc2"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_translation"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_site"></div></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="row"><label>Notes if any / Property identified...?</label><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.Boundary_property_notes"></div></div>
-        <div class="img-wrapper" id="wrap_Boundary_analysis_property_identification_Boundary_property_notes"></div>
+<table class="report-table">
+    <thead>
+        <tr>
+            <th style="width: 10%;">Direction</th>
+            
+            <th style="width: 25%;">
+                <div class="header-input-wrapper">
+                    <span>Ref Doc 1 Name</span>
+                    <div class="field-box header-input" contenteditable="true" data-path="Boundary_analysis_property_identification.ref_doc_1_name"></div>
+                </div>
+            </th>
+
+            <th style="width: 25%;">
+                <div class="header-input-wrapper">
+                    <span>Ref Doc 2 Name</span>
+                    <div class="field-box header-input" contenteditable="true" data-path="Boundary_analysis_property_identification.ref_doc_2_name"></div>
+                </div>
+            </th>
+
+            <th style="width: 20%;">Translation Reason</th>
+            <th style="width: 20%;">Site</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>North</strong></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_doc1"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_doc2"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_translation"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_site"></div></td>
+        </tr>
+        <tr>
+            <td><strong>East</strong></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_doc1"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_doc2"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_translation"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_site"></div></td>
+        </tr>
+        <tr>
+            <td><strong>South</strong></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_doc1"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_doc2"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_translation"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_site"></div></td>
+        </tr>
+        <tr>
+            <td><strong>West</strong></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_doc1"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_doc2"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_translation"></div></td>
+            <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_site"></div></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="row-stacked">
+    <label>Notes/Property identified...?</label>
+    <div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.Boundary_property_notes"></div>
+</div>
+<div class="img-wrapper" id="wrap_Boundary_analysis_property_identification_Boundary_property_notes"></div>
 <br><br><br><br><br><br><br><br><br><br>
         <div class="section-title">IV. Demarcations</div>
         <table class="report-table">
@@ -345,13 +404,13 @@
                 </td>
             </tr>
         </table>
-        <div class="row"><label>Notes if any</label><div class="field-box" contenteditable="true" data-path="Demarcation.demarcation_notes"></div></div>
+        <div class="row-stacked"><label>Notes if any</label><div class="field-box" contenteditable="true" data-path="Demarcation.demarcation_notes"></div></div>
         <div class="img-wrapper" id="wrap_Demarcation_demarcation_notes"></div>
 
-        <div class="row"><label>Encroachment of Subject building to neighbouring property?</label><div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_subject_to_neighbour"></div></div>
+        <div class="row-stacked"><label>Encroachment of Subject building to neighbouring property?</label><div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_subject_to_neighbour"></div></div>
         <div class="img-wrapper" id="wrap_Demarcation_enroachment_subject_to_neighbour"></div>
 
-        <div class="row"><label>Encroachment of Neighbour's building to subject property?</label><div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_neighbour_to_subject"></div></div>
+        <div class="row-stacked"><label>Encroachment of Neighbour's building to subject property?</label><div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_neighbour_to_subject"></div></div>
         <div class="img-wrapper" id="wrap_Demarcation_enroachment_neighbour_to_subject"></div>
     </div> 
 
@@ -462,7 +521,7 @@
                 </td>
             </tr>
         </table>
-        <div class="row"><label>Notes/Discrepancy if any..</label><div class="field-box" contenteditable="true" data-path="Access.access_notes"></div></div>
+        <div class="row-stacked"><label>Notes/Discrepancy if any..</label><div class="field-box" contenteditable="true" data-path="Access.access_notes"></div></div>
         <div class="img-wrapper" id="wrap_Access_access_notes"></div>
 <br><br><br><br><br><br><br><br><br><br>
         <div class="section-title">VI. For Purchase and Resale cases</div>
@@ -486,7 +545,7 @@
             <label>7.Price Asked</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.price_asked"></div>
             <label>8.Deal Breaker Value</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.deal_breaker_value"></div>
         </div>
-        <div class="row">
+        <div class="row-stacked">
             <label>Notes/Discrepancy if any..</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_resale_notes"></div>
         </div>
         <div class="img-wrapper" id="wrap_Purchase_resale_purchase_resale_notes"></div>
@@ -693,7 +752,7 @@
             </tbody>
         </table>
         
-        <div class="row"><label>Notes/Discrapency in BUA...?</label><div class="field-box" contenteditable="true" data-path="Building_analysis.building_analysis_notes"></div></div>
+        <div class="row-stacked"><label>Notes/Discrapency in BUA...?</label><div class="field-box" contenteditable="true" data-path="Building_analysis.building_analysis_notes"></div></div>
         <div class="img-wrapper" id="wrap_Building_analysis_building_analysis_notes"></div>
 
         <table class="report-table">
@@ -747,17 +806,20 @@
        <div class="table-container" style="margin-top: 15px;">
             <table class="report-table" id="timelineTable" style="table-layout: fixed; width: 100%;">
                 <tbody>
+                     <tr id="row_year">
+                        <td style="width: 150px; background: #f0f0f0; font-weight: bold;">Year</td>
+                        </tr>
                     <tr id="row_percent">
                         <td style="width: 150px; background: #f0f0f0; font-weight: bold;">% Area</td>
-                        </tr>
-                    <tr id="row_year">
-                        <td style="width: 150px; background: #f0f0f0; font-weight: bold;">Year</td>
                         </tr>
                 </tbody>
             </table>
         </div>
         
-        <div class="row"><label>Notes/No of Carparks/Wardrobes/Kitchen Cabinets...?</label><div class="field-box" contenteditable="true" data-path="Building_analysis.amenities_notes"></div></div>
+        <div class="row-stacked">
+            <label>Notes/No of Carparks/Wardrobes/Kitchen Cabinets...?</label>
+            <div class="field-box" contenteditable="true" data-path="Building_analysis.amenities_notes"></div>
+        </div>
         <div class="img-wrapper" id="wrap_Building_analysis_amenities_notes"></div>
 
         <div class="section-title">VIII. Landmark & Layout(Hand Sketch)</div>
@@ -1044,7 +1106,6 @@
         // 5. Return the clean HTML
         return clone.innerHTML;
     }
-
     function confirmSave() {
         // 1. Get the Snapshot
         const htmlSnapshot = getPageSnapshot();
@@ -1053,8 +1114,7 @@
         const payload = {
             report_id: reportId,
             target_folder: currentSavePath,
-            html_content: htmlSnapshot, // <--- SENDING THE HTML
-            // We still send the raw data just in case you need it for DB updates
+            html_content: htmlSnapshot,
             ...reportData 
         };
 
@@ -1075,19 +1135,41 @@
             btn.disabled = false;
             
             if(res.success) {
-                alert("PDF Saved Successfully to: " + res.file_path);
+                // --- SUCCESS SWEETALERT START ---
+                Swal.fire({
+                    title: 'PDF Saved Successfully!',
+                    text: 'File saved at: ' + res.file_path,
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Do a New Site Report',
+                    cancelButtonText: 'Go to Dashboard',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#7066e0',
+                    reverseButtons: true,
+                    timer: 10000,            // 10 Seconds
+                    timerProgressBar: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{% url 'coreapi:feedback' %}"; 
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        window.location.href = "{% url 'coreapi:dashboard' %}"; 
+                    } else if (result.dismiss === Swal.DismissReason.timer) {
+                        // Optional: Default action on timeout
+                        window.location.href = "{% url 'coreapi:dashboard' %}"; 
+                    }
+                });
+                // --- SUCCESS SWEETALERT END ---
             } else {
-                alert("Error saving: " + res.error);
+                Swal.fire('Error', "Error saving: " + res.error, 'error');
             }
         })
         .catch(err => {
             console.error(err);
-            alert("Network Error");
+            Swal.fire('Network Error', 'Could not save PDF', 'error');
             btn.innerText = originalText;
             btn.disabled = false;
         });
-    }
-    
+    }    
     // --- Helpers ---
     function getNested(obj, path) {
         if(!path) return undefined;

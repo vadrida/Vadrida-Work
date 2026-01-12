@@ -92,6 +92,7 @@
      </div>
   </div>
 
+
 </div>
       </div>
     </section>
@@ -1155,37 +1156,61 @@ let modalState = {
 };
 
 /* --- OPEN MODAL BUTTON --- */
+/* --- OPEN MODAL BUTTON --- */
 document.getElementById("openFullBtn").onclick = () => {
     if (!currentFile) return alert("Select a file first");
 
-    // Show Modal
+    // 1. Show Modal
+    const fullscreenModal = document.getElementById("fullscreenModal");
+    const modalTitle = document.getElementById("modalTitle");
+    
     fullscreenModal.classList.add("active");
     fullscreenModal.setAttribute("aria-hidden", "false");
     modalTitle.textContent = currentFile.name;
 
-    // Reset Elements
-    modalFrame.classList.add("hidden");
-    imageZoomWrapper.classList.add("hidden");
-    modalPdfContainer.classList.add("hidden");
-    modalPdfContainer.innerHTML = "";
+    // 2. GET ELEMENTS
+    const modalFrame = document.getElementById("modalFrame");
+    const imageZoomWrapper = document.getElementById("imageZoomWrapper");
+    const modalPdfContainer = document.getElementById("modalPdfContainer");
+    const modalImage = document.getElementById("modalImage");
+
+    // 3. RESET ALL (Hide & Remove Flex)
+    // We explicitly remove 'flex' and set display 'none' to prevent overlapping
+    [modalFrame, imageZoomWrapper, modalPdfContainer].forEach(el => {
+        el.classList.add("hidden");
+        el.classList.remove("flex"); // Critical Fix
+        el.style.display = "none";   // Double safety
+    });
+    
+    modalPdfContainer.innerHTML = ""; // Clear old PDF pages
     
     // Reset Zoom State
     currentModalZoom = 1.0;
-    updateModalZoomUI();
+    if(typeof updateModalZoomUI === "function") updateModalZoomUI();
 
     modalState.path = currentFile.path;
     const ext = currentFile.name.split(".").pop().toLowerCase();
 
-    // CASE A: PDF
+    // 4. CASE A: PDF
     if (ext === 'pdf') {
         modalState.mode = 'pdf';
+        
+        // Show PDF Container
         modalPdfContainer.classList.remove("hidden");
+        modalPdfContainer.classList.add("flex"); // Restore Flex layout
+        modalPdfContainer.style.display = "flex";
+        
         initPdfModal();
     } 
-    // CASE B: IMAGE
+    // 5. CASE B: IMAGE
     else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
         modalState.mode = 'image';
+        
+        // Show Image Wrapper
         imageZoomWrapper.classList.remove("hidden");
+        imageZoomWrapper.classList.add("flex"); // Restore Flex layout
+        imageZoomWrapper.style.display = "flex";
+        
         modalImage.classList.remove("hidden");
         
         // Load High-Res
@@ -1197,14 +1222,20 @@ document.getElementById("openFullBtn").onclick = () => {
         modalImage.style.maxHeight = "100%";
         modalImage.style.margin = "0";
     }
-    // CASE C: OTHER
+    // 6. CASE C: OTHER
     else {
         // Fallback for non-previewable files
         modalPdfContainer.classList.remove("hidden");
-        modalPdfContainer.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500">Preview not available</div>`;
+        modalPdfContainer.classList.add("flex");
+        modalPdfContainer.style.display = "flex";
+        
+        modalPdfContainer.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-2">
+                <i class="fas fa-file-alt text-4xl"></i>
+                <span>Preview not available for this file type</span>
+            </div>`;
     }
 };
-
 /* --- ZOOM LOGIC --- */
 function applyModalZoom() {
     updateModalZoomUI();
@@ -1263,57 +1294,94 @@ document.getElementById("modalZoomReset").onclick = () => {
 };
 
 /* --- PDF INFINITE SCROLL --- */
+/* --- PDF INFINITE SCROLL SETUP --- */
 function initPdfModal() {
     modalState.nextPage = 0;
     modalState.isLoading = false;
     modalState.isFinished = false;
 
-    // Spinner
+    // 1. Create Sentinel (The "Loading Spinner" at the bottom)
     const sentinel = document.createElement("div");
-    sentinel.className = "w-full h-24 flex items-center justify-center py-4";
-    sentinel.innerHTML = '<div class="spinner"></div>';
-    modalPdfContainer.appendChild(sentinel);
+    sentinel.id = "modalSentinel";
+    sentinel.className = "w-full flex items-center justify-center py-8";
+    // Give it height so it can be "seen" by the observer
+    sentinel.style.height = "100px"; 
+    sentinel.style.flexShrink = "0"; // Prevent it from being squashed
+    sentinel.innerHTML = '<div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-8 h-8 animate-spin"></div>';
+    
+    const container = document.getElementById("modalPdfContainer");
+    container.appendChild(sentinel);
 
+    // 2. Setup Observer
     if (modalState.observer) modalState.observer.disconnect();
     
     modalState.observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) loadNextModalPage(sentinel);
-    }, { root: modalPdfContainer, threshold: 0.1 });
+        // Load next page if the spinner comes into view
+        if (entries[0].isIntersecting) {
+            loadNextModalPage(sentinel);
+        }
+    }, { 
+        root: container, // Watch scrolling INSIDE the modal
+        threshold: 0.1,  // Trigger when 10% of spinner is visible
+        rootMargin: "200px" // Pre-load 200px before reaching bottom
+    });
     
     modalState.observer.observe(sentinel);
+    
+    // 3. Trigger initial load immediately
     loadNextModalPage(sentinel);
 }
-
 function loadNextModalPage(sentinel) {
     if (modalState.isLoading || modalState.isFinished) return;
     modalState.isLoading = true;
 
+    // 1. Create Image Page
     const img = document.createElement("img");
     const widthPercent = Math.round(currentModalZoom * 80); 
+    
+    // STYLE FIXES:
     img.style.width = `${widthPercent}%`;
     img.style.maxWidth = "none";
     img.style.marginBottom = "20px";
     img.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
-    img.style.minHeight = "600px"; 
+    img.style.backgroundColor = "white";
+    
+    // CRITICAL: Prevent flexbox from shrinking the page height to 0
+    img.style.flexShrink = "0"; 
+    img.style.minHeight = "800px"; // Placeholder height while loading
 
+    // 2. Set Source
     img.src = `/coreapi/render-page/?path=${encodeURIComponent(modalState.path)}&page=${modalState.nextPage}&zoom=1.5`;
 
     img.onload = () => {
         modalState.isLoading = false;
         modalState.nextPage++;
-        if(sentinel.parentElement && sentinel.getBoundingClientRect().top < window.innerHeight) {
+        
+        // Remove placeholder height constraint once loaded
+        img.style.minHeight = "auto"; 
+
+        // CHECK: If content is still short (spinner visible), load next immediately
+        const container = document.getElementById("modalPdfContainer");
+        const sentinelRect = sentinel.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        if (sentinelRect.top < containerRect.bottom) {
              loadNextModalPage(sentinel);
         }
     };
+
     img.onerror = () => {
+        // 404 means End of PDF
+        console.log("End of PDF reached.");
         modalState.isFinished = true;
-        if(sentinel.parentElement) sentinel.remove();
-        modalState.observer.disconnect();
+        sentinel.remove(); // Remove spinner
+        if (modalState.observer) modalState.observer.disconnect();
     };
 
-    modalPdfContainer.insertBefore(img, sentinel);
+    // 3. Insert BEFORE the sentinel (Spinner stays at bottom)
+    const container = document.getElementById("modalPdfContainer");
+    container.insertBefore(img, sentinel);
 }
-
 /* --- CLOSE BUTTON --- */
 document.getElementById("modalClose").onclick = () => {
     fullscreenModal.classList.remove("active");

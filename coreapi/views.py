@@ -692,20 +692,46 @@ def save_feedback(request):
             
             
 # --- STEP 2: RENDER EDITOR PAGE ---
+# views.py
+
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import SiteVisitReport
+
 def pdf_editor_page(request, report_id):
-    return render(request, "pdf_editor.html", {'report_id': report_id})
-def pdf_editor_page(request, report_id):
-    """Renders the HTML Editor page you provided"""
-    # Verify report exists to prevent 404s later
-    get_object_or_404(SiteVisitReport, id=report_id)
-    return render(request, "pdf_editor.html", {'report_id': report_id})
+    """
+    Renders the PDF Editor with data pre-loaded (Server Side Rendering).
+    This makes the page load instantly without waiting for a second API call.
+    """
+    # 1. Fetch the report from the database
+    report = get_object_or_404(SiteVisitReport, id=report_id)
+    
+    # 2. Prepare the data
+    # Ensure form_data is a Dictionary, even if stored as a String in DB
+    context_data = report.form_data
+    if isinstance(context_data, str):
+        try:
+            context_data = json.loads(context_data)
+        except json.JSONDecodeError:
+            context_data = {}
+            
+    if not context_data:
+        context_data = {}
+
+    # 3. Pass data directly to the template
+    context = {
+        'report_id': report_id,
+        'data': context_data,  # <--- This carries all text & sketches
+        'target_folder': report.target_folder
+    }
+    
+    return render(request, "pdf_editor.html", context)
 
 @require_GET
 def get_report_data(request, report_id):
     """API called by the PDF Editor JS to load data"""
     report = get_object_or_404(SiteVisitReport, id=report_id)
     return JsonResponse(report.form_data)
-
 @csrf_protect
 @require_POST
 def finalize_pdf(request):
@@ -735,39 +761,25 @@ def finalize_pdf(request):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir, exist_ok=True)
 
-        # =========================================================
-        # 4. VERSIONING LOGIC (OfficeFile_Name_1.pdf)
-        # =========================================================
+        # 4. Versioning Logic
         checklist = payload.get('Valuers_Checklist', {})
-        
-        # Get raw values and fallback if empty
         raw_file_no = checklist.get('Office_file_no') or 'Draft'
         raw_name = checklist.get('applicant_name') or 'Report'
-
-        # Sanitize strings (remove spaces, slashes, etc. to prevent path errors)
         safe_file_no = str(raw_file_no).strip().replace(' ', '_').replace('/', '-')
         safe_name = str(raw_name).strip().replace(' ', '_').replace('/', '-')
-
-        # Create the base name: "123_JohnDoe"
         base_filename = f"{safe_file_no}_{safe_name}"
         
         counter = 1
         while True:
-            # Construct: "123_JohnDoe_1.pdf"
             pdf_filename = f"{base_filename}_{counter}.pdf"
             full_save_path = os.path.join(save_dir, pdf_filename)
-            
-            # Check if this exact file already exists on disk
             if not os.path.exists(full_save_path):
-                # If it doesn't exist, this is our file! Break the loop.
                 break
-            
-            # If it exists, increment counter and try again (e.g., try _2.pdf)
             counter += 1
-        # =========================================================
 
-        # 5. Construct HTML Wrapper
+        # 5. Construct HTML Wrapper with ROBUST CSS
         base_url = request.build_absolute_uri('/')
+    
         
         full_html_string = f"""
         <!DOCTYPE html>
@@ -775,37 +787,156 @@ def finalize_pdf(request):
         <head>
             <meta charset="utf-8">
             <style>
-                @page {{ size: A4; margin: 0; }}
-                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; }}
-                
-                /* Layout Styles */
-                .pdf-sheet {{
-                    width: 210mm; min-height: 297mm; background: white; padding: 15mm;
-                    page-break-after: always; box-sizing: border-box; margin: 0 auto;
+                @page {{ 
+                    size: A4; 
+                    margin: 0; 
                 }}
                 
-                h1 {{ margin: 0 0 10px 0; font-size: 16pt; text-transform: uppercase; text-align: center; color: #333; }}
-                .section-title {{ background: #e0e0e0; padding: 4px 8px; font-weight: bold; border: 1px solid #999; margin-top: 15px; margin-bottom: 5px; font-size: 10pt; }}
+                body {{ 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    background: #fff; 
+                    margin: 0;
+                    padding: 0;
+                }}
                 
-                .row {{ display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-start; }}
-                label {{ font-weight: bold; color: #555; font-size: 8pt; margin-right: 5px; white-space: nowrap; }}
+                /* Layout Container */
+                .pdf-sheet {{
+                    width: 210mm; 
+                    min-height: 297mm; 
+                    background: white; 
+                    padding: 15mm;
+                    box-sizing: border-box; 
+                    margin: 0 auto;
+                    position: relative;
+                    page-break-after: always;
+                    overflow: visible; 
+                }}
+
+                /* Typography */
+                h1 {{ margin: 0 0 10px 0; font-size: 16pt; text-transform: uppercase; text-align: center; color: #333; }}
+                
+                .section-title {{ 
+                    background: #e0e0e0; 
+                    padding: 4px 8px; 
+                    font-weight: bold; 
+                    border: 1px solid #999; 
+                    margin-top: 15px; 
+                    margin-bottom: 5px; 
+                    font-size: 10pt; 
+                    page-break-after: avoid; 
+                }}
+                
+                /* --- FIX 1: UPDATED ROW & FIELD BOX --- */
+                .row {{ 
+                    display: flex; 
+                    gap: 10px; 
+                    margin-bottom: 5px; 
+                    align-items: baseline; 
+                }}
+                
+                label {{ 
+                    font-weight: bold; 
+                    color: #555; 
+                    font-size: 9pt; 
+                    margin-right: 5px; 
+                    white-space: nowrap; 
+                }}
                 
                 .field-box {{ 
-                    border-bottom: 1px dotted #000; min-height: 18px; line-height: 1.4;
-                    background: #fcfcfc; color: #000; flex-grow: 1; 
-                    white-space: pre-wrap; overflow-wrap: break-word; display: block;
+                    border-bottom: 1px dotted #000; 
+                    min-height: 18px; 
+                    line-height: 1.4;
+                    background: transparent; 
+                    color: #000; 
+                    flex-grow: 1; 
+                    font-size: 9pt;
+                    white-space: pre-wrap; 
+                    overflow-wrap: break-word; 
+                    word-break: break-word;
+                    display: block;
+                    padding-bottom: 2px;
+                    overflow: visible; /* ALLOWS EXPANSION */
                 }}
                 
-                .report-table {{ width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 8pt; table-layout: fixed; }}
-                .report-table th, .report-table td {{ border: 1px solid #999; padding: 3px; text-align: center; vertical-align: top; overflow-wrap: break-word; }}
-                .report-table th {{ background: #f0f0f0; }}
+                /* --- FIX 2: STRICT TABLE LAYOUT --- */
+                .report-table {{ 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin-top: 5px; 
+                    font-size: 8pt; 
+                    table-layout: fixed; /* STRICT WIDTHS */
+                    page-break-inside: avoid; 
+                }}
+                
+                .report-table th, .report-table td {{ 
+                    border: 1px solid #999; 
+                    padding: 4px; 
+                    text-align: center; 
+                    vertical-align: middle; 
+                    overflow-wrap: break-word;
+                    word-break: break-word;
+                }}
+                
+                .report-table th {{ background: #f0f0f0; font-weight: bold; }}
                 .report-table .field-box {{ border-bottom: none; }}
                 
+                /* --- FIX 3: HEADER INPUT WRAPPER --- */
+                .header-input-wrapper {{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    width: 100%;
+                }}
+
+                .header-input {{
+                    border-bottom: 1px solid #ccc !important;
+                    background: transparent;
+                    width: 100%; 
+                    min-height: 18px;
+                    font-weight: bold;
+                    text-align: center;
+                    font-size: 8pt;
+                    outline: none;
+                }}
+
+                /* --- FIX 4: STACKED ROWS FOR NOTES --- */
+                .row-stacked {{
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                    margin-bottom: 10px;
+                    width: 100%;
+                }}
+                
+                .row-stacked .field-box {{
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 8px;
+                    min-height: 50px;
+                }}
+
+                /* Checkboxes & Grids */
                 .checkbox-group {{ display: flex; flex-wrap: wrap; gap: 10px; }}
                 .checkbox-item {{ display: flex; align-items: center; gap: 3px; font-size: 8pt; }}
+                .checkbox-grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 2px; text-align: left; }}
+
+                /* Images & Sketches */
+                .img-wrapper {{ 
+                    border: none; 
+                    margin: 10px 0; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    page-break-inside: avoid; 
+                }}
                 
-                .img-wrapper {{ border: 2px dashed #ddd; margin: 10px 0; min-height: 150px; display:flex; justify-content:center; align-items: center; }}
-                .img-wrapper img {{ max-width: 100%; max-height: 400px; display: block; }}
+                .img-wrapper img {{ 
+                    max-width: 100%; 
+                    max-height: 400px; 
+                    display: block; 
+                    object-fit: contain;
+                }}
                 
                 /* Hide UI elements */
                 .floating-save, .nav-left, button, .btn-save {{ display: none !important; }}
@@ -816,30 +947,18 @@ def finalize_pdf(request):
         </body>
         </html>
         """
-
         # 6. Generate PDF
         HTML(string=full_html_string, base_url=base_url).write_pdf(full_save_path)
 
+        # Backup Logic
         try:
-            # Define backup directory: Project Root / generated_pdfs
             backup_dir = os.path.join(settings.BASE_DIR, 'generated_pdfs')
-            
-            # Ensure folder exists
             if not os.path.exists(backup_dir):
                 os.makedirs(backup_dir, exist_ok=True)
-            
-            # Define backup path
             backup_save_path = os.path.join(backup_dir, pdf_filename)
-            
-            # Copy the newly created file to the backup folder
             shutil.copy2(full_save_path, backup_save_path)
-            
-            print(f"Backup saved to: {backup_save_path}")
-            
         except Exception as copy_error:
             print(f"Warning: Could not save backup copy: {copy_error}")
-            # We don't stop the response, just log the error
-        # =========================================================
         
         return JsonResponse({'success': True, 'file_path': full_save_path})
 
@@ -847,7 +966,7 @@ def finalize_pdf(request):
         import traceback
         traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-        
+
 # ==========================================
 #  PDF GENERATION UTILS
 # ==========================================
