@@ -16,34 +16,29 @@
   </div>
 
   <div class="dashboard-grid">
-    <aside class="bg-white rounded-lg p-4 shadow-sm">
-      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+    <aside class="bg-white rounded-lg p-4 shadow-sm flex flex-col h-full">
+    <div class="flex items-center justify-between mb-3 flex-shrink-0">
         <h3 class="font-montserrat font-semibold">Files</h3>
-        <button id="refreshFolders" class="px-3 py-1 border rounded text-sm">🔄</button>
-      </div>
+        <button id="refreshFolders" class="px-3 py-1 border rounded text-sm hover:bg-gray-50">🔄</button>
+    </div>
 
-      <div class="mb-3 flex-shrink-0">
-        <input id="fileSearch" type="text" placeholder="Search file id or name..." class="w-full p-2 rounded border" />
-      </div>
+    <div class="mb-3 flex-shrink-0">
+        <input id="fileSearch" type="text" placeholder="Search file id or name..." class="w-full p-2 rounded border text-sm" />
+    </div>
 
-      <div class="file-list-scroll mb-4 flex-1 overflow-y-auto">
-        <div class="flex items-center gap-2 mb-2 text-sm">
-          <button id="goBackBtn" class="px-2 py-1 border rounded">⬅</button>
-          <span id="currentPath">/</span>
+    <div class="flex items-center gap-2 mb-3 text-sm flex-shrink-0">
+        <button id="goBackBtn" class="px-2 py-1 border rounded hover:bg-gray-50">⬅</button>
+        <span id="currentPath" class="break-all whitespace-normal font-mono text-xs text-gray-500 leading-tight">/</span>
+    </div>
+
+    <div id="folderStatsBox" class="hidden mb-3 p-3 bg-gray-50 border rounded text-xs space-y-1 flex-shrink-0 shadow-inner">
         </div>
 
-        <ul id="fileList" class="space-y-2 text-sm"></ul>
-      </div>
-
-      <!-- File info moved into left panel -->
-      <div class="file-info bg-white border rounded p-3 mt-auto flex-shrink-0">
-        <h4 class="font-semibold mb-2">File Info</h4>
-        <div id="fileInfoBox" class="text-sm text-gray-600">
-          Select a file to see details.
-        </div>
-      </div>
+    <div class="file-list-scroll flex-1 overflow-y-auto min-h-0 border-t pt-2">
+        <ul id="fileList" class="space-y-1 text-sm"></ul>
+    </div>
+    
     </aside>
-
     <!-- CENTER: Big preview + controls -->
     <section class="bg-white rounded-lg shadow-sm">
       <div class="flex items-center justify-between mb-3 flex-shrink-0 p-3">
@@ -61,39 +56,44 @@
       <div id="thumbs" class="thumbs-strip mb-3 px-3"></div>
 
       <!-- Large viewer -->
-      <div class="preview-shell rounded border mx-3 mb-3">
-        <div id="bigPreviewHeader" class="flex items-center justify-between px-4 py-2 bg-white border-b flex-shrink-0">
-          <div class="font-medium text-sm truncate" id="bigPreviewTitle">No file selected</div>
+      <div class="preview-shell rounded border mx-3 mb-3 flex flex-col h-[600px] lg:h-auto lg:flex-1 overflow-hidden">
+        
+        <div id="bigPreviewHeader" class="flex items-center justify-between px-4 py-3 bg-gray-100 border-b flex-shrink-0 min-h-[40px]">
+          <div id="bigPreviewTitle" class="font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4">
+            Home / Root
+          </div>
+          
           <div class="flex items-center gap-2">
-            <button id="downloadPdfBtn" class="px-2 py-1 border rounded text-xs hidden download-btn">
+            <button id="downloadPdfBtn" class="px-2 py-1 border rounded text-xs hidden download-btn bg-white hover:bg-gray-50">
               <i class="fas fa-file-download"></i>
             </button>
           </div>
         </div>
 
-        <div id="bigViewer" class="relative h-full flex flex-col bg-gray-100">
-  
-  <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
-    Select a file to preview
-  </div>
+        <div id="bigViewer" class="relative flex-1 flex flex-col bg-gray-100 min-h-0 overflow-hidden">
 
-  <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10">
-    <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
-    <div class="flex items-center gap-2">
-      <button id="pdfZoomOut" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-minus"></i></button>
-      <span id="zoomLevelDisplay" class="text-xs w-12 text-center">100%</span>
-      <button id="pdfZoomIn" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-plus"></i></button>
-    </div>
-  </div>
+            <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
+                Select a file to preview
+            </div>
 
-  <div id="scrollContainer" class="hidden flex-1 overflow-y-auto p-4 flex flex-col items-center gap-4">
-     <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
-        <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
-     </div>
-  </div>
+            <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10 flex-shrink-0 h-10">
+                <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
+                <div class="flex items-center gap-2">
+                    <button id="pdfZoomOut" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-minus"></i></button>
+                    <span id="zoomLevelDisplay" class="text-xs w-12 text-center">100%</span>
+                    <button id="pdfZoomIn" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
 
+            <div id="scrollContainer" class="hidden flex-1 overflow-y-auto p-4 flex flex-col items-center gap-4 bg-gray-200/50">
+                <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
+                    <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
+                </div>
+            </div>
 
-</div>
+            <img id="bigImageFrame" class="hidden w-full h-full object-contain" src="" />
+
+        </div>
       </div>
     </section>
 
@@ -199,6 +199,27 @@
     </div>
   </div>
 </div>
+<!-- chat folder modal -->
+
+<div id="folderChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center pt-32 justify-center z-[60] ">
+  <div class="bg-white rounded-lg w-[500px] h-[500px] flex flex-col shadow-2xl">
+    <div class="p-4 border-b flex justify-between items-center bg-blue-600 text-white rounded-t-lg">
+      <h3 class="font-bold break-all whitespace-normal pr-4 text-sm leading-tight" id="folderChatTitle">Case Chat</h3>
+      <button onclick="closeFolderChat()" class="hover:text-gray-200"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div id="folderChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+      </div>
+
+    <form id="folderChatForm" class="p-3 border-t bg-white flex gap-2">
+      <input type="text" id="folderChatInput" class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type a note..." autocomplete="off">
+      <button type="submit" class="bg-blue-600 text-white rounded-full w-10 h-10 hover:bg-blue-700 flex items-center justify-center">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
 
 <!-- Analyse Modal -->
 <div id="analyseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
@@ -275,21 +296,104 @@ let selectedAnalysisFiles = [];
 let rootFoldersCache = null;
 let isSearching = false;
 let currentPreviewUrl = null;
-
+const folderScrollHistory = {};
 /* =========================
    FOLDER LOADER
 ========================= */
+/* =========================
+   FOLDER LOADER (With Scroll Memory)
+========================= */
 function loadFolder(path = "") {
+  // 1. SAVE SCROLL POSITION (Before changing folders)
+  const scrollContainer = document.querySelector('.file-list-scroll');
+  if (scrollContainer) {
+      // Save the scroll position for the folder we are LEAVING
+      folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
+  }
+
   currentFolder = path;
+  
+  // 2. UPDATE SIDEBAR PATH
   document.getElementById("currentPath").textContent = "/" + (path || "");
 
+  // 3. UPDATE BANNER
+  const banner = document.getElementById("bigPreviewTitle");
+  banner.textContent = path ? path : "Home / Root";
+  banner.className = "font-mono text-xs text-gray-700 font-semibold break-all whitespace-normal leading-tight";
+
+  // 4. RESET PREVIEW PANE
+  if(document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");
+  if(document.getElementById("pdfToolbar")) document.getElementById("pdfToolbar").classList.add("hidden");
+  if(document.getElementById("bigImageFrame")) document.getElementById("bigImageFrame").classList.add("hidden");
+  if(document.getElementById("downloadPdfBtn")) document.getElementById("downloadPdfBtn").classList.add("hidden");
+  
+  const noSelection = document.getElementById("noSelection");
+  if(noSelection) {
+      noSelection.classList.remove("hidden");
+      noSelection.textContent = "Select a file to preview";
+  }
+
+  // 5. FETCH DATA
+  const statsBox = document.getElementById("folderStatsBox");
+  
   fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
     .then(r => r.json())
     .then(data => {
       currentFolderFiles = data.files || [];
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
+      
+      if (data.folder_info) {
+         renderFolderStats(data.folder_info);
+      } else {
+         if(statsBox) statsBox.classList.add("hidden");
+      }
+
+      // --- NEW: RESTORE SCROLL POSITION ---
+      if (scrollContainer) {
+          // Use setTimeout to ensure the list is fully drawn before scrolling
+          setTimeout(() => {
+              // Retrieve saved position for this path, or default to 0 (top)
+              const savedPosition = folderScrollHistory[path] || 0;
+              scrollContainer.scrollTop = savedPosition;
+          }, 0);
+      }
     });
+}
+// New Helper Function to Render the Stats Box
+function renderFolderStats(info) {
+    const statsBox = document.getElementById("folderStatsBox");
+    
+    // Select dot class
+    let dotClass = "status-grey";
+    if (info.status_color === "green") dotClass = "status-green";
+    else if (info.status_color === "yellow") dotClass = "status-yellow";
+    else if (info.status_color === "red") dotClass = "status-red";
+
+    statsBox.innerHTML = `
+        <div class="flex items-center justify-between font-bold border-b pb-1 mb-1">
+            <span>Case Details</span>
+            <div class="flex items-center">
+                <span class="status-dot ${dotClass}"></span>
+                <span class="text-[10px] uppercase tracking-wider text-gray-600">${info.status_label}</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+            <div class="text-gray-500">Downloaded:</div>
+            <div class="font-medium text-right">${info.download_date}</div>
+            
+            <div class="text-gray-500">TAT Limit:</div>
+            <div class="font-medium text-right text-blue-600">${info.tat_date}</div>
+            
+            <div class="text-gray-500">Site Report:</div>
+            <div class="font-medium text-right">${info.site_report_date}</div>
+            
+            <div class="text-gray-500">Final Report:</div>
+            <div class="font-medium text-right">${info.final_report_date}</div>
+        </div>
+    `;
+    
+    statsBox.classList.remove("hidden");
 }
 
 document.getElementById("goBackBtn").onclick = () => {
@@ -305,50 +409,213 @@ document.getElementById("goBackBtn").onclick = () => {
 function renderFileList(folders, files) {
   fileList.innerHTML = "";
 
+  // 1. RENDER FOLDERS
   folders.forEach(folder => {
     const li = document.createElement("li");
-    li.className = "p-2 cursor-pointer hover:bg-blue-50 flex items-center gap-2";
-    li.innerHTML = `📁 <strong>${folder.name}</strong>`;
-    li.onclick = () => loadFolder(folder.path);
+    // 'items-start' makes the icon stick to the TOP if text is 2 lines
+    li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
+    li.dataset.folderPath = folder.path; 
+
+    // --- Status Dot Logic ---
+    let statusDotHtml = "";
+    if (folder.status_color) {
+        let colorClass = "bg-gray-400";
+        if (folder.status_color === "green") colorClass = "bg-green-500";
+        else if (folder.status_color === "yellow") colorClass = "bg-yellow-400";
+        else if (folder.status_color === "red") colorClass = "bg-red-500";
+        
+        // Added flex-shrink-0 to prevent dot from squishing
+        statusDotHtml = `<span class="block w-2 h-2 rounded-full ${colorClass} mt-1 flex-shrink-0"></span>`;
+    } else {
+        statusDotHtml = `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`; 
+    }
+
+    const leftDiv = document.createElement("div");
+    // 'min-w-0' is CRITICAL. It allows the text container to shrink and wrap.
+    leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0"; 
+    
+    leftDiv.innerHTML = `
+      <div class="flex flex-col items-center justify-start flex-shrink-0 w-8 pt-0.5">
+          <span class="text-xl leading-none">📁</span> 
+          ${statusDotHtml}
+      </div>
+      <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
+    `;
+    
+    leftDiv.onclick = () => loadFolder(folder.path);
+    li.appendChild(leftDiv);
+
+    // --- Chat Icon Logic ---
+    if (folder.has_chat) {
+       const chatBtnWrapper = document.createElement("div");
+       chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1"; 
+       
+       const chatBtn = document.createElement("button");
+       chatBtn.className = "w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center";
+       chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
+       chatBtn.onclick = (e) => {
+           e.stopPropagation();
+           openFolderChat(folder.path, folder.name);
+           const dot = chatBtnWrapper.querySelector('.unread-dot');
+           if(dot) dot.remove();
+       };
+       chatBtnWrapper.appendChild(chatBtn);
+       
+       if (folder.is_unread) {
+           const dot = document.createElement("span");
+           dot.className = "unread-dot absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white";
+           chatBtnWrapper.appendChild(dot);
+       }
+       li.appendChild(chatBtnWrapper);
+    }
+
     fileList.appendChild(li);
   });
 
+  // 2. RENDER FILES
   files.forEach(file => {
-    const li = document.createElement("li");
-    li.className = "p-2 cursor-pointer hover:bg-gray-100";
-    li.innerHTML = `
-      <div class="flex justify-between items-center">
-        <div>
-          <div class="font-medium truncate">${file.name}</div>
-          <div class="text-xs text-gray-500">${file.extension || ""}</div>
-        </div>
-        <button class="pin-btn">📌</button>
-      </div>
-    `;
-
-    li.querySelector(".pin-btn").onclick = (e) => {
-      e.stopPropagation();
-      pendingAttachment = {
-        type: "file",
-        path: file.path,
-        label: file.name
+      const li = document.createElement("li");
+      li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
+      
+      // Fixed: Removed fixed height, allowed wrapping
+      li.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-2 flex-1">
+            <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
+            <div class="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">${file.extension || "FILE"}</div>
+          </div>
+        </div>`;
+        
+      li.onclick = () => {
+          document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
+          li.classList.add("bg-blue-100");
+          loadBigPreview(file);
+          setFileInfo(file);
       };
-    };
-    li.onclick = () => {
-      document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
-      li.classList.add("bg-blue-100");
-      loadBigPreview(file);
-      setFileInfo(file);
-    };
-
-    fileList.appendChild(li);
+      fileList.appendChild(li);
   });
 
   if (!folders.length && !files.length) {
-    fileList.innerHTML = `<li class="p-3 text-gray-400">No results</li>`;
+    fileList.innerHTML = `<li class="p-3 text-gray-400 text-center text-sm">Empty Folder</li>`;
   }
 }
+/* =========================
+   FOLDER CHAT LOGIC (WebSocket Enabled)
+========================= */
+let currentChatFolder = null;
+let folderChatSocket = null; // Variable to hold the connection
 
+const folderChatModal = document.getElementById('folderChatModal');
+const folderChatMsgs = document.getElementById('folderChatMessages');
+
+function openFolderChat(path, name) {
+    currentChatFolder = path;
+    document.getElementById('folderChatTitle').textContent = name;
+    folderChatModal.classList.remove('hidden');
+    
+    // 1. Load History (Keep this, it's good)
+    loadFolderChatHistory();
+
+    // 2. CONNECT TO WEBSOCKET
+    // Close existing connection if switching folders
+    if (folderChatSocket) {
+        folderChatSocket.close();
+    }
+
+    // Determine protocol (ws or wss)
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    
+    // Connect to the route we defined in Step 1
+    // We pass the path in the query string as your Consumer expects
+    const wsUrl = `${protocol}://${location.host}/ws/chat/folder/?path=${encodeURIComponent(path)}`;
+    folderChatSocket = new WebSocket(wsUrl);
+
+    folderChatSocket.onopen = function(e) {
+        console.log("✅ Folder Chat Connected");
+    };
+
+    folderChatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        appendFolderMessage(data); // Helper function to add message to UI
+    };
+
+    folderChatSocket.onclose = function(e) {
+        console.log("❌ Folder Chat Disconnected");
+    };
+}
+
+function closeFolderChat() {
+    folderChatModal.classList.add('hidden');
+    currentChatFolder = null;
+    
+    // Close socket to save resources
+    if (folderChatSocket) {
+        folderChatSocket.close();
+        folderChatSocket = null;
+    }
+}
+
+// Helper to Append Message (Used by both History and WebSocket)
+function appendFolderMessage(msg) {
+    const isMe = msg.is_me; // Boolean from server
+    
+    const div = document.createElement('div');
+    div.className = `flex flex-col mb-3 ${isMe ? 'items-end' : 'items-start'}`;
+    
+    const bubbleColor = isMe ? 'bg-[#dcf8c6]' : 'bg-white border';
+    const corners = isMe ? 'rounded-tr-none' : 'rounded-tl-none';
+
+    div.innerHTML = `
+        <div class="${bubbleColor} ${corners} px-3 py-2 rounded-lg max-w-[80%] text-sm shadow-sm relative">
+            ${!isMe ? `<div class="text-[10px] font-bold text-orange-600 mb-1 uppercase">${msg.user}</div>` : ''}
+            <div class="text-gray-800 leading-snug break-words whitespace-pre-wrap">${msg.message}</div>
+            <div class="text-[9px] text-gray-500 text-right mt-1 opacity-70">${msg.time}</div>
+        </div>
+    `;
+    folderChatMsgs.appendChild(div);
+    folderChatMsgs.scrollTop = folderChatMsgs.scrollHeight;
+}
+
+// Load History Function (Slightly modified to use the helper)
+function loadFolderChatHistory() {
+    folderChatMsgs.innerHTML = '<div class="text-center text-gray-400 mt-4">Loading...</div>';
+    fetch(`/chat/api/folder-history/?path=${encodeURIComponent(currentChatFolder)}`)
+        .then(r => r.json())
+        .then(data => {
+            folderChatMsgs.innerHTML = ""; 
+            if(data.messages.length === 0) {
+                folderChatMsgs.innerHTML = '<div class="text-center text-gray-400 mt-10 text-sm">No notes yet. Start the conversation!</div>';
+                return;
+            }
+            data.messages.forEach(msg => appendFolderMessage(msg));
+        })
+        .catch(err => {
+            console.error(err);
+            folderChatMsgs.innerHTML = '<div class="text-center text-red-500 mt-4">Failed to load history</div>';
+        });
+}
+
+/* =========================
+   SEND MESSAGE (VIA WEBSOCKET)
+========================= */
+document.getElementById('folderChatForm').onsubmit = (e) => {
+    e.preventDefault();
+    const input = document.getElementById('folderChatInput');
+    const msg = input.value.trim();
+    
+    // Check if socket is ready
+    if(!msg || !folderChatSocket || folderChatSocket.readyState !== WebSocket.OPEN) {
+        console.error("Socket not ready or message empty");
+        return;
+    }
+
+    // Send to Consumer
+    folderChatSocket.send(JSON.stringify({
+        'message': msg
+    }));
+    
+    input.value = ""; // Clear input
+};
 /* =========================
    THUMBNAILS
 ========================= */
@@ -485,38 +752,88 @@ function renderThumbs(files) {
 function loadBigPreview(file) {
   currentFile = file;
 
-  // Hard reset
-  pdfMain.innerHTML = "";
-  pdfWrapper.classList.add("hidden");
-  bigImageFrame.classList.add("hidden");
-  noSelection.classList.add("hidden");
-  bigImageFrame.src = "";
+  // --- DEBUGGING: Check Console (F12) to see values ---
+  console.log("Opening File:", file.name);
+  console.log("Current Global Folder:", currentFolder);
+  console.log("File Path from Server:", file.path);
 
+  // 1. CONSTRUCT PATH ROBUSTLY
+  let displayPath = file.path;
+
+  // Check if server path is missing or just the filename (no slashes)
+  // We also make sure we aren't in the root (currentFolder isn't empty)
+  if (!displayPath || (displayPath.indexOf("/") === -1 && currentFolder)) {
+      // Force construct: Folder + / + Name
+      // Remove any trailing slashes from folder to avoid double //
+      const cleanFolder = currentFolder.replace(/\/$/, ""); 
+      displayPath = `${cleanFolder}/${file.name}`;
+  } 
+  
+  // If we are in root and path is just filename, prepend a slash for visual clarity
+  if (!currentFolder && displayPath.indexOf("/") === -1) {
+      displayPath = `/${file.name}`;
+  }
+
+  // 2. UPDATE BANNER
+  const banner = document.getElementById("bigPreviewTitle");
+  banner.textContent = displayPath;
+  
+  // Ensure CSS allows wrapping
+  banner.className = "font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4";
+
+  // 3. RESET UI
+  if(typeof pdfMain !== 'undefined' && pdfMain) pdfMain.innerHTML = "";
+  document.getElementById("scrollContainer").classList.add("hidden");
+  document.getElementById("pdfToolbar").classList.add("hidden");
+  document.getElementById("bigImageFrame").classList.add("hidden");
+  document.getElementById("noSelection").classList.add("hidden");
+  document.getElementById("downloadPdfBtn").classList.remove("hidden");
+
+  // 4. RESET STATE
+  if(typeof viewerState !== 'undefined') {
+      viewerState.path = file.path; // Use original path for fetching
+      viewerState.nextPageToLoad = 0;
+      viewerState.isLoading = false;
+      viewerState.isFinished = false;
+  }
+
+  // Clear previous pages
+  const scrollContainer = document.getElementById("scrollContainer");
+  const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
+  existingImages.forEach(img => img.remove());
+
+  // 5. LOAD CONTENT
   const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-  currentPreviewUrl = url;
-  bigPreviewTitle.textContent = file.name;
-
   const ext = file.name.split(".").pop().toLowerCase();
 
   // IMAGE
   if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
-    bigImageFrame.src = url;
-    bigImageFrame.classList.remove("hidden");
+    const bigImg = document.getElementById("bigImageFrame");
+    bigImg.src = url;
+    bigImg.classList.remove("hidden");
+    document.getElementById("pdfToolbar").classList.add("hidden"); 
     return;
   }
 
   // PDF
   if (ext === "pdf") {
-    pdfWrapper.classList.remove("hidden");
-    renderFullPdf(url);
+    document.getElementById("scrollContainer").classList.remove("hidden");
+    document.getElementById("pdfToolbar").classList.remove("hidden");
+    const sentinel = document.getElementById("scrollSentinel");
+    sentinel.classList.remove("hidden");
+    
+    // Trigger Infinite Scroll
+    if(typeof loadNextPage === 'function') loadNextPage();
+    if(typeof observer !== 'undefined') observer.observe(sentinel);
     return;
   }
 
   // OTHER
-  noSelection.textContent = "Preview not available for this file type";
-  noSelection.classList.remove("hidden");
+  const noSel = document.getElementById("noSelection");
+  noSel.textContent = "Preview not available for this file type";
+  noSel.classList.remove("hidden");
+  document.getElementById("downloadPdfBtn").classList.add("hidden");
 }
-
 /* =========================
    FILE INFO
 ========================= */
@@ -700,14 +1017,18 @@ function globalSearch(query) {
    REFRESH
 ========================= */
 document.getElementById("refreshFolders").onclick = () => {
-  fetch("/coreapi/api/refresh/")
-    .then(() => {
-      rootFoldersCache = null;
+  const btn = document.getElementById("refreshFolders");
+  btn.style.transition = "transform 0.5s";
+  btn.style.transform = "rotate(360deg)";
+  const searchInput = document.getElementById("fileSearch");
+  if(searchInput.value) {
       searchInput.value = "";
-      loadFolder("");
-    });
+  }
+  loadFolder(currentFolder);
+  setTimeout(() => {
+      btn.style.transform = "none";
+  }, 500);
 };
-
 
 document.getElementById("modalClose").onclick = () => {
   // Close logic supporting both class and aria attribute
@@ -977,7 +1298,7 @@ function loadBigPreview(file) {
     viewerState.isFinished = false;
 
     // Reset UI
-    document.getElementById("bigPreviewTitle").textContent = file.name;
+    document.getElementById("bigPreviewTitle").textContent = file.path;
     document.getElementById("noSelection").classList.add("hidden");
     document.getElementById("downloadPdfBtn").classList.remove("hidden");
     

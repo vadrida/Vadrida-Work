@@ -363,3 +363,16 @@ section {
     transition: width 0.2s ease-out; /* Smooth resizing */
     flex-shrink: 0; /* CRITICAL: Prevents flexbox from squishing the image back down */
 }
+/* Status Dots */
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.status-green { background-color: #22c55e; } /* Tailwind green-500 */
+.status-yellow { background-color: #f5f106; } /* Tailwind orange-500 */
+.status-red { background-color: #ef4444; }    /* Tailwind red-500 */
+.status-grey { background-color: #9ca3af; }   /* Tailwind gray-400 */

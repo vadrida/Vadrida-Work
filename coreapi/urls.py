@@ -26,7 +26,7 @@ urlpatterns = [
     # path("manager/", views.admin_dashboard, name="admin_dashboard"),
     path("office/", views.office_dashboard, name="office_dashboard"),
     path("dashboard/", views.dashboard, name="dashboard"),
-
+    
     # Feedback Form URLs
     path("feedback/", views.feedback, name="feedback"),
     path("admin_/",views.admin_dash,name="admin_dash"),

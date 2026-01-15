@@ -53,3 +53,4 @@ class ReportSketch(models.Model):
 
     def __str__(self):
         return f"Sketch for {self.source_key} (Report {self.report.id})"
+    

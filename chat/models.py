@@ -20,3 +20,23 @@ class ChatMessage(models.Model):
 
     class Meta:
         ordering = ["created_at"]
+
+
+class FolderChatMessage(models.Model):
+    # We use the folder path as the identifier
+    folder_path = models.CharField(max_length=500, db_index=True) 
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+
+class FolderChatVisit(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    folder_path = models.CharField(max_length=500, db_index=True)
+    last_visit = models.DateTimeField(auto_now=True)  # Auto-updates whenever saved
+
+    class Meta:
+        unique_together = ('user', 'folder_path')

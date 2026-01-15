@@ -42,35 +42,29 @@
   <div class="feedback-layout">
     <!-- LEFT COLUMN: File List + Preview -->
     <div class="left-column">
-      <!-- FILE LIST SECTION -->
-      <section class="file-section">
-        <div class="section-header">
-          <h3 class="section-title">Files</h3>
-          <button id="refreshFolders" class="refresh-btn">🔄</button>
-        </div>
+  <section class="file-section">
+    <div class="section-header">
+      <h3 class="section-title">Files</h3>
+      <button id="refreshFolders" class="refresh-btn">🔄</button>
+    </div>
 
-        <div class="file-controls">
-          <input id="fileSearch" type="text" placeholder="Search file id or name..." class="search-input" />
-          <div class="path-nav">
-            <button id="goBackBtn" class="nav-btn">⬅</button>
-            <span id="currentPath">/</span>
-          </div>
-        </div>
+    <div class="file-controls">
+      <input id="fileSearch" type="text" placeholder="Search file id or name..." class="search-input" />
+      <div class="path-nav">
+        <button id="goBackBtn" class="nav-btn">⬅</button>
+        <span id="currentPath" class="break-all whitespace-normal font-mono text-xs text-gray-500 leading-tight">/</span>
+      </div>
+    </div>
 
-        <div class="file-list-container">
-          <ul id="fileList" class="file-list"></ul>
-        </div>
+    <div id="folderStatsBox" class="hidden mb-3 p-3 bg-gray-50 border rounded text-xs space-y-1 flex-shrink-0 shadow-inner">
+    </div>
+    <div class="file-list-container">
+      <ul id="fileList" class="file-list"></ul>
+    </div>
 
-        <div class="file-info-panel">
-          <h4 class="info-title">File Info</h4>
-          <div id="fileInfoBox" class="info-content">
-            Select a file to see details.
-          </div>
-        </div>
-      </section>
+  </section>
 
-      <!-- PREVIEW SECTION -->
-      <section class="preview-section">
+  <section class="preview-section">
         <div class="section-header">
           <h3 class="section-title">Preview</h3>
           <div class="preview-controls">
@@ -82,38 +76,41 @@
         <div id="thumbs" class="thumbs-strip"></div>
 
         <div class="preview-container">
-          <div class="preview-header">
-            <div id="bigPreviewTitle" class="preview-title">No file selected</div>
+          <div class="preview-header" style="height: auto; min-height: 50px; padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #f3f4f6; border-bottom: 1px solid #ddd;">
+            <div id="bigPreviewTitle" class="preview-title break-all whitespace-normal leading-tight" style="flex: 1; padding-right: 10px; font-family: monospace; font-weight: 600; color: #374151;">
+                Home / Root
+            </div>
             <button hidden id="downloadPdfBtn" class="download-btn hidden">
-            
+                <i class="fas fa-file-download"></i>
             </button>
           </div>
+          
+          <div id="bigViewer" class="relative h-full flex flex-col bg-gray-100" style="overflow: hidden;">
+            
+            <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
+                Select a file to preview
+            </div>
 
-          <div id="bigViewer" class="relative h-full flex flex-col bg-gray-100">
-  
-  <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
-    Select a file to preview
-  </div>
+            <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10">
+                <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
+                <div class="flex items-center gap-2">
+                  </div>
+            </div>
 
-  <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10">
-    <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
-    <div class="flex items-center gap-2">
-      <button id="pdfZoomOut"></i></button>
-      <span id="zoomLevelDisplay"></span>
-      <button id="pdfZoomIn"i></button>
-    </div>
-  </div>
+            <div id="scrollContainer" class="hidden flex-1 overflow-y-auto p-4 flex flex-col items-center gap-4">
+                <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
+                    <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
+                </div>
+            </div>
+            
+            <div id="bigImageContainer" class="hidden w-full h-full flex items-center justify-center overflow-hidden relative z-20" style="touch-action: none; cursor: grab;">
+                <img id="bigImageFrame" class="max-w-full max-h-full object-contain transition-transform duration-100 ease-out origin-center" src="" alt="Preview" />
+            </div>
 
-  <div id="scrollContainer" class="hidden flex-1 overflow-y-auto p-4 flex flex-col items-center gap-4">
-     <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
-        <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
-     </div>
-  </div>
-
-</div>
+          </div>
         </div>
       </section>
-    </div>
+</div>
 
     <!-- RIGHT COLUMN: Comprehensive Feedback Form -->
     <div class="right-column">
@@ -543,8 +540,8 @@
                     <td><input type="text" data-path="Purchase_resale.buyer_seller_relation" class="table-input"></td>
                   </tr>
                   <tr>
-                    <td>4. Since how long the <br> property is up for sale..?</td>
-                    <td><input type="text" data-path="Purchase_resale.property_sale_duration" class="table-input"></td>
+                    <td>4. Since how long the <br> property is up for sale..? (months)</td>
+                    <td><input type="number" data-path="Purchase_resale.property_sale_duration" class="table-input"></td>
                   </tr>
                   <tr>
                     <td>5. Brockers/OLX/99acers etc <br> involved or how transaction happened..?</td>
@@ -577,6 +574,12 @@
           <div class="form-section-group">
             <h4 class="form-section-title">VII. Building Analysis</h4>
             
+            <div class="mb-2 flex justify-end">
+                <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200" onclick="addFloor('above')">
+                    <i class="fas fa-arrow-up mr-1"></i> Add Floor Above
+                </button>
+            </div>
+
             <div class="table-container">
               <table class="analysis-table">
                 <thead>
@@ -588,216 +591,22 @@
                     <th>No. of Bathrooms</th>
                     <th>Usage (Residential/Commercial/Industrial)</th>
                     <th>Occupancy (Owner/Applicant/Rented/Vacant)</th>
-                  </tr>
+                    <th style="width: 30px;"></th> </tr>
                 </thead>
-                  <tbody>
-                    <tr>
-                      <td>BF-2</td>
-                      <td><input type="number" data-path="Building_analysis.BF_2_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.BF_2_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.BF_2_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.BF_2_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_2_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>BF-1</td>
-                      <td><input type="number" data-path="Building_analysis.BF_1_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.BF_1_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.BF_1_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.BF_1_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.BF_1_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>GF</td>
-                      <td><input type="number" data-path="Building_analysis.GF_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.GF_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.GF_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.GF_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.GF_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>1st Floor</td>
-                      <td><input type="number" data-path="Building_analysis.first_flr_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.first_flr_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.first_flr_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.first_flr_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.first_flr_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>2nd Floor</td>
-                      <td><input type="number" data-path="Building_analysis.second_flr_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.second_flr_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.second_flr_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.second_flr_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.second_flr_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>3rd Floor</td>
-                      <td><input type="number" data-path="Building_analysis.third_flr_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.third_flr_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.third_flr_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.third_flr_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.third_flr_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>4th Floor</td>
-                      <td><input type="number" data-path="Building_analysis.fourth_flr_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.fourth_flr_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.fourth_flr_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.fourth_flr_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fourth_flr_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>5th Floor</td>
-                      <td><input type="number" data-path="Building_analysis.fifth_flr_Builtup_area" step="0.01" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.fifth_flr_Rooms_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.fifth_flr_Kitchen_no" class="table-input"></td>
-                      <td><input type="number" data-path="Building_analysis.fifth_flr_Bathrooms_no" class="table-input"></td>
-                      
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Usage" value="Residential"> Residential</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Usage" value="Commercial"> Commercial</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Usage" value="Industrial"> Industrial</label>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="radio-cell-group">
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Owner"> Owner</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Applicant"> Applicant</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Rented"> Rented</label>
-                          <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.fifth_flr_Occupancy" value="Vacant"> Vacant</label>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
+                <tbody id="buildingTableBody"></tbody>
               </table>
             </div>
-          
-            <div class="form-group">
+
+            <div class="mt-2 flex justify-end">
+                <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200" onclick="addFloor('below')">
+                    <i class="fas fa-arrow-down mr-1"></i> Add Floor Below
+                </button>
+            </div>
+            
+            <div class="form-group mt-3">
               <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
               <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea" rows="4"></textarea>
-            </div>
+            </div>  
 
             <!-- Roof Type Table -->
             <div class="table-container">
@@ -1022,6 +831,30 @@
     <button id="fileSelectClose" class="modal-btn">Cancel</button>
   </div>
 </div>
+
+<!-- folderchat  -->
+
+
+<div id="folderChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[60]" style="display: none; justify-content: center; align-items: center;">
+  <div class="bg-white rounded-lg w-[500px] h-[500px] flex flex-col shadow-2xl" style="width: 500px; height: 500px; background: white; display: flex; flex-direction: column; border-radius: 8px;">
+    <div class="p-4 border-b flex justify-between items-center bg-blue-600 text-white rounded-t-lg" style="padding: 15px; background: #2563eb; color: white; display: flex; justify-content: space-between;">
+      <h3 class="font-bold break-all whitespace-normal pr-4 text-sm leading-tight" id="folderChatTitle">Case Chat</h3>
+      <button onclick="closeFolderChat()" class="hover:text-gray-200" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">&times;</button>
+    </div>
+    
+    <div id="folderChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50" style="flex: 1; overflow-y: auto; padding: 15px; background: #f9fafb; display: flex; flex-direction: column; gap: 10px;">
+    </div>
+
+    <form id="folderChatForm" class="p-3 border-t bg-white flex gap-2" style="padding: 10px; border-top: 1px solid #eee; display: flex; gap: 10px;">
+      <input type="text" id="folderChatInput" class="flex-1 border rounded-full px-4 py-2 focus:outline-none" style="flex: 1; padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd;" placeholder="Type a note..." autocomplete="off">
+      <button type="submit" class="bg-blue-600 text-white rounded-full w-10 h-10 hover:bg-blue-700 flex items-center justify-center" style="width: 40px; height: 40px; border-radius: 50%; background: #2563eb; color: white; border: none; cursor: pointer;">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+
 <div id="sketchModal" class="sketch-modal-overlay hidden">
     
     <div id="sketchSidebar" class="sketch-toolbar-container">
@@ -1173,7 +1006,9 @@ let rootFoldersCache = null;
 let isSearching = false;
 let currentPreviewUrl = null;
 let activeSketchPath = null;
-
+const folderScrollHistory = {};
+let folderChatSocket = null;
+let currentChatFolder = null;
 
 // REPLACE your existing formState with this corrected version
 let formState = {
@@ -1231,7 +1066,17 @@ let formState = {
     images: {} ,
     vectors : {} // We keep this for local reload, but will delete before submit
 };
-
+let visibleFloorIndices = [2, 3];
+const floorConfig = [
+    { label: "BF-2",      key: "BF_2" },
+    { label: "BF-1",      key: "BF_1" },
+    { label: "GF",        key: "GF" },
+    { label: "1st Floor", key: "first_flr" },
+    { label: "2nd Floor", key: "second_flr" },
+    { label: "3rd Floor", key: "third_flr" },
+    { label: "4th Floor", key: "fourth_flr" },
+    { label: "5th Floor", key: "fifth_flr" }
+];
 /* =========================
    3. DOM ELEMENTS
 ========================= */
@@ -1249,31 +1094,203 @@ const sketchModal = document.getElementById('sketchModal');
 const canvas = document.getElementById("proCanvas"); 
 const ctx = canvas ? canvas.getContext("2d") : null;
 
+
+
+function initBuildingTable() {
+    // Check if we have saved data for hidden floors and auto-show them
+    // e.g., if "BF_1_Builtup_area" has data, make sure index 1 is visible
+    const data = formState.Building_analysis || {};
+    
+    floorConfig.forEach((floor, index) => {
+        // Check a key field (e.g., Builtup Area) to see if data exists
+        const hasData = data[`${floor.key}_Builtup_area`] || 
+                        data[`${floor.key}_Rooms_no`];
+        
+        if (hasData && !visibleFloorIndices.includes(index)) {
+            visibleFloorIndices.push(index);
+        }
+    });
+
+    // Sort indices to keep floors in order (BF-2 -> 5th Floor)
+    visibleFloorIndices.sort((a, b) => a - b);
+    
+    renderBuildingRows();
+}
+
+function renderBuildingRows() {
+    const tbody = document.getElementById("buildingTableBody");
+    if (!tbody) return;
+    
+    tbody.innerHTML = "";
+
+    // Iterate through active indices and build HTML
+    visibleFloorIndices.forEach(index => {
+        const floor = floorConfig[index];
+        const key = floor.key;
+        
+        // Helper to get value safely
+        const getVal = (suffix) => {
+            return (formState.Building_analysis && formState.Building_analysis[`${key}_${suffix}`]) || "";
+        };
+
+        // Helper for checkboxes
+        const getChecked = (arraySuffix, val) => {
+            const arr = (formState.Building_analysis && formState.Building_analysis[`${key}_${arraySuffix}`]) || [];
+            return Array.isArray(arr) && arr.includes(val) ? "checked" : "";
+        };
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="font-bold bg-gray-50">${floor.label}</td>
+            <td><input type="number" data-path="Building_analysis.${key}_Builtup_area" step="0.01" class="table-input" value="${getVal('Builtup_area')}"></td>
+            <td><input type="number" data-path="Building_analysis.${key}_Rooms_no" class="table-input" value="${getVal('Rooms_no')}"></td>
+            <td><input type="number" data-path="Building_analysis.${key}_Kitchen_no" class="table-input" value="${getVal('Kitchen_no')}"></td>
+            <td><input type="number" data-path="Building_analysis.${key}_Bathrooms_no" class="table-input" value="${getVal('Bathrooms_no')}"></td>
+            
+            <td>
+                <div class="radio-cell-group">
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Residential" ${getChecked('Usage', 'Residential')}> Res</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Commercial" ${getChecked('Usage', 'Commercial')}> Com</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Industrial" ${getChecked('Usage', 'Industrial')}> Ind</label>
+                </div>
+            </td>
+
+            <td>
+                <div class="radio-cell-group">
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Owner" ${getChecked('Occupancy', 'Owner')}> Owner</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Applicant" ${getChecked('Occupancy', 'Applicant')}> App</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Rented" ${getChecked('Occupancy', 'Rented')}> Rent</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Vacant" ${getChecked('Occupancy', 'Vacant')}> Vac</label>
+                </div>
+            </td>
+            
+            <td>
+                ${ (floor.label !== 'GF' && floor.label !== '1st Floor') ? 
+                   `<button onclick="removeFloor(${index})" class="text-red-500 hover:text-red-700" title="Remove Row"><i class="fas fa-times"></i></button>` 
+                   : '' 
+                }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function addFloor(direction) {
+    // Find min and max currently visible indices
+    const min = Math.min(...visibleFloorIndices);
+    const max = Math.max(...visibleFloorIndices);
+
+    let newIndex;
+    if (direction === 'above') {
+        newIndex = max + 1;
+        if (newIndex >= floorConfig.length) return alert("Max floor limit reached (5th Floor)");
+    } else {
+        newIndex = min - 1;
+        if (newIndex < 0) return alert("Min floor limit reached (BF-2)");
+    }
+
+    if (!visibleFloorIndices.includes(newIndex)) {
+        visibleFloorIndices.push(newIndex);
+        visibleFloorIndices.sort((a, b) => a - b);
+        renderBuildingRows();
+    }
+}
+
+function removeFloor(indexToRemove) {
+    visibleFloorIndices = visibleFloorIndices.filter(i => i !== indexToRemove);
+    renderBuildingRows();
+    // Optional: Clear data for that floor in formState if you want strict cleanup
+}
+
 /* =========================
    4. FILE EXPLORER LOGIC
 ========================= */
 function loadFolder(path = "") {
-  currentFolder = path;
-  document.getElementById("currentPath").textContent = "/" + (path || "");
-  fileList.innerHTML = `<li class="file-item loading">Loading...</li>`;
-  thumbsContainer.innerHTML = `<div class="no-thumbs">Loading...</div>`;
+  // 1. SAVE SCROLL POSITION (Before changing folders)
+  // FIXED: Changed selector from '.file-list-scroll' to '.file-list-container'
+  const scrollContainer = document.querySelector('.file-list-container');
+  
+  if (scrollContainer) {
+      // Save the scroll position for the folder we are LEAVING
+      folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
+  }
 
+  currentFolder = path;
+  
+  // 2. UPDATE SIDEBAR PATH
+  document.getElementById("currentPath").textContent = "/" + (path || "");
+
+  // 3. UPDATE BANNER
+  const banner = document.getElementById("bigPreviewTitle");
+  banner.textContent = path ? path : "Home / Root";
+  banner.className = "font-mono text-xs text-gray-700 font-semibold break-all whitespace-normal leading-tight";
+
+  // 4. RESET PREVIEW PANE
+  if(document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");
+  if(document.getElementById("pdfToolbar")) document.getElementById("pdfToolbar").classList.add("hidden");
+  if(document.getElementById("bigImageFrame")) document.getElementById("bigImageFrame").classList.add("hidden");
+  if(document.getElementById("downloadPdfBtn")) document.getElementById("downloadPdfBtn").classList.add("hidden");
+  
+  const noSelection = document.getElementById("noSelection");
+  if(noSelection) {
+      noSelection.classList.remove("hidden");
+      noSelection.textContent = "Select a file to preview";
+  }
+
+  // 5. FETCH DATA
+  const statsBox = document.getElementById("folderStatsBox");
+  
   fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
-    .then(r => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    })
+    .then(r => r.json())
     .then(data => {
       currentFolderFiles = data.files || [];
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
-    })
-    .catch(error => {
-      fileList.innerHTML = `<li class="file-item error">Error: ${error.message}</li>`;
-      thumbsContainer.innerHTML = `<div class="no-thumbs">Error loading</div>`;
+      
+      if (data.folder_info) {
+         renderFolderStats(data.folder_info);
+      } else {
+         if(statsBox) statsBox.classList.add("hidden");
+      }
+
+      // --- RESTORE SCROLL POSITION ---
+      if (scrollContainer) {
+          // Use setTimeout to ensure the list is fully drawn before scrolling
+          setTimeout(() => {
+              // Retrieve saved position for this path, or default to 0 (top)
+              const savedPosition = folderScrollHistory[path] || 0;
+              scrollContainer.scrollTop = savedPosition;
+          }, 0);
+      }
     });
 }
 
+function renderFolderStats(info) {
+    const statsBox = document.getElementById("folderStatsBox");
+    
+    // Map backend color to YOUR CSS classes
+    let colorSuffix = "grey";
+    if (info.status_color === "green") colorSuffix = "green";
+    else if (info.status_color === "yellow") colorSuffix = "yellow";
+    else if (info.status_color === "red") colorSuffix = "red";
+
+    statsBox.innerHTML = `
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px; font-weight:bold;">
+            <span>Case Details</span>
+            <div style="display:flex; align-items:center;">
+                <span class="status-dot status-${colorSuffix}"></span>
+                <span style="font-size:10px; text-transform:uppercase; color:#666;">${info.status_label}</span>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+            <div style="color:#666;">Downloaded:</div><div style="text-align:right;">${info.download_date}</div>
+            <div style="color:#666;">TAT Limit:</div><div style="text-align:right; color:#2563eb;">${info.tat_date}</div>
+            <div style="color:#666;">Site Report:</div><div style="text-align:right;">${info.site_report_date}</div>
+            <div style="color:#666;">Final Report:</div><div style="text-align:right;">${info.final_report_date}</div>
+        </div>
+    `;
+    statsBox.classList.remove("hidden");
+}
 document.getElementById("goBackBtn").onclick = () => {
   if (!currentFolder) return;
   const parts = currentFolder.split("/");
@@ -1283,32 +1300,87 @@ document.getElementById("goBackBtn").onclick = () => {
 
 function renderFileList(folders, files) {
   fileList.innerHTML = "";
+
   folders.forEach(folder => {
     const li = document.createElement("li");
     li.className = "file-item folder-item";
-    li.innerHTML = `📁 <strong>${folder.name}</strong>`;
-    li.onclick = () => loadFolder(folder.path);
+    
+    // Status Dot Logic
+    let statusDotHtml = `<span class="status-dot" style="border:none;"></span>`; // Invisible placeholder
+    if (folder.status_color) {
+        let colorSuffix = "grey";
+        if (folder.status_color === "green") colorSuffix = "green";
+        else if (folder.status_color === "yellow") colorSuffix = "yellow";
+        else if (folder.status_color === "red") colorSuffix = "red";
+        
+        statusDotHtml = `<span class="status-dot status-${colorSuffix}"></span>`;
+    }
+
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "flex items-start gap-3 flex-1 min-w-0";
+    contentDiv.style.display = "flex"; 
+    contentDiv.style.width = "100%";
+    
+    contentDiv.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; width:20px; margin-right:8px;">
+          <span style="font-size:1.2rem;">📁</span> 
+          ${statusDotHtml}
+      </div>
+      <span class="break-all whitespace-normal leading-snug" style="flex:1; font-weight:600; font-size:0.9rem;">${folder.name}</span>
+    `;
+    
+    contentDiv.onclick = () => loadFolder(folder.path);
+    li.appendChild(contentDiv);
+
+    // Chat Icon
+    if (folder.has_chat) {
+       const chatBtnWrapper = document.createElement("div");
+       chatBtnWrapper.style.position = "relative";
+       chatBtnWrapper.style.marginLeft = "auto";
+       
+       const chatBtn = document.createElement("button");
+       chatBtn.style.cssText = "width:30px; height:30px; border-radius:50%; background:#dcfce7; color:#16a34a; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;";
+       chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
+       chatBtn.onclick = (e) => {
+           e.stopPropagation();
+           openFolderChat(folder.path, folder.name);
+           const dot = chatBtnWrapper.querySelector('.unread-dot');
+           if(dot) dot.remove();
+       };
+       chatBtnWrapper.appendChild(chatBtn);
+       
+       if (folder.is_unread) {
+           const dot = document.createElement("span");
+           dot.className = "unread-dot";
+           dot.style.cssText = "position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:red; border-radius:50%; border:2px solid white;";
+           chatBtnWrapper.appendChild(dot);
+       }
+       li.appendChild(chatBtnWrapper);
+    }
+
     fileList.appendChild(li);
   });
 
   files.forEach(file => {
-    const li = document.createElement("li");
-    li.className = "file-item";
-    li.innerHTML = `<div class="file-details"><div class="file-name">${file.name}</div><div class="file-ext">${file.extension || ""}</div></div>`;
-    li.onclick = () => {
-      document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
-      li.classList.add("selected");
-      loadBigPreview(file);
-      setFileInfo(file);
-    };
-    fileList.appendChild(li);
+      const li = document.createElement("li");
+      li.className = "file-item";
+      li.innerHTML = `
+        <div style="width:100%;">
+          <div class="file-name break-all whitespace-normal leading-snug" style="font-weight:500;">${file.name}</div>
+          <div class="file-ext" style="font-size:10px; color:#aaa;">${file.extension || "FILE"}</div>
+        </div>`;
+      li.onclick = () => {
+          document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
+          li.classList.add("selected");
+          loadBigPreview(file);
+      };
+      fileList.appendChild(li);
   });
 
   if (!folders.length && !files.length) {
-    fileList.innerHTML = `<li class="no-results">No files or folders found</li>`;
+    fileList.innerHTML = `<li class="no-results" style="padding:10px; color:#999;">No files found</li>`;
   }
 }
-
 /* =========================
    5. THUMBNAILS & PREVIEWS
 ========================= */
@@ -1411,35 +1483,87 @@ function renderThumbs(files) {
   processThumbQueue();
   processThumbQueue();
 }
-function loadBigPreview(file) {
-  currentFile = file;
-  const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-  currentPreviewUrl = url;
-  bigPreviewTitle.textContent = file.path;
 
-  pdfMain.innerHTML = "";
-  pdfWrapper.classList.add("hidden");
-  bigImageFrame.classList.add("hidden");
-  noSelection.classList.add("hidden");
+/* =========================
+   7. FOLDER CHAT (Ported)
+========================= */
+const folderChatModal = document.getElementById('folderChatModal');
+const folderChatMsgs = document.getElementById('folderChatMessages');
 
-  const ext = file.name.split(".").pop().toLowerCase();
+function openFolderChat(path, name) {
+    currentChatFolder = path;
+    document.getElementById('folderChatTitle').textContent = name;
+    
+    // Show Modal
+    folderChatModal.classList.remove('hidden');
+    folderChatModal.style.display = 'flex'; // Force Flex for centering
 
-  if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
-    bigImageFrame.src = url;
-    bigImageFrame.onload = () => {
-      bigImageFrame.classList.remove("hidden");
-      document.getElementById("downloadPdfBtn").classList.remove("hidden");
+    loadFolderChatHistory();
+
+    if (folderChatSocket) folderChatSocket.close();
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${protocol}://${location.host}/ws/chat/folder/?path=${encodeURIComponent(path)}`;
+    folderChatSocket = new WebSocket(wsUrl);
+
+    folderChatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        appendFolderMessage(data); 
     };
-  } else if (ext === "pdf") {
-    pdfWrapper.classList.remove("hidden");
-    document.getElementById("downloadPdfBtn").classList.remove("hidden");
-    renderFullPdf(url);
-  } else {
-    noSelection.textContent = "Preview not available";
-    noSelection.classList.remove("hidden");
-  }
 }
 
+function closeFolderChat() {
+    folderChatModal.classList.add('hidden');
+    folderChatModal.style.display = 'none';
+    currentChatFolder = null;
+    if (folderChatSocket) { folderChatSocket.close(); folderChatSocket = null; }
+}
+
+function appendFolderMessage(msg) {
+    const isMe = msg.is_me;
+    const div = document.createElement('div');
+    div.className = isMe ? 'chat-bubble chat-me' : 'chat-bubble chat-other';
+    
+    div.innerHTML = `
+        ${!isMe ? `<div style="font-size:10px; font-weight:bold; color:orange; margin-bottom:2px;">${msg.user}</div>` : ''}
+        <div style="word-wrap:break-word;">${msg.message}</div>
+        <div style="font-size:9px; color:#aaa; text-align:right; margin-top:4px;">${msg.time}</div>
+    `;
+    folderChatMsgs.appendChild(div);
+    folderChatMsgs.scrollTop = folderChatMsgs.scrollHeight;
+}
+
+function loadFolderChatHistory() {
+    folderChatMsgs.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">Loading...</div>';
+    fetch(`/chat/api/folder-history/?path=${encodeURIComponent(currentChatFolder)}`)
+        .then(r => r.json())
+        .then(data => {
+            folderChatMsgs.innerHTML = ""; 
+            if(data.messages.length === 0) {
+                folderChatMsgs.innerHTML = '<div style="text-align:center; color:#ccc; margin-top:20px;">No notes yet.</div>';
+                return;
+            }
+            data.messages.forEach(msg => appendFolderMessage(msg));
+        });
+}
+
+document.getElementById('folderChatForm').onsubmit = (e) => {
+    e.preventDefault();
+    const input = document.getElementById('folderChatInput');
+    const msg = input.value.trim();
+    
+    // Check if socket is ready
+    if(!msg || !folderChatSocket || folderChatSocket.readyState !== WebSocket.OPEN) {
+        console.error("Socket not ready or message empty");
+        return;
+    }
+
+    // Send to Consumer
+    folderChatSocket.send(JSON.stringify({
+        'message': msg
+    }));
+    
+    input.value = ""; // Clear input
+};
 function setFileInfo(file) {
   fileInfoBox.innerHTML = `
     <div class="info-row"><strong>Name:</strong> <span>${file.name}</span></div>
@@ -1582,26 +1706,20 @@ function globalSearch(query) {
 /* =========================
    REFRESH BUTTON (Fixed)
 ========================= */
-const refreshBtn = document.getElementById("refreshFolders");
-
-refreshBtn.onclick = () => {
-  // 1. Visual Feedback (Spin the icon)
-  refreshBtn.classList.add("rotating"); 
-  refreshBtn.disabled = true;
-
-  // 2. Simply reload the current folder (Live Disk Read)
-  // We add a timestamp to force the browser to not use cache
-  loadFolder(currentFolder);
+document.getElementById("refreshFolders").onclick = () => {
+  const btn = document.getElementById("refreshFolders");
+  btn.classList.add("rotating"); 
+  btn.disabled = true;
   
-  // 3. Optional: Trigger background index rebuild for Search (Don't wait for it)
-  fetch("/coreapi/api/refresh/", { method: "POST", headers: { "X-CSRFToken": csrftoken } })
-    .catch(err => console.log("Background index update failed (non-critical):", err));
+  const searchInput = document.getElementById("fileSearch");
+  if(searchInput.value) searchInput.value = "";
 
-  // 4. Stop spinning after 1 second (UI Feel)
+  loadFolder(currentFolder);
+
   setTimeout(() => {
-    refreshBtn.classList.remove("rotating");
-    refreshBtn.disabled = false;
-  }, 1000);
+      btn.classList.remove("rotating");
+      btn.disabled = false;
+  }, 500);
 };
 /* =========================
    7. MODAL & PREVIEW UI
@@ -2729,6 +2847,7 @@ function renderSurveyColumns() {
     const bodyRows = document.querySelectorAll('#surveyBody tr');
     if (!headerRow) return;
 
+    // Clear existing dynamic columns
     headerRow.querySelectorAll('.dyn-col').forEach(el => el.remove());
     bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
 
@@ -2736,6 +2855,7 @@ function renderSurveyColumns() {
     const surveyDocs = formState.Survey.docs || [];
 
     surveyDocs.forEach((docObj, index) => {
+        // 1. Render Header (Dropdown to select Doc Name)
         const th = document.createElement('th');
         th.className = 'dyn-col';
         th.style.minWidth = "150px";
@@ -2747,12 +2867,41 @@ function renderSurveyColumns() {
         th.innerHTML = `<select class="form-select" style="width: 100%; color:black;" onchange="updateSurveyDocName(${index}, this.value)">${optionsHtml}</select>`;
         headerRow.appendChild(th);
 
+        // 2. Render Body Cells
         bodyRows.forEach(row => {
             const key = row.getAttribute('data-row-key');
             if(key) {
                 const td = document.createElement('td');
                 td.className = 'dyn-cell';
-                td.innerHTML = `<input type="text" class="table-input" value="${docObj[key] || ''}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
+                const val = docObj[key] || '';
+
+                // --- LOGIC CHANGE STARTS HERE ---
+                let inputHtml = '';
+
+                if (key === 'land_classification') {
+                    // Dropdown for Classification
+                    const isDry = val === 'Dry' ? 'selected' : '';
+                    const isWet = val === 'Wet' ? 'selected' : '';
+                    
+                    inputHtml = `
+                        <select class="table-input" onchange="updateSurveyDocData(${index}, '${key}', this.value)">
+                            <option value="">Select</option>
+                            <option value="Dry" ${isDry}>Dry</option>
+                            <option value="Wet" ${isWet}>Wet</option>
+                        </select>
+                    `;
+                } 
+                else if (key === 'land_extent') {
+                     // Keep Text Input for Extent (as requested)
+                     inputHtml = `<input type="text" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
+                } 
+                else {
+                     // Number Input for everything else (Survey No, Block No, etc.)
+                     inputHtml = `<input type="number" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
+                }
+                // --- LOGIC CHANGE ENDS HERE ---
+
+                td.innerHTML = inputHtml;
                 row.appendChild(td);
             }
         });
@@ -2933,6 +3082,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncStateToUI();
     renderSurveyColumns();
     updateAllDocumentDropdowns();
+    
 
     // Load saved images
     Object.keys(formState.images).forEach(path => {
@@ -2947,6 +3097,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+    // --- RESTRICT DATE PICKER TO TODAY ---
+    const dateInput = document.querySelector('input[data-path="Valuers_Checklist.inspection_date"]');
+    if (dateInput) {
+        const today = new Date().toISOString().split("T")[0]; // Get YYYY-MM-DD
+        dateInput.setAttribute("max", today);
+    }
 });
 
 function copyAllDocsToSites(checkbox) {
@@ -3006,6 +3162,7 @@ document.addEventListener("DOMContentLoaded", () => {
             createColumnAtIndex(0, "");
         }
     }, 200);
+    initBuildingTable();
 });
 
 // --- 1. CORE: Recalculate State ---
@@ -3256,57 +3413,217 @@ const pdfToolbar = document.getElementById("pdfToolbar");
 const pageCountDisplay = document.getElementById("pageCountDisplay");
 const zoomLevelDisplay = document.getElementById("zoomLevelDisplay");
 
-// --- 1. INITIALIZE PREVIEW ---
-function loadBigPreview(file) {
-    currentFile = file;
-    
-    // Reset State
-    viewerState.path = file.path;
-    viewerState.nextPageToLoad = 0;
-    viewerState.isLoading = false;
-    viewerState.isFinished = false;
+const imgContainer = document.getElementById("bigImageContainer");
+const imgEl = document.getElementById("bigImageFrame");
 
-    // Reset UI
-    document.getElementById("bigPreviewTitle").textContent = file.name;
-    document.getElementById("noSelection").classList.add("hidden");
-    document.getElementById("downloadPdfBtn").classList.remove("hidden");
-    
-    // Clear previous pages (Keep only the sentinel)
-    // We remove all img elements before the sentinel
-    const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
-    existingImages.forEach(img => img.remove());
+let imgState = { scale: 1, panning: false, pointX: 0, pointY: 0, startX: 0, startY: 0 };
 
-    const ext = file.name.split(".").pop().toLowerCase();
-
-    // CASE A: PDF (Vertical Scroll)
-    if (ext === "pdf") {
-        scrollContainer.classList.remove("hidden");
-        pdfToolbar.classList.remove("hidden");
-        scrollSentinel.classList.remove("hidden"); // Show spinner
-        
-        // Start observing for scroll
-        observer.observe(scrollSentinel);
-        
-        // Load Page 0 immediately
-        loadNextPage();
-    } 
-    // CASE B: Image
-    else if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
-        scrollContainer.classList.remove("hidden");
-        pdfToolbar.classList.add("hidden");
-        scrollSentinel.classList.add("hidden"); // No infinite scroll for single images
-        
-        const img = createPageImage(0, true); // True = is single image
-        img.src = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-        scrollContainer.insertBefore(img, scrollSentinel);
-    }
-    else {
-        scrollContainer.classList.add("hidden");
-        document.getElementById("noSelection").classList.remove("hidden");
-        document.getElementById("noSelection").textContent = "Preview not available.";
+function resetImageZoom() {
+    imgState = { scale: 1, panning: false, pointX: 0, pointY: 0, startX: 0, startY: 0 };
+    if(imgEl) {
+        imgEl.style.transform = `translate(0px, 0px) scale(1)`;
+        if(imgContainer) imgContainer.style.cursor = 'grab';
     }
 }
 
+function updateImageTransform() {
+    if(imgEl) {
+        imgEl.style.transform = `translate(${imgState.pointX}px, ${imgState.pointY}px) scale(${imgState.scale})`;
+    }
+}
+
+function initGalleryGestures() {
+    if(!imgContainer || !imgEl) return;
+
+    // 1. DOUBLE CLICK (MOUSE)
+    imgContainer.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        if (imgState.scale === 1) {
+            imgState.scale = 3;
+        } else {
+            imgState.scale = 1;
+            imgState.pointX = 0; imgState.pointY = 0;
+        }
+        updateImageTransform();
+    });
+
+    // 2. TOUCH GESTURES
+    let lastTap = 0;
+    let startDist = 0;
+    let startScale = 1;
+
+    imgContainer.addEventListener('touchstart', (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        
+        // Double Tap
+        if (tapLength < 300 && tapLength > 0 && e.touches.length === 1) {
+            e.preventDefault();
+            if (imgState.scale === 1) {
+                imgState.scale = 3;
+            } else {
+                imgState.scale = 1;
+                imgState.pointX = 0; imgState.pointY = 0;
+            }
+            updateImageTransform();
+            lastTap = 0;
+            return;
+        }
+        lastTap = currentTime;
+
+        // Pinch Start
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            startDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            startScale = imgState.scale;
+        } 
+        // Pan Start
+        else if (e.touches.length === 1 && imgState.scale > 1) {
+            imgState.startX = e.touches[0].clientX - imgState.pointX;
+            imgState.startY = e.touches[0].clientY - imgState.pointY;
+            imgState.panning = true;
+        }
+    }, { passive: false });
+
+    imgContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        imgEl.style.transition = 'none'; // Instant follow
+
+        // Pinch Move
+        if (e.touches.length === 2) {
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            if (startDist > 0) {
+                const newScale = startScale * (dist / startDist);
+                imgState.scale = Math.min(Math.max(1, newScale), 5);
+                updateImageTransform();
+            }
+        } 
+        // Pan Move
+        else if (e.touches.length === 1 && imgState.panning) {
+            imgState.pointX = e.touches[0].clientX - imgState.startX;
+            imgState.pointY = e.touches[0].clientY - imgState.startY;
+            updateImageTransform();
+        }
+    }, { passive: false });
+
+    imgContainer.addEventListener('touchend', () => {
+        imgState.panning = false;
+        imgEl.style.transition = 'transform 0.1s ease-out';
+        if (imgState.scale < 1) { imgState.scale = 1; updateImageTransform(); }
+    });
+
+    // 3. MOUSE WHEEL & DRAG
+    imgContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = -Math.sign(e.deltaY) * 0.2;
+        imgState.scale = Math.min(Math.max(1, imgState.scale + delta), 5);
+        updateImageTransform();
+    }, { passive: false });
+
+    imgContainer.addEventListener('mousedown', (e) => {
+        if(imgState.scale > 1) {
+            e.preventDefault();
+            imgState.startX = e.clientX - imgState.pointX;
+            imgState.startY = e.clientY - imgState.pointY;
+            imgState.panning = true;
+            imgContainer.style.cursor = 'grabbing';
+        }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!imgState.panning) return;
+        e.preventDefault();
+        imgEl.style.transition = 'none';
+        imgState.pointX = e.clientX - imgState.startX;
+        imgState.pointY = e.clientY - imgState.startY;
+        updateImageTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+        imgState.panning = false;
+        if(imgEl) imgEl.style.transition = 'transform 0.1s ease-out';
+        if(imgContainer) imgContainer.style.cursor = (imgState.scale > 1) ? 'grab' : 'default';
+    });
+}
+// Initialize immediately
+initGalleryGestures();
+/* =========================
+   LOAD PREVIEW (Unified)
+========================= */
+function loadBigPreview(file) {
+    currentFile = file;
+
+    // 1. Construct Path logic
+    let fullPath = file.path;
+    if (!fullPath) {
+        // Fallback if path is missing
+        const folderPrefix = currentFolder ? currentFolder.replace(/\/$/, "") + "/" : "";
+        fullPath = folderPrefix + file.name;
+    }
+
+    const banner = document.getElementById("bigPreviewTitle");
+    if(banner) banner.textContent = fullPath;
+
+    // 2. Reset UI
+    document.getElementById("scrollContainer").classList.add("hidden");
+    document.getElementById("pdfToolbar").classList.add("hidden");
+    document.getElementById("noSelection").classList.add("hidden");
+    document.getElementById("downloadPdfBtn").classList.remove("hidden");
+    
+    const bigImgContainer = document.getElementById("bigImageContainer");
+    const bigImg = document.getElementById("bigImageFrame");
+    if(bigImgContainer) bigImgContainer.classList.add("hidden");
+
+    // Clear PDF
+    const scrollContainer = document.getElementById("scrollContainer");
+    if(scrollContainer) {
+        const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
+        existingImages.forEach(img => img.remove());
+    }
+
+    const url = `/coreapi/serve-file/?path=${encodeURIComponent(fullPath)}`;
+    const ext = file.name.split(".").pop().toLowerCase();
+    currentPreviewUrl = url;
+
+    // 3. IMAGE LOGIC
+    if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+        if(bigImg && bigImgContainer) {
+            bigImg.src = url;
+            bigImgContainer.classList.remove("hidden");
+            resetImageZoom(); 
+        }
+    } 
+    // 4. PDF LOGIC
+    else if (ext === "pdf") {
+        document.getElementById("scrollContainer").classList.remove("hidden");
+        document.getElementById("pdfToolbar").classList.remove("hidden");
+        const sentinel = document.getElementById("scrollSentinel");
+        if(sentinel) sentinel.classList.remove("hidden");
+        
+        if(typeof viewerState !== 'undefined') {
+            viewerState.path = fullPath;
+            viewerState.nextPageToLoad = 0;
+            viewerState.isLoading = false;
+            viewerState.isFinished = false;
+            viewerState.zoom = 1.0;
+        }
+        
+        if(typeof loadNextPage === 'function') loadNextPage();
+        if(typeof observer !== 'undefined' && sentinel) observer.observe(sentinel);
+    } 
+    // 5. UNSUPPORTED
+    else {
+        document.getElementById("noSelection").classList.remove("hidden");
+        document.getElementById("noSelection").textContent = "Preview not available";
+        document.getElementById("downloadPdfBtn").classList.add("hidden");
+    }
+}
 // --- 2. LOAD NEXT PAGE LOGIC ---
 function loadNextPage() {
     if (viewerState.isLoading || viewerState.isFinished) return;

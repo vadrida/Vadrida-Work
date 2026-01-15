@@ -11,7 +11,8 @@ from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
 from PyPDF2 import PdfMerger
 from PIL import Image
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 from django.conf import settings
 from coreapi.search_index import get_index
 from coreapi.search_index import refresh_index
@@ -25,14 +26,20 @@ from django.db.models import Q, Max
 import uuid
 from django.contrib.auth.decorators import login_required
 from weasyprint import HTML, CSS
-from .models import UserProfile, SiteVisitReport, ReportSketch
+from .models import UserProfile, SiteVisitReport
 import fitz  
 from .utils import generate_site_report_pdf
 from django.shortcuts import render, get_object_or_404
 import shutil
 from urllib.parse import unquote
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
+import re
+from django.utils import timezone
+from chat.models import FolderChatMessage, FolderChatVisit 
+from django.core.cache import cache
+from .utils import get_case_folder_info
 
+        
 @csrf_protect
 def refresh_files(request):
     try:
@@ -214,75 +221,194 @@ def search_folders_api(request):
     return JsonResponse({"folders": folders})
 
 # search files-----------------
-
 def search_files(request):
     q = request.GET.get("q", "").strip().lower()
     
-    # 1. Validate Input (Don't search for empty strings)
     if not q or len(q) < 2:
         return JsonResponse({"folders": [], "files": []})
 
-    # 2. Get the index (This is now fast because it's cached)
     index = get_index()
     
-    # 3. Filter Results
-    # Limit to 50 results to keep the UI snappy
-    matched_folders = [f for f in index.get("folders", []) if q in f["name"].lower()][:20]
+    # 1. Filter Folders
+    raw_folders = [f.copy() for f in index.get("folders", []) if q in f["name"].lower()][:20]
+    
+    processed_folders = []
+    
+    # --- FIX 1: Get UserProfile Object ---
+    user_id = request.session.get("user_id")
+    current_user_profile = None
+    if user_id:
+        try:
+            current_user_profile = UserProfile.objects.get(id=user_id)
+        except UserProfile.DoesNotExist:
+            pass
+    # -------------------------------------
+
+    for folder in raw_folders:
+        name = folder['name']
+        path = folder['path']
+        
+        # --- A. Chat Pattern Matching ---
+        has_hash = "#" in name
+        is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
+        
+        has_chat = bool(has_hash or is_case_folder)
+        
+        # --- B. Unread Status Check ---
+        is_unread = False
+        if has_chat and current_user_profile:
+            # --- FIX 2: Pass Object ---
+            is_unread = check_unread_status(current_user_profile, path)
+
+        folder['has_chat'] = has_chat
+        folder['is_unread'] = is_unread
+        
+        processed_folders.append(folder)
+
     matched_files = [f for f in index.get("files", []) if q in f["name"].lower()][:50]
 
     return JsonResponse({
-        "folders": matched_folders,
+        "folders": processed_folders,
         "files": matched_files
     })
 
 @require_http_methods(["GET"])
 def get_folder_contents_api(request):
-    rel_path = request.GET.get("path", "")
+    # 1. Get & Clean Path
+    rel_path = request.GET.get("path", "").strip("/") # Remove leading/trailing slashes
     base = os.path.realpath(DOCUMENTS_FOLDER)
     abs_path = os.path.realpath(os.path.join(base, rel_path))
 
     # Security check
     if not abs_path.startswith(base) or not os.path.isdir(abs_path):
         return JsonResponse({"folders": [], "files": []})
+    
+    # 2. Check for Chat/Case Status
+    folder_name = os.path.basename(abs_path)
+    has_hash = "#" in folder_name
+    is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name)
+    is_chat_folder = bool(has_hash or is_case_folder)
+
+    folder_info = None
+    if is_chat_folder:
+        folder_info = get_case_folder_info(abs_path)
 
     folders = []
     files = []
 
+    # 3. Get User Profile
+    user_id = request.session.get("user_id")
+    current_user_profile = None
+    if user_id:
+        try:
+            current_user_profile = UserProfile.objects.get(id=user_id)
+        except UserProfile.DoesNotExist:
+            pass
+
+    # 4. Scan Directory
     try:
-        # PERFORMANCE BOOST: os.scandir gets name AND stats in one go
         with os.scandir(abs_path) as it:
             for entry in it:
+                
+                # --- FOLDERS ---
                 if entry.is_dir():
+                    name = entry.name
+                    # Construct path: "Parent/Child"
+                    if rel_path:
+                        full_rel_path = f"{rel_path}/{name}"
+                    else:
+                        full_rel_path = name
+                    
+                    full_abs_path = os.path.join(abs_path, name)
+                    
+                    # Chat/Dot Logic
+                    has_hash = "#" in name
+                    is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
+                    has_chat = bool(has_hash or is_case_folder)
+                    
+                    is_unread = False
+                    if has_chat and current_user_profile:
+                        is_unread = check_unread_status(current_user_profile, full_rel_path)
+                    
+                    status_color = None
+                    if has_chat:
+                        cache_key = f"folder_status_{full_abs_path}"
+                        cached_stats = cache.get(cache_key)
+                        if cached_stats:
+                            status_color = cached_stats['status_color']
+                        else:
+                            stats = get_case_folder_info(full_abs_path)
+                            if stats:
+                                status_color = stats['status_color']
+
                     folders.append({
                         "name": entry.name,
-                        "path": os.path.join(rel_path, entry.name).replace("\\", "/"),
-                        "type": "folder"
+                        "path": full_rel_path,
+                        "type": "folder",
+                        "has_chat": has_chat,
+                        "is_unread": is_unread,
+                        "status_color": status_color
                     })
+
+                # --- FILES ---
                 else:
-                    # entry.stat() is cached from the scan! No extra disk access.
                     stats = entry.stat() 
                     ext = os.path.splitext(entry.name)[1].lower()
                     
+                    # FIX: Explicitly construct the full relative path
+                    # This ensures "Folder/Subfolder/file.pdf" is sent, not just "file.pdf"
+                    if rel_path:
+                        full_file_path = f"{rel_path}/{entry.name}"
+                    else:
+                        full_file_path = entry.name
+
                     files.append({
                         "name": entry.name,
-                        "path": os.path.join(rel_path, entry.name).replace("\\", "/"),
+                        "path": full_file_path,  # <--- This is what the frontend needs
+                        "parent_folder": rel_path, # Extra helper field
                         "type": "file",
                         "extension": ext,
-                        "mime_type": "application/octet-stream", # Calculate real mime only if needed to save time
+                        "mime_type": "application/octet-stream",
                         "size": format_file_size(stats.st_size),
                     })
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
     # Sort results
     folders.sort(key=lambda x: x["name"].lower())
     files.sort(key=lambda x: x["name"].lower())
+    
+    current_folder_info = None
+    if bool("#" in os.path.basename(abs_path) or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', os.path.basename(abs_path))):
+         current_folder_info = get_case_folder_info(abs_path)
 
     return JsonResponse({
         "folders": folders,
-        "files": files
+        "files": files,
+        "folder_info": current_folder_info
     })
 
+# chat folders////////////////
+
+def check_unread_status(user_profile, folder_path):
+    # Ensure we actually have a user profile before querying
+    if not user_profile:
+        return False
+
+    # 1. Check if there are ANY messages in this folder
+    last_msg = FolderChatMessage.objects.filter(folder_path=folder_path).last()
+    if not last_msg:
+        return False # No messages, so it can't be unread
+    
+    # 2. Check when the user last visited
+    visit = FolderChatVisit.objects.filter(user=user_profile, folder_path=folder_path).first()
+    
+    # 3. Logic: If never visited OR last message is newer than visit -> Unread
+    if not visit:
+        return True 
+    
+    return last_msg.timestamp > visit.last_visit
 
 @require_http_methods(["GET"])
 def serve_file(request):
@@ -771,7 +897,7 @@ def finalize_pdf(request):
         
         counter = 1
         while True:
-            pdf_filename = f"{base_filename}_{counter}.pdf"
+            pdf_filename = f"{base_filename}_site_report_{counter}.pdf"
             full_save_path = os.path.join(save_dir, pdf_filename)
             if not os.path.exists(full_save_path):
                 break
@@ -857,50 +983,46 @@ def finalize_pdf(request):
                     padding-bottom: 2px;
                     overflow: visible; /* ALLOWS EXPANSION */
                 }}
-                
-                /* --- FIX 2: STRICT TABLE LAYOUT --- */
-                .report-table {{ 
+                .report-table {{
                     width: 100%; 
                     border-collapse: collapse; 
                     margin-top: 5px; 
                     font-size: 8pt; 
-                    table-layout: fixed; /* STRICT WIDTHS */
+                    table-layout: fixed; 
                     page-break-inside: avoid; 
                 }}
                 
-                .report-table th, .report-table td {{ 
+                .report-table th, .report-table td {{
                     border: 1px solid #999; 
                     padding: 4px; 
                     text-align: center; 
                     vertical-align: middle; 
                     overflow-wrap: break-word;
-                    word-break: break-word;
+                    word-wrap: break-word;
+                    word-break: break-all; /* Forces long text to break */
+                    white-space: normal;
+                    max-width: 1px; /* The Magic Fix: Forces renderer to respect % widths */
                 }}
                 
                 .report-table th {{ background: #f0f0f0; font-weight: bold; }}
                 .report-table .field-box {{ border-bottom: none; }}
-                
-                /* --- FIX 3: HEADER INPUT WRAPPER --- */
                 .header-input-wrapper {{
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 2px;
+                    display: block; /* Changed from flex to block for stability */
                     width: 100%;
+                    text-align: center;
                 }}
 
                 .header-input {{
                     border-bottom: 1px solid #ccc !important;
                     background: transparent;
-                    width: 100%; 
-                    min-height: 18px;
+                    width: 95%;
+                    min-height: 15px;
                     font-weight: bold;
                     text-align: center;
                     font-size: 8pt;
-                    outline: none;
+                    display: block;
+                    margin: 2px auto;
                 }}
-
-                /* --- FIX 4: STACKED ROWS FOR NOTES --- */
                 .row-stacked {{
                     display: flex;
                     flex-direction: column;

@@ -1706,3 +1706,43 @@ html, body {
 
 /* Buttons */
 .modal-btn.small { padding: 4px 10px; font-size: 12px; }
+
+
+/* 2. Folder Stats Box */
+#folderStatsBox { font-size: 0.75rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+
+/* 3. File List Items */
+.file-item { padding: 8px; border-bottom: 1px solid #f3f4f6; cursor: pointer; display: flex !important; align-items: flex-start; justify-content: space-between; }
+.file-item:hover { background-color: #eff6ff; }
+.file-item.selected { background-color: #dbeafe; border-left: 3px solid #2563eb; }
+
+/* 4. Chat Bubbles */
+.chat-bubble { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 0.875rem; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.chat-me { background-color: #dcf8c6; border-top-right-radius: 0; align-self: flex-end; }
+.chat-other { background-color: white; border: 1px solid #e5e7eb; border-top-left-radius: 0; align-self: flex-start; }
+
+/* 5. Rotation Animation */
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.rotating { animation: spin 1s linear infinite; }
+
+/* Status Dots */
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.status-green { background-color: #22c55e; } /* Tailwind green-500 */
+.status-yellow { background-color: #f5f106; } /* Tailwind orange-500 */
+.status-red { background-color: #ef4444; }    /* Tailwind red-500 */
+.status-grey { background-color: #9ca3af; }   /* Tailwind gray-400 */
+/* Image Preview Zoom Styles */
+#bigImageContainer.grabbing {
+    cursor: grabbing;
+}
+#bigImageFrame {
+    touch-action: none; /* Disables browser native zoom/scroll to allow custom logic */
+    transform-origin: center center;
+}
