@@ -14,6 +14,10 @@ class LoginRequiredMiddleware:
             "/contact/",
             "/about/",
             "/work/",
+            "/manifest.json",
+            "/serviceworker.js",        # <--- NEW: Required for PWA
+            "/offline",                 # <--- NEW: Required for PWA offline mode
+            "/.well-known/assetlinks.json",
         ]
 
         # Allow static + media

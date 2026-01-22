@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.hashers import check_password
-from .models import UserProfile
+from .models import UserProfile,ReportSketch
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.middleware.csrf import get_token
@@ -10,7 +10,7 @@ import mimetypes
 from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
 from PyPDF2 import PdfMerger
-from PIL import Image
+from PIL import Image,ImageDraw
 from datetime import datetime, timedelta
 import time
 from django.conf import settings
@@ -39,7 +39,7 @@ from chat.models import FolderChatMessage, FolderChatVisit
 from django.core.cache import cache
 from .utils import get_case_folder_info
 
-        
+
 @csrf_protect
 def refresh_files(request):
     try:
@@ -274,29 +274,41 @@ def search_files(request):
 
 @require_http_methods(["GET"])
 def get_folder_contents_api(request):
-    # 1. Get & Clean Path
-    rel_path = request.GET.get("path", "").strip("/") # Remove leading/trailing slashes
+    rel_path = request.GET.get("path", "").strip("/") 
     base = os.path.realpath(DOCUMENTS_FOLDER)
     abs_path = os.path.realpath(os.path.join(base, rel_path))
-
-    # Security check
+    saved_draft = None
     if not abs_path.startswith(base) or not os.path.isdir(abs_path):
         return JsonResponse({"folders": [], "files": []})
-    
-    # 2. Check for Chat/Case Status
+    auto_fill_data = None
+    if rel_path:
+        current_folder_name = os.path.basename(abs_path)
+        auto_fill_data = parse_folder_metadata(current_folder_name)
     folder_name = os.path.basename(abs_path)
     has_hash = "#" in folder_name
     is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name)
     is_chat_folder = bool(has_hash or is_case_folder)
 
+    user_id = request.session.get("user_id")
+    if user_id and rel_path: # Only check if user is logged in and not at root
+        try:
+            # Find a report for this user in this specific folder
+            draft = SiteVisitReport.objects.filter(
+                user_id=user_id, 
+                target_folder=rel_path
+            ).order_by('-updated_at').first()
+            
+            if draft and draft.form_data:
+                # If form_data is string, parse it; else use as is
+                saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
+        except Exception as e:
+            print(f"Draft fetch error: {e}")
+
     folder_info = None
     if is_chat_folder:
         folder_info = get_case_folder_info(abs_path)
-
     folders = []
     files = []
-
-    # 3. Get User Profile
     user_id = request.session.get("user_id")
     current_user_profile = None
     if user_id:
@@ -304,24 +316,19 @@ def get_folder_contents_api(request):
             current_user_profile = UserProfile.objects.get(id=user_id)
         except UserProfile.DoesNotExist:
             pass
-
-    # 4. Scan Directory
     try:
         with os.scandir(abs_path) as it:
             for entry in it:
-                
-                # --- FOLDERS ---
                 if entry.is_dir():
+                    folder_stats = entry.stat()
                     name = entry.name
-                    # Construct path: "Parent/Child"
+                    
                     if rel_path:
                         full_rel_path = f"{rel_path}/{name}"
                     else:
                         full_rel_path = name
                     
                     full_abs_path = os.path.join(abs_path, name)
-                    
-                    # Chat/Dot Logic
                     has_hash = "#" in name
                     is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
                     has_chat = bool(has_hash or is_case_folder)
@@ -347,16 +354,13 @@ def get_folder_contents_api(request):
                         "type": "folder",
                         "has_chat": has_chat,
                         "is_unread": is_unread,
-                        "status_color": status_color
+                        "status_color": status_color,
+                        "created": folder_stats.st_mtime
                     })
-
-                # --- FILES ---
                 else:
                     stats = entry.stat() 
                     ext = os.path.splitext(entry.name)[1].lower()
                     
-                    # FIX: Explicitly construct the full relative path
-                    # This ensures "Folder/Subfolder/file.pdf" is sent, not just "file.pdf"
                     if rel_path:
                         full_file_path = f"{rel_path}/{entry.name}"
                     else:
@@ -364,8 +368,8 @@ def get_folder_contents_api(request):
 
                     files.append({
                         "name": entry.name,
-                        "path": full_file_path,  # <--- This is what the frontend needs
-                        "parent_folder": rel_path, # Extra helper field
+                        "path": full_file_path, 
+                        "parent_folder": rel_path,
                         "type": "file",
                         "extension": ext,
                         "mime_type": "application/octet-stream",
@@ -376,7 +380,7 @@ def get_folder_contents_api(request):
         return JsonResponse({"error": str(e)}, status=500)
 
     # Sort results
-    folders.sort(key=lambda x: x["name"].lower())
+    folders.sort(key=lambda x: x.get("created", 0), reverse=True)
     files.sort(key=lambda x: x["name"].lower())
     
     current_folder_info = None
@@ -386,9 +390,165 @@ def get_folder_contents_api(request):
     return JsonResponse({
         "folders": folders,
         "files": files,
-        "folder_info": current_folder_info
+        "folder_info": current_folder_info,
+        "auto_fill": auto_fill_data,
+        "saved_draft": saved_draft
     })
 
+def parse_folder_metadata(folder_name):
+    """
+    Robust parsing for various bank folder formats.
+    Ignores simple numeric folders (years/ids like '100', '2025').
+    """
+    # 1. SKIP INVALID FOLDERS
+    # If folder is just a number (e.g., "100", "2025"), ignore it.
+    if folder_name.isdigit():
+        return None
+    
+    # If folder has no separators (_ or # or -), it's likely a container, not a case.
+    if "_" not in folder_name and "#" not in folder_name and " - " not in folder_name:
+        return None
+
+    print(f"DEBUG: Parsing case folder -> {folder_name}")
+
+    metadata = {
+        'file_no': '',
+        'applicant_name': '',
+        'product': 'notselected'
+    }
+
+    # 2. EXTRACT FILE NUMBER
+    # Strict Rule: Must be at the START, followed by a separator (underscore, space, hyphen)
+    # or inside a HDFC pattern.
+    # ^(\d+)  -> Starts with digits
+    # (?=[_ \-]) -> Lookahead ensuring an underscore, space, or dash follows immediately
+    file_match = re.search(r'^(\d+)(?=[_ \-])', folder_name)
+    
+    # Fallback: Sometimes HDFC puts "HDFC - 1011..."
+    if not file_match:
+        file_match = re.search(r'[\- ]+(\d{4,})(?=[_ \-])', folder_name)
+
+    if file_match:
+        metadata['file_no'] = file_match.group(1)
+
+    # 3. PRODUCT MAPPING
+    product_map = {
+        'RESL': 'resale', 'RESA': 'resale',
+        'LAPL': 'lap', 'BLLP': 'lap', 'SBLM': 'lap', 'CCOL': 'lap', 'LAP': 'lap',
+        'PRCS': '1st purchase', 'PUCH': '1st purchase', 'LAND': '1st purchase', 'PURC': '1st purchase',
+        'CONS': 'construction', 'CONST': 'construction',
+        'PDPD': 'pd', 'PD': 'pd',
+        'TOUP': 'topup', 'TOP': 'topup',
+        'RENO': 'renovation',
+        'TAKO': 'takeover', 'HLBG': 'takeover', 'BT': 'takeover'
+    }
+    
+    product_keys = "|".join(product_map.keys())
+    # Regex looks for code surrounded by underscores or at boundaries
+    prod_match = re.search(f'(?:^|_| )({product_keys})(?:$|_| )', folder_name, re.IGNORECASE)
+    
+    if prod_match:
+        code = prod_match.group(1).upper()
+        metadata['product'] = product_map.get(code, 'notselected')
+
+    # 4. APPLICANT NAME STRATEGIES
+    # Strategy A: Hash #NAME#
+    if '#' in folder_name:
+        name_match = re.search(r'#([^#]+)#', folder_name)
+        if name_match:
+            metadata['applicant_name'] = name_match.group(1).replace('_', ' ').strip()
+    
+    # Strategy B: Name at the END (After last underscore)
+    elif '_' in folder_name:
+        parts = folder_name.split('_')
+        # Filter empty strings caused by trailing underscores
+        parts = [p for p in parts if p.strip()]
+        
+        if len(parts) > 1:
+            possible_name = parts[-1].strip()
+            # Clean file extensions if present
+            possible_name = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', possible_name)
+            
+            # Sanity Check: If name is purely digits or a date, it's not a name.
+            if not re.match(r'^[\d\.\-]+$', possible_name):
+                metadata['applicant_name'] = possible_name
+            elif len(parts) > 2:
+                # Try the previous part if last part was a date/number
+                metadata['applicant_name'] = parts[2]
+
+    # If we didn't find *any* useful data, return None to avoid partial junk fills
+    if not metadata['file_no'] and not metadata['applicant_name']:
+        return None
+
+    return metadata
+
+
+@csrf_protect
+@require_POST
+def auto_save_api(request):
+    """
+    Saves the current form state to the database.
+    Handles duplicate records robustly by keeping only the latest one.
+    """
+    if not request.session.get("user_id"):
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    try:
+        # Get the User object
+        user = UserProfile.objects.get(id=request.session["user_id"])
+        
+        # Parse Request Data
+        data = json.loads(request.body)
+        folder_path = data.get('folder_path')
+        form_payload = data.get('payload')
+        
+        if not folder_path or not form_payload:
+            return JsonResponse({'success': False, 'error': 'Missing data'})
+
+        # Extract helper fields
+        checklist = form_payload.get('Valuers_Checklist', {})
+        office_file_no_val = checklist.get('Office_file_no')
+        applicant_name_val = checklist.get('applicant_name')
+
+        # --- ROBUST LOOKUP LOGIC START ---
+        
+        # 1. Find all matching reports for this user and folder
+        reports = SiteVisitReport.objects.filter(
+            user=user, 
+            target_folder=folder_path
+        ).order_by('-updated_at') # Newest first
+
+        if reports.exists():
+            # Use the newest one
+            report = reports.first()
+            
+            # CLEANUP: If duplicates exist, delete the older ones
+            if reports.count() > 1:
+                print(f"Cleaning up {reports.count() - 1} duplicate reports for {folder_path}")
+                for dup in reports[1:]:
+                    dup.delete()
+        else:
+            # Create new if none exist
+            report = SiteVisitReport(user=user, target_folder=folder_path)
+
+        # --- ROBUST LOOKUP LOGIC END ---
+
+        # 2. Update Fields
+        report.form_data = form_payload
+        report.office_file_no = office_file_no_val
+        report.applicant_name = applicant_name_val
+        report.save()
+
+        return JsonResponse({
+            'success': True, 
+            'last_saved': datetime.now().strftime("%H:%M:%S"),
+            'report_id': report.id
+        })
+
+    except Exception as e:
+        print(f"Auto-save error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+            
 # chat folders////////////////
 
 def check_unread_status(user_profile, folder_path):
@@ -760,6 +920,50 @@ def feedback(request):
         return redirect("coreapi:login_page")
     return render(request, "feedback.html")
 
+
+# --- HELPER: DRAW VECTORS TO IMAGE (Server Side) ---
+def generate_image_from_vectors(vector_list, width=1000, height=1000):
+    """
+    Takes a list of stroke objects (from frontend JSON) and draws them 
+    onto a white canvas using Python's Pillow library.
+    """
+    if not vector_list:
+        return None
+
+    try:
+        # 1. Create a white canvas
+        image = Image.new("RGB", (width, height), "white")
+        draw = ImageDraw.Draw(image)
+
+        # 2. Loop through every stroke in the vector list
+        for stroke in vector_list:
+            points = stroke.get('points', [])
+            color = stroke.get('color', '#000000')
+            width = int(stroke.get('size', 3))
+            
+            # Convert JSON points [{'x':1, 'y':1}, ...] to Python tuples [(1,1), ...]
+            # We add an offset (e.g. +500) if your coordinates are negative/centered
+            # Assuming standard top-left coordinates here, but you might need to adjust
+            xy_points = [(p['x'], p['y']) for p in points]
+
+            if len(xy_points) > 1:
+                # Draw the line connecting points
+                draw.line(xy_points, fill=color, width=width, joint='curve')
+            elif len(xy_points) == 1:
+                # Draw a dot if it's just one point
+                x, y = xy_points[0]
+                draw.ellipse([x-width, y-width, x+width, y+width], fill=color)
+
+        # 3. Save to memory buffer
+        output = io.BytesIO()
+        image.save(output, format="PNG")
+        return ContentFile(output.getvalue(), name="generated_sketch.png")
+
+    except Exception as e:
+        print(f"Vector generation error: {e}")
+        return None
+
+# --- MAIN VIEW ---
 @csrf_protect
 @require_POST
 def save_feedback(request):
@@ -771,41 +975,95 @@ def save_feedback(request):
         user = UserProfile.objects.get(id=user_id)
         request_data = json.loads(request.body)
         
-        # 1. Get the payload wrapper
+        # 1. Get Payload
         payload = request_data.get('payload', {})
         
-        # 2. Extract Data for Columns
+        # 2. Extract Data
         checklist_data = payload.get('Valuers_Checklist', {})
         office_file_no_val = checklist_data.get('Office_file_no')
         applicant_name_val = checklist_data.get('applicant_name')
+        target_folder_val = payload.get('target_folder') 
 
-        # 3. CHECK IF REPORT ID EXISTS (Update vs Create)
+        # 3. IDENTIFY REPORT
         report_id = payload.get('report_id')
+        report = None
 
         if report_id:
-            # --- UPDATE EXISTING ---
             try:
                 report = SiteVisitReport.objects.get(id=report_id, user=user)
-                report.form_data = payload
-                report.office_file_no = office_file_no_val
-                report.applicant_name = applicant_name_val
-                report.save()
             except SiteVisitReport.DoesNotExist:
-                # If ID sent but not found (rare), create new
-                report = SiteVisitReport.objects.create(
-                    user=user,
-                    form_data=payload,
-                    office_file_no=office_file_no_val,
-                    applicant_name=applicant_name_val
-                )
+                report = None
+
+        if not report and target_folder_val:
+            report = SiteVisitReport.objects.filter(
+                user=user, 
+                target_folder=target_folder_val
+            ).order_by('-updated_at').first()
+
+        # 4. EXTRACT IMAGES AND VECTORS
+        # We pop 'images' so huge strings don't go into the text DB
+        images_data = payload.pop('images', {}) 
+        # We KEEP 'vectors' in the payload so the history works, but we reference it
+        vectors_data = payload.get('vectors', {})
+
+        # 5. CREATE OR UPDATE REPORT
+        if report:
+            print(f"Updating report: {report.id}")
+            report.form_data = payload
+            report.office_file_no = office_file_no_val
+            report.applicant_name = applicant_name_val
+            if target_folder_val:
+                report.target_folder = target_folder_val
+            report.save()
         else:
-            # --- CREATE NEW ---
+            print("Creating NEW report")
             report = SiteVisitReport.objects.create(
                 user=user,
                 form_data=payload,
                 office_file_no=office_file_no_val,
-                applicant_name=applicant_name_val
+                applicant_name=applicant_name_val,
+                target_folder=target_folder_val
             )
+
+        # 6. PROCESS SKETCHES (Priority: Base64 > Vector Gen)
+        
+        # Combine keys from both sources to ensure we catch everything
+        all_sketch_keys = set(images_data.keys()) | set(vectors_data.keys())
+
+        for source_key in all_sketch_keys:
+            image_file = None
+            is_base64 = False
+
+            # STRATEGY A: Try Base64 Image (Highest Quality/Exact Match)
+            base64_val = images_data.get(source_key)
+            if base64_val and isinstance(base64_val, str) and base64_val.startswith('data:image'):
+                try:
+                    format_header, imgstr = base64_val.split(';base64,') 
+                    ext = format_header.split('/')[-1]
+                    file_name = f"{source_key}_{report.id}.{ext}"
+                    image_file = ContentFile(base64.b64decode(imgstr), name=file_name)
+                    is_base64 = True
+                except Exception as e:
+                    print(f"Base64 error for {source_key}: {e}")
+
+            # STRATEGY B: If no Base64, try generating from Vectors (Fallback)
+            if not image_file and source_key in vectors_data:
+                print(f"Generating image from vectors for: {source_key}")
+                vector_list = vectors_data[source_key]
+                # Generate a file named .png
+                generated_file = generate_image_from_vectors(vector_list)
+                if generated_file:
+                    generated_file.name = f"{source_key}_{report.id}_generated.png"
+                    image_file = generated_file
+
+            # SAVE TO DB if we have a file
+            if image_file:
+                ReportSketch.objects.update_or_create(
+                    report=report,
+                    source_key=source_key,
+                    defaults={'image': image_file}
+                )
+                print(f"Saved sketch for {source_key} (From {'Base64' if is_base64 else 'Vectors'})")
 
         return JsonResponse({
             'success': True, 
@@ -814,26 +1072,19 @@ def save_feedback(request):
         })
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)\
-            
-            
+        print(f"Save Feedback Error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)            
 # --- STEP 2: RENDER EDITOR PAGE ---
 # views.py
 
-import json
-from django.shortcuts import render, get_object_or_404
-from .models import SiteVisitReport
+# views.py (Update these specific functions)
 
-def pdf_editor_page(request, report_id):
+def get_report_data_with_sketches(report):
     """
-    Renders the PDF Editor with data pre-loaded (Server Side Rendering).
-    This makes the page load instantly without waiting for a second API call.
+    Helper function: Merges the saved form text with the images 
+    stored in the ReportSketch table.
     """
-    # 1. Fetch the report from the database
-    report = get_object_or_404(SiteVisitReport, id=report_id)
-    
-    # 2. Prepare the data
-    # Ensure form_data is a Dictionary, even if stored as a String in DB
+    # 1. Get the base text data
     context_data = report.form_data
     if isinstance(context_data, str):
         try:
@@ -844,10 +1095,32 @@ def pdf_editor_page(request, report_id):
     if not context_data:
         context_data = {}
 
-    # 3. Pass data directly to the template
+    # 2. Ensure 'images' key exists
+    if 'images' not in context_data:
+        context_data['images'] = {}
+
+    # 3. Fetch images from ReportSketch table and re-inject them
+    # This puts the URLs back into the JSON so the frontend sees them
+    sketches = ReportSketch.objects.filter(report=report)
+    for sketch in sketches:
+        if sketch.image:
+            # We use the file URL so the browser can load it
+            context_data['images'][sketch.source_key] = sketch.image.url
+
+    return context_data
+
+def pdf_editor_page(request, report_id):
+    """
+    Renders the PDF Editor. Now includes the re-injected sketch images.
+    """
+    report = get_object_or_404(SiteVisitReport, id=report_id)
+    
+    # Use the helper to get data + images
+    full_data = get_report_data_with_sketches(report)
+
     context = {
         'report_id': report_id,
-        'data': context_data,  # <--- This carries all text & sketches
+        'data': full_data, 
         'target_folder': report.target_folder
     }
     
@@ -855,9 +1128,14 @@ def pdf_editor_page(request, report_id):
 
 @require_GET
 def get_report_data(request, report_id):
-    """API called by the PDF Editor JS to load data"""
+    """
+    API called by the PDF Editor JS (if it uses fetch).
+    Now returns data + images.
+    """
     report = get_object_or_404(SiteVisitReport, id=report_id)
-    return JsonResponse(report.form_data)
+    full_data = get_report_data_with_sketches(report)
+    return JsonResponse(full_data)
+
 @csrf_protect
 @require_POST
 def finalize_pdf(request):
@@ -875,6 +1153,8 @@ def finalize_pdf(request):
         db_payload = {k: v for k, v in payload.items() if k != 'html_content'}
         report = SiteVisitReport.objects.get(id=report_id)
         report.form_data = db_payload
+        if target_path:
+            report.target_folder = target_path
         report.save()
 
         # 3. Determine Save Directory
@@ -1193,3 +1473,17 @@ def fill_site_report_pdf(data, images_dict, target_folder_path, filename):
     doc.close()
     
     return output_path
+
+
+def assetlinks(request):
+    data = [{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.vadrida.app",
+        "sha256_cert_fingerprints": [
+            "8B:52:BA:5E:C0:CF:17:21:D7:1D:E6:60:41:E7:4F:F1:9D:4A:84:CA:4D:54:8E:77:58:3B:4D:AB:74:7E:2F:38"
+        ]
+      }
+    }]
+    return JsonResponse(data, safe=False)

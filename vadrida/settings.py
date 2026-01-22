@@ -64,7 +64,33 @@ INSTALLED_APPS = [
     'crispy_forms',
     "chat",
     "channels",
+    "pwa",
 ]
+
+# PWA CONFIGURATION
+PWA_APP_NAME = 'Vadrida'
+PWA_APP_DESCRIPTION = "Vadrida Property Valuations"
+PWA_THEME_COLOR = '#0066ff'        # Your Royal Blue
+PWA_BACKGROUND_COLOR = '#ffffff'   # White background
+PWA_DISPLAY = 'standalone'         # Hides browser UI
+PWA_SCOPE = '/'
+PWA_START_URL = '/'
+
+# Define the Icons (We will add these files in Step 4)
+PWA_APP_ICONS = [
+    {
+        'src': '/static/images/icon-192.png',
+        'sizes': '192x192',
+        'type': 'image/png'
+    },
+    {
+        'src': '/static/images/icon-512.png',
+        'sizes': '512x512',
+        'type': 'image/png'
+    }
+]
+# Location where the manifest.json will be stored
+PWA_APP_DIR = 'ltr'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

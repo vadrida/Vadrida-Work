@@ -14,7 +14,14 @@
     <div class="text-lg font-semibold">Analyzing — please wait...</div>
     <div class="text-sm">Processing your file...</div>
   </div>
-
+  <div class="sticky top-[90px] z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4 shadow-sm flex items-center">
+      <div class="text-gray-500 mr-2 text-sm">
+          <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
+      </div>
+      <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
+          /
+      </div>
+  </div>
   <div class="dashboard-grid">
     <aside class="bg-white rounded-lg p-4 shadow-sm flex flex-col h-full">
     <div class="flex items-center justify-between mb-3 flex-shrink-0">
@@ -320,6 +327,11 @@ function loadFolder(path = "") {
   const banner = document.getElementById("bigPreviewTitle");
   banner.textContent = path ? path : "Home / Root";
   banner.className = "font-mono text-xs text-gray-700 font-semibold break-all whitespace-normal leading-tight";
+  // ✅ NEW: UPDATE THE TOP NAVIGATION BANNER
+  const topBanner = document.getElementById("topBannerPath"); // <--- NEW
+  if (topBanner) {                                            // <--- NEW
+      topBanner.textContent = path ? "/" + path : "/";        // <--- NEW
+  }
 
   // 4. RESET PREVIEW PANE
   if(document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");

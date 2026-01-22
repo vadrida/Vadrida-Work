@@ -38,7 +38,14 @@
     <div class="text-lg font-semibold">Analyzing — please wait...</div>
     <div class="text-sm">Processing your file...</div>
   </div>
-
+  <div class="sticky top-[90px] z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4 shadow-sm flex items-center">
+      <div class="text-gray-500 mr-2 text-sm">
+          <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
+      </div>
+      <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
+          /
+      </div>
+  </div>
   <div class="feedback-layout">
     <!-- LEFT COLUMN: File List + Preview -->
     <div class="left-column">
@@ -212,7 +219,7 @@
 
           <div class="form-group mt-3">
               <label class="form-label">Notes</label>
-              <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4"></textarea>
+              <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4" style="width: 100%;"></textarea>
             </div>
 
           <!-- II. Survey Number and Land Extend Analysis -->
@@ -245,9 +252,12 @@
                         </button>
 
       
+            <label class="form-label">Land Value/cent</label>
+            <input type="text" data-path="Survey.land_val" class="form-input">
+
             <div class="form-group mt-4">
                 <label class="form-label">Notes, % of wetland and dry lands...</label>
-                <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4"></textarea>
+                <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4" style="width: 100%;"></textarea>
             </div>
 
 
@@ -291,27 +301,18 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>North</td>
-                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
-                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
-                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_translation" class="table-input"></td>
-                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_site" class="table-input"></td>
-                  </tr>
-                  
-                  <tr>
                       <td>East</td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_translation" class="table-input"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.east_site" class="table-input"></td>
                   </tr>
-                  
                   <tr>
-                      <td>South</td>
-                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
-                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
-                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_translation" class="table-input"></td>
-                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_site" class="table-input"></td>
+                    <td>North</td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_translation" class="table-input"></td>
+                    <td><input type="text" data-path="Boundary_analysis_property_identification.north_site" class="table-input"></td>
                   </tr>
                   
                   <tr>
@@ -321,10 +322,26 @@
                       <td><input type="text" data-path="Boundary_analysis_property_identification.west_translation" class="table-input"></td>
                       <td><input type="text" data-path="Boundary_analysis_property_identification.west_site" class="table-input"></td>
                   </tr>
+              
+                  
+                  <tr>
+                      <td>South</td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc1" class="table-input" placeholder="Val as per Doc 1"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_doc2" class="table-input" placeholder="Val as per Doc 2"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_translation" class="table-input"></td>
+                      <td><input type="text" data-path="Boundary_analysis_property_identification.south_site" class="table-input"></td>
+                  </tr>
+                  
                 </tbody>
               </table>
             </div>
-
+            
+              <label class="form-label">Building No</label> <br>
+              <input type="text" data-path="Boundary_analysis_property_identification.Building_no" class="form-input"> <br>
+          
+              <label class="form-label">Ward no</label> <br>
+              <input type="text" data-path="Boundary_analysis_property_identification.Ward" class="form-input">
+           
 
             <div class="form-group mt-3">
               <label class="form-label">Notes if any/property identified with respect to documents..?</label>
@@ -602,6 +619,13 @@
                     <i class="fas fa-arrow-down mr-1"></i> Add Floor Below
                 </button>
             </div>
+            <label class="form-label">Details if Rented</label> <br> <br>
+
+              <label class="form-label">Rented Amount&nbsp;&nbsp;</label> 
+              <input type="text" data-path="Building_analysis.rent_amt" class="form-input"> <br>
+
+              <label class="form-label">Rented Duration&nbsp;</label> 
+              <input type="text" data-path="Building_analysis.rent_duration" class="form-input">
             
             <div class="form-group mt-3">
               <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
@@ -734,29 +758,121 @@
           <textarea data-path="Building_analysis.amenities_notes" class="form-textarea" rows="4"></textarea>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Extra Remarks</label>
+          <textarea data-path="Building_analysis.extra_remarks" class="form-textarea" rows="4"></textarea>
+        </div>
+
+        <div class="form-section-group">
+            <h4 class="form-section-title">IX. Land Inspection Details</h4>
+            <table class="analysis-table" id="land_inspection_table" style="table-layout: fixed; width: 100%;">
+                <tr>
+                    <td>
+                        <label class="form-label">Nearest City &nbsp;&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.nearest_city">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="form-label">Nearest Highway &nbsp;&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.nearest_Highway">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="form-label">Nearest School &nbsp;&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.nearest_school">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="form-label">Nearest Railway &nbsp;&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.nearest_railway">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="form-label">Nearest Bus stop &nbsp;&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.nearest_busstop">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="form-label">Nearest Hospital &nbsp;&nbsp;</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.nearest_hospital">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">CRZ</label>
+                    </td>
+                    <td>
+                        <select data-path="land_inspection_details.crz" class="form-select">
+                            <option value="notselected">Select Zone</option>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III NDZ">III NDZ</option>
+                            <option value="III 200 to 500">III 200 to 500 m</option>
+                        </select>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="form-group">
+                <label class="form-label">Stigma Effects if any</label>
+                <textarea data-path="land_inspection_details.stigma" class="form-textarea" rows="3"></textarea>
+            </div>
+
+
           <!-- VIII. Landmark and Layout (Handsketch) -->
           <div class="form-section-group">
             <h4 class="form-section-title">VIII. Landmark and Layout (Handsketch)</h4>
             
             <div class="form-group">
-              <label class="form-label">Landmark Description</label>
-              <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
+                <label class="form-label">Landmark Description</label>
+                <textarea data-path="Sketch.landmark_description" class="form-textarea" rows="3"></textarea>
             </div>
 
             <div class="form-group mt-4">
-              <label class="form-label font-bold">Site Layout Sketch</label>
-              
-              <button type="button" class="modal-btn primary" style="width: 100%; margin-bottom: 10px;" onclick="openSketchPad('Sketch.main_layout')">
-                  <i class="fas fa-drafting-compass mr-2"></i> Open Sketch Pad
-              </button>
+                <label class="form-label font-bold">Site Layout Sketch</label>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    
+                    <button type="button" class="modal-btn primary" style="flex: 1; margin-bottom: 0;" onclick="openSketchPad('Sketch.main_layout')">
+                        <i class="fas fa-drafting-compass mr-2"></i> Open Pad
+                    </button>
 
-              <div class="main-sketch-preview" style="position: relative; border: 2px dashed #ccc; min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f9fafb;">
-                  <img id="img_preview_Sketch_main_layout" class="hidden" style="max-width: 100%; max-height: 400px; z-index: 1;">
-                  
-              </div>
+                    <button type="button" class="modal-btn success" style="flex: 1; margin-bottom: 0; background-color: #10b981; border-color: #10b981;" onclick="document.getElementById('mainLayoutUpload').click()">
+                        <i class="fas fa-camera mr-2"></i> Upload Photo
+                    </button>
+
+                    <input type="file" id="mainLayoutUpload" class="hidden" accept="image/*" 
+                        onchange="if(this.files[0]) handleImageUpload('Sketch.main_layout', this.files[0])">
+                </div>
+
+                <div class="main-sketch-preview" style="position: relative; border: 2px dashed #ccc; min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f9fafb; border-radius: 8px; overflow: hidden;">
+                    
+                    <div class="main-sketch-preview" style="position: relative; border: 2px dashed #ccc; min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f9fafb;">
+                            <img id="img_preview_Sketch_main_layout" class="hidden" style="width: 100%; max-height: 100%; z-index: 1;">
+                            
+                        </div>
+                </div>
             </div>
-          </div>
-
+            </div>
          <div class="form-group mt-4" style="gap: 10px;">
           <button type="button" id="triggerSubmitBtn" class="submit-btn" style="width: 100%;">
             Submit Feedback
@@ -775,7 +891,7 @@
 </div>
 
 <!-- All modals remain the same -->
-<div id="fullscreenModal" aria-hidden="true">
+<div id="fullscreenModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90" aria-hidden="true">
   <div class="modal-box">
     <div class="modal-header">
       <div id="modalTitle" class="modal-title">Preview</div>
@@ -992,8 +1108,8 @@ function getCookie(name) {
   return v;
 }
 const csrftoken = getCookie("csrftoken");
-const STORAGE_KEY = 'vadrida_site_feedback_autosave';
 
+const STORAGE_KEY = 'vadrida_site_feedback_autosave';
 /* =========================
    2. STATE MANAGEMENT
 ========================= */
@@ -1009,9 +1125,10 @@ let activeSketchPath = null;
 const folderScrollHistory = {};
 let folderChatSocket = null;
 let currentChatFolder = null;
-
-// REPLACE your existing formState with this corrected version
-let formState = {
+let autoSaveTimer = null;
+const SAVE_DELAY_MS = 5000; // 10 Seconds
+function getEmptyState() {
+    return {
   report_id: null,
     Valuers_Checklist: {
         documents_received: [], 
@@ -1022,7 +1139,7 @@ let formState = {
         person_met: ""
     },
     Ownership_Analysis : { document_verification : "", Ownership_Analysis_notes : "", owners_name : "" },
-    Survey: { docs: [], survey_notes: "" },
+    Survey: { docs: [], survey_notes: "" , land_val:"" },
 
     Boundary_analysis_property_identification: { 
         ref_doc_1_name: "", ref_doc_2_name: "",
@@ -1030,7 +1147,7 @@ let formState = {
         south_doc1: "", south_doc2: "", west_doc1: "", west_doc2: "",
         north_translation:"", north_site:"", east_translation:"", east_site:"", 
         south_translation:"", south_site:"", west_translation:"", west_site:"", 
-        Boundary_property_notes : ""
+        Boundary_property_notes : "", Building_no : "", Ward :""
     },
     Demarcation: {north: [],east:[],south:[],west:[],demarcation_notes:"",enroachment_subject_to_neighbour:"",enroachment_neighbour_to_subject:""},
     Access : {
@@ -1059,13 +1176,17 @@ let formState = {
         
         front_yard_min:"", front_yard_max:"", side1_yard_min:"", side1_yard_max:"", 
         side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:"",
+        rent_amt:"",rent_duration:"",extra_remarks:"",
         
         RCC_Percentage:"", Tiled_Percentage:"", Sheet_Percentage:"", Other_Percentage:"" 
     },
+    land_inspection_details:{ nearest_city:"",crz:"", stigma:"", nearest_Highway:"", nearest_school:"", nearest_railway:"", nearest_busstop:"", nearest_hospital:"" },
     Sketch: { landmark_description: "", main_layout: "" }, 
     images: {} ,
     vectors : {} // We keep this for local reload, but will delete before submit
 };
+}
+let formState = getEmptyState();
 let visibleFloorIndices = [2, 3];
 const floorConfig = [
     { label: "BF-2",      key: "BF_2" },
@@ -1203,68 +1324,118 @@ function removeFloor(indexToRemove) {
 }
 
 /* =========================
-   4. FILE EXPLORER LOGIC
+   4. FILE EXPLORER LOGIC (SMART RESTORE)
 ========================= */
 function loadFolder(path = "") {
-  // 1. SAVE SCROLL POSITION (Before changing folders)
-  // FIXED: Changed selector from '.file-list-scroll' to '.file-list-container'
-  const scrollContainer = document.querySelector('.file-list-container');
   
-  if (scrollContainer) {
-      // Save the scroll position for the folder we are LEAVING
-      folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
+  // 1. Force Save Old Folder (If switching)
+  if (currentFolder && currentFolder !== path) {
+      saveToServer(true); 
+      clearTimeout(autoSaveTimer); 
   }
+
+  // 2. UI Updates
+  const scrollContainer = document.querySelector('.file-list-container');
+  if (scrollContainer) folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
 
   currentFolder = path;
   
-  // 2. UPDATE SIDEBAR PATH
   document.getElementById("currentPath").textContent = "/" + (path || "");
-
-  // 3. UPDATE BANNER
   const banner = document.getElementById("bigPreviewTitle");
-  banner.textContent = path ? path : "Home / Root";
-  banner.className = "font-mono text-xs text-gray-700 font-semibold break-all whitespace-normal leading-tight";
+  if(banner) banner.textContent = path ? path : "Home / Root";
+  const topBanner = document.getElementById("topBannerPath");
+  if (topBanner) topBanner.textContent = path ? "/" + path : "/";
 
-  // 4. RESET PREVIEW PANE
-  if(document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");
-  if(document.getElementById("pdfToolbar")) document.getElementById("pdfToolbar").classList.add("hidden");
-  if(document.getElementById("bigImageFrame")) document.getElementById("bigImageFrame").classList.add("hidden");
-  if(document.getElementById("downloadPdfBtn")) document.getElementById("downloadPdfBtn").classList.add("hidden");
-  
-  const noSelection = document.getElementById("noSelection");
-  if(noSelection) {
-      noSelection.classList.remove("hidden");
-      noSelection.textContent = "Select a file to preview";
-  }
+  // Hide Previews
+  document.getElementById("scrollContainer").classList.add("hidden");
+  document.getElementById("pdfToolbar").classList.add("hidden");
+  document.getElementById("bigImageFrame").classList.add("hidden");
+  document.getElementById("noSelection").classList.remove("hidden");
 
-  // 5. FETCH DATA
+  // 3. FETCH DATA
   const statsBox = document.getElementById("folderStatsBox");
   
   fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
     .then(r => r.json())
     .then(data => {
+      //  SMART RESTORE LOGIC:
+      // Did we just reload the page? Or are we switching folders?
+      // If LocalStorage has data for THIS EXACT folder, trust it (it's the freshest).
+      
+      const localData = localStorage.getItem(STORAGE_KEY);
+      const localFolder = localStorage.getItem('vadrida_active_folder');
+      let usedLocalData = false;
+
+      // If we are opening the same folder we were just working in...
+      if (localData && localFolder === path) {
+          console.log("Restoring recent unsaved work from Browser...");
+          try {
+              const parsed = JSON.parse(localData);
+              // Merge: Use Server IDs (safe) + Local Content (fresh)
+              formState = { ...getEmptyState(), ...data.saved_draft, ...parsed };
+              usedLocalData = true;
+          } catch(e) { console.error("Local restore error", e); }
+      }
+      
+      if (!usedLocalData) {
+          // If we are switching to a NEW folder, wipe clean and load from Server
+          formState = getEmptyState(); 
+          localStorage.removeItem(STORAGE_KEY); // Clear old data to prevent leaks
+
+          // CASE A: Server has a Saved Draft
+          if (data.saved_draft) {
+              console.log("Loaded Saved Draft from Server");
+              formState = { ...getEmptyState(), ...data.saved_draft };
+          }
+          // CASE B: Auto-fill (Only if no draft)
+          else if (data.auto_fill) {
+              console.log("No draft. Auto-filling...");
+              updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
+              updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
+              updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
+              saveToServer(); // Create record
+          }
+      }
+
+      // Render Files
       currentFolderFiles = data.files || [];
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
+
+      // ✅ STEP 3: SYNC UI 
+      // (Order is critical: Options -> Timeline -> Values)
+      initBuildingTable();   
+      renderSurveyColumns();         
+      updateAllDocumentDropdowns();  
       
-      if (data.folder_info) {
-         renderFolderStats(data.folder_info);
-      } else {
-         if(statsBox) statsBox.classList.add("hidden");
+      const constructionStr = getNestedValue(formState, "Building_analysis.construction_year");
+      parseTimelineString(constructionStr); 
+
+      syncStateToUI();       
+
+      // Load Images
+      if(formState.images) {
+         Object.keys(formState.images).forEach(k => {
+             const img = document.getElementById(`img_preview_${k.replace(/\./g, '_')}`);
+             if(img) { img.src = formState.images[k]; img.classList.remove('hidden'); }
+         });
       }
 
-      // --- RESTORE SCROLL POSITION ---
+      // Save state back to local (updates timestamp/freshness)
+      localStorage.setItem('vadrida_active_folder', path);
+      saveLocal();
+
+      // Stats & Scroll
+      if (data.folder_info) { renderFolderStats(data.folder_info); } 
+      else { if(statsBox) statsBox.classList.add("hidden"); }
+
       if (scrollContainer) {
-          // Use setTimeout to ensure the list is fully drawn before scrolling
           setTimeout(() => {
-              // Retrieve saved position for this path, or default to 0 (top)
-              const savedPosition = folderScrollHistory[path] || 0;
-              scrollContainer.scrollTop = savedPosition;
+              scrollContainer.scrollTop = folderScrollHistory[path] || 0;
           }, 0);
       }
     });
 }
-
 function renderFolderStats(info) {
     const statsBox = document.getElementById("folderStatsBox");
     
@@ -2560,10 +2731,10 @@ function getTouchCenter(e) {
 function saveSketchModal() {
     if (!activeSketchPath) return;
 
-    // 1. Check if empty
+    // 1. Check if empty -> Just Exit
     if (elements.length === 0) {
-        alert("Canvas is empty!");
-        return;
+        closeSketchModal();
+        return; 
     }
 
     // 2. FIND BOUNDARIES (Min/Max X & Y)
@@ -2593,7 +2764,7 @@ function saveSketchModal() {
     });
 
     // 3. DEFINE CROP DIMENSIONS (With Padding)
-    const padding = 20; // 20px breathing room
+    const padding = 20; 
     const cropWidth = (maxX - minX) + (padding * 2);
     const cropHeight = (maxY - minY) + (padding * 2);
 
@@ -2602,29 +2773,27 @@ function saveSketchModal() {
     const prevCanvasHeight = canvas.height;
     const prevCamera = { ...camera };
 
-    // 5. RESIZE CANVAS & RE-CENTER CAMERA (The Magic Step)
-    // We physically shrink the canvas to the size of the drawing
+    // 5. RESIZE CANVAS & RE-CENTER CAMERA
     canvas.width = cropWidth;
     canvas.height = cropHeight;
 
-    // Move camera so the drawing starts at (padding, padding)
     camera = {
         x: -minX + padding, 
         y: -minY + padding, 
-        z: 1 // Save at 100% scale (No zoom distortion)
+        z: 1 
     };
 
     // 6. RENDER & CAPTURE
     renderScene(); 
     const dataUrl = canvas.toDataURL('image/png');
 
-    // 7. RESTORE ORIGINAL STATE (So user can keep editing)
+    // 7. RESTORE ORIGINAL STATE
     canvas.width = prevCanvasWidth;
     canvas.height = prevCanvasHeight;
     camera = prevCamera;
     renderScene();
 
-    // 8. SAVE TO FORM (Standard Logic)
+    // 8. SAVE TO FORM
     if (!formState.images) formState.images = {};
     formState.images[activeSketchPath] = dataUrl;
 
@@ -2634,19 +2803,11 @@ function saveSketchModal() {
     // Update Thumbnails
     const safeId = activeSketchPath.replace(/\./g, '_');
     if(activeSketchPath === 'Sketch.main_layout') {
-        const mainPreview = document.getElementById('img_preview_Sketch_main_layout');
-        if(mainPreview) {
-             mainPreview.src = dataUrl;
-             mainPreview.classList.remove('hidden');
-             mainPreview.style.display = 'block'; 
-        }
+       const mainImg = document.getElementById('img_preview_Sketch_main_layout');
+       if(mainImg) { mainImg.src = dataUrl; mainImg.classList.remove('hidden'); }
     } else {
-        const previewImg = document.getElementById(`img_preview_${safeId}`);
-        if (previewImg) {
-            previewImg.src = dataUrl;
-            previewImg.classList.remove('hidden');
-            previewImg.style.display = 'block';
-        }
+       const thumb = document.getElementById(`img_preview_${safeId}`);
+       if(thumb) { thumb.src = dataUrl; thumb.classList.remove('hidden'); thumb.style.display = 'block'; }
     }
     
     saveLocal();
@@ -2776,72 +2937,225 @@ function updateArrayState(obj, path, value, isChecked) {
     else { current[lastKey] = current[lastKey].filter(v => v !== value); }
 }
 
-function saveLocal() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
+/* =========================
+   9. DATA SYNC & SUBMISSION
+========================= */
+async function saveToServer(isLeaving = false) {
+    if (!currentFolder) return; 
+
+    // Optional: Visual Indicator for saving
+    const btn = document.getElementById('triggerSubmitBtn');
+    if(!isLeaving && btn) btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Saving...';
+
+    try {
+        const payload = JSON.parse(JSON.stringify(formState));
+        // delete payload.vectors; // Optional optimization
+
+        const response = await fetch('/coreapi/api/auto-save/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify({ 
+                folder_path: currentFolder,
+                payload: payload 
+            })
+        });
+        
+        const res = await response.json();
+        if(res.success) {
+            console.log("Saved at", res.last_saved);
+            if(!isLeaving && btn) btn.innerText = 'Submit Feedback'; 
+        }
+    } catch(err) {
+        console.error("Save error", err);
+    }
 }
 
+/* =========================
+   UI SYNC (UPDATED: Clears Sketches Too)
+========================= */
 function syncStateToUI() {
     // 1. Handle Text Inputs, Textareas, Selects, and RADIO BUTTONS
     document.querySelectorAll('[data-path]').forEach(el => {
         const val = getNestedValue(formState, el.getAttribute('data-path'));
         
-        // --- LOGIC FOR RADIO BUTTONS ---
+        // Radio Buttons
         if (el.type === 'radio') {
-            // Only compare if we actually have a saved value
-            if (val !== undefined && val !== null && val !== "") {
-                // Convert both to string and trim to avoid " " mismatches
-                const savedValStr = String(val).trim();
-                const inputValStr = String(el.value).trim();
-                
-                if (savedValStr === inputValStr) {
-                    el.checked = true;
-                }
-            }
+            const savedValStr = (val !== undefined && val !== null) ? String(val).trim() : "";
+            const inputValStr = String(el.value).trim();
+            el.checked = (savedValStr === inputValStr);
         } 
-        // --- LOGIC FOR CHECKBOXES (Single Boolean) ---
-        // (If you use the checkbox trick we made earlier)
+        // Checkboxes (Boolean)
         else if (el.type === 'checkbox' && !el.hasAttribute('data-array')) {
-             if (val === el.value) el.checked = true;
+             el.checked = (val === true || val === "true" || val === el.value);
         }
-        // --- LOGIC FOR STANDARD INPUTS ---
-        else if (val !== undefined) {
-            el.value = val;
+        // Standard Inputs
+        else {
+            el.value = (val !== undefined && val !== null) ? val : "";
         }
     });
 
-    // 2. Handle Arrays (Standard Checkboxes)
+    // 2. Handle Arrays (Multiple Select Checkboxes)
     document.querySelectorAll('[data-array]').forEach(el => {
         const arr = getNestedValue(formState, el.getAttribute('data-array'));
-        if (Array.isArray(arr) && arr.includes(el.value)) el.checked = true;
+        if (Array.isArray(arr) && arr.includes(el.value)) {
+            el.checked = true;
+        } else {
+            el.checked = false;
+        }
+    });
+
+    // ✅ 3. NEW: Clear Sketch Thumbnails
+    // This finds ALL images with IDs starting with "img_preview_"
+    document.querySelectorAll('img[id^="img_preview_"]').forEach(img => {
+        // Construct the original data path from the ID (reverse safeId logic)
+        // e.g., img_preview_Sketch_main_layout -> Sketch.main_layout
+        const safeId = img.id.replace('img_preview_', '');
+        // We can't easily reverse "_" to "." perfectly if keys have underscores, 
+        // so we check the `formState.images` object directly using the ID or fuzzy match.
+
+        let hasImage = false;
+        
+        // Check exact match in formState.images
+        // We need to iterate the images dictionary because the key format differs slightly
+        if (formState.images) {
+             // Look for any key that turns into this safeId
+             const match = Object.keys(formState.images).find(key => key.replace(/\./g, '_') === safeId);
+             
+             if (match && formState.images[match]) {
+                 img.src = formState.images[match];
+                 img.classList.remove('hidden');
+                 img.style.display = 'block';
+                 hasImage = true;
+             }
+        }
+
+        // If no image found in state, HIDE IT
+        if (!hasImage) {
+            img.src = "";
+            img.classList.add('hidden');
+            img.style.display = 'none';
+        }
     });
 }
-
+/* ==========================================
+   UPDATED: INJECT ICONS (Conditional Upload)
+   ========================================== */
 function injectPencilIcons() {
     const textareas = document.querySelectorAll('textarea[data-path]');
+    
+    // Define which text fields are allowed to have Photo Uploads
+    // You can add more paths to this array if needed later
+    const uploadAllowList = [
+        'Sketch.landmark_description' 
+    ];
+
     textareas.forEach(textarea => {
         if (textarea.parentElement.classList.contains('input-wrapper')) return;
+        
         const path = textarea.getAttribute('data-path');
         const safeId = path.replace(/\./g, '_');
         
+        // 1. Create Wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'input-wrapper';
         textarea.parentNode.insertBefore(wrapper, textarea);
         wrapper.appendChild(textarea);
         
-        const btn = document.createElement('div');
-        btn.className = 'edit-icon';
-        btn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-        btn.onclick = () => openSketchPad(path);
-        wrapper.appendChild(btn);
+        // 2. Create Icon Group
+        const group = document.createElement('div');
+        group.className = 'icon-group';
+        
+        // --- BUTTON A: SKETCH (Always Added) ---
+        const sketchBtn = document.createElement('div');
+        sketchBtn.className = 'action-icon sketch-btn';
+        sketchBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+        sketchBtn.title = "Draw Sketch";
+        sketchBtn.onclick = (e) => {
+            e.stopPropagation();
+            openSketchPad(path);
+        };
+        group.appendChild(sketchBtn);
+        
+        // --- BUTTON B: UPLOAD (Conditional) ---
+        // Only add this button if the current path is in our allow list
+        if (uploadAllowList.includes(path)) {
+            const uploadBtn = document.createElement('div');
+            uploadBtn.className = 'action-icon upload-btn';
+            uploadBtn.innerHTML = '<i class="fas fa-camera"></i>';
+            uploadBtn.title = "Upload Image";
+            
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            
+            uploadBtn.onclick = (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            };
+            
+            fileInput.onchange = (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    handleImageUpload(path, e.target.files[0]);
+                }
+            };
 
-        const img = document.createElement('img');
-        img.id = `img_preview_${safeId}`; 
-        img.className = 'sketch-thumb hidden';
-        img.onclick = () => openSketchPad(path);
-        wrapper.parentNode.insertBefore(img, wrapper.nextSibling);
+            group.appendChild(uploadBtn);
+            wrapper.appendChild(fileInput);
+        }
+
+        wrapper.appendChild(group);
+
+        // 3. Create Thumbnail Preview logic (Same as before)
+        let img = document.getElementById(`img_preview_${safeId}`);
+        if (!img) {
+            img = document.createElement('img');
+            img.id = `img_preview_${safeId}`; 
+            img.className = 'sketch-thumb hidden';
+            img.style.marginTop = '10px';
+            img.style.maxHeight = '150px';
+            img.style.borderRadius = '8px';
+            img.style.border = '1px solid #e5e7eb';
+            img.style.cursor = 'pointer';
+            
+            // Clicking preview always opens Sketch Pad (for viewing/editing)
+            img.onclick = () => openSketchPad(path); 
+            
+            wrapper.parentNode.insertBefore(img, wrapper.nextSibling);
+        }
     });
 }
-
+// --- HELPER: HANDLE IMAGE UPLOAD ---
+function handleImageUpload(path, file) {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+        const base64String = e.target.result;
+        
+        // 1. Save to State (Same logic as sketches)
+        if (!formState.images) formState.images = {};
+        formState.images[path] = base64String;
+        
+        // 2. Update Thumbnail UI
+        const safeId = path.replace(/\./g, '_');
+        const img = document.getElementById(`img_preview_${safeId}`);
+        if (img) {
+            img.src = base64String;
+            img.classList.remove('hidden');
+            img.style.display = 'block';
+        }
+        
+        // 3. Trigger Auto-Save immediately
+        saveLocal();
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            saveToServer();
+        }, 1000); // Fast save for uploads
+    };
+    
+    // Start reading file as Data URL
+    reader.readAsDataURL(file); 
+}
 function renderSurveyColumns() {
     const headerRow = document.getElementById('surveyHeader');
     const bodyRows = document.querySelectorAll('#surveyBody tr');
@@ -2854,6 +3168,14 @@ function renderSurveyColumns() {
     const availableDocs = formState.Valuers_Checklist.documents_received || [];
     const surveyDocs = formState.Survey.docs || [];
 
+    const landTypes = [
+        { id: 'dry',       label: 'Dry Land' },
+        { id: 'wet',       label: 'Wet Land' },
+        { id: 'sthirapunja',    label: 'Sthirapunja' },
+        { id: 'asthirapunja',   label: 'Asthirapunja' },
+        { id: 'thottam',   label: 'Thottam' },
+        { id: 'others',    label: 'Others' }
+    ];
     surveyDocs.forEach((docObj, index) => {
         // 1. Render Header (Dropdown to select Doc Name)
         const th = document.createElement('th');
@@ -2879,25 +3201,46 @@ function renderSurveyColumns() {
                 let inputHtml = '';
 
                 if (key === 'land_classification') {
-                    // Dropdown for Classification
-                    const isDry = val === 'Dry' ? 'selected' : '';
-                    const isWet = val === 'Wet' ? 'selected' : '';
+                    // Start Grid
+                    inputHtml = `<table>`;
                     
-                    inputHtml = `
-                        <select class="table-input" onchange="updateSurveyDocData(${index}, '${key}', this.value)">
-                            <option value="">Select</option>
-                            <option value="Dry" ${isDry}>Dry</option>
-                            <option value="Wet" ${isWet}>Wet</option>
-                        </select>
-                    `;
-                } 
+                    // Optional: Mini Headers inside the cell
+                    inputHtml += `<tr><th style="z-index:auto;">Type</th><th>Area</th></tr>`;
+
+                    // Loop through 6 types
+                    landTypes.forEach(type => {
+                        // Unique Keys: e.g., 'check_dry', 'area_dry'
+                        const checkKey = `check_${type.id}`;
+                        const areaKey = `area_${type.id}`;
+                        
+                        // Get Values
+                        const isChecked = docObj[checkKey] ? 'checked' : '';
+                        const areaVal = docObj[areaKey] || '';
+
+                        // CSS Grid Row using 'display: contents' logic from CSS above
+                        inputHtml += `<tr><td style="z-index:auto">
+                                    <input type="checkbox" ${isChecked} 
+                                        onchange="updateSurveyDocData(${index}, '${checkKey}', this.checked)">
+                                    ${type.label}
+                                </td><td>
+                                    <input type="text" class="lc-area-input" 
+                                        placeholder="Area" 
+                                        value="${areaVal}" 
+                                        oninput="updateSurveyDocData(${index}, '${areaKey}', this.value)">
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    inputHtml += `</table>`; // End Grid
+                }
                 else if (key === 'land_extent') {
                      // Keep Text Input for Extent (as requested)
                      inputHtml = `<input type="text" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
                 } 
                 else {
                      // Number Input for everything else (Survey No, Block No, etc.)
-                     inputHtml = `<input type="number" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
+                     inputHtml = `<input type="text" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
                 }
                 // --- LOGIC CHANGE ENDS HERE ---
 
@@ -2908,15 +3251,37 @@ function renderSurveyColumns() {
     });
 }
 
-window.updateSurveyDocName = (index, value) => {
-    formState.Survey.docs[index].name = value;
-    saveLocal();
-};
-
+/* =========================
+   HELPER: Update Survey Data & Trigger Save
+========================= */
 window.updateSurveyDocData = (index, key, value) => {
+    // 1. Update the State Object
+    if (!formState.Survey.docs[index]) formState.Survey.docs[index] = {};
     formState.Survey.docs[index][key] = value;
     saveLocal();
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        saveToServer();
+    }, SAVE_DELAY_MS);
 };
+/* =========================
+   MISSING FUNCTION: Fixes Document Name Dropdown
+========================= */
+window.updateSurveyDocName = (index, value) => {
+    // 1. Update the 'name' property for this column
+    if (!formState.Survey.docs[index]) formState.Survey.docs[index] = {};
+    formState.Survey.docs[index].name = value;
+
+    // 2. Save immediately
+    saveLocal();
+    
+    // 3. Trigger Auto-Save to Server
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+       saveToServer();
+    }, SAVE_DELAY_MS);
+};
+
 
 function addSurveyColumn() {
     if (!formState.Survey.docs) formState.Survey.docs = [];
@@ -2926,36 +3291,61 @@ function addSurveyColumn() {
 }
 
 function updateAllDocumentDropdowns() {
+    // Always read from the source of truth: formState
     const docs = formState.Valuers_Checklist.documents_received || [];
+    
     document.querySelectorAll('.dynamic-doc-dropdown').forEach(select => {
-        const currentSelection = select.value;
+        // 1. Capture the current value (in case user just typed it before save)
+        // BUT prioritize formState if we are loading.
+        const path = select.getAttribute('data-path');
+        const savedValue = getNestedValue(formState, path); 
+        
+        // 2. Rebuild Options
         select.innerHTML = '<option value="">Select Document</option>';
         docs.forEach(docName => {
             const opt = document.createElement('option');
-            opt.value = docName; opt.textContent = docName;
+            opt.value = docName;
+            opt.textContent = docName;
             select.appendChild(opt);
         });
-        if (docs.includes(currentSelection)) select.value = currentSelection;
+
+        // 3. Restore Value
+        // If we have a saved value in state, use it.
+        if (savedValue && docs.includes(savedValue)) {
+            select.value = savedValue;
+        }
     });
 }
-
 // Global Event Listeners
+
+// 2. Hybrid Input Listener
 document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
     const target = e.target;
     const path = target.getAttribute('data-path');
     const arrayPath = target.getAttribute('data-array');
+    
+    // A. Update State
     if (path) {
         updateNestedState(formState, path, target.value);
     } else if (arrayPath) {
         updateArrayState(formState, arrayPath, target.value, target.checked);
+        
+        // ✅ FIX: Update Dropdowns immediately when Documents Received changes
         if (arrayPath === 'Valuers_Checklist.documents_received') {
-            renderSurveyColumns();
-            updateAllDocumentDropdowns();
+            updateAllDocumentDropdowns(); // Refreshes the dropdown options
+            renderSurveyColumns();        // Refreshes the survey table headers
         }
     }
-    saveLocal();
-});
 
+    // B. Save to Local Storage (Instant)
+    saveLocal();
+
+    // C. Debounce Save to Server (10 Seconds)
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        saveToServer();
+    }, SAVE_DELAY_MS);
+});
 
 let pendingAction = null;
 const confirmModal = document.getElementById('confirmationModal');
@@ -3000,6 +3390,7 @@ document.getElementById('triggerResetBtn').onclick = (e) => {
 };
 
 async function performSubmit() {
+    // 1. If Sketch Pad is open, save it first
     if (!document.getElementById('sketchModal').classList.contains('hidden')) {
         saveSketchModal();
     }
@@ -3010,48 +3401,127 @@ async function performSubmit() {
         btn.textContent = "Submitting...";
         btn.disabled = true;
 
+        // 2. Prepare Payload
         let payload = JSON.parse(JSON.stringify(formState));
         
-        // Ensure the ID is in the payload (it will be null the first time)
+        // Ensure ID and Folder are attached
         payload.report_id = formState.report_id; 
         payload.target_folder = currentFolder; 
 
+        // Cleanup
         if(payload.vectors) delete payload.vectors;
         payload = cleanPayload(payload);
         if (!payload) payload = {};
 
+        // 3. Send Request
         const response = await fetch('/coreapi/api/save-feedback/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
             body: JSON.stringify({ payload })
         });
-        
-        const res = await response.json();
-        
-        if(res.success) {
-            // --- NEW: Save the ID so next click updates instead of creates ---
-            formState.report_id = res.report_id;
-            saveLocal(); // Update localStorage
-            // -------------------------------------------------------------
 
+        // 4. Check for HTTP Errors (e.g. 500 Internal Server Error)
+        if (!response.ok) {
+            throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+        }
+
+        // 5. Safely Parse JSON
+        // We get text first to debug if it's not JSON
+        const textResponse = await response.text(); 
+        let res;
+        try {
+            res = JSON.parse(textResponse);
+        } catch (jsonErr) {
+            console.error("Server returned non-JSON response:", textResponse);
+            throw new Error("Invalid server response. Data might be saved, but response was bad.");
+        }
+        
+        // 6. Handle Success/Fail Logic
+        if(res.success) {
+            // Update ID locally
+            formState.report_id = res.report_id;
+            saveLocal(); 
+
+            // Redirect
             window.location.href = res.redirect_url;
         } else {
             btn.textContent = originalText;
             btn.disabled = false;
-            alert("Error: " + res.error);
+            alert("Server reported error: " + res.error);
         }
+
     } catch (err) {
-        console.error(err);
-        alert("Network Error");
+        console.error("Submit Failed:", err);
+        // Reset button
+        const btn = document.getElementById('triggerSubmitBtn');
+        if(btn) {
+            btn.textContent = "Submit Feedback";
+            btn.disabled = false;
+        }
+        
+        // Detailed Alert
+        alert("Submission Issue: " + err.message + "\n(Check Console for details)");
     }
 }
+function saveLocal() {
+    try {
+        // 1. Create a deep copy of the state so we don't break the active app
+        const stateToSave = JSON.parse(JSON.stringify(formState));
 
-// ACTUAL RESET FUNCTION
-function performReset() {
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
+        // 2. REMOVE HEAVY ITEMS (Images & Vectors)
+        // LocalStorage has a 5MB limit. We rely on the Server to store images.
+        // By deleting these keys from the *copy*, we ensure they don't clog up the browser.
+        if (stateToSave.images) delete stateToSave.images;
+        if (stateToSave.vectors) delete stateToSave.vectors;
+
+        // 3. Save the lightweight text-only data
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+        
+    } catch (e) {
+        // If it STILL fails (unlikely for text), just warn in console instead of crashing
+        console.warn("LocalStorage Quota Error: Could not save local backup.", e);
+    }
 }
+async function performReset() {
+    // 1. Reset the State Object to Blank Defaults
+    formState = getEmptyState(); 
 
+    // 2. Clear Local Storage (But keep folder location!)
+    localStorage.removeItem(STORAGE_KEY);
+
+    // 3. Update the UI Immediately (No Reload needed)
+    syncStateToUI();              // Clears text boxes, radios, checkboxes
+    initBuildingTable();          // Resets building table to default rows
+    renderSurveyColumns();        // Resets survey table columns
+    updateAllDocumentDropdowns(); // Resets dropdowns
+    
+    // Clear Timeline
+    document.getElementById('finalConstructionString').value = "";
+    parseTimelineString(""); 
+
+    // Clear Sketch/Photo Previews
+    document.querySelectorAll('img[id^="img_preview_"]').forEach(img => {
+        img.src = "";
+        img.classList.add('hidden');
+        img.style.display = 'none';
+    });
+    // Show placeholders if any
+    document.querySelectorAll('[id^="placeholder_"]').forEach(ph => {
+        ph.classList.remove('hidden');
+    });
+
+    // 4. Force Save to Server
+    // We send the 'formState' which is now full of empty strings.
+    // This overwrites the database logic, ensuring the "Auto-Fill" doesn't triggers again.
+    const btn = document.getElementById('triggerResetBtn');
+    const originalText = btn.innerText;
+    btn.innerText = "Clearing...";
+    
+    await saveToServer(); 
+    
+    btn.innerText = originalText;
+    // No alert needed, the UI update is feedback enough
+}
 /* =========================
    10. APP INIT
 ========================= */
@@ -3059,19 +3529,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   
     console.log("App Initializing...");
-    loadFolder("");
+    // ✅ AUTO-NAVIGATE TO LAST LOCATION
+    const lastPath = localStorage.getItem('vadrida_active_folder');
+    
+    if (lastPath) {
+        console.log("Restoring last session folder:", lastPath);
+        loadFolder(lastPath);
+    } else {
+        loadFolder(""); // Default to root
+    }
     enforceTabletLandscape();
 
-    // Load LocalStorage
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            formState = { ...formState, ...parsed };
-            if(!formState.images) formState.images = {};
-            if(!formState.vectors) formState.vectors = {};
-        } catch(e) { console.error(e); }
-    }
     const confirmModal = document.getElementById('confirmationModal');
     if (confirmModal && confirmModal.parentNode !== document.body) {
         document.body.appendChild(confirmModal);
@@ -3079,7 +3547,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Setup UI
     injectPencilIcons();
-    syncStateToUI();
     renderSurveyColumns();
     updateAllDocumentDropdowns();
     
@@ -3560,7 +4027,7 @@ function loadBigPreview(file) {
     currentFile = file;
 
     // 1. Construct Path logic
-    let fullPath = file.path;
+    let fullPath = file.file;
     if (!fullPath) {
         // Fallback if path is missing
         const folderPrefix = currentFolder ? currentFolder.replace(/\/$/, "") + "/" : "";
@@ -3721,19 +4188,7 @@ function updateZoom() {
     zoomLevelDisplay.textContent = `${Math.round(viewerState.zoom * 100)}%`;
 }
 
-document.getElementById("pdfZoomIn").onclick = () => {
-    if (viewerState.zoom < 2.0) {
-        viewerState.zoom += 0.25;
-        updateZoom();
-    }
-};
 
-document.getElementById("pdfZoomOut").onclick = () => {
-    if (viewerState.zoom > 0.5) {
-        viewerState.zoom -= 0.25;
-        updateZoom();
-    }
-};
 
 /* ==========================================
    FULLSCREEN MODAL LOGIC (FINAL FIX)
@@ -3765,14 +4220,23 @@ let modalState = {
 document.getElementById("openFullBtn").onclick = () => {
     if (!currentFile) return alert("Select a file first");
 
-    // Show Modal
-    fullscreenModal.classList.remove("hidden");
-    fullscreenModal.classList.add("flex");
-    fullscreenModal.setAttribute("aria-hidden", "false");
-    modalTitle.textContent = currentFile.name;
+    // 1. Show Modal (Requires the HTML fix mentioned below)
+    const modal = document.getElementById("fullscreenModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    modal.setAttribute("aria-hidden", "false");
+    
+    const title = document.getElementById("modalTitle");
+    if(title) title.textContent = currentFile.name;
 
-    // Reset Layers
-    [modalFrame, imageZoomWrapper, modalPdfContainer, modalImage].forEach(el => {
+    // 2. Get Elements safely
+    const frame = document.getElementById("modalFrame");
+    const zoomWrapper = document.getElementById("imageZoomWrapper");
+    const pdfContainer = document.getElementById("modalPdfContainer");
+    const imgObj = document.getElementById("modalImage");
+
+    // 3. Reset Layers (Hide everything first)
+    [frame, zoomWrapper, pdfContainer, imgObj].forEach(el => {
         if(el) {
             el.classList.add("hidden");
             el.classList.remove("flex"); 
@@ -3780,56 +4244,60 @@ document.getElementById("openFullBtn").onclick = () => {
         }
     });
     
-    if(modalPdfContainer) modalPdfContainer.innerHTML = "";
-    currentModalZoom = 1.0;
-    updateZoomDisplay();
+    // Clear PDF container if it exists
+    if(pdfContainer) pdfContainer.innerHTML = "";
 
+    // 4. Set State
     modalState.path = currentFile.path;
     const ext = currentFile.name.split(".").pop().toLowerCase();
 
     // CASE A: PDF
     if (ext === 'pdf') {
         modalState.mode = 'pdf';
-        if(modalPdfContainer) {
-            modalPdfContainer.classList.remove("hidden");
-            modalPdfContainer.classList.add("flex");
-            modalPdfContainer.style.display = "flex";
-            initPdfModal(); // Start Loading
+        if(pdfContainer) {
+            pdfContainer.classList.remove("hidden");
+            pdfContainer.classList.add("flex");
+            pdfContainer.style.display = "flex";
+            if (typeof initPdfModal === "function") initPdfModal(); // Safety check
         }
     } 
     // CASE B: IMAGE
     else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
         modalState.mode = 'image';
         
-        if(imageZoomWrapper && modalImage) {
-            imageZoomWrapper.classList.remove("hidden");
-            imageZoomWrapper.classList.add("flex");
-            imageZoomWrapper.style.display = "flex";
+        // If wrapper exists, use it. If not, try to show image directly.
+        const container = zoomWrapper || modal; 
+        
+        if(container && imgObj) {
+            if(zoomWrapper) {
+                zoomWrapper.classList.remove("hidden");
+                zoomWrapper.classList.add("flex");
+                zoomWrapper.style.display = "flex";
+            }
             
-            modalImage.classList.remove("hidden");
-            modalImage.style.display = "block";
+            imgObj.classList.remove("hidden");
+            imgObj.style.display = "block";
             
             // Add timestamp to force refresh
-            modalImage.src = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&t=${new Date().getTime()}`;
+            imgObj.src = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&t=${new Date().getTime()}`;
             
             // Reset Styles
-            modalImage.style.transform = "scale(1)";
-            modalImage.style.maxWidth = "100%";
-            modalImage.style.maxHeight = "100%";
-            modalImage.style.margin = "0";
+            imgObj.style.transform = "scale(1)";
+            imgObj.style.maxWidth = "100%";
+            imgObj.style.maxHeight = "100%";
+            imgObj.style.margin = "0";
         }
     }
     // CASE C: OTHER
     else {
-        if(modalPdfContainer) {
-            modalPdfContainer.classList.remove("hidden");
-            modalPdfContainer.classList.add("flex");
-            modalPdfContainer.style.display = "flex";
-            modalPdfContainer.innerHTML = `<div class="text-gray-500 m-auto">Preview not available</div>`;
+        if(pdfContainer) {
+            pdfContainer.classList.remove("hidden");
+            pdfContainer.classList.add("flex");
+            pdfContainer.style.display = "flex";
+            pdfContainer.innerHTML = `<div class="text-gray-500 m-auto">Preview not available</div>`;
         }
     }
 };
-
 /* --- 2. CLOSE MODAL --- */
 document.getElementById("modalClose").onclick = () => {
     fullscreenModal.classList.add("hidden");
@@ -3875,20 +4343,6 @@ function applyModalZoom() {
         });
     }
 }
-
-// Button Listeners
-const zoomIn = document.getElementById("modalZoomIn");
-if(zoomIn) zoomIn.onclick = () => { 
-    if (currentModalZoom < 3.0) { currentModalZoom += 0.25; applyModalZoom(); } 
-};
-
-const zoomOut = document.getElementById("modalZoomOut");
-if(zoomOut) zoomOut.onclick = () => { 
-    if (currentModalZoom > 0.25) { currentModalZoom -= 0.25; applyModalZoom(); } 
-};
-
-const zoomReset = document.getElementById("modalZoomReset");
-if(zoomReset) zoomReset.onclick = () => { currentModalZoom = 1.0; applyModalZoom(); };
 
 
 /* --- 4. PDF SCROLL LOGIC (Robust) --- */
@@ -4087,6 +4541,32 @@ modalDownloadBtn.onclick = (e) => {
   const downloadUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
   window.location.href = downloadUrl;
 };
+/* =========================
+   11. SAFETY NET (Bulletproof Save)
+========================= */
+
+// Triggers on: Refresh, Browser Back Button, Closing Tab, Clicking External Links
+window.addEventListener('beforeunload', (event) => {
+    // Only save if we are inside a folder (not root)
+    if (currentFolder) {
+        const payload = JSON.stringify({ 
+            folder_path: currentFolder,
+            payload: formState 
+        });
+
+        // ✅ THE MAGIC FIX: keepalive: true
+        // This allows us to use headers (CSRF) AND survives page closure.
+        fetch('/coreapi/api/auto-save/', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken 
+            },
+            body: payload,
+            keepalive: true // <--- This keeps the request alive after you leave!
+        });
+    }
+});
 </script>
 
 {% endblock %}

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Sketch Pad UI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent: #3b82f6;
+            --border: #e2e8f0;
+            --toolbar-height-1: 50px;
+            --toolbar-height-2: 60px;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #e5e5e5; overflow: hidden; }
+
+        /* --- MAIN APP CONTAINER --- */
+        .sketch-app {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+        }
+
+        /* --- TOP BARS SECTION --- */
+        .top-bars-wrapper {
+            background: var(--bg-primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .top-bars-wrapper.collapsed {
+            transform: translateY(-100%); /* Hide upwards */
+        }
+
+        /* Row 1: Header */
+        .bar-header {
+            height: var(--toolbar-height-1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sketch-title { font-weight: 600; color: var(--text-primary); }
+        .header-actions { display: flex; gap: 8px; }
+
+        /* Row 2: Tools */
+        .bar-tools {
+            height: var(--toolbar-height-2);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 16px;
+            overflow-x: auto; /* Scroll on small screens */
+            scrollbar-width: none; /* Hide scrollbar FF */
+        }
+        .bar-tools::-webkit-scrollbar { display: none; /* Hide scrollbar Chrome/Safari */ }
+        
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 16px;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .tool-group:last-child { border-right: none; }
+
+        /* UI Components */
+        .icon-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .icon-btn.active { background: #eff6ff; color: var(--accent); border-color: var(--accent); }
+        
+        /* Double click indicator hint */
+        .has-menu::after {
+            content: '••';
+            position: absolute;
+            bottom: 2px;
+            font-size: 8px;
+            line-height: 1;
+            opacity: 0.6;
+        }
+
+        .color-swatch {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px var(--border);
+            cursor: pointer;
+        }
+        .color-swatch.active { box-shadow: 0 0 0 2px var(--accent); }
+
+        /* Toggles & Selects */
+        .toggle-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        select.minimal-select {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        /* Styling for the small manual input box */
+        .minimal-input {
+            width: 50px;
+            height: 24px; /* Matches checkbox height */
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0 4px;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .minimal-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Helper to hide it smoothly */
+        .hidden-input {
+            display: none;
+            opacity: 0;
+            width: 0;
+            padding: 0;
+            border: none;
+        }
+        /* Expander Arrow */
+        .expander-trigger {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            width: 40px; height: 24px;
+            border-radius: 0 0 12px 12px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            z-index: 49;
+            border: 1px solid var(--border);
+            border-top: none;
+        }
+
+        /* --- CANVAS AREA --- */
+        .canvas-viewport {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            /* Default Background */
+            background-color: #ffffff;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        #mainCanvas {
+            display: block;
+            /* Canvas size will be handled by JS usually */
+            width: 2000px; height: 2000px; 
+            transform-origin: 0 0;
+        }
+
+        /* --- BOTTOM LEFT ZOOM --- */
+        .zoom-panel {
+            position: absolute;
+            bottom: 16px; left: 16px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(4px);
+            padding: 8px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 600; color: var(--text-primary);
+            font-size: 14px;
+            z-index: 60;
+        }
+        .lock-btn { cursor: pointer; color: var(--text-secondary); }
+        .lock-btn.locked { color: var(--accent); }
+
+        /* ================= POPUP MENUS ================= */
+        .hidden { display: none !important; }
+
+        /* Common Popup Styles */
+        .popup-menu {
+            position: absolute;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+            padding: 16px;
+            z-index: 100;
+            animation: popIn 0.2s ease-out;
+        }
+        @keyframes popIn { from {opacity: 0; transform: scale(0.95);} to {opacity: 1; transform: scale(1);} }
+
+        /* 1. Top Center Tool Settings (Pen/Eraser/Sketch) */
+        .tool-settings-popup {
+            top: 120px; /* Below toolbar */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .sub-tool-options { display: flex; gap: 8px; margin-bottom: 12px; }
+        .sub-tool-btn {
+            flex: 1; padding: 8px; text-align: center;
+            background: var(--bg-secondary); border-radius: 8px;
+            font-size: 13px; cursor: pointer; border: 1px solid transparent;
+        }
+        .sub-tool-btn.active { background: #eff6ff; color: var(--accent); border-color: var(--accent); }
+        
+        .size-selector { display: flex; justify-content: space-between; align-items: center; }
+        .size-dot { background: var(--text-secondary); border-radius: 50%; cursor: pointer; }
+        .size-dot.active { background: var(--accent); transform: scale(1.2); }
+        
+        .test-area {
+            width: 100%; height: 60px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: var(--text-secondary);
+        }
+
+        /* 2. Bottom Center Background Menu */
+        .bg-menu-popup {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .bg-options-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .bg-option {
+            aspect-ratio: 1; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+            background-size: 10px 10px;
+        }
+        .bg-option:hover { border-color: var(--accent); }
+        /* bg patterns */
+        .bg-plain { background: white; }
+        .bg-dotted { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); }
+        .bg-lined-h { background-image: linear-gradient(0deg, transparent 9px, #e2e8f0 10px); }
+        .bg-lined-hv { background-image: linear-gradient(0deg, transparent 9px, #e2e8f0 10px), linear-gradient(90deg, transparent 9px, #e2e8f0 10px); }
+
+        /* 3. Selection Context Menu (Floating) */
+        .selection-action-popup {
+            /* Positioned dynamically via JS */
+            top: 300px; left: 400px; 
+            padding: 8px;
+            display: flex; flex-direction: column; gap: 4px;
+            width: 120px;
+        }
+        .action-row {
+            padding: 8px 12px;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; color: var(--text-primary);
+            cursor: pointer; border-radius: 6px;
+        }
+        .action-row:hover { background: var(--bg-secondary); }
+        .action-row.delete { color: #ef4444; }
+
+        /* 4. Confirmation Dialog */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999;
+        }
+        .confirm-box {
+            background: var(--bg-primary); padding: 24px; border-radius: 16px;
+            text-align: center; width: 300px;
+        }
+        .confirm-btns { display: flex; gap: 12px; margin-top: 20px; }
+        .confirm-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-no { background: var(--bg-secondary); color: var(--text-primary); }
+        .btn-yes { background: #ef4444; color: white; }
+
+    </style>
+</head>
+<body>
+
+<div class="sketch-app">
+    <div class="top-bars-wrapper" id="topBars">
+        <div class="bar-header">
+            <div class="sketch-title" id="sketchTitle">Boundary Analysis Notes</div>
+            <div class="header-actions">
+                <button class="icon-btn" title="Undo"><i class="fas fa-undo"></i></button>
+                <button class="icon-btn" title="Redo"><i class="fas fa-redo"></i></button>
+                <button class="icon-btn" title="Add Photo"><i class="fas fa-plus"></i></button>
+                <div style="width:1px; height:24px; background:var(--border); margin: 0 8px;"></div>
+                <button class="icon-btn" id="menuBtn"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+        </div>
+
+        <div class="bar-tools">
+            <div class="tool-group">
+                <button class="icon-btn" data-tool="text"><i class="fas fa-keyboard"></i></button>
+                <button class="icon-btn has-menu active" data-tool="pen" id="penToolBtn"><i class="fas fa-pen"></i></button>
+                <button class="icon-btn has-menu" data-tool="sketch" id="sketchToolBtn"><i class="fas fa-highlighter"></i></button>
+                <button class="icon-btn has-menu" data-tool="eraser" id="eraserToolBtn"><i class="fas fa-eraser"></i></button>
+                <button class="icon-btn has-menu" data-tool="select" id="selectToolBtn"><i class="fas fa-expand"></i></button>
+                <button class="icon-btn has-menu" data-tool="bucket" id="bucketToolBtn"><i class="fas fa-fill-drip"></i></button>
+            </div>
+
+            <div class="tool-group">
+                <div class="color-swatch active" style="background:#1e293b"></div>
+                <div class="color-swatch" style="background:#ef4444"></div>
+                <div class="color-swatch" style="background:#3b82f6"></div>
+                <button class="icon-btn" title="Custom Color" style="width:30px; height:30px;"><i class="fas fa-palette" style="font-size:14px;"></i></button>
+            </div>
+
+            <div class="tool-group">
+                <button class="icon-btn" data-shape="line"><i class="fas fa-slash"></i></button>
+                <button class="icon-btn" data-shape="rect"><i class="far fa-square"></i></button>
+                <button class="icon-btn" data-shape="circle"><i class="far fa-circle"></i></button>
+                <button class="icon-btn" data-shape="arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
+                <button class="icon-btn" data-shape="triangle"><i class="fas fa-caret-up"></i></button>
+            </div>
+
+             <div class="tool-group" style="gap:12px;">
+                <div style="display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; background: var(--bg-secondary);">
+                    <label class="toggle-label" style="cursor: pointer;">
+                        <input type="checkbox" id="parallelToggle"> 
+                        <span style="font-weight: 500; font-size: 13px;">Parallel</span>
+                    </label>
+                    
+                    <input type="number" 
+                        id="parallelDist" 
+                        class="minimal-input hidden-input" 
+                        value="20" 
+                        min="1" 
+                        max="200" 
+                        title="Distance (px)">
+                </div>
+                <label class="toggle-label"><input type="checkbox" id="combineToggle"> Combine Mode</label>
+                <select class="minimal-select">
+                    <option>Solid</option>
+                    <option>Dashed</option>
+                    <option>Dotted</option>
+                </select>
+            </div>
+
+             <div class="tool-group" style="border:none; margin-left:auto;">
+                 <button class="icon-btn" style="color:#ef4444;" id="clearCanvasBtn"><i class="fas fa-trash-alt"></i></button>
+                 <button class="icon-btn"><i class="fas fa-save"></i></button>
+                 <button class="icon-btn"><i class="fas fa-times"></i></button>
+             </div>
+
+        </div>
+
+        <div class="expander-trigger" id="expanderArrow">
+            <i class="fas fa-chevron-up" id="expanderIcon"></i>
+        </div>
+    </div>
+
+    <div class="canvas-viewport" id="canvasContainer">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="zoom-panel">
+        <span id="zoomValue">100%</span>
+        <i class="fas fa-lock lock-btn" id="zoomLockBtn"></i>
+    </div>
+</div>
+
+
+<div class="popup-menu tool-settings-popup hidden" id="toolSettingsPopup">
+    <div class="sub-tool-options" id="subToolOptions">
+        <div class="sub-tool-btn active">Felt</div>
+        <div class="sub-tool-btn">Fountain</div>
+        <div class="sub-tool-btn">Brush</div>
+    </div>
+    <div class="size-selector">
+        <div class="size-dot" style="width:6px; height:6px;"></div>
+        <div class="size-dot" style="width:10px; height:10px;"></div>
+        <div class="size-dot active" style="width:14px; height:14px;"></div>
+        <div class="size-dot" style="width:18px; height:18px;"></div>
+        <div class="size-dot" style="width:24px; height:24px;"></div>
+        <div class="size-dot" style="width:30px; height:30px;"></div>
+    </div>
+    <div class="test-area">Test Area (300px max width)</div>
+</div>
+
+<div class="popup-menu bg-menu-popup hidden" id="bgMenuPopup">
+    <strong style="font-size:14px;">Background Pattern</strong>
+    <div class="bg-options-grid">
+        <div class="bg-option bg-plain" onclick="setBg('plain')"></div>
+        <div class="bg-option bg-dotted" onclick="setBg('dotted')"></div>
+        <div class="bg-option bg-lined-h" onclick="setBg('lined-h')"></div>
+        <div class="bg-option bg-lined-hv" onclick="setBg('lined-hv')"></div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+        <span style="font-size:13px;">Bg Color:</span>
+        <input type="color" value="#ffffff">
+    </div>
+</div>
+
+<div class="popup-menu selection-action-popup hidden" id="selectionPopup">
+    <div class="action-row"><i class="fas fa-cut"></i> Cut</div>
+    <div class="action-row"><i class="fas fa-copy"></i> Copy</div>
+    <div class="action-row"><i class="fas fa-expand-arrows-alt"></i> Resize</div>
+    <div style="height:1px; background:var(--border); margin:4px 0;"></div>
+    <div class="action-row delete"><i class="fas fa-trash"></i> Delete</div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmDialog">
+    <div class="confirm-box">
+        <h3>Clear Canvas?</h3>
+        <p style="color:var(--text-secondary); font-size:14px;">Are you sure you want to clear everything? This cannot be undone.</p>
+        <div class="confirm-btns">
+            <button class="confirm-btn btn-no" onclick="closeDialog('confirmDialog')">No</button>
+            <button class="confirm-btn btn-yes" onclick="performClear()">Clear All</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    /* --- STATE VARIABLES --- */
+    let currentZoom = 100;
+    let isZoomLocked = false;
+    let isToolbarCollapsed = false;
+    let activeTool = 'pen';
+    // For dynamic eraser
+    let lastMousePosition = { x: 0, y: 0 };
+    let lastTimestamp = 0;
+
+    /* --- DOM ELEMENTS --- */
+    const topBars = document.getElementById('topBars');
+    const expanderIcon = document.getElementById('expanderIcon');
+    const zoomValueDisplay = document.getElementById('zoomValue');
+    const zoomLockBtn = document.getElementById('zoomLockBtn');
+    const canvasContainer = document.getElementById('canvasContainer');
+    const mainCanvas = document.getElementById('mainCanvas');
+    
+    // Popups
+    const toolSettingsPopup = document.getElementById('toolSettingsPopup');
+    const bgMenuPopup = document.getElementById('bgMenuPopup');
+    const selectionPopup = document.getElementById('selectionPopup');
+    const confirmDialog = document.getElementById('confirmDialog');
+
+    /* ================= INITIALIZATION ================= */
+    // Set initial title based on some imaginary context
+    document.getElementById('sketchTitle').textContent = "Boundary Analysis Notes";
+
+    /* ================= UI INTERACTION LOGIC ================= */
+
+    // 1. Toolbar Expand/Collapse
+    document.getElementById('expanderArrow').addEventListener('click', () => {
+        isToolbarCollapsed = !isToolbarCollapsed;
+        topBars.classList.toggle('collapsed', isToolbarCollapsed);
+        expanderIcon.className = isToolbarCollapsed ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+    });
+
+    // 2. Tool Selection & Double Click Detection
+    const toolBtns = document.querySelectorAll('[data-tool]');
+    toolBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const toolName = btn.dataset.tool;
+            
+            // If clicking the already active tool AND it has a menu -> open menu
+            if (btn.classList.contains('active') && btn.classList.contains('has-menu')) {
+                openToolSettings(toolName);
+            } else {
+                // Set active state
+                document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeTool = toolName;
+                closeAllPopups();
+                console.log(`Tool switched to: ${toolName}. Parallel Mode: ${document.getElementById('parallelToggle').checked}`);
+            }
+        });
+    });
+
+    // 3. Menu Button (Top Right)
+    document.getElementById('menuBtn').addEventListener('click', () => {
+        togglePopup(bgMenuPopup);
+    });
+
+    // 4. Clear Canvas Button
+    document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+        confirmDialog.classList.remove('hidden');
+    });
+
+    // 5. Zoom Lock Toggle
+    zoomLockBtn.addEventListener('click', () => {
+        isZoomLocked = !isZoomLocked;
+        zoomLockBtn.classList.toggle('locked', isZoomLocked);
+        zoomLockBtn.className = isZoomLocked ? 'fas fa-lock lock-btn locked' : 'fas fa-lock-open lock-btn';
+    });
+
+    /* ================= HELPER FUNCTIONS ================= */
+    function closeAllPopups() {
+        document.querySelectorAll('.popup-menu').forEach(p => p.classList.add('hidden'));
+    }
+
+
+    /* ================= PAINT FILL (FLOOD FILL) LOGIC ================= */
+    
+    // Configuration
+    const FILL_TOLERANCE = 50; // 0-255: Higher = fills more similar colors (fuzzy)
+
+    // 1. Activate Bucket Tool
+    const bucketBtn = document.getElementById('bucketToolBtn');
+    if(bucketBtn) {
+        bucketBtn.addEventListener('click', () => {
+            setActiveTool('bucket', bucketBtn);
+        });
+    }
+
+    // 2. Handle Canvas Click for Fill
+    mainCanvas.addEventListener('mousedown', (e) => {
+        if (activeTool !== 'bucket') return;
+
+        // Get exact click coordinates relative to canvas
+        const rect = mainCanvas.getBoundingClientRect();
+        // Adjust for zoom scaling if necessary
+        const scaleX = mainCanvas.width / rect.width;
+        const scaleY = mainCanvas.height / rect.height;
+        
+        const startX = Math.floor((e.clientX - rect.left) * scaleX);
+        const startY = Math.floor((e.clientY - rect.top) * scaleY);
+
+        // Get current selected color (hex) -> convert to RGB
+        // For this demo, let's assume we grabbed it from your color swatch
+        // In a real app, track 'currentColor' variable.
+        const fillColor = hexToRgba("#3b82f6"); // Example: Filling with Blue
+
+        performFloodFill(startX, startY, fillColor);
+    });
+
+    // 3. The Algorithm (Stack-based Flood Fill)
+    function performFloodFill(startX, startY, fillColor) {
+        const ctx = mainCanvas.getContext('2d');
+        const width = mainCanvas.width;
+        const height = mainCanvas.height;
+
+        // Get image data (pixel array)
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data; // The Uint8ClampedArray
+
+        // Get color of the starting pixel
+        const startPos = (startY * width + startX) * 4;
+        const startR = data[startPos];
+        const startG = data[startPos + 1];
+        const startB = data[startPos + 2];
+        const startA = data[startPos + 3];
+
+        // Don't fill if clicking on the same color
+        if (colorsMatch(startR, startG, startB, startA, fillColor)) return;
+
+        // Stack for pixels to check [[x, y]]
+        const pixelStack = [[startX, startY]];
+
+        while (pixelStack.length) {
+            let newPos, x, y, pixelPos, reachLeft, reachRight;
+            newPos = pixelStack.pop();
+            x = newPos[0];
+            y = newPos[1];
+
+            pixelPos = (y * width + x) * 4;
+
+            // Move up as long as we are inside the start color
+            while (y-- >= 0 && matchStartColor(pixelPos)) {
+                pixelPos -= width * 4;
+            }
+            pixelPos += width * 4;
+            ++y;
+            
+            reachLeft = false;
+            reachRight = false;
+
+            // Move down and fill
+            while (y++ < height - 1 && matchStartColor(pixelPos)) {
+                colorPixel(pixelPos, fillColor);
+
+                // Check left
+                if (x > 0) {
+                    if (matchStartColor(pixelPos - 4)) {
+                        if (!reachLeft) {
+                            pixelStack.push([x - 1, y]);
+                            reachLeft = true;
+                        }
+                    } else if (reachLeft) {
+                        reachLeft = false;
+                    }
+                }
+
+                // Check right
+                if (x < width - 1) {
+                    if (matchStartColor(pixelPos + 4)) {
+                        if (!reachRight) {
+                            pixelStack.push([x + 1, y]);
+                            reachRight = true;
+                        }
+                    } else if (reachRight) {
+                        reachRight = false;
+                    }
+                }
+
+                pixelPos += width * 4;
+            }
+        }
+
+        // Apply changes to canvas
+        ctx.putImageData(imageData, 0, 0);
+
+        // --- Helpers inside ---
+        function matchStartColor(pos) {
+            const r = data[pos];
+            const g = data[pos + 1];
+            const b = data[pos + 2];
+            const a = data[pos + 3];
+            // Simple Euclidian distance or exact match
+            return Math.abs(r - startR) + Math.abs(g - startG) + Math.abs(b - startB) + Math.abs(a - startA) <= FILL_TOLERANCE;
+        }
+
+        function colorPixel(pos, color) {
+            data[pos] = color.r;
+            data[pos + 1] = color.g;
+            data[pos + 2] = color.b;
+            data[pos + 3] = 255; // Force opaque alpha
+        }
+    }
+
+    function colorsMatch(r, g, b, a, color) {
+        return r === color.r && g === color.g && b === color.b && a === 255;
+    }
+
+    function hexToRgba(hex) {
+        const bigint = parseInt(hex.slice(1), 16);
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255
+        };
+    }
+
+    function setActiveTool(name, btnElement) {
+        activeTool = name;
+        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+        closeAllPopups();
+    }
+    function togglePopup(popupElement) {
+        const isHidden = popupElement.classList.contains('hidden');
+        closeAllPopups(); // Close others first
+        if (isHidden) {
+            popupElement.classList.remove('hidden');
+        }
+    }
+
+    // --- PARALLEL MODE UI LOGIC ---
+    const parallelCheck = document.getElementById('parallelToggle');
+    const parallelInput = document.getElementById('parallelDist');
+
+    if (parallelCheck && parallelInput) {
+        parallelCheck.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                // Show the input
+                parallelInput.classList.remove('hidden-input');
+                parallelInput.focus(); // Focus it immediately for quick typing
+                console.log("Parallel Mode ON. Gap:", parallelInput.value);
+            } else {
+                // Hide the input
+                parallelInput.classList.add('hidden-input');
+                console.log("Parallel Mode OFF");
+            }
+        });
+
+        // Optional: Update gap in real-time as user types
+        parallelInput.addEventListener('input', (e) => {
+            const gap = parseInt(e.target.value) || 0;
+            console.log("Parallel Gap Updated:", gap);
+            // If you have the drawing engine connected, update it here:
+            // currentParallelGap = gap; 
+        });
+    }
+    function closeDialog(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    function performClear() {
+        closeDialog('confirmDialog');
+        alert("Canvas cleared! (Backend integration required)");
+        // Add actual canvas clear logic here
+    }
+
+    // Simulating opening specific tool settings based on the tool name
+    function openToolSettings(toolName) {
+        const optionsContainer = document.getElementById('subToolOptions');
+        let optionsHtml = '';
+        
+        if(toolName === 'pen') {
+           optionsHtml = `<div class="sub-tool-btn active">Felt</div><div class="sub-tool-btn">Fountain</div><div class="sub-tool-btn">Brush</div>`;
+        } else if (toolName === 'sketch') {
+           optionsHtml = `<div class="sub-tool-btn active">Freehand</div><div class="sub-tool-btn">Smart (Line)</div>`;
+        } else if (toolName === 'eraser') {
+           optionsHtml = `<div class="sub-tool-btn active">Stroke Erase</div><div class="sub-tool-btn">Precise Erase</div>`;
+        } else if (toolName === 'select') {
+            optionsHtml = `<div class="sub-tool-btn active">Freehand (Lasso)</div><div class="sub-tool-btn">Rectangle</div>`;
+        }
+
+        optionsContainer.innerHTML = optionsHtml;
+        toolSettingsPopup.classList.remove('hidden');
+    }
+
+    // Simulating changing background
+    function setBg(type) {
+        canvasContainer.className = 'canvas-viewport'; // reset
+        if(type !== 'plain') {
+            // The CSS already has these classes defined (e.g. .bg-dotted)
+            // We apply them to the container for visual effect
+           canvasContainer.style.backgroundImage = getComputedStyle(document.querySelector(`.bg-${type}`)).backgroundImage;
+           canvasContainer.style.backgroundSize = getComputedStyle(document.querySelector(`.bg-${type}`)).backgroundSize;
+        } else {
+            canvasContainer.style.backgroundImage = 'none';
+        }
+    }
+
+
+    /* ================= COMPLEX BEHAVIOR SIMULATIONS ================= */
+
+    /* --- 1. ZOOM BOUNCE BEHAVIOR (Simulation) --- */
+    // We simulate zooming with scroll wheel.
+    canvasContainer.addEventListener('wheel', (e) => {
+        if (isZoomLocked) return;
+        e.preventDefault();
+
+        // Calculate new zoom
+        const delta = e.deltaY > 0 ? -10 : 10;
+        let targetZoom = currentZoom + delta;
+
+        // Apply hard limits initially
+        if (targetZoom > 600) targetZoom = 600;
+        if (targetZoom < 20) targetZoom = 20;
+        
+        updateZoomUI(targetZoom);
+
+        // Bounce Back Logic
+        clearTimeout(window.zoomBounceTimer);
+        window.zoomBounceTimer = setTimeout(() => {
+            if (currentZoom > 400) {
+                // Bounce back down to 400%
+                smoothZoomTo(400);
+            } else if (currentZoom < 30) {
+                // Bounce back up to 30%
+                smoothZoomTo(30);
+            }
+        }, 500); // Wait 500ms before bouncing back
+    }, { passive: false });
+
+    function updateZoomUI(newVal) {
+        currentZoom = newVal;
+        zoomValueDisplay.textContent = `${currentZoom}%`;
+        // Visual cue only - actual canvas scaling needs backend logic
+        mainCanvas.style.transform = `scale(${currentZoom / 100})`;
+    }
+
+    function smoothZoomTo(target) {
+        // Simple animation simulation
+        const start = currentZoom;
+        const diff = target - start;
+        let step = 0;
+        const totalSteps = 10;
+        
+        const interval = setInterval(() => {
+            step++;
+            const newZ = start + (diff * (step / totalSteps));
+            updateZoomUI(Math.round(newZ));
+            if (step >= totalSteps) clearInterval(interval);
+        }, 20);
+    }
+
+
+    /* --- 2. DYNAMIC ERASER SIZE (Simulation) --- */
+    mainCanvas.addEventListener('mousemove', (e) => {
+        if (activeTool !== 'eraser') return;
+
+        const now = Date.now();
+        const timeDiff = now - lastTimestamp;
+        
+        if (timeDiff > 0) {
+            // Calculate distance moved
+            const dx = e.clientX - lastMousePosition.x;
+            const dy = e.clientY - lastMousePosition.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Speed = pixels per millisecond
+            const speed = distance / timeDiff;
+
+            // Calculate dynamic size (base size 10, max add 40 based on speed)
+            // Adjust the divider (e.g., / 2) to tune sensitivity
+            let dynamicSize = 10 + Math.min(40, speed * 15);
+            
+            // Visual Debug: Show size in console or a temp indicator
+            // console.log(`Eraser Speed: ${speed.toFixed(2)}, Size: ${dynamicSize.toFixed(0)}`);
+            
+            // IN REAL IMPLEMENTATION: You would update your canvas brush size here.
+        }
+
+        lastMousePosition = { x: e.clientX, y: e.clientY };
+        lastTimestamp = now;
+    });
+
+
+    /* --- 3. SELECTION MENU POPUP (Simulation) --- */
+    // Simulate finishing a selection (e.g., on mouseup after dragging)
+    mainCanvas.addEventListener('mouseup', (e) => {
+        if (activeTool === 'select') {
+            // Simulate detecting an object was enclosed.
+            // In real life, check if selection bounds intersect objects.
+            
+            const objectWasSelected = Math.random() > 0.5; // Fake detection
+
+            if (objectWasSelected) {
+                // Position menu near mouse release point
+                selectionPopup.style.top = `${e.clientY + 10}px`;
+                selectionPopup.style.left = `${e.clientX + 10}px`;
+                selectionPopup.classList.remove('hidden');
+            } else {
+                selectionPopup.classList.add('hidden');
+            }
+        }
+    });
+    
+    // Hide selection menu if clicking elsewhere
+    mainCanvas.addEventListener('mousedown', () => {
+         selectionPopup.classList.add('hidden');
+    });
+
+
+    // Close popups when clicking outside
+    document.addEventListener('click', (e) => {
+        // Logic to ensure we don't close a popup if we just clicked the button that opened it
+        const isClickInsidePopup = e.target.closest('.popup-menu');
+        const isClickOnTrigger = e.target.closest('.has-menu') || e.target.closest('#menuBtn');
+
+        if (!isClickInsidePopup && !isClickOnTrigger) {
+           closeAllPopups();
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -34,4 +34,5 @@ urlpatterns = [
     path('pdf-editor/<str:report_id>/', views.pdf_editor_page, name='pdf_editor_page'),
     path('api/get-report-data/<str:report_id>/', views.get_report_data, name='get_report_data'),
     path('api/finalize-pdf/', views.finalize_pdf, name='finalize_pdf'),
+    path('api/auto-save/', views.auto_save_api, name='auto_save'),
 ]

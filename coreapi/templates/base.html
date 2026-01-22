@@ -1,4 +1,5 @@
 {% load static %}
+{% load pwa %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +9,6 @@
     <title>{% block title %}Vadrida Property Valuations{% endblock %}</title>
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
 
-
-    <!-- FontAwesome & Tailwind CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
@@ -74,59 +73,52 @@
             width: 100%;
         }
         #desktopOnlyOverlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999;
-        color: white;
-        text-align: center;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            color: white;
+            text-align: center;
         }
 
         #desktopOnlyOverlay .desktop-box {
-        background: #111;
-        padding: 24px;
-        border-radius: 12px;
-        max-width: 90%;
+            background: #111;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 90%;
         }
 
         .mobile-blocked #desktopOnlyOverlay {
-        display: flex;
+            display: flex;
         }
 
         /* Disable interaction underneath */
         .mobile-blocked body {
-        overflow: hidden;
+            overflow: hidden;
         }
-
     </style>
-
+<link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
 </head>
 
 <body class="text-gray-800 bg-gray-50">
 
-    <!-- NAVBAR -->
     <nav class="w-full fixed top-0 left-0 glass-effect shadow-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-            <!-- Logo -->
-            <a href="/" class="flex items-center gap-2">
+            <a href="#" id="logoFullscreenTrigger" class="flex items-center gap-2 cursor-pointer" title="Click to Toggle Fullscreen">
                 <img src="{% static 'images/VADRIDA LOGO.png' %}" class="w-32 h-auto" alt="Vadrida Logo">
             </a>
 
-            <!-- Desktop Menu -->
             <ul class="hidden md:flex gap-8 font-montserrat text-gray-800 font-medium">
                 <li>WELCOME   {{ request.session.user_name }}</li>
                 <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
                 <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
-                <!-- <li><a href="#" class="nav-link">Reports</a></li>
-                <li><a href="#" class="nav-link">Support</a></li>  -->
             </ul>
 
-            <!-- Mobile Menu Button -->
             <button id="mobileMenuBtn"
                     class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
                 <i class="fas fa-bars"></i>
@@ -135,35 +127,29 @@
         </div>
     </nav>
 
-    <!-- Mobile Menu Dropdown -->
     <div id="mobileMenu"
          class="hidden fixed top-20 left-0 w-full bg-white shadow-lg border-t border-gray-100 py-4 z-40 animate-slideDown">
 
         <div class="flex flex-col text-lg px-6 font-montserrat">
-
             <a href="{% url 'coreapi:dashboard' %}" class="py-3 border-b border-gray-200">Home</a>
-            <!-- <a href="#" class="py-3 border-b border-gray-200">Dashboard</a>
-            <a href="#" class="py-3 border-b border-gray-200">Reports</a>
-            <a href="#" class="py-3">Support</a> -->
-
         </div>
     </div>
+
     <div id="desktopOnlyOverlay">
-    <div class="desktop-box">
-        <h2>Desktop Mode Required</h2>
-        <p>
-        This application is designed for desktop use only.
-        Please open this site in <strong>Desktop mode</strong>
-        or use a laptop/PC.
-        </p>
+        <div class="desktop-box">
+            <h2>Desktop Mode Required</h2>
+            <p>
+            This application is designed for desktop use only.
+            Please open this site in <strong>Desktop mode</strong>
+            or use a laptop/PC.
+            </p>
 
-        <p class="steps">
-        Chrome Mobile → ⋮ → <strong>Desktop site</strong>
-        </p>
-    </div>
+            <p class="steps">
+            Chrome Mobile → ⋮ → <strong>Desktop site</strong>
+            </p>
+        </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <main class="pt-28 px-4 md:px-8">
         {% block content %}{% endblock %}
     </main>
@@ -171,25 +157,82 @@
     {% block extra_scripts %}{% endblock %}
 
     <script>
+        /* 1. Mobile Menu Logic */
         const menuBtn = document.getElementById("mobileMenuBtn");
         const menu = document.getElementById("mobileMenu");
-
-        menuBtn.addEventListener("click", () => {
-            menu.classList.toggle("hidden");
-        });
-        (function () {
-        const isMobile =
-            /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
-            navigator.userAgent
-            ) && window.innerWidth < 1024;
-
-        if (isMobile) {
-            document.documentElement.classList.add("mobile-blocked");
+        if (menuBtn && menu) {
+            menuBtn.addEventListener("click", () => {
+                menu.classList.toggle("hidden");
+            });
         }
+
+        /* 2. Mobile Desktop Mode Enforcer */
+        (function () {
+            const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) && window.innerWidth < 1024;
+            if (isMobile) {
+                document.documentElement.classList.add("mobile-blocked");
+            }
         })();
 
-</script>
+        /* =========================
+           3. FULLSCREEN LOGIC (Aggressive Restore)
+        ========================= */
+        const logoTrigger = document.getElementById('logoFullscreenTrigger');
 
+        // A. Manual Toggle (Click Logo)
+        if (logoTrigger) {
+            logoTrigger.addEventListener('click', (e) => {
+                e.preventDefault(); 
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.warn("Error:", err));
+                    sessionStorage.setItem("wantsFullscreen", "true"); // Remember user preference
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                    sessionStorage.setItem("wantsFullscreen", "false"); // Forget preference
+                }
+            });
+        }
 
+        // B. Save State Before Reload
+        window.addEventListener("beforeunload", () => {
+            if (document.fullscreenElement) {
+                sessionStorage.setItem("wantsFullscreen", "true");
+            }
+        });
+
+        // C. Restore on First Interaction (Workaround for Browser Security)
+        document.addEventListener("DOMContentLoaded", () => {
+            // Check if we should be in fullscreen
+            if (sessionStorage.getItem("wantsFullscreen") === "true") {
+                
+                const aggressiveRestore = () => {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen()
+                            .then(() => {
+                                // Success! Remove listeners so we don't spam
+                                removeaggressiveListeners();
+                            })
+                            .catch((e) => {
+                                // Failed (interaction not valid yet), keep listening
+                                console.log("Waiting for user gesture to restore fullscreen...");
+                            });
+                    }
+                };
+
+                const removeAggressiveListeners = () => {
+                    document.removeEventListener("click", aggressiveRestore);
+                    document.removeEventListener("touchstart", aggressiveRestore);
+                    document.removeEventListener("keydown", aggressiveRestore);
+                    document.removeEventListener("scroll", aggressiveRestore);
+                };
+
+                // Listen to EVERYTHING. The moment user touches, clicks, or types, we go fullscreen.
+                document.addEventListener("click", aggressiveRestore);
+                document.addEventListener("touchstart", aggressiveRestore);
+                document.addEventListener("keydown", aggressiveRestore);
+                document.addEventListener("scroll", aggressiveRestore);
+            }
+        });
+    </script>
 </body>
 </html>
