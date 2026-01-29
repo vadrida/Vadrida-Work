@@ -307,45 +307,31 @@ const folderScrollHistory = {};
 /* =========================
    FOLDER LOADER
 ========================= */
-/* =========================
-   FOLDER LOADER (With Scroll Memory)
-========================= */
 function loadFolder(path = "") {
-  // 1. SAVE SCROLL POSITION (Before changing folders)
+  // 1. Save Scroll of PREVIOUS folder before switching (Optional, for navigation history)
   const scrollContainer = document.querySelector('.file-list-scroll');
-  if (scrollContainer) {
-      // Save the scroll position for the folder we are LEAVING
-      folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
-  }
+  if (scrollContainer) folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
 
   currentFolder = path;
   
-  // 2. UPDATE SIDEBAR PATH
+  // UI Updates...
   document.getElementById("currentPath").textContent = "/" + (path || "");
-
-  // 3. UPDATE BANNER
   const banner = document.getElementById("bigPreviewTitle");
-  banner.textContent = path ? path : "Home / Root";
-  banner.className = "font-mono text-xs text-gray-700 font-semibold break-all whitespace-normal leading-tight";
-  // ✅ NEW: UPDATE THE TOP NAVIGATION BANNER
-  const topBanner = document.getElementById("topBannerPath"); // <--- NEW
-  if (topBanner) {                                            // <--- NEW
-      topBanner.textContent = path ? "/" + path : "/";        // <--- NEW
-  }
+  if(banner) banner.textContent = path ? path : "Home / Root";
+  const topBanner = document.getElementById("topBannerPath");
+  if (topBanner) topBanner.textContent = path ? "/" + path : "/";
 
-  // 4. RESET PREVIEW PANE
+  // Reset Preview Pane (Standard reset)
   if(document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");
   if(document.getElementById("pdfToolbar")) document.getElementById("pdfToolbar").classList.add("hidden");
   if(document.getElementById("bigImageFrame")) document.getElementById("bigImageFrame").classList.add("hidden");
   if(document.getElementById("downloadPdfBtn")) document.getElementById("downloadPdfBtn").classList.add("hidden");
-  
   const noSelection = document.getElementById("noSelection");
   if(noSelection) {
       noSelection.classList.remove("hidden");
       noSelection.textContent = "Select a file to preview";
   }
 
-  // 5. FETCH DATA
   const statsBox = document.getElementById("folderStatsBox");
   
   fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
@@ -355,19 +341,29 @@ function loadFolder(path = "") {
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
       
-      if (data.folder_info) {
-         renderFolderStats(data.folder_info);
-      } else {
-         if(statsBox) statsBox.classList.add("hidden");
-      }
+      if (data.folder_info) renderFolderStats(data.folder_info);
+      else if(statsBox) statsBox.classList.add("hidden");
 
-      // --- NEW: RESTORE SCROLL POSITION ---
+      // ✅ SCROLL RESTORE LOGIC
       if (scrollContainer) {
-          // Use setTimeout to ensure the list is fully drawn before scrolling
           setTimeout(() => {
-              // Retrieve saved position for this path, or default to 0 (top)
-              const savedPosition = folderScrollHistory[path] || 0;
-              scrollContainer.scrollTop = savedPosition;
+              // 1. Check if we just reloaded the page (use LocalStorage)
+              const savedReloadScroll = localStorage.getItem('vadrida_dash_scroll_files');
+              // 2. Check if we are navigating back in history (use Memory)
+              const memoryScroll = folderScrollHistory[path];
+
+              if (savedReloadScroll && path === localStorage.getItem('vadrida_dash_folder')) {
+                  // If we are on the reloaded folder, use local storage
+                  scrollContainer.scrollTop = parseInt(savedReloadScroll);
+                  // Clear it so navigation doesn't get stuck later
+                  localStorage.removeItem('vadrida_dash_scroll_files'); 
+              } 
+              else if (memoryScroll) {
+                  // Normal navigation
+                  scrollContainer.scrollTop = memoryScroll;
+              } else {
+                  scrollContainer.scrollTop = 0;
+              }
           }, 0);
       }
     });
@@ -419,6 +415,7 @@ document.getElementById("goBackBtn").onclick = () => {
    FILE LIST
 ========================= */
 function renderFileList(folders, files) {
+  files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
   fileList.innerHTML = "";
 
   // 1. RENDER FOLDERS
@@ -704,6 +701,7 @@ async function renderPdfThumbnail(pdfUrl, container) {
    (No PDF.js needed for list view!)
 ========================= */
 function renderThumbs(files) {
+  files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
   thumbsContainer.innerHTML = "";
 
   if (!files.length) {
@@ -1070,11 +1068,45 @@ function updateShareLinks(url) {
 
 
 /* =========================
-   INIT
+   INIT (Restoration Logic)
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Dashboard JS loaded");
-  loadFolder("");
+
+  // 1. Restore Folder
+  const lastFolder = localStorage.getItem('vadrida_dash_folder') || "";
+  loadFolder(lastFolder);
+
+  // 2. Restore Active File (PDF/Image Viewer)
+  const lastFileJson = localStorage.getItem('vadrida_dash_file');
+  if (lastFileJson) {
+      try {
+          const lastFile = JSON.parse(lastFileJson);
+          if (lastFile && lastFile.path) {
+              console.log("Restoring active file:", lastFile.name);
+              
+              // Load the preview
+              loadBigPreview(lastFile);
+              setFileInfo(lastFile);
+
+              // 3. Restore PDF/Viewer Scroll
+              // We need a slight delay to allow the PDF/Image to initialize
+              const savedPdfScroll = localStorage.getItem('vadrida_dash_scroll_pdf');
+              if (savedPdfScroll) {
+                  const scrollContainer = document.getElementById("scrollContainer");
+                  
+                  // Wait for DOM layout
+                  setTimeout(() => {
+                      if (scrollContainer && !scrollContainer.classList.contains('hidden')) {
+                          scrollContainer.scrollTop = parseInt(savedPdfScroll);
+                      }
+                  }, 500); // 500ms allows time for the first PDF page to render size
+              }
+          }
+      } catch (e) {
+          console.error("Error restoring file", e);
+      }
+  }
 });
 
 </script>
@@ -1108,9 +1140,8 @@ ws.onmessage = e => {
 };
 
 /* =========================
-   LOAD HISTORY
+   LOAD HISTORY (With Scroll Memory)
 ========================= */
-
 fetch("/chat/history/")
   .then(r => r.json())
   .then(data => {
@@ -1120,6 +1151,17 @@ fetch("/chat/history/")
     if (Array.isArray(data.messages)) {
       data.messages.forEach(renderMessage);
     }
+    
+    // ✅ CHAT SCROLL RESTORE
+    setTimeout(() => {
+        const savedChatScroll = localStorage.getItem('vadrida_dash_scroll_chat');
+        if (savedChatScroll) {
+            chatBox.scrollTop = parseInt(savedChatScroll);
+        } else {
+            // Default behavior: Scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }, 50);
   });
 
 /* =========================
@@ -1844,6 +1886,36 @@ modalDownloadBtn.onclick = (e) => {
   const downloadUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
   window.location.href = downloadUrl;
 };
+/* =========================
+   12. STATE PERSISTENCE (Auto-Save on Reload)
+========================= */
+window.addEventListener('beforeunload', () => {
+    // 1. Save Active Folder
+    localStorage.setItem('vadrida_dash_folder', currentFolder);
+
+    // 2. Save Active File (So we can re-open it)
+    if (currentFile) {
+        localStorage.setItem('vadrida_dash_file', JSON.stringify(currentFile));
+    } else {
+        localStorage.removeItem('vadrida_dash_file');
+    }
+
+    // 3. Save Scroll Positions
+    // A. File List
+    const fileListEl = document.querySelector('.file-list-scroll');
+    if (fileListEl) localStorage.setItem('vadrida_dash_scroll_files', fileListEl.scrollTop);
+
+    // B. Chat Box
+    const chatEl = document.getElementById('chatBox');
+    if (chatEl) localStorage.setItem('vadrida_dash_scroll_chat', chatEl.scrollTop);
+
+    // C. PDF/Image Viewer
+    const viewerEl = document.getElementById('scrollContainer');
+    // Only save if it's visible (not hidden)
+    if (viewerEl && !viewerEl.classList.contains('hidden')) {
+        localStorage.setItem('vadrida_dash_scroll_pdf', viewerEl.scrollTop);
+    }
+});
 </script>
 
 {% endblock %}

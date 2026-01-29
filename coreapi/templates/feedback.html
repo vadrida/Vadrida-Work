@@ -4,6 +4,80 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/feedback.css' %}">
+<style>
+/* Fullscreen Animation & Layout */
+.right-column {
+    display: flex;       /* Use Flexbox */
+    flex-direction: column; /* Stack children vertically */
+    height: 100%;        /* Fill height */
+    overflow: hidden;    /* PREVENT the container itself from scrolling */
+    background: white;
+    position: relative;
+    
+    /* Animation settings */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.right-column.fullscreen-active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        
+        /* SUPER HIGH Z-INDEX to cover Navbar (which is usually 1000) */
+        z-index: 100 !important; 
+        
+        background: #ffffff;
+        overflow-y: auto !important; /* The DIV handles scrolling now */
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+/* Ensure the form inside scrolls properly when full screen */
+.right-column.fullscreen-active .form-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+}
+
+/* Make the actual form scrollable, keeping the header fixed at top */
+.right-column.fullscreen-active .feedback-form {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 40px 20px; /* Add bottom padding for submit buttons */
+}
+.form-header {
+    flex-shrink: 0;      /* Never shrink */
+    z-index: 10;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.right-column.fullscreen-active .form-header {
+    margin: -20px -20px 20px -20px; 
+    padding: 15px 25px;
+    background-color: #f8f9fa;
+    border-radius: 0;
+    z-index: 9999;
+}
+.feedback-form {
+    flex-grow: 1;        /* Take up all remaining space */
+    overflow-y: auto;    /* ENABLE SCROLLING here */
+    padding: 20px;
+    padding-bottom: 100px; /* Space for buttons */
+}
+.form-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -120,17 +194,22 @@
 </div>
 
     <!-- RIGHT COLUMN: Comprehensive Feedback Form -->
-    <div class="right-column">
+   <div class="right-column" id="rightColumnContainer">
       <div class="form-section">
-        <div class="form-header">
+        
+        <div class="form-header" style="display: flex; justify-content: space-between; align-items: center;">
           <h3 class="section-title">Site Feedback Form</h3>
+          <button type="button" id="toggleFormFullscreenBtn" class="control-btn" title="Toggle Fullscreen" 
+                  style="background: transparent; position:sticky; border: none; color: #374151; font-size: 1.1rem; cursor: pointer; padding: 5px;">
+            <i class="fas fa-expand"></i>
+          </button>
         </div>
 
         <form id="siteFeedbackForm" class="feedback-form">
           
           <!-- Valuers Checklist -->
           <div class="form-section-group">
-            <h4 class="form-section-title">Valuers Checklist</h4>
+            <h4 class="form-section-title">Site Inspection Report</h4>
             
             <div class="form-row">
               <div class="form-group">
@@ -197,31 +276,36 @@
             <h4 class="form-section-title">I. Ownership Analysis</h4>
             
             <div class="form-group">
-              <label class="form-label">1. Owner(s) Name</label>
-              <input type="text" data-path="Ownership_Analysis.owners_name" class="form-input">
+                <label class="form-label">1. Owner(s) Name</label>
+                <input type="text" data-path="Ownership_Analysis.owners_name" class="form-input">
             </div>
             
-           <div class="form-group">
-              <label class="form-label">Document Verification</label>
-              <div class="checkbox-group">
+            <div class="form-group">
+                <label class="form-label">Document Verification</label>
+                <div class="checkbox-group">
                 <label class="checkbox-label">
-                  <input type="radio" name="doc_verification" data-path="Ownership_Analysis.document_verification" value="same in all documents"> 
-                  Same in all documents
+                    <input type="radio" name="doc_verification" 
+                        data-path="Ownership_Analysis.document_verification" 
+                        value="same in all documents"
+                        onchange="toggleOwnershipNotes()"> 
+                    Same in all documents
                 </label>
                 
                 <label class="checkbox-label">
-                  <input type="radio" name="doc_verification" data-path="Ownership_Analysis.document_verification" value="discrepancy noted"> 
-                  Discrepancy noted
+                    <input type="radio" name="doc_verification" 
+                        data-path="Ownership_Analysis.document_verification" 
+                        value="discrepancy noted"
+                        onchange="toggleOwnershipNotes()"> 
+                    Discrepancy noted
                 </label>
-              </div>
+                </div>
             </div>
 
-
-          <div class="form-group mt-3">
-              <label class="form-label">Notes</label>
-              <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4" style="width: 100%;"></textarea>
+            <div id="ownershipNotesBox" class="form-group mt-3 hidden">
+                <label class="form-label">Notes on discrepancy</label>
+                <textarea data-path="Ownership_Analysis.Ownership_Analysis_notes" class="form-textarea" rows="4" style="width: 100%;"></textarea>
             </div>
-
+            </div>
           <!-- II. Survey Number and Land Extend Analysis -->
           <div class="form-section-group">
             <h4 class="form-section-title">II. Survey Number and Land Extend Analysis</h4>
@@ -248,15 +332,60 @@
             </div>
 
             <button type="button" class="timeline-btn add-btn" onclick="addSurveyColumn()" title="Add Column">
-                          <i class="fas fa-plus"></i>
-                        </button>
+                <i class="fas fa-plus"></i>
+            </button>
 
-      
-            <label class="form-label">Land Value/cent</label>
-            <input type="text" data-path="Survey.land_val" class="form-input">
+    
+            <div id="surveyTotalsContainer" class="mt-4 mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg hidden">
+                <h5 class="font-bold text-sm text-blue-800 mb-2">Land Extent Total (Ares)</h5>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div id="ltr_total_wrapper" class="form-group mb-0 hidden">
+                    <label class="text-xs font-semibold text-gray-500 uppercase">1. LTR Total</label>
+                    <input type="text" id="total_ltr_extent" data-path="Survey.total_ltr_extent" class="form-input font-bold text-gray-700 bg-white" readonly>
+                </div>
 
+                <div id="deed_total_wrapper" class="form-group mb-0 hidden">
+                    <label class="text-xs font-semibold text-gray-500 uppercase">2. Title Deed Total</label>
+                    <input type="text" id="total_deed_extent" data-path="Survey.total_deed_extent" class="form-input font-bold text-gray-700 bg-white" readonly>
+                </div>
+                </div>
+            </div>
+            <div id="wetLandQuestions" class="mt-3 p-3 bg-orange-50 border border-orange-100 rounded-lg hidden">
+                <h5 class="font-bold text-sm text-orange-800 mb-2">Wet Land Verification (LTR)</h5>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group mb-0">
+                        <label class="text-xs font-semibold text-gray-700">Are 3 sides Paddy land (Paadam)?</label>
+                        <div class="flex gap-4 mt-1">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="paddy_land_check" data-path="Survey.paddy_land_check" value="Yes" class="form-radio h-4 w-4 text-orange-600">
+                                <span class="ml-2 text-sm">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="paddy_land_check" data-path="Survey.paddy_land_check" value="No" class="form-radio h-4 w-4 text-orange-600">
+                                <span class="ml-2 text-sm">No</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="text-xs font-semibold text-gray-700">Are there trees/buildings existing before 2008?</label>
+                        <div class="flex gap-4 mt-1">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="trees_2008_check" data-path="Survey.trees_2008_check" value="Yes" class="form-radio h-4 w-4 text-orange-600">
+                                <span class="ml-2 text-sm">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="trees_2008_check" data-path="Survey.trees_2008_check" value="No" class="form-radio h-4 w-4 text-orange-600">
+                                <span class="ml-2 text-sm">No</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="form-group mt-4">
-                <label class="form-label">Notes, % of wetland and dry lands...</label>
+                <label class="form-label">Deviations in Survey no, land extend, land Classification ... etc. if any.</label>
                 <textarea data-path="Survey.survey_notes" class="form-textarea" rows="4" style="width: 100%;"></textarea>
             </div>
 
@@ -336,15 +465,8 @@
               </table>
             </div>
             
-              <label class="form-label">Building No</label> <br>
-              <input type="text" data-path="Boundary_analysis_property_identification.Building_no" class="form-input"> <br>
-          
-              <label class="form-label">Ward no</label> <br>
-              <input type="text" data-path="Boundary_analysis_property_identification.Ward" class="form-input">
-           
-
             <div class="form-group mt-3">
-              <label class="form-label">Notes if any/property identified with respect to documents..?</label>
+              <label class="form-label">Deviations in boundary if any ?</label>
               <textarea data-path="Boundary_analysis_property_identification.Boundary_property_notes" class="form-textarea" rows="4"></textarea>
             </div>
 
@@ -422,24 +544,45 @@
                 </tbody>
               </table>
             </div>
+<div class="form-group">
+    <label class="form-label">Encroachment if any</label>
+    <div class="checkbox-group">
+        <label class="checkbox-label">
+            <input type="radio" name="encroachment_check" 
+                   data-path="Demarcation.encroachment_check" 
+                   value="Yes" 
+                   onchange="toggleEncroachmentFields()"> 
+            Yes
+        </label>
+        
+        <label class="checkbox-label">
+            <input type="radio" name="encroachment_check" 
+                   data-path="Demarcation.encroachment_check" 
+                   value="No" 
+                   onchange="toggleEncroachmentFields()"> 
+            No
+        </label>
+    </div>
+</div>
 
-            <div class="form-group">
-              <label class="form-label">Notes if any</label>
-              <textarea data-path="Demarcation.demarcation_notes" class="form-textarea" rows="3"></textarea>
-            </div>
+<div id="encroachmentDetails" class="hidden border-l-2 border-orange-200 pl-4 ml-1 mt-2">
+    
+    <div class="form-group">
+        <label class="form-label">Notes if any</label>
+        <textarea data-path="Demarcation.demarcation_notes" class="form-textarea" rows="3"></textarea>
+    </div>
 
+    <div class="form-group">
+        <label class="form-label">Encroachment of subject building to neighbouring property, if any..?</label>
+        <textarea data-path="Demarcation.enroachment_subject_to_neighbour" class="form-textarea" rows="3"></textarea>
+    </div>
 
-            <div class="form-group">
-              <label class="form-label">Encroachment of subject building to neighbouring property, if any..?</label>
-              <textarea data-path="Demarcation.enroachment_subject_to_neighbour" class="form-textarea" rows="3"></textarea>
-            </div>
+    <div class="form-group">
+        <label class="form-label">Encroachment of neighbour's building to subject property, if any..?</label>
+        <textarea data-path="Demarcation.enroachment_neighbour_to_subject" class="form-textarea" rows="3"></textarea>
+    </div>
 
-
-            <div class="form-group">
-              <label class="form-label">Encroachment of neighbour's building to subject property, if any..?</label>
-              <textarea data-path="Demarcation.enroachment_neighbour_to_subject" class="form-textarea" rows="3"></textarea>
-            </div>
-          </div>
+</div>
 
           <!-- V. Access Nature/Right of Access -->
           <div class="form-section-group">
@@ -510,15 +653,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>7. Least width of internal roads,<br> in case of plot development</td>
-                    <td><input type="number" step="0.01" data-path="Access.internal_road_width" class="table-input"></td>
-                  </tr>
-                  <tr>
-                    <td>8. Weather the internal rd. <br> abutting the subject plot has <br> connectivity to main access <br> as per deed..?</td>
-                    <td><input type="text" data-path="Access.internal_to_main_connectivity" class="table-input h-20"></td>
-                  </tr>
-                  <tr>
-                    <td>9. Material of road</td>
+                    <td>7. Material of road</td>
                     <td class="checkbox-cell">
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="mud road"> Mud road</label>
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="gravel road"> Gravel road</label>
@@ -527,12 +662,21 @@
                       <label class="checkbox-label-small"><input type="checkbox" data-array="Access.road_material" value="tar road"> Tar road</label>
                     </td>
                   </tr>
+                  <tr>
+                    <td>8. Least width of internal roads,<br> in case of plot development</td>
+                    <td><input type="number" step="0.01" data-path="Access.internal_road_width" class="table-input"></td>
+                  </tr>
+                  <tr>
+                    <td>9. Weather the internal rd. <br> abutting the subject plot has <br> connectivity to main access <br> as per deed..?</td>
+                    <td><input type="text" data-path="Access.internal_to_main_connectivity" class="table-input h-20"></td>
+                  </tr>
+                  
                 </tbody>
               </table>
             </div>
            
             <div class="form-group">
-              <label class="form-label">Notes/Discrepancy if any..</label>
+              <label class="form-label">Notes on Discrepancy if any...</label>
               <textarea data-path="Access.access_notes" class="form-textarea" rows="4"></textarea>
             </div>
           </div>
@@ -582,7 +726,7 @@
 
 
             <div class="form-group">
-              <label class="form-label">Notes/discrepancy if any..</label>
+              <label class="form-label">Notes</label>
               <textarea data-path="Purchase_resale.purchase_resale_notes" class="form-textarea" rows="4"></textarea>
             </div>
           </div>
@@ -591,27 +735,31 @@
           <div class="form-section-group">
             <h4 class="form-section-title">VII. Building Analysis</h4>
             
-            <div class="mb-2 flex justify-end">
+            <div class="mb-2 flex justify-end gap-2">
+                <button type="button" class="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200" onclick="addApartment()">
+                    <i class="fas fa-plus mr-1"></i> Add Apartment
+                </button>
+
                 <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200" onclick="addFloor('above')">
                     <i class="fas fa-arrow-up mr-1"></i> Add Floor Above
                 </button>
             </div>
 
             <div class="table-container">
-              <table class="analysis-table">
+                <table class="analysis-table">
                 <thead>
-                  <tr>
-                    <th>Floor No</th>
-                    <th>Builtup Area (measured at site)</th>
+                    <tr>
+                    <th>Floor No / Unit</th> <th>Builtup Area (measured at site)</th>
                     <th>No. of Rooms</th>
                     <th>No. of Kitchen</th>
                     <th>No. of Bathrooms</th>
                     <th>Usage (Residential/Commercial/Industrial)</th>
                     <th>Occupancy (Owner/Applicant/Rented/Vacant)</th>
-                    <th style="width: 30px;"></th> </tr>
+                    <th style="width: 10px;"></th> 
+                    </tr>
                 </thead>
                 <tbody id="buildingTableBody"></tbody>
-              </table>
+                </table>
             </div>
 
             <div class="mt-2 flex justify-end">
@@ -619,19 +767,28 @@
                     <i class="fas fa-arrow-down mr-1"></i> Add Floor Below
                 </button>
             </div>
-            <label class="form-label">Details if Rented</label> <br> <br>
+            <label class="form-label" style="font-size: 15px; font-weight: bolder;">Details if Rented</label> <br> <br>
 
               <label class="form-label">Rented Amount&nbsp;&nbsp;</label> 
               <input type="text" data-path="Building_analysis.rent_amt" class="form-input"> <br>
 
               <label class="form-label">Rented Duration&nbsp;</label> 
-              <input type="text" data-path="Building_analysis.rent_duration" class="form-input">
+              <input type="text" data-path="Building_analysis.rent_duration" class="form-input"> <br><br>
+
+            <label class="form-label" style="font-size: 15px; font-weight: bolder;">Building Details</label> <br> <br>
+
+              <label class="form-label">Building No</label> 
+              <input type="text" data-path="Boundary_analysis.Building_no" class="form-input"> <br>
+          
+              <label class="form-label">Ward no&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+              <input type="text" data-path="Boundary_analysis.Ward" class="form-input">
+           
             
             <div class="form-group mt-3">
-              <label class="form-label">Notes/discrepancy in BUA/occupancy comparing site with respect to approved plan/permit etc if any..</label>
+              <label class="form-label">Notes(Discrepancy respect to BUA, occupancy, alignment, orientation etc...)</label>
               <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea" rows="4"></textarea>
             </div>  
-
+            </div>
             <!-- Roof Type Table -->
             <div class="table-container">
               <table class="analysis-table">
@@ -754,13 +911,8 @@
           </div>
 
         <div class="form-group">
-          <label class="form-label">Notes/no of carparks/wardrobes/kitchen cabinets/flooring material/interior decorations, any other amenities..?</label>
+          <label class="form-label">Notes on number of carparks, wardrobes, kitchen cabinets, flooring material, interior decorations or any other amenities...</label>
           <textarea data-path="Building_analysis.amenities_notes" class="form-textarea" rows="4"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Extra Remarks</label>
-          <textarea data-path="Building_analysis.extra_remarks" class="form-textarea" rows="4"></textarea>
         </div>
 
         <div class="form-section-group">
@@ -768,7 +920,7 @@
             <table class="analysis-table" id="land_inspection_table" style="table-layout: fixed; width: 100%;">
                 <tr>
                     <td>
-                        <label class="form-label">Nearest City &nbsp;&nbsp;</label>
+                        <label class="form-label">Nearest City (KM) &nbsp;&nbsp;</label>
                     </td>
                     <td>
                         <input type="text" class="table-input" data-path="land_inspection_details.nearest_city">
@@ -820,21 +972,195 @@
                         <label class="form-label">CRZ</label>
                     </td>
                     <td>
-                        <select data-path="land_inspection_details.crz" class="form-select">
-                            <option value="notselected">Select Zone</option>
-                            <option value="I">I</option>
-                            <option value="II">II</option>
-                            <option value="III NDZ">III NDZ</option>
-                            <option value="III 200 to 500">III 200 to 500 m</option>
-                        </select>
+                       <input type="radio" name="crz" data-path="land_inspection_details.crz" value="Yes"> Yes
+                        <input type="radio" name="crz" data-path="land_inspection_details.crz" value="No"> No
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Crematoriums</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="Crematoriums" data-path="land_inspection_details.crematoriums" value="Yes"> Yes
+                       <input type="radio" name="Crematoriums" data-path="land_inspection_details.crematoriums" value="No"> No
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Stigma</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="stigma" data-path="land_inspection_details.stigma" value="Yes"> Yes
+                       <input type="radio" name="stigma" data-path="land_inspection_details.stigma" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Slums</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="slums" data-path="land_inspection_details.slums" value="Yes"> Yes
+                       <input type="radio" name="slums" data-path="land_inspection_details.slums" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Communial Area</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="Comm" data-path="land_inspection_details.communial_area" value="Yes"> Yes
+                       <input type="radio" name="Comm" data-path="land_inspection_details.communial_area" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Factory Abutting</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="factory" data-path="land_inspection_details.factory_abutting" value="Yes"> Yes
+                       <input type="radio" name="factory" data-path="land_inspection_details.factory_abutting" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Defence Area</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="Defence" data-path="land_inspection_details.defence_area" value="Yes"> Yes
+                       <input type="radio" name="Defence" data-path="land_inspection_details.defence_area" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Heritage Property</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="heritage" data-path="land_inspection_details.heritage_property" value="Yes"> Yes
+                       <input type="radio" name="heritage" data-path="land_inspection_details.heritage_property" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Rubber Plantations</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="plantations" data-path="land_inspection_details.rubber_plantations" value="Yes"> Yes
+                       <input type="radio" name="plantations" data-path="land_inspection_details.rubber_plantations" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Coconut Thope</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="coconut" data-path="land_inspection_details.coconut_thope" value="Yes"> Yes
+                       <input type="radio" name="coconut" data-path="land_inspection_details.coconut_thope" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Buffer Zone</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="buffer" data-path="land_inspection_details.buffer_zone" value="Yes"> Yes
+                       <input type="radio" name="buffer" data-path="land_inspection_details.buffer_zone" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Telecommunication Tower</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="tele" data-path="land_inspection_details.telecommunication_tower" value="Yes"> Yes
+                       <input type="radio" name="tele" data-path="land_inspection_details.telecommunication_tower" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">High Tension Wire/Electrical Line</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="high_tens" data-path="land_inspection_details.high_tension_wire_electrical_line" value="Yes"> Yes
+                       <input type="radio" name="high_tens" data-path="land_inspection_details.high_tension_wire_electrical_line" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Enroachment of subject <br> building to other prop</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="enroachment" data-path="land_inspection_details.enroachment_subject_to_prop" value="Yes"> Yes
+                       <input type="radio" name="enroachment" data-path="land_inspection_details.enroachment_subject_to_prop" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Intrusion of other buildings <br> to the subject prop</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="intrusion" data-path="land_inspection_details.intrusion_other_to_subject" value="Yes"> Yes
+                       <input type="radio" name="intrusion" data-path="land_inspection_details.intrusion_other_to_subject" value="No"> No
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                            <label class="form-label">Railway Line passing <br> through property</label>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 15px;">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" name="railway" data-path="land_inspection_details.railway_pass" value="Yes" onchange="toggleRailwayDistance()"> 
+                                Yes
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="radio" name="railway" data-path="land_inspection_details.railway_pass" value="No" onchange="toggleRailwayDistance()"> 
+                                No
+                            </label>
                         </div>
                     </td>
                 </tr>
-            </table>
 
+                <tr id="railwayDistanceRow" class="hidden">
+                    <td>
+                        <label class="form-label" style="color: #c2410c;">Railway Line Distance (m)</label>
+                    </td>
+                    <td>
+                        <input type="text" class="table-input" data-path="land_inspection_details.railway_distance" style="height: 50px;" placeholder="Enter distance...">
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <div class="form-group">
+                        <label class="form-label">Sarpakkavu, Small-Temple, <br> Church, Mosque <br> in the property</label>
+                    </td>
+                    <td>
+                       <input type="radio" name="sarppam" data-path="land_inspection_details.STCM_in_property" value="Yes"> Yes
+                       <input type="radio" name="sarppam" data-path="land_inspection_details.STCM_in_property" value="No"> No
+                    </td>
+                </tr>
+            </table>
+            
+          
+          
             <div class="form-group">
-                <label class="form-label">Stigma Effects if any</label>
-                <textarea data-path="land_inspection_details.stigma" class="form-textarea" rows="3"></textarea>
+                <label class="form-label">Inspection Notes</label>
+                <textarea data-path="land_inspection_details.inspection_notes" class="form-textarea" rows="3"></textarea>
             </div>
 
 
@@ -872,6 +1198,19 @@
                         </div>
                 </div>
             </div>
+            </div>
+             
+            <div class="form-group">
+            <label class="form-label">Overall Remarks (Comments on land extend, sold value, sold date etc... comparing with the subject property)</label>
+            <textarea data-path="Building_analysis.extra_remarks" class="form-textarea" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+            <label class="form-label" style="font-size: large;">Recommented Land Value</label>
+            <input type="text" class="form-input" data-path="land_inspection_details.land_value">
+            </div>
+            <div class="form-group">
+            <label class="form-label">Notes on Land Value References Received</label>
+            <textarea data-path="Building_analysis.val_references" class="form-textarea" rows="4"></textarea>
             </div>
          <div class="form-group mt-4" style="gap: 10px;">
           <button type="button" id="triggerSubmitBtn" class="submit-btn" style="width: 100%;">
@@ -1139,7 +1478,9 @@ function getEmptyState() {
         person_met: ""
     },
     Ownership_Analysis : { document_verification : "", Ownership_Analysis_notes : "", owners_name : "" },
-    Survey: { docs: [], survey_notes: "" , land_val:"" },
+    Survey: { docs: [], survey_notes: "", paddy_land_check: "",
+            trees_2008_check: "", total_ltr_extent: "",
+            total_deed_extent: ""},
 
     Boundary_analysis_property_identification: { 
         ref_doc_1_name: "", ref_doc_2_name: "",
@@ -1147,9 +1488,9 @@ function getEmptyState() {
         south_doc1: "", south_doc2: "", west_doc1: "", west_doc2: "",
         north_translation:"", north_site:"", east_translation:"", east_site:"", 
         south_translation:"", south_site:"", west_translation:"", west_site:"", 
-        Boundary_property_notes : "", Building_no : "", Ward :""
+        Boundary_property_notes : ""
     },
-    Demarcation: {north: [],east:[],south:[],west:[],demarcation_notes:"",enroachment_subject_to_neighbour:"",enroachment_neighbour_to_subject:""},
+    Demarcation: {north: [],east:[],south:[],west:[],demarcation_notes:"",enroachment_subject_to_neighbour:"",enroachment_neighbour_to_subject:"", enroachment_check:""},
     Access : {
         access_notes:"", typeofaccess_titledeed : [], typeofaccess_sitevisit : [], private_no_user :[],
         private_rd_demarcation:[], main_access_width:"", vehicular_access:[], internal_road_width:"",
@@ -1161,12 +1502,14 @@ function getEmptyState() {
     },
     // --- CORRECTION HERE: Keys now match HTML "data-path" (e.g., BF, GF) ---
     Building_analysis: { 
-        Building_analysis_notes:"", roof_type: [], setback: "", construction_year:"", amenities_notes:"" ,
+        Building_analysis_notes:"", roof_type: [], setback: "", construction_year:"", amenities_notes:""
+        , Building_no : "", Ward :"",
         
         // Corrected Casing (BF instead of Bf)
         BF_2_Builtup_area:"", BF_2_Rooms_no:"", BF_2_Kitchen_no:"", BF_2_Bathrooms_no:"", BF_2_Usage:[], BF_2_Occupancy:[],
         BF_1_Builtup_area:"", BF_1_Rooms_no:"", BF_1_Kitchen_no:"", BF_1_Bathrooms_no:"", BF_1_Usage:[], BF_1_Occupancy:[],
         GF_Builtup_area:"",   GF_Rooms_no:"",   GF_Kitchen_no:"",   GF_Bathrooms_no:"",   GF_Usage:[],   GF_Occupancy:[],
+        apartments:[],
         
         first_flr_Builtup_area:"", first_flr_Rooms_no:"", first_flr_Kitchen_no:"", first_flr_Bathrooms_no:"", first_flr_Usage:[], first_flr_Occupancy:[],
         second_flr_Builtup_area:"",second_flr_Rooms_no:"",second_flr_Kitchen_no:"",second_flr_Bathrooms_no:"",second_flr_Usage:[],second_flr_Occupancy:[],
@@ -1176,11 +1519,15 @@ function getEmptyState() {
         
         front_yard_min:"", front_yard_max:"", side1_yard_min:"", side1_yard_max:"", 
         side2_yard_min:"", side2_yard_max:"", rear_yard_min:"", rear_yard_max:"",
-        rent_amt:"",rent_duration:"",extra_remarks:"",
+        rent_amt:"",rent_duration:"",extra_remarks:"",val_references:"",
         
         RCC_Percentage:"", Tiled_Percentage:"", Sheet_Percentage:"", Other_Percentage:"" 
     },
-    land_inspection_details:{ nearest_city:"",crz:"", stigma:"", nearest_Highway:"", nearest_school:"", nearest_railway:"", nearest_busstop:"", nearest_hospital:"" },
+    land_inspection_details:{ nearest_city:"",crz:"", stigma:"", nearest_Highway:"", nearest_school:"", nearest_railway:"", nearest_busstop:"",
+    nearest_hospital:"", crematoriums:"", slums:"", communial_area:"", factory_abutting:"", defence_area:"", heritage_property:"", rubber_plantations:"",
+    coconut_thope:"", buffer_zone:"", telecommunication_tower:"", high_tension_wire_electrical_line:"",enroachment_subject_to_prop:"",
+    intrusion_other_to_subject:"", railway_distance:"", STCM_in_property:"", inspection_notes:"", land_value:"",railway_pass:"",
+    },
     Sketch: { landmark_description: "", main_layout: "" }, 
     images: {} ,
     vectors : {} // We keep this for local reload, but will delete before submit
@@ -1244,17 +1591,12 @@ function renderBuildingRows() {
     
     tbody.innerHTML = "";
 
-    // Iterate through active indices and build HTML
+    // 1. RENDER FIXED FLOORS (BF, GF, 1st, etc.)
     visibleFloorIndices.forEach(index => {
         const floor = floorConfig[index];
         const key = floor.key;
         
-        // Helper to get value safely
-        const getVal = (suffix) => {
-            return (formState.Building_analysis && formState.Building_analysis[`${key}_${suffix}`]) || "";
-        };
-
-        // Helper for checkboxes
+        const getVal = (suffix) => (formState.Building_analysis && formState.Building_analysis[`${key}_${suffix}`]) || "";
         const getChecked = (arraySuffix, val) => {
             const arr = (formState.Building_analysis && formState.Building_analysis[`${key}_${arraySuffix}`]) || [];
             return Array.isArray(arr) && arr.includes(val) ? "checked" : "";
@@ -1267,7 +1609,6 @@ function renderBuildingRows() {
             <td><input type="number" data-path="Building_analysis.${key}_Rooms_no" class="table-input" value="${getVal('Rooms_no')}"></td>
             <td><input type="number" data-path="Building_analysis.${key}_Kitchen_no" class="table-input" value="${getVal('Kitchen_no')}"></td>
             <td><input type="number" data-path="Building_analysis.${key}_Bathrooms_no" class="table-input" value="${getVal('Bathrooms_no')}"></td>
-            
             <td>
                 <div class="radio-cell-group">
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Residential" ${getChecked('Usage', 'Residential')}> Res</label>
@@ -1275,7 +1616,6 @@ function renderBuildingRows() {
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Industrial" ${getChecked('Usage', 'Industrial')}> Ind</label>
                 </div>
             </td>
-
             <td>
                 <div class="radio-cell-group">
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Owner" ${getChecked('Occupancy', 'Owner')}> Owner</label>
@@ -1284,12 +1624,54 @@ function renderBuildingRows() {
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Vacant" ${getChecked('Occupancy', 'Vacant')}> Vac</label>
                 </div>
             </td>
-            
             <td>
                 ${ (floor.label !== 'GF' && floor.label !== '1st Floor') ? 
-                   `<button onclick="removeFloor(${index})" class="text-red-500 hover:text-red-700" title="Remove Row"><i class="fas fa-times"></i></button>` 
+                   `<button onclick="removeFloor(${index})" class="text-red-500 hover:text-red-700" title="Remove Row"><i class="fas fa-trash"></i></button>` 
                    : '' 
                 }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // 2. RENDER DYNAMIC APARTMENTS
+    const apts = formState.Building_analysis.apartments || [];
+    apts.forEach((apt, idx) => {
+        // Path base: "Building_analysis.apartments.0."
+        const basePath = `Building_analysis.apartments.${idx}`;
+        
+        const getAptVal = (key) => apt[key] || "";
+        const getAptChecked = (key, val) => (Array.isArray(apt[key]) && apt[key].includes(val)) ? "checked" : "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="font-bold bg-green-50 text-green-800">
+                <input type="text" data-path="${basePath}.label" class="table-input font-bold" value="${getAptVal('label') || 'Apartment ' + (idx + 1)}" placeholder="Unit Name">
+            </td>
+            <td><input type="number" data-path="${basePath}.Builtup_area" step="0.01" class="table-input" value="${getAptVal('Builtup_area')}"></td>
+            <td><input type="number" data-path="${basePath}.Rooms_no" class="table-input" value="${getAptVal('Rooms_no')}"></td>
+            <td><input type="number" data-path="${basePath}.Kitchen_no" class="table-input" value="${getAptVal('Kitchen_no')}"></td>
+            <td><input type="number" data-path="${basePath}.Bathrooms_no" class="table-input" value="${getAptVal('Bathrooms_no')}"></td>
+            
+            <td>
+                <div class="radio-cell-group">
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Residential" ${getAptChecked('Usage', 'Residential')}> Res</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Commercial" ${getAptChecked('Usage', 'Commercial')}> Com</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Industrial" ${getAptChecked('Usage', 'Industrial')}> Ind</label>
+                </div>
+            </td>
+            
+            <td>
+                <div class="radio-cell-group">
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Owner" ${getAptChecked('Occupancy', 'Owner')}> Owner</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Applicant" ${getAptChecked('Occupancy', 'Applicant')}> App</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Rented" ${getAptChecked('Occupancy', 'Rented')}> Rent</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Vacant" ${getAptChecked('Occupancy', 'Vacant')}> Vac</label>
+                </div>
+            </td>
+            
+            <td>
+                <button onclick="removeApartment(${idx})" class="text-red-500 hover:text-red-700" title="Remove Apartment"><i class="fas fa-trash"></i></button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -1322,23 +1704,59 @@ function removeFloor(indexToRemove) {
     renderBuildingRows();
     // Optional: Clear data for that floor in formState if you want strict cleanup
 }
+/* =========================
+   APARTMENT LOGIC
+   ========================= */
+
+function addApartment() {
+    if (!formState.Building_analysis.apartments) {
+        formState.Building_analysis.apartments = [];
+    }
+    
+    if (formState.Building_analysis.apartments.length >= 1) {
+        alert("You can only add one apartment.");
+        return;
+    }
+    
+    // Add empty object
+    formState.Building_analysis.apartments.push({
+        label: `Apartment`, // Simplified label since there is only 1
+        Builtup_area: "",
+        Rooms_no: "",
+        Kitchen_no: "",
+        Bathrooms_no: "",
+        Usage: [],
+        Occupancy: []
+    });
+    
+    renderBuildingRows();
+    saveLocal();
+}
+
+function removeApartment(index) {
+    if (!formState.Building_analysis.apartments) return;
+    
+    // Remove item at index
+    formState.Building_analysis.apartments.splice(index, 1);
+    
+    renderBuildingRows();
+    saveLocal();
+}
 
 /* =========================
    4. FILE EXPLORER LOGIC (SMART RESTORE)
 ========================= */
 function loadFolder(path = "") {
-  
-  // 1. Force Save Old Folder (If switching)
   if (currentFolder && currentFolder !== path) {
       saveToServer(true); 
       clearTimeout(autoSaveTimer); 
   }
 
-  // 2. UI Updates
   const scrollContainer = document.querySelector('.file-list-container');
   if (scrollContainer) folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
 
   currentFolder = path;
+  formState.target_folder = path; 
   
   document.getElementById("currentPath").textContent = "/" + (path || "");
   const banner = document.getElementById("bigPreviewTitle");
@@ -1346,94 +1764,168 @@ function loadFolder(path = "") {
   const topBanner = document.getElementById("topBannerPath");
   if (topBanner) topBanner.textContent = path ? "/" + path : "/";
 
-  // Hide Previews
   document.getElementById("scrollContainer").classList.add("hidden");
   document.getElementById("pdfToolbar").classList.add("hidden");
   document.getElementById("bigImageFrame").classList.add("hidden");
   document.getElementById("noSelection").classList.remove("hidden");
 
-  // 3. FETCH DATA
   const statsBox = document.getElementById("folderStatsBox");
   
   fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
     .then(r => r.json())
     .then(data => {
-      //  SMART RESTORE LOGIC:
-      // Did we just reload the page? Or are we switching folders?
-      // If LocalStorage has data for THIS EXACT folder, trust it (it's the freshest).
-      
-      const localData = localStorage.getItem(STORAGE_KEY);
+      // 1. Start Fresh
+      formState = getEmptyState(); 
+
+      const localDataString = localStorage.getItem(STORAGE_KEY);
       const localFolder = localStorage.getItem('vadrida_active_folder');
-      let usedLocalData = false;
+      let localData = null;
 
-      // If we are opening the same folder we were just working in...
-      if (localData && localFolder === path) {
-          console.log("Restoring recent unsaved work from Browser...");
-          try {
-              const parsed = JSON.parse(localData);
-              // Merge: Use Server IDs (safe) + Local Content (fresh)
-              formState = { ...getEmptyState(), ...data.saved_draft, ...parsed };
-              usedLocalData = true;
-          } catch(e) { console.error("Local restore error", e); }
+      if (localDataString && localFolder === path) {
+          try { localData = JSON.parse(localDataString); } catch(e) { console.error("Local parse error", e); }
+      }
+
+      const serverDraft = data.saved_draft || {};
+
+      // 2. Smart Merge
+      if (localData) {
+          formState = { ...formState, ...serverDraft, ...localData };
+          if (serverDraft.images && Object.keys(serverDraft.images).length > 0) formState.images = serverDraft.images;
+          if (serverDraft.vectors && Object.keys(serverDraft.vectors).length > 0) formState.vectors = serverDraft.vectors;
+      } 
+      else if (data.saved_draft) {
+          formState = { ...formState, ...data.saved_draft };
+      } 
+      else if (data.auto_fill) {
+          updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
+          updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
+          updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
+          saveToServer(); 
       }
       
-      if (!usedLocalData) {
-          // If we are switching to a NEW folder, wipe clean and load from Server
-          formState = getEmptyState(); 
-          localStorage.removeItem(STORAGE_KEY); // Clear old data to prevent leaks
+      if (!formState.images) formState.images = {};
+      if (!formState.vectors) formState.vectors = {};
 
-          // CASE A: Server has a Saved Draft
-          if (data.saved_draft) {
-              console.log("Loaded Saved Draft from Server");
-              formState = { ...getEmptyState(), ...data.saved_draft };
-          }
-          // CASE B: Auto-fill (Only if no draft)
-          else if (data.auto_fill) {
-              console.log("No draft. Auto-filling...");
-              updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
-              updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
-              updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
-              saveToServer(); // Create record
-          }
+      if (data.folder_info && data.folder_info.download_date) {
+            formState.meta_download_date = data.folder_info.download_date;
+            saveLocal();
       }
 
-      // Render Files
       currentFolderFiles = data.files || [];
       renderFileList(data.folders || [], data.files || []);
       renderThumbs(data.files || []);
 
-      // ✅ STEP 3: SYNC UI 
-      // (Order is critical: Options -> Timeline -> Values)
+      // 3. UI Sync
       initBuildingTable();   
-      renderSurveyColumns();         
+      renderSurveyColumns();          
       updateAllDocumentDropdowns();  
-      
+      injectPencilIcons(); 
+
       const constructionStr = getNestedValue(formState, "Building_analysis.construction_year");
       parseTimelineString(constructionStr); 
 
-      syncStateToUI();       
+      syncStateToUI();        
+      renderAllSavedImages();
 
-      // Load Images
-      if(formState.images) {
-         Object.keys(formState.images).forEach(k => {
-             const img = document.getElementById(`img_preview_${k.replace(/\./g, '_')}`);
-             if(img) { img.src = formState.images[k]; img.classList.remove('hidden'); }
-         });
-      }
-
-      // Save state back to local (updates timestamp/freshness)
       localStorage.setItem('vadrida_active_folder', path);
-      saveLocal();
 
-      // Stats & Scroll
       if (data.folder_info) { renderFolderStats(data.folder_info); } 
       else { if(statsBox) statsBox.classList.add("hidden"); }
 
-      if (scrollContainer) {
-          setTimeout(() => {
-              scrollContainer.scrollTop = folderScrollHistory[path] || 0;
-          }, 0);
-      }
+      // ✅ SCROLL RESTORE FIX (Apply to BOTH potential containers)
+      setTimeout(() => {
+          // 1. File List
+          const fileListContainer = document.querySelector('.file-list-container');
+          const savedListScroll = parseInt(localStorage.getItem('vadrida_file_list_scroll') || '0');
+          if (fileListContainer && savedListScroll > 0) {
+              fileListContainer.scrollTop = savedListScroll;
+          }
+
+          // 2. Feedback Form
+          const savedFormScroll = parseInt(localStorage.getItem('vadrida_form_scroll') || '0');
+          if (savedFormScroll > 0) {
+              const rightCol = document.getElementById('rightColumnContainer');
+              const formEl = document.getElementById('siteFeedbackForm');
+              
+              // Apply to both (The one with overflow:hidden will simply ignore it)
+              if (rightCol) rightCol.scrollTop = savedFormScroll;
+              if (formEl) formEl.scrollTop = savedFormScroll;
+          }
+      }, 100);
+    });
+}
+/* =========================
+   CORE: RENDER ALL IMAGES (Self-Healing)
+   If an image tag is missing, this creates it on the fly.
+========================= */
+function renderAllSavedImages() {
+    console.log("Rendering images...", Object.keys(formState.images || {}));
+
+    if (!formState.images) return;
+
+    Object.keys(formState.images).forEach(path => {
+        const base64Data = formState.images[path];
+        if (!base64Data) return;
+
+        // 1. Construct the Expected ID
+        const safeId = path.replace(/\./g, '_');
+        const imgId = `img_preview_${safeId}`;
+        
+        let imgElement = document.getElementById(imgId);
+
+        // 2. SELF-HEALING: If DOM element is missing, create it now!
+        if (!imgElement) {
+            // Try to find the input/textarea associated with this data path
+            const targetInput = document.querySelector(`[data-path="${path}"]`);
+            
+            if (targetInput) {
+                console.log(`Creating missing image container for: ${path}`);
+                
+                // Create the Image Element
+                imgElement = document.createElement('img');
+                imgElement.id = imgId;
+                imgElement.className = 'sketch-thumb';
+                imgElement.style.marginTop = '10px';
+                imgElement.style.maxHeight = '150px';
+                imgElement.style.maxWidth = '100%';
+                imgElement.style.borderRadius = '8px';
+                imgElement.style.border = '1px solid #e5e7eb';
+                imgElement.style.cursor = 'pointer';
+                imgElement.style.display = 'block'; // Force visible
+                
+                // Add Click Listener
+                imgElement.onclick = (e) => {
+                    e.stopPropagation(); 
+                    openSketchPad(path);
+                };
+
+                // Find where to insert it. 
+                const container = targetInput.closest('.input-wrapper') || targetInput;
+                
+                // Insert AFTER the input/wrapper
+                if (container.parentNode) {
+                    if (container.nextSibling) {
+                        container.parentNode.insertBefore(imgElement, container.nextSibling);
+                    } else {
+                        container.parentNode.appendChild(imgElement);
+                    }
+                }
+            }
+        }
+
+        // 3. RENDER THE DATA
+        if (imgElement) {
+            imgElement.src = base64Data;
+            imgElement.classList.remove('hidden');
+            imgElement.style.display = 'block'; 
+            
+            // Special handling for Main Layout Placeholder
+            const placeholder = document.getElementById(`placeholder_${safeId}`);
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+                placeholder.style.display = 'none';
+            }
+        }
     });
 }
 function renderFolderStats(info) {
@@ -1470,47 +1962,52 @@ document.getElementById("goBackBtn").onclick = () => {
 };
 
 function renderFileList(folders, files) {
+  files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
   fileList.innerHTML = "";
 
+  // 1. RENDER FOLDERS
   folders.forEach(folder => {
     const li = document.createElement("li");
-    li.className = "file-item folder-item";
-    
-    // Status Dot Logic
-    let statusDotHtml = `<span class="status-dot" style="border:none;"></span>`; // Invisible placeholder
+    // 'items-start' makes the icon stick to the TOP if text is 2 lines
+    li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
+    li.dataset.folderPath = folder.path; 
+
+    // --- Status Dot Logic ---
+    let statusDotHtml = "";
     if (folder.status_color) {
-        let colorSuffix = "grey";
-        if (folder.status_color === "green") colorSuffix = "green";
-        else if (folder.status_color === "yellow") colorSuffix = "yellow";
-        else if (folder.status_color === "red") colorSuffix = "red";
+        let colorClass = "bg-gray-400";
+        if (folder.status_color === "green") colorClass = "bg-green-500";
+        else if (folder.status_color === "yellow") colorClass = "bg-yellow-400";
+        else if (folder.status_color === "red") colorClass = "bg-red-500";
         
-        statusDotHtml = `<span class="status-dot status-${colorSuffix}"></span>`;
+        // Added flex-shrink-0 to prevent dot from squishing
+        statusDotHtml = `<span class="block w-2 h-2 rounded-full ${colorClass} mt-1 flex-shrink-0"></span>`;
+    } else {
+        statusDotHtml = `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`; 
     }
 
-    const contentDiv = document.createElement("div");
-    contentDiv.className = "flex items-start gap-3 flex-1 min-w-0";
-    contentDiv.style.display = "flex"; 
-    contentDiv.style.width = "100%";
+    const leftDiv = document.createElement("div");
+    // 'min-w-0' is CRITICAL. It allows the text container to shrink and wrap.
+    leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0"; 
     
-    contentDiv.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; width:20px; margin-right:8px;">
-          <span style="font-size:1.2rem;">📁</span> 
+    leftDiv.innerHTML = `
+      <div class="flex flex-col items-center justify-start flex-shrink-0 w-8 pt-0.5">
+          <span class="text-xl leading-none">📁</span> 
           ${statusDotHtml}
       </div>
-      <span class="break-all whitespace-normal leading-snug" style="flex:1; font-weight:600; font-size:0.9rem;">${folder.name}</span>
+      <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
     `;
     
-    contentDiv.onclick = () => loadFolder(folder.path);
-    li.appendChild(contentDiv);
+    leftDiv.onclick = () => loadFolder(folder.path);
+    li.appendChild(leftDiv);
 
-    // Chat Icon
+    // --- Chat Icon Logic ---
     if (folder.has_chat) {
        const chatBtnWrapper = document.createElement("div");
-       chatBtnWrapper.style.position = "relative";
-       chatBtnWrapper.style.marginLeft = "auto";
+       chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1"; 
        
        const chatBtn = document.createElement("button");
-       chatBtn.style.cssText = "width:30px; height:30px; border-radius:50%; background:#dcfce7; color:#16a34a; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;";
+       chatBtn.className = "w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center";
        chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
        chatBtn.onclick = (e) => {
            e.stopPropagation();
@@ -1522,8 +2019,7 @@ function renderFileList(folders, files) {
        
        if (folder.is_unread) {
            const dot = document.createElement("span");
-           dot.className = "unread-dot";
-           dot.style.cssText = "position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:red; border-radius:50%; border:2px solid white;";
+           dot.className = "unread-dot absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white";
            chatBtnWrapper.appendChild(dot);
        }
        li.appendChild(chatBtnWrapper);
@@ -1532,24 +2028,31 @@ function renderFileList(folders, files) {
     fileList.appendChild(li);
   });
 
+  // 2. RENDER FILES
   files.forEach(file => {
       const li = document.createElement("li");
-      li.className = "file-item";
+      li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
+      
+      // Fixed: Removed fixed height, allowed wrapping
       li.innerHTML = `
-        <div style="width:100%;">
-          <div class="file-name break-all whitespace-normal leading-snug" style="font-weight:500;">${file.name}</div>
-          <div class="file-ext" style="font-size:10px; color:#aaa;">${file.extension || "FILE"}</div>
+        <div class="flex justify-between items-start">
+          <div class="min-w-0 pr-2 flex-1">
+            <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
+            <div class="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">${file.extension || "FILE"}</div>
+          </div>
         </div>`;
+        
       li.onclick = () => {
-          document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
-          li.classList.add("selected");
+          document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
+          li.classList.add("bg-blue-100");
           loadBigPreview(file);
+          setFileInfo(file);
       };
       fileList.appendChild(li);
   });
 
   if (!folders.length && !files.length) {
-    fileList.innerHTML = `<li class="no-results" style="padding:10px; color:#999;">No files found</li>`;
+    fileList.innerHTML = `<li class="p-3 text-gray-400 text-center text-sm">Empty Folder</li>`;
   }
 }
 /* =========================
@@ -1592,6 +2095,7 @@ function processThumbQueue() {
 }
 
 function renderThumbs(files) {
+    files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
   thumbsContainer.innerHTML = "";
   
   // Clear old queue so we don't load images from the previous folder
@@ -2728,90 +3232,52 @@ function getTouchCenter(e) {
 /* ==========================================
    SMART SAVE: CROP CANVAS TO CONTENT
    ========================================== */
+/* =========================
+   CORE: SAVE SKETCH (Direct Update)
+========================= */
 function saveSketchModal() {
     if (!activeSketchPath) return;
+    if (elements.length === 0) { closeSketchModal(); return; }
 
-    // 1. Check if empty -> Just Exit
-    if (elements.length === 0) {
-        closeSketchModal();
-        return; 
-    }
-
-    // 2. FIND BOUNDARIES (Min/Max X & Y)
+    // --- CROP LOGIC (Keep exactly as is) ---
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-
     elements.forEach(el => {
-        if (el.type === 'brush') {
-            el.points.forEach(p => {
-                minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-                maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
-            });
-        } 
-        else if (['line', 'arrow'].includes(el.type)) {
-            minX = Math.min(minX, el.x, el.endX); minY = Math.min(minY, el.y, el.endY);
-            maxX = Math.max(maxX, el.x, el.endX); maxY = Math.max(maxY, el.y, el.endY);
-        }
-        else if (el.type === 'circle') {
-            minX = Math.min(minX, el.x - el.r); minY = Math.min(minY, el.y - el.r);
-            maxX = Math.max(maxX, el.x + el.r); maxY = Math.max(maxY, el.y + el.r);
-        }
-        else {
-            // Rect, Triangle, Text
-            const w = el.w || 0; const h = el.h || 0;
-            minX = Math.min(minX, el.x); minY = Math.min(minY, el.y);
-            maxX = Math.max(maxX, el.x + w); maxY = Math.max(maxY, el.y + h);
-        }
+       if (el.type === 'brush') { el.points.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); }); } 
+       else if (['line', 'arrow'].includes(el.type)) { minX = Math.min(minX, el.x, el.endX); minY = Math.min(minY, el.y, el.endY); maxX = Math.max(maxX, el.x, el.endX); maxY = Math.max(maxY, el.y, el.endY); }
+       else if (el.type === 'circle') { minX = Math.min(minX, el.x - el.r); minY = Math.min(minY, el.y - el.r); maxX = Math.max(maxX, el.x + el.r); maxY = Math.max(maxY, el.y + el.r); }
+       else { const w = el.w || 0; const h = el.h || 0; minX = Math.min(minX, el.x); minY = Math.min(minY, el.y); maxX = Math.max(maxX, el.x + w); maxY = Math.max(maxY, el.y + h); }
     });
-
-    // 3. DEFINE CROP DIMENSIONS (With Padding)
     const padding = 20; 
     const cropWidth = (maxX - minX) + (padding * 2);
     const cropHeight = (maxY - minY) + (padding * 2);
-
-    // 4. SAVE CURRENT STATE
     const prevCanvasWidth = canvas.width;
     const prevCanvasHeight = canvas.height;
     const prevCamera = { ...camera };
-
-    // 5. RESIZE CANVAS & RE-CENTER CAMERA
     canvas.width = cropWidth;
     canvas.height = cropHeight;
-
-    camera = {
-        x: -minX + padding, 
-        y: -minY + padding, 
-        z: 1 
-    };
-
-    // 6. RENDER & CAPTURE
+    camera = { x: -minX + padding, y: -minY + padding, z: 1 };
     renderScene(); 
     const dataUrl = canvas.toDataURL('image/png');
-
-    // 7. RESTORE ORIGINAL STATE
     canvas.width = prevCanvasWidth;
     canvas.height = prevCanvasHeight;
     camera = prevCamera;
     renderScene();
+    // --- END CROP ---
 
-    // 8. SAVE TO FORM
+    // Save Data
     if (!formState.images) formState.images = {};
     formState.images[activeSketchPath] = dataUrl;
-
     if (!formState.vectors) formState.vectors = {};
     formState.vectors[activeSketchPath] = JSON.parse(JSON.stringify(elements));
     
-    // Update Thumbnails
-    const safeId = activeSketchPath.replace(/\./g, '_');
-    if(activeSketchPath === 'Sketch.main_layout') {
-       const mainImg = document.getElementById('img_preview_Sketch_main_layout');
-       if(mainImg) { mainImg.src = dataUrl; mainImg.classList.remove('hidden'); }
-    } else {
-       const thumb = document.getElementById(`img_preview_${safeId}`);
-       if(thumb) { thumb.src = dataUrl; thumb.classList.remove('hidden'); thumb.style.display = 'block'; }
-    }
+    // ✅ FORCE UPDATE UI IMMEDIATELY
+    renderAllSavedImages();
     
     saveLocal();
     closeSketchModal();
+    
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => saveToServer(), 1000);
 }
 /* ==========================================
    HELPER: CALCULATE 'FIT TO CONTENT' VIEW
@@ -2950,6 +3416,7 @@ async function saveToServer(isLeaving = false) {
     try {
         const payload = JSON.parse(JSON.stringify(formState));
         // delete payload.vectors; // Optional optimization
+        payload.target_folder = currentFolder;
 
         const response = await fetch('/coreapi/api/auto-save/', {
             method: 'POST',
@@ -3002,6 +3469,9 @@ function syncStateToUI() {
         } else {
             el.checked = false;
         }
+    toggleEncroachmentFields();
+    toggleOwnershipNotes();
+    toggleRailwayDistance();
     });
 
     // ✅ 3. NEW: Clear Sketch Thumbnails
@@ -3132,28 +3602,21 @@ function handleImageUpload(path, file) {
     reader.onload = (e) => {
         const base64String = e.target.result;
         
-        // 1. Save to State (Same logic as sketches)
+        // 1. Save to State
         if (!formState.images) formState.images = {};
         formState.images[path] = base64String;
         
-        // 2. Update Thumbnail UI
-        const safeId = path.replace(/\./g, '_');
-        const img = document.getElementById(`img_preview_${safeId}`);
-        if (img) {
-            img.src = base64String;
-            img.classList.remove('hidden');
-            img.style.display = 'block';
-        }
+        // 2. Update UI via Helper (Guarantees consistency)
+        renderAllSavedImages();
         
-        // 3. Trigger Auto-Save immediately
+        // 3. Trigger Auto-Save
         saveLocal();
         clearTimeout(autoSaveTimer);
         autoSaveTimer = setTimeout(() => {
             saveToServer();
-        }, 1000); // Fast save for uploads
+        }, 1000); 
     };
     
-    // Start reading file as Data URL
     reader.readAsDataURL(file); 
 }
 function renderSurveyColumns() {
@@ -3249,6 +3712,8 @@ function renderSurveyColumns() {
             }
         });
     });
+    calculateSurveyTotals();
+    checkWetLandStatus();
 }
 
 /* =========================
@@ -3258,6 +3723,9 @@ window.updateSurveyDocData = (index, key, value) => {
     // 1. Update the State Object
     if (!formState.Survey.docs[index]) formState.Survey.docs[index] = {};
     formState.Survey.docs[index][key] = value;
+    if (key === 'land_extent') 
+    calculateSurveyTotals();
+    checkWetLandStatus();
     saveLocal();
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(() => {
@@ -3271,6 +3739,8 @@ window.updateSurveyDocName = (index, value) => {
     // 1. Update the 'name' property for this column
     if (!formState.Survey.docs[index]) formState.Survey.docs[index] = {};
     formState.Survey.docs[index].name = value;
+    calculateSurveyTotals();
+    checkWetLandStatus();
 
     // 2. Save immediately
     saveLocal();
@@ -3465,21 +3935,19 @@ async function performSubmit() {
 }
 function saveLocal() {
     try {
-        // 1. Create a deep copy of the state so we don't break the active app
-        const stateToSave = JSON.parse(JSON.stringify(formState));
-
-        // 2. REMOVE HEAVY ITEMS (Images & Vectors)
-        // LocalStorage has a 5MB limit. We rely on the Server to store images.
-        // By deleting these keys from the *copy*, we ensure they don't clog up the browser.
-        if (stateToSave.images) delete stateToSave.images;
-        if (stateToSave.vectors) delete stateToSave.vectors;
-
-        // 3. Save the lightweight text-only data
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-        
+        // 1. Try to save EVERYTHING (Images + Text)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
     } catch (e) {
-        // If it STILL fails (unlikely for text), just warn in console instead of crashing
-        console.warn("LocalStorage Quota Error: Could not save local backup.", e);
+        // 2. Only if Storage is Full, strip images to save at least the text
+        console.warn("Local Storage full. Stripping images...", e);
+        try {
+            const stateToSave = JSON.parse(JSON.stringify(formState));
+            if (stateToSave.images) delete stateToSave.images;
+            if (stateToSave.vectors) delete stateToSave.vectors;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+        } catch (e2) {
+            console.error("Critical: Could not save text backup.", e2);
+        }
     }
 }
 async function performReset() {
@@ -3522,55 +3990,6 @@ async function performReset() {
     btn.innerText = originalText;
     // No alert needed, the UI update is feedback enough
 }
-/* =========================
-   10. APP INIT
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-
-  
-    console.log("App Initializing...");
-    // ✅ AUTO-NAVIGATE TO LAST LOCATION
-    const lastPath = localStorage.getItem('vadrida_active_folder');
-    
-    if (lastPath) {
-        console.log("Restoring last session folder:", lastPath);
-        loadFolder(lastPath);
-    } else {
-        loadFolder(""); // Default to root
-    }
-    enforceTabletLandscape();
-
-    const confirmModal = document.getElementById('confirmationModal');
-    if (confirmModal && confirmModal.parentNode !== document.body) {
-        document.body.appendChild(confirmModal);
-    }
-
-    // Setup UI
-    injectPencilIcons();
-    renderSurveyColumns();
-    updateAllDocumentDropdowns();
-    
-
-    // Load saved images
-    Object.keys(formState.images).forEach(path => {
-        const safeId = path.replace(/\./g, '_');
-        const previewImg = document.getElementById(`img_preview_${safeId}`);
-        if (previewImg) {
-            previewImg.src = formState.images[path];
-            previewImg.classList.remove('hidden');
-            if(path === 'Sketch.main_layout') {
-                const ph = document.getElementById(`placeholder_${safeId}`);
-                if(ph) ph.classList.add('hidden');
-            }
-        }
-    });
-    // --- RESTRICT DATE PICKER TO TODAY ---
-    const dateInput = document.querySelector('input[data-path="Valuers_Checklist.inspection_date"]');
-    if (dateInput) {
-        const today = new Date().toISOString().split("T")[0]; // Get YYYY-MM-DD
-        dateInput.setAttribute("max", today);
-    }
-});
 
 function copyAllDocsToSites(checkbox) {
     const directions = ['north', 'east', 'south', 'west'];
@@ -3615,22 +4034,6 @@ function copyAllDocsToSites(checkbox) {
         });
     }
 }
-
-/* =========================
-   STRICT TIMELINE LOGIC (No Ghost Columns)
-========================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-        const savedStr = getNestedValue(formState, "Building_analysis.construction_year");
-        if(savedStr) {
-            parseTimelineString(savedStr);
-        } else {
-            createColumnAtIndex(0, "");
-        }
-    }, 200);
-    initBuildingTable();
-});
 
 // --- 1. CORE: Recalculate State ---
 function handlePercentInput(e) {
@@ -4542,31 +4945,344 @@ modalDownloadBtn.onclick = (e) => {
   window.location.href = downloadUrl;
 };
 /* =========================
-   11. SAFETY NET (Bulletproof Save)
+   11. SAFETY NET (Auto-Save & Scroll Memory)
 ========================= */
-
-// Triggers on: Refresh, Browser Back Button, Closing Tab, Clicking External Links
 window.addEventListener('beforeunload', (event) => {
-    // Only save if we are inside a folder (not root)
+    // 1. Save Form Data (Auto-save)
     if (currentFolder) {
         const payload = JSON.stringify({ 
-            folder_path: currentFolder,
+            folder_path: currentFolder, 
             payload: formState 
         });
-
-        // ✅ THE MAGIC FIX: keepalive: true
-        // This allows us to use headers (CSRF) AND survives page closure.
         fetch('/coreapi/api/auto-save/', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'X-CSRFToken': csrftoken 
-            },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
             body: payload,
-            keepalive: true // <--- This keeps the request alive after you leave!
+            keepalive: true
         });
     }
+
+    // 2. ✅ SAVE SCROLL POSITIONS (ROBUST FIX)
+    
+    // A. Form Scroll (Check BOTH container and form element)
+    const rightCol = document.getElementById('rightColumnContainer');
+    const formEl = document.getElementById('siteFeedbackForm');
+    
+    // Use the value from whichever element is actually scrolling
+    const currentFormScroll = Math.max(
+        rightCol ? rightCol.scrollTop : 0, 
+        formEl ? formEl.scrollTop : 0
+    );
+    
+    localStorage.setItem('vadrida_form_scroll', currentFormScroll);
+
+    // Save Fullscreen State
+    if (rightCol) {
+        const isFullscreen = rightCol.classList.contains('fullscreen-active');
+        localStorage.setItem('vadrida_form_fullscreen', isFullscreen);
+    }
+
+    // B. File List Scroll
+    const fileListCol = document.querySelector('.file-list-container');
+    if (fileListCol) {
+        localStorage.setItem('vadrida_file_list_scroll', fileListCol.scrollTop);
+    }
 });
+/* ==========================================
+   LOGIC: Toggle Ownership Notes Visibility
+   ========================================== */
+function toggleOwnershipNotes() {
+    const notesBox = document.getElementById('ownershipNotesBox');
+    // Check if "Discrepancy noted" is checked
+    const discrepancyRadio = document.querySelector('input[name="doc_verification"][value="discrepancy noted"]');
+    const isDiscrepancy = discrepancyRadio && discrepancyRadio.checked;
+
+    if (isDiscrepancy) {
+        notesBox.classList.remove('hidden');
+    } else {
+        notesBox.classList.add('hidden');
+        
+        // --- DATA CLEANUP ---
+        // 1. Clear State
+        updateNestedState(formState, 'Ownership_Analysis.Ownership_Analysis_notes', "");
+        // 2. Clear Input UI
+        const input = document.querySelector('[data-path="Ownership_Analysis.Ownership_Analysis_notes"]');
+        if(input) input.value = "";
+        // 3. Save
+        saveLocal();
+    }
+}
+
+/* ==========================================
+   AUTO-CALCULATE EXTENT TOTALS (With Cents)
+   ========================================== */
+function calculateSurveyTotals() {
+    let ltrSum = 0;
+    let ltrCount = 0;
+    
+    let deedSum = 0;
+    let deedCount = 0;
+    
+    // 1. Calculate Sums and Counts
+    const docs = formState.Survey.docs || [];
+
+    docs.forEach(doc => {
+        const extentVal = parseFloat(doc.land_extent) || 0;
+        const docName = (doc.name || "").trim(); // Exact match
+
+        if (docName === "LTR") {
+            ltrSum += extentVal;
+            ltrCount++;
+        }
+        else if (docName === "Title Deed") {
+            deedSum += extentVal;
+            deedCount++;
+        }
+    });
+
+    // 2. DOM Elements
+    const mainContainer = document.getElementById("surveyTotalsContainer");
+    const ltrWrapper = document.getElementById("ltr_total_wrapper");
+    const ltrInput = document.getElementById("total_ltr_extent");
+    
+    const deedWrapper = document.getElementById("deed_total_wrapper");
+    const deedInput = document.getElementById("total_deed_extent");
+
+    let showMainContainer = false;
+
+    // --- Helper to Format String ---
+    const formatValue = (aresValue) => {
+        // Round Ares to reasonable decimals (e.g. 3) to avoid float errors
+        const cleanAres = parseFloat(aresValue.toFixed(3));
+        
+        // Calculate Cents: (Ares * 100) / 40.47
+        const cents = (cleanAres * 100) / 40.47;
+        
+        // Format: "2.1 (5.189 cents)"
+        return `${cleanAres} (${cents.toFixed(3)} cents)`;
+    };
+
+    // 3. Handle LTR Visibility & Value
+    if (ltrCount > 1 && ltrSum > 0) {
+        const finalStr = formatValue(ltrSum);
+        
+        ltrInput.value = finalStr;
+        formState.Survey.total_ltr_extent = finalStr; // Save the full string for PDF
+        
+        ltrWrapper.classList.remove("hidden");
+        showMainContainer = true;
+    } else {
+        ltrWrapper.classList.add("hidden");
+        ltrInput.value = "";
+        formState.Survey.total_ltr_extent = ""; 
+    }
+
+    // 4. Handle Title Deed Visibility & Value
+    if (deedCount > 1 && deedSum > 0) {
+        const finalStr = formatValue(deedSum);
+        
+        deedInput.value = finalStr;
+        formState.Survey.total_deed_extent = finalStr; // Save the full string for PDF
+        
+        deedWrapper.classList.remove("hidden");
+        showMainContainer = true;
+    } else {
+        deedWrapper.classList.add("hidden");
+        deedInput.value = "";
+        formState.Survey.total_deed_extent = "";
+    }
+
+    // 5. Toggle Main Box Visibility
+    if (showMainContainer) {
+        mainContainer.classList.remove("hidden");
+    } else {
+        mainContainer.classList.add("hidden");
+    }
+}
+/* ==========================================
+   CHECK FOR WET LAND IN LTR
+   ========================================== */
+function checkWetLandStatus() {
+    const docs = formState.Survey.docs || [];
+    let isWetLandFound = false;
+
+    // Loop through all columns
+    docs.forEach(doc => {
+        const docName = (doc.name || "").trim();
+        // Check for LTR + check_wet
+        if (docName === "LTR" && (doc.check_wet === true || doc.check_wet === "true")) {
+            isWetLandFound = true;
+        }
+    });
+
+    const questionBox = document.getElementById("wetLandQuestions");
+    
+    if (isWetLandFound) {
+        questionBox.classList.remove("hidden");
+    } else {
+        questionBox.classList.add("hidden");
+
+        // --- DATA CLEANUP ---
+        // Only clear if we are actually hiding it (avoid clearing on initial load if empty)
+        // Check if data exists before clearing to avoid unnecessary writes
+        if (formState.Survey.paddy_land_check || formState.Survey.trees_2008_check) {
+            updateNestedState(formState, 'Survey.paddy_land_check', "");
+            updateNestedState(formState, 'Survey.trees_2008_check', "");
+            
+            // Clear Radios in UI
+            document.querySelectorAll('input[name="paddy_land_check"]').forEach(el => el.checked = false);
+            document.querySelectorAll('input[name="trees_2008_check"]').forEach(el => el.checked = false);
+            
+            saveLocal();
+        }
+    }
+}
+/* ==========================================
+   LOGIC: Toggle Encroachment Fields
+   ========================================== */
+function toggleEncroachmentFields() {
+    const container = document.getElementById('encroachmentDetails');
+    const yesRadio = document.querySelector('input[name="encroachment_check"][value="Yes"]');
+    const isYes = yesRadio && yesRadio.checked;
+
+    if (container) {
+        if (isYes) {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+
+            // --- DATA CLEANUP ---
+            // Clear all 3 related fields
+            const pathsToClear = [
+                'Demarcation.demarcation_notes',
+                'Demarcation.enroachment_subject_to_neighbour',
+                'Demarcation.enroachment_neighbour_to_subject'
+            ];
+
+            pathsToClear.forEach(path => {
+                updateNestedState(formState, path, ""); // Clear State
+                const input = document.querySelector(`[data-path="${path}"]`);
+                if(input) input.value = ""; // Clear UI
+            });
+            saveLocal();
+        }
+    }
+}
+/* ==========================================
+   LOGIC: Toggle Railway Distance Row
+   ========================================== */
+function toggleRailwayDistance() {
+    const row = document.getElementById('railwayDistanceRow');
+    const yesRadio = document.querySelector('input[name="railway"][value="Yes"]');
+    const isYes = yesRadio && yesRadio.checked;
+
+    if (row) {
+        if (isYes) {
+            row.classList.remove('hidden');
+        } else {
+            row.classList.add('hidden');
+
+            // --- DATA CLEANUP ---
+            updateNestedState(formState, 'land_inspection_details.railway_distance', "");
+            const input = document.querySelector('[data-path="land_inspection_details.railway_distance"]');
+            if(input) input.value = "";
+            
+            saveLocal();
+        }
+    }
+}
+
+/* =========================
+   10. APP INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("App Initializing...");
+
+    // 1. Restorations
+    const lastPath = localStorage.getItem('vadrida_active_folder');
+    
+    setTimeout(() => {
+        const savedStr = getNestedValue(formState, "Building_analysis.construction_year");
+        if(savedStr) parseTimelineString(savedStr);
+        else createColumnAtIndex(0, "");
+    }, 200);
+
+    initBuildingTable();
+    
+    if (lastPath) loadFolder(lastPath);
+    else loadFolder(""); 
+    
+    enforceTabletLandscape();
+    injectPencilIcons();
+    renderSurveyColumns();
+    updateAllDocumentDropdowns();
+
+    // Load saved images
+    Object.keys(formState.images).forEach(path => {
+        const safeId = path.replace(/\./g, '_');
+        const previewImg = document.getElementById(`img_preview_${safeId}`);
+        if (previewImg) {
+            previewImg.src = formState.images[path];
+            previewImg.classList.remove('hidden');
+            if(path === 'Sketch.main_layout') {
+                const ph = document.getElementById(`placeholder_${safeId}`);
+                if(ph) ph.classList.add('hidden');
+            }
+        }
+    });
+
+    // ============================================================
+    // ✅ SCROLL MEMORY & FULLSCREEN LOGIC
+    // ============================================================
+    const fsBtn = document.getElementById('toggleFormFullscreenBtn');
+    const rightCol = document.getElementById('rightColumnContainer');
+    const icon = fsBtn ? fsBtn.querySelector('i') : null;
+
+    // 1. Restore Fullscreen Mode
+    const wasFullscreen = localStorage.getItem('vadrida_form_fullscreen') === 'true';
+    if (wasFullscreen && rightCol && icon) {
+        rightCol.classList.add('fullscreen-active');
+        icon.className = 'fas fa-compress';
+        icon.style.color = '#ef4444';
+        document.body.style.overflow = 'hidden'; 
+    }
+
+    // C. Attach Click Listener with Seamless Scroll
+    if (fsBtn && rightCol) {
+        fsBtn.onclick = () => {
+            // 1. CAPTURE: Grab exact scroll position BEFORE the layout changes
+            const currentScroll = rightCol.scrollTop;
+
+            // 2. TOGGLE: Change the class
+            rightCol.classList.toggle('fullscreen-active');
+            const isNowFullscreen = rightCol.classList.contains('fullscreen-active');
+
+            // 3. RESTORE: Put the scroll position back immediately
+            // We do this instantly so the user doesn't see a jump
+            rightCol.scrollTop = currentScroll;
+
+            // 4. Update Icons & LocalStorage
+            if (isNowFullscreen) {
+                icon.className = 'fas fa-compress';
+                icon.style.color = '#ef4444';
+                document.body.style.overflow = 'hidden'; 
+                localStorage.setItem('vadrida_form_fullscreen', 'true');
+            } else {
+                icon.className = 'fas fa-expand';
+                icon.style.color = '#374151';
+                document.body.style.overflow = '';
+                localStorage.setItem('vadrida_form_fullscreen', 'false');
+            }
+        };
+    }
+    // Date restriction
+    const dateInput = document.querySelector('input[data-path="Valuers_Checklist.inspection_date"]');
+    if (dateInput) {
+        const today = new Date().toISOString().split("T")[0];
+        dateInput.setAttribute("max", today);
+    }
+});
+
 </script>
 
 {% endblock %}

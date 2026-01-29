@@ -111,7 +111,6 @@
             background-repeat: no-repeat;
         }
     </style>
-    <link rel="manifest" href="/manifest.json">
 </head>
 <body class="font-opensans">
     <!-- Navigation -->
@@ -124,27 +123,12 @@
                          <img src="{% static 'images/VADRIDA LOGO.png' %}" alt="Logo" width="200px">
                     </div>
                 </div>
-            <!-- Desktop Navigation -->
-            <!-- <div class="hidden md:flex items-center space-x-8">
-                <a href="{% url 'core:home' %}" class="nav-link font-montserrat font-medium text-gray-700 hover:text-royal-blue-600 transition-colors">Home</a>
-                <a href="{% url 'core:services' %}" class="nav-link font-montserrat font-medium text-gray-700 hover:text-royal-blue-600 transition-colors">Services</a>
-                <a href="{% url 'core:work' %}" class="nav-link font-montserrat font-medium text-gray-700 hover:text-royal-blue-600 transition-colors">How It Works</a>
-                <a href="{% url 'core:about' %}" class="nav-link font-montserrat font-medium text-gray-700 hover:text-royal-blue-600 transition-colors">About Us</a>
-            </div> -->
-
             <!-- Mobile Menu Button -->
             <button id="mobileMenuButton" class="md:hidden text-royal-blue-700">
                 <i class="fas fa-bars text-2xl"></i>
             </button>
         </div>
 
-        <!-- Mobile Navigation -->
-        <div id="mobileMenu" class="hidden md:hidden mt-4 space-y-4">
-            <a href="{% url 'core:home' %}" class="block font-montserrat font-medium text-gray-700 hover:text-royal-blue-600">Home</a>
-            <a href="{% url 'core:services' %}" class="block font-montserrat font-medium text-gray-700 hover:text-royal-blue-600">Services</a>
-            <a href="{% url 'core:work' %}" class="block font-montserrat font-medium text-gray-700 hover:text-royal-blue-600">How It Works</a>
-            <a href="{% url 'core:about' %}" class="block font-montserrat font-medium text-gray-700 hover:text-royal-blue-600">About Us</a>
-        </div>
     </nav>
 </header>
 {% csrf_token %}
@@ -187,92 +171,9 @@
                 {% endfor %}
             {% endif %}
         </form>
-<!-- 
-        <p class="text-center text-white/80 mt-6">
-            Don’t have an account? <a href="#" class="text-accent-gold">Register</a>
-        </p> -->
-
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="bg-royal-blue-900 text-white py-12">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- Company Info -->
-            <div>
-               <!-- Logo -->
-                <div class="flex items-center space-x-2">
-                    <div class=" bg-white flex items-center justify-center">
-                         <img src="{% static 'images/VADRIDA LOGO.png' %}" alt="Logo" width="250px">
-                    </div>
-                </div>
-                <p class="text-gray-400 mb-6">
-                    Professional property valuation services partnering with leading banks across India. Founded by Sanjay Sabu.
-                </p>
-                <div class="flex space-x-4">
-                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-royal-blue-600 transition-colors">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-royal-blue-600 transition-colors">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-royal-blue-600 transition-colors">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Quick Links -->
-            <div>
-                <h4 class="font-montserrat text-lg font-bold mb-6">Quick Links</h4>
-                <ul class="space-y-3">
-                    <li><a href="{% url 'core:home' %}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
-                    <li><a href="{% url 'core:services' %}" class="text-gray-400 hover:text-white transition-colors">services</a></li>
-                    <li><a href="{% url 'core:work' %}" class="text-gray-400 hover:text-white transition-colors">How It Works</a></li>
-                    <li><a href="{% url 'core:about' %}" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
-                </ul>
-            </div>
-
-            <!-- Services -->
-            <div>
-                <h4 class="font-montserrat text-lg font-bold mb-6">Our Services</h4>
-                <ul class="space-y-3">
-                    <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Residential Valuation</a></li>
-                    <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Commercial Valuation</a></li>
-                    <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Portfolio Analysis</a></li>
-                    <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">On-Site Inspection</a></li>
-                    <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Bank Portal Integration</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact Info -->
-            <div>
-                <h4 class="font-montserrat text-lg font-bold mb-6">Contact Us</h4>
-                <ul class="space-y-4">
-                    <li class="flex items-start">
-                        <i class="fas fa-map-marker-alt text-royal-blue-400 mt-1 mr-3"></i>
-                        <span class="text-gray-400">Kundannoor, Kochi, Kerala, India</span>
-                    </li>
-                    <li class="flex items-center">
-                        <i class="fas fa-phone text-royal-blue-400 mr-3"></i>
-                        <span class="text-gray-400">+91.....</span>
-                    </li>
-                    <li class="flex items-center">
-                        <i class="fas fa-envelope text-royal-blue-400 mr-3"></i>
-                        <span class="text-gray-400">vadrida.com</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="border-t border-gray-800 mt-12 pt-8 text-center">
-            <p class="text-gray-400">
-                © 2024 Vadrida Property Valuations. Founded by Sanjay Sabu. All rights reserved.
-            </p>
-        </div>
-    </div>
-</footer>
 <script>
     // Single getCookie function
     function getCookie(name) {

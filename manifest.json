@@ -3,7 +3,7 @@
   "short_name": "Vadrida",
   "description": "Vadrida Property Valuations",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "scope": "/",
   "orientation": "any",
   "background_color": "#fff",

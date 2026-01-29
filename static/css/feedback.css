@@ -68,19 +68,11 @@ html, body {
   color: #6b7280;
   font-size: 14px;
 }
-
-/* ========================= MAIN LAYOUT ========================= */
-/* ========================= MAIN LAYOUT ========================= */
 .feedback-layout {
   display: grid;
   grid-template-columns: minmax(0, 50%) minmax(0, 50%);
-  
-  /* ✅ FIXED HEIGHT: Lock to screen size (minus navbar) */
   height: calc(100vh - 80px); 
-  
-  /* Disable main window scrolling */
   overflow: hidden; 
-  
   gap: 16px;
   padding: 16px;
   background: #f8fafc;
@@ -519,10 +511,6 @@ html, body {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   margin-bottom: 20px; /* Space at bottom */
-}
-.form-header {
-  padding: 20px 20px 0 20px;
-  flex-shrink: 0;
 }
 
 /* Add to your CSS */
@@ -1483,10 +1471,6 @@ html, body {
     z-index: 10000 !important; 
     position: fixed;
     inset: 0;
-}
-#confirmationModal .modal-content {
-    position: relative;
-    z-index: 10001 !important;
 }
 
 /* 1. The Container */
