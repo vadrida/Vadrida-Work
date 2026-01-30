@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
-
+from dotenv import load_dotenv
 import mimetypes
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -266,3 +266,5 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
 }
+load_dotenv()
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')

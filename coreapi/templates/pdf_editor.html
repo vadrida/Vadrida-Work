@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}Valuation Report Editor{% endblock %}
 
 {% block extra_head %}
@@ -420,6 +419,8 @@
 {% endblock %}
 
 {% block content %}
+
+{{ google_maps_api_key|json_script:"google_maps_api_key" }}
 
 <div class="paper-container">
     <div class="nav-left" style="margin-right: 650px;">
@@ -1076,6 +1077,20 @@
             <div class="field-box" contenteditable="true" data-path="Building_analysis.val_references"></div>
         </div>
         <div class="img-wrapper" id="wrap_Building_analysis_val_references"></div>
+        <div class="report-section">
+            <h4>IX. Property Location</h4>
+            
+            <div style="border: 2px solid #333; border-radius: 4px; overflow: hidden; margin-top: 10px;">
+                <img id="static_map_view" 
+                    style="width: 100%; height: auto; display: block;" 
+                    alt="Map Preview"
+                    crossorigin="anonymous"> 
+            </div>
+                
+            <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                <strong>GPS Coordinates:</strong> <span id="display_lat_lng">Not Selected</span>
+            </div>
+        </div>
         
         <br><br><br><br><br><br>
         <div class="pdf-footer">
@@ -1090,6 +1105,7 @@
             </div>
         </div>
     </div>
+    
 
     <div class="floating-save">
         <button id="saveFinal" class="btn-save">💾 Save Final PDF</button>
@@ -1112,6 +1128,7 @@
                 
                 // Render the form fields
                 renderPage(); 
+                renderStaticMap();
 
                 // 2. Fetch Folder Info (Download Date) from Server
                 if (reportData.target_folder) {
@@ -1123,7 +1140,72 @@
             })
             .catch(err => console.error("Error loading data:", err));
     });
+    function renderStaticMap() {
+        console.log("🗺️ START: Rendering Static Map...");
 
+        // 1. Debug: Check if reportData exists
+        if (!reportData || Object.keys(reportData).length === 0) {
+            console.error("❌ Error: reportData is empty. Map cannot render.");
+            return;
+        }
+
+        // 2. Safely Retrieve Coordinates
+        // We try to parse them as floats to ensure they aren't empty strings
+        let lat = getNested(reportData, 'land_inspection_details.latitude');
+        let lng = getNested(reportData, 'land_inspection_details.longitude');
+
+        console.log(`📍 Raw Data from DB -> Lat: "${lat}", Lng: "${lng}"`);
+
+        // 3. Elements
+        const imgElement = document.getElementById("static_map_view");
+        const textElement = document.getElementById("display_lat_lng");
+
+        if (!imgElement) {
+            console.error("❌ HTML Error: #static_map_view image tag not found.");
+            return;
+        }
+
+        // 4. Validate Coordinates
+        // Ensure they are numbers and not zero/empty
+        if (lat && lng && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng))) {
+            try {
+                // 5. Get API Key
+                const scriptTag = document.getElementById('google_maps_api_key');
+                if (!scriptTag) {
+                    console.error("❌ Setup Error: API Key JSON script tag is missing.");
+                    return;
+                }
+                const apiKey = JSON.parse(scriptTag.textContent);
+
+                // 6. Build URL
+                const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=19&size=600x300&maptype=hybrid&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
+                
+                console.log("✅ Map URL generated successfully.");
+
+                // 7. Show Image
+                imgElement.src = mapUrl;
+                imgElement.classList.remove("hidden");
+                imgElement.style.display = "block"; // Force display
+                
+                // 8. Update Text
+                if(textElement) {
+                    textElement.innerText = `${lat}, ${lng}`;
+                    textElement.style.color = "black";
+                }
+                
+            } catch (e) {
+                console.error("❌ Map Logic Error:", e);
+            }
+        } else {
+            console.warn("⚠️ Coordinates missing or invalid. Hiding map.");
+            // Hide map if no data
+            imgElement.style.display = 'none';
+            if(textElement) {
+                textElement.innerText = "Location not tagged (Go back to Feedback form)";
+                textElement.style.color = "red";
+            }
+        }
+    }
     // --- API CALL TO GET SERVER DATE ---
     function fetchFolderMetadata(path) {
         // We use your existing 'get_folder_contents_api'
@@ -1301,117 +1383,91 @@ function populateFooterDetails() {
         applyConditionalVisibility();
     }
     function applyConditionalVisibility() {
-        // --- 1. GENERAL AUTO-HIDE FOR EMPTY TEXT FIELDS ---
-        // Hides any row where the text content is empty/blank
-        document.querySelectorAll('.field-box[contenteditable="true"]').forEach(box => {
-            // Check if box is empty
-            if (!box.innerText.trim()) {
-                // Find parent row
-                const parentRow = box.closest('.row, .row-stacked');
-                if (parentRow) {
-                    // Safety Check: Don't hide if the row has checkboxes/radios (we might need to see those)
-                    // Only hide pure text rows
-                    const hasOptions = parentRow.querySelector('input[type="checkbox"], input[type="radio"]');
-                    
-                    // Also check if there are OTHER text boxes in the same row that might have data
-                    const siblings = parentRow.querySelectorAll('.field-box');
-                    let siblingHasData = false;
-                    siblings.forEach(sib => { if(sib.innerText.trim()) siblingHasData = true; });
+    // --- 1. SMART FIELD VISIBILITY ---
+    document.querySelectorAll('.field-box[contenteditable="true"]').forEach(box => {
+        const parentRow = box.closest('.row, .row-stacked');
+        
+        // Reset defaults (in case of re-run)
+        box.style.display = 'block'; 
+        if (parentRow) parentRow.classList.remove('hidden-row');
 
-                    if (!hasOptions && !siblingHasData) {
-                        parentRow.classList.add('hidden-row');
-                    }
+        // Check if Text is Empty
+        if (!box.innerText.trim()) {
+            // STEP A: Hide the empty box so it doesn't take up space
+            box.style.display = 'none';
+
+            // STEP B: Should we keep the Label visible? 
+            let keepLabel = false;
+
+            // 1. Check if there is an Image associated with this field
+            const path = box.getAttribute('data-path');
+            if (path) {
+                const safeKey = path.replace(/\./g, '_');
+                const imgWrap = document.getElementById('wrap_' + safeKey);
+                // If image exists, we MUST keep the label
+                if (imgWrap && imgWrap.querySelector('img')) {
+                    keepLabel = true; 
                 }
             }
-        });
 
-        // --- 2. OWNERSHIP NOTES LOGIC ---
-        // Trigger: Only show if "discrepancy noted" OR if notes are manually typed
-        const ownCheck = getNested(reportData, "Ownership_Analysis.document_verification");
-        const ownNotesBox = document.querySelector('[data-path="Ownership_Analysis.Ownership_Analysis_notes"]');
-        
-        if (ownNotesBox) {
-            const hasText = ownNotesBox.innerText.trim().length > 0;
-            // Logic: Hide if NOT discrepancy AND No text
-            if (ownCheck !== "discrepancy noted" && !hasText) {
-                ownNotesBox.closest('.row-stacked').classList.add('hidden-row');
+            // 2. Check if there are other inputs (Checkboxes/Radios) in the same row
+            if (parentRow) {
+                const hasOptions = parentRow.querySelector('input[type="checkbox"], input[type="radio"]');
+                const siblings = parentRow.querySelectorAll('.field-box');
+                let siblingHasData = false;
+                // Check if neighbor text boxes have data
+                siblings.forEach(sib => { 
+                    if (sib !== box && sib.innerText.trim()) siblingHasData = true; 
+                });
+
+                if (hasOptions || siblingHasData) keepLabel = true;
+            }
+
+            // STEP C: If no Image and no other data, hide the whole row (Label)
+            if (!keepLabel && parentRow) {
+                parentRow.classList.add('hidden-row');
             }
         }
+    });
 
-        // --- 3. ENCROACHMENT LOGIC ---
-        // Trigger: Show details only if Encroachment is "Yes"
-        const encCheck = getNested(reportData, "Demarcation.encroachment_check"); // You might need to check "Yes" value
-        // Note: You didn't output the "encroachment_check" radio in the PDF HTML explicitly in previous steps, 
-        // but we can check the text fields directly.
-        
-        // List of encroachment field paths
-        const encPaths = [
-            "Demarcation.demarcation_notes",
-            "Demarcation.enroachment_subject_to_neighbour",
-            "Demarcation.enroachment_neighbour_to_subject"
-        ];
-
-        encPaths.forEach(path => {
-            const box = document.querySelector(`[data-path="${path}"]`);
-            if (box) {
-                // If text is empty, hide it. 
-                // (Since we usually don't want to see "Encroachment: [Blank]" if the answer was No)
-                if (!box.innerText.trim()) {
-                    box.closest('.row-stacked, .row').classList.add('hidden-row');
-                }
-            }
-        });
-
-        // --- 4. RAILWAY DISTANCE LOGIC ---
-        // Trigger: Hide distance if "Railway Line Passing" is NOT "Yes"
-        const railCheck = getNested(reportData, "land_inspection_details.railway_pass");
-        const railDistBox = document.querySelector('[data-path="land_inspection_details.railway_distance"]');
-        
-        if (railDistBox && railCheck !== "Yes") {
-            // Hide the text content to make it invisible, or the specific label
-            // Since it shares a row with the Yes/No radios, we don't hide the whole row.
-            // We just hide the input and its label (previous sibling)
-            railDistBox.style.visibility = 'hidden';
-            if(railDistBox.previousElementSibling && railDistBox.previousElementSibling.tagName === 'LABEL') {
-                railDistBox.previousElementSibling.style.visibility = 'hidden';
-            }
+    // --- 2. SPECIFIC LOGIC: RAILWAY DISTANCE ---
+    const railCheck = getNested(reportData, "land_inspection_details.railway_pass");
+    const railDistBox = document.querySelector('[data-path="land_inspection_details.railway_distance"]');
+    if (railDistBox && railCheck !== "Yes") {
+        railDistBox.style.visibility = 'hidden';
+        if(railDistBox.previousElementSibling && railDistBox.previousElementSibling.tagName === 'LABEL') {
+            railDistBox.previousElementSibling.style.visibility = 'hidden';
         }
-
-        // --- 5. WET LAND / TREES (Yellow Box) ---
-        // Trigger: Hide if no data entered for these specific questions
-        const paddy = getNested(reportData, "Survey.paddy_land_check");
-        const trees = getNested(reportData, "Survey.trees_2008_check");
-        
-        if (!paddy && !trees) {
-            // Find the yellow container. We find one of the inputs and go up to the row.
-            const paddyInput = document.querySelector('input[data-bind-radio="Survey.paddy_land_check"]');
-            if (paddyInput) {
-                const container = paddyInput.closest('.row'); 
-                if (container) container.classList.add('hidden-row');
-            }
-        }
-
-        // --- 6. SURVEY TOTALS ---
-        // Trigger: Hide if totals are empty
-        const ltrTotal = getNested(reportData, "Survey.total_ltr_extent");
-        const deedTotal = getNested(reportData, "Survey.total_deed_extent");
-        
-        // If both are empty/undefined, hide that specific row
-        if (!ltrTotal && !deedTotal) {
-            const totalBox = document.querySelector('[data-path="Survey.total_ltr_extent"]');
-            if(totalBox) {
-                totalBox.closest('.row').classList.add('hidden-row');
-            }
-        }
-
-        // --- 7. HIDE EMPTY IMAGES ---
-        document.querySelectorAll('.img-wrapper').forEach(wrap => {
-            // If the wrapper contains "No sketch provided" text or no IMG tag
-            if (!wrap.querySelector('img')) {
-                wrap.classList.add('hidden-row');
-            }
-        });
     }
+
+    // --- 3. SPECIFIC LOGIC: WET LAND / TREES ---
+    const paddy = getNested(reportData, "Survey.paddy_land_check");
+    const trees = getNested(reportData, "Survey.trees_2008_check");
+    if (!paddy && !trees) {
+        const paddyInput = document.querySelector('input[data-bind-radio="Survey.paddy_land_check"]');
+        if (paddyInput) {
+            const container = paddyInput.closest('.row'); 
+            if (container) container.classList.add('hidden-row');
+        }
+    }
+
+    // --- 4. SPECIFIC LOGIC: SURVEY TOTALS ---
+    const ltrTotal = getNested(reportData, "Survey.total_ltr_extent");
+    const deedTotal = getNested(reportData, "Survey.total_deed_extent");
+    if (!ltrTotal && !deedTotal) {
+        const totalBox = document.querySelector('[data-path="Survey.total_ltr_extent"]');
+        if(totalBox) {
+            totalBox.closest('.row').classList.add('hidden-row');
+        }
+    }
+
+    // --- 5. HIDE EMPTY IMAGE WRAPPERS ---
+    document.querySelectorAll('.img-wrapper').forEach(wrap => {
+        if (!wrap.querySelector('img')) {
+            wrap.classList.add('hidden-row');
+        }
+    });
+}
    // --- NEW HELPER FUNCTION TO FORMAT LAND DATA ---
     function formatLandData(doc) {
         // If the single string already exists (legacy data), use it

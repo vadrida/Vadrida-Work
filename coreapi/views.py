@@ -348,6 +348,7 @@ def get_folder_contents_api(request):
                             stats = get_case_folder_info(full_abs_path)
                             if stats:
                                 status_color = stats['status_color']
+                                cache.set(cache_key, stats, 3600)
 
                     folders.append({
                         "name": entry.name,
@@ -385,8 +386,15 @@ def get_folder_contents_api(request):
     files.sort(key=lambda x: x["name"].lower())
     
     current_folder_info = None
-    if bool("#" in os.path.basename(abs_path) or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', os.path.basename(abs_path))):
+    is_target_folder = bool("#" in os.path.basename(abs_path) or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', os.path.basename(abs_path)))
+
+    if is_target_folder:
          current_folder_info = get_case_folder_info(abs_path)
+         
+         # ✅ FIX 2: Also save when opening the folder (Missing in your code)
+         if current_folder_info:
+             cache_key = f"folder_status_{abs_path}"
+             cache.set(cache_key, current_folder_info, 3600)
 
     return JsonResponse({
         "folders": folders,
@@ -483,13 +491,13 @@ def parse_folder_metadata(folder_name):
 
     return metadata
 
-
 @csrf_protect
 @require_POST
 def auto_save_api(request):
     """
     Saves the current form state to the database.
-    Handles duplicate records robustly by keeping only the latest one.
+    VALIDATION: Rejects save if File No or Applicant Name is missing.
+    CLEANUP: Removes junk records (empty fields) and duplicates for this folder.
     """
     if not request.session.get("user_id"):
         return JsonResponse({'error': 'Unauthorized'}, status=401)
@@ -506,38 +514,62 @@ def auto_save_api(request):
         if not folder_path or not form_payload:
             return JsonResponse({'success': False, 'error': 'Missing data'})
 
-        # Extract helper fields
+        # Extract core fields
         checklist = form_payload.get('Valuers_Checklist', {})
         office_file_no_val = checklist.get('Office_file_no')
         applicant_name_val = checklist.get('applicant_name')
 
-        # --- ROBUST LOOKUP LOGIC START ---
-        
-        # 1. Find all matching reports for this user and folder
+        # =========================================================
+        # 🛑 CONDITION 1: VALIDATION GATEKEEPER
+        # =========================================================
+        # Convert to string and strip whitespace to ensure they aren't just empty spaces
+        clean_file_no = str(office_file_no_val).strip() if office_file_no_val else ""
+        clean_name = str(applicant_name_val).strip() if applicant_name_val else ""
+
+        if not clean_file_no or not clean_name:
+            # Silently fail (success=False) so we don't save junk data
+            print("Auto-save skipped: Missing Office File No or Applicant Name")
+            return JsonResponse({'success': False, 'error': 'Required fields missing. Not saved.'})
+
+        # =========================================================
+        # 🧹 CONDITION 2: GARBAGE COLLECTION (CLEANUP)
+        # =========================================================
+        # Delete ANY existing records for this user/folder that have missing data.
+        # This cleans up the "records with no file number and names" you mentioned.
+        SiteVisitReport.objects.filter(
+            user=user, 
+            target_folder=folder_path
+        ).filter(
+            Q(office_file_no__isnull=True) | Q(office_file_no='') |
+            Q(applicant_name__isnull=True) | Q(applicant_name='')
+        ).delete()
+
+        # =========================================================
+        # 🔍 CONDITION 3: ROBUST LOOKUP & DE-DUPLICATION
+        # =========================================================
+        # Find existing valid reports for this folder, newest first
         reports = SiteVisitReport.objects.filter(
             user=user, 
             target_folder=folder_path
-        ).order_by('-updated_at') # Newest first
+        ).order_by('-updated_at')
 
         if reports.exists():
-            # Use the newest one
+            # Keep the newest one
             report = reports.first()
             
-            # CLEANUP: If duplicates exist, delete the older ones
+            # Delete older duplicates if they exist
             if reports.count() > 1:
-                print(f"Cleaning up {reports.count() - 1} duplicate reports for {folder_path}")
+                print(f"Cleaning up {reports.count() - 1} redundant reports for {folder_path}")
                 for dup in reports[1:]:
                     dup.delete()
         else:
-            # Create new if none exist
+            # Create new if no valid report exists
             report = SiteVisitReport(user=user, target_folder=folder_path)
 
-        # --- ROBUST LOOKUP LOGIC END ---
-
-        # 2. Update Fields
+        # Update Fields
         report.form_data = form_payload
-        report.office_file_no = office_file_no_val
-        report.applicant_name = applicant_name_val
+        report.office_file_no = clean_file_no
+        report.applicant_name = clean_name
         report.save()
 
         return JsonResponse({
@@ -549,7 +581,7 @@ def auto_save_api(request):
     except Exception as e:
         print(f"Auto-save error: {e}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-            
+
 # chat folders////////////////
 
 def check_unread_status(user_profile, folder_path):
@@ -919,7 +951,10 @@ def feedback(request):
     """Render the feedback form page"""
     if not request.session.get("user_id"):
         return redirect("coreapi:login_page")
-    return render(request, "feedback.html")
+    context = {
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
+    }
+    return render(request, "feedback.html", context)
 
 
 # --- HELPER: DRAW VECTORS TO IMAGE (Server Side) ---
@@ -1122,7 +1157,8 @@ def pdf_editor_page(request, report_id):
     context = {
         'report_id': report_id,
         'data': full_data, 
-        'target_folder': report.target_folder
+        'target_folder': report.target_folder,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
     }
     
     return render(request, "pdf_editor.html", context)

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Site Feedback Form — Vadrida{% endblock %}
-
 {% block extra_head %}
+
 <link rel="stylesheet" href="{% static 'css/feedback.css' %}">
+
 <style>
 /* Fullscreen Animation & Layout */
 .right-column {
@@ -1174,6 +1175,28 @@
             </div>
 
             <div class="form-group mt-4">
+                <label class="form-label font-bold" style="font-size: 14px;">📍 Property Location (Pinpoint)</label>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label class="text-xs text-gray-500">Latitude</label>
+                        <input type="text" id="input_lat" data-path="land_inspection_details.latitude" class="table-input bg-gray-50" readonly>
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="text-xs text-gray-500">Longitude</label>
+                        <input type="text" id="input_lng" data-path="land_inspection_details.longitude" class="table-input bg-gray-50" readonly>
+                    </div>
+                    <button type="button" onclick="getCurrentLocation()" class="modal-btn success" style="width: auto; padding: 0 15px;">
+                        <i class="fas fa-crosshairs"></i> Use My GPS
+                    </button>
+                </div>
+
+                <div style="height: 400px; border: 2px solid #ccc; border-radius: 8px; overflow: hidden;">
+                    <div id="googleMap" style="width: 100%; height: 100%;"></div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">* Drag marker to pinpoint subject property.</div>
+            </div>
+            <div class="form-group mt-4">
                 <label class="form-label font-bold">Site Layout Sketch</label>
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -1203,6 +1226,23 @@
             <div class="form-group">
             <label class="form-label">Overall Remarks (Comments on land extend, sold value, sold date etc... comparing with the subject property)</label>
             <textarea data-path="Building_analysis.extra_remarks" class="form-textarea" rows="4"></textarea>
+            </div>
+            <div class="form-group mt-4">
+                <label class="form-label font-bold" style="color: #374151;">Reference Map for Valuation</label>
+                <div style="height: 500px; border: 2px solid #ccc; border-radius: 8px; overflow: hidden; background: #f9fafb;">
+                    
+                    <iframe 
+                        src="https://www.google.com/maps/d/embed?mid=15OuH_GkSrkwCsOjfWzmnvMcVciD445M&ehbc=2E312F" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+
+                </div>
+                <div class="text-xs text-gray-500 mt-1">* Use this map to check comparable land values in the area.</div>
             </div>
             <div class="form-group">
             <label class="form-label" style="font-size: large;">Recommented Land Value</label>
@@ -1527,6 +1567,8 @@ function getEmptyState() {
     nearest_hospital:"", crematoriums:"", slums:"", communial_area:"", factory_abutting:"", defence_area:"", heritage_property:"", rubber_plantations:"",
     coconut_thope:"", buffer_zone:"", telecommunication_tower:"", high_tension_wire_electrical_line:"",enroachment_subject_to_prop:"",
     intrusion_other_to_subject:"", railway_distance:"", STCM_in_property:"", inspection_notes:"", land_value:"",railway_pass:"",
+    latitude: "",
+    longitude: ""
     },
     Sketch: { landmark_description: "", main_layout: "" }, 
     images: {} ,
@@ -1826,6 +1868,7 @@ function loadFolder(path = "") {
 
       syncStateToUI();        
       renderAllSavedImages();
+      updateMapFromState();
 
       localStorage.setItem('vadrida_active_folder', path);
 
@@ -3408,6 +3451,14 @@ function updateArrayState(obj, path, value, isChecked) {
 ========================= */
 async function saveToServer(isLeaving = false) {
     if (!currentFolder) return; 
+    const fileNo = getNestedValue(formState, 'Valuers_Checklist.Office_file_no');
+    const applicant = getNestedValue(formState, 'Valuers_Checklist.applicant_name');
+
+    // If either is missing/empty, STOP immediately. Do not save.
+    if (!fileNo || !applicant || fileNo.toString().trim() === "" || applicant.toString().trim() === "") {
+        console.log("Skipping Auto-Save: Missing File No or Applicant Name.");
+        return; 
+    }
 
     // Optional: Visual Indicator for saving
     const btn = document.getElementById('triggerSubmitBtn');
@@ -3860,6 +3911,13 @@ document.getElementById('triggerResetBtn').onclick = (e) => {
 };
 
 async function performSubmit() {
+    const fileNo = getNestedValue(formState, 'Valuers_Checklist.Office_file_no');
+    const applicant = getNestedValue(formState, 'Valuers_Checklist.applicant_name');
+
+    if (!fileNo || !applicant || fileNo.toString().trim() === "" || applicant.toString().trim() === "") {
+        alert("Error: You must provide an 'Office File No.' and 'Applicant Name' before submitting.");
+        return; // Stop execution
+    }
     // 1. If Sketch Pad is open, save it first
     if (!document.getElementById('sketchModal').classList.contains('hidden')) {
         saveSketchModal();
@@ -5283,6 +5341,146 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-</script>
+/* =========================
+   1. GLOBAL VARIABLES
+========================= */
+let map, marker;
+let isMapReady = false;
+let pendingMapUpdate = false;
 
+/* =========================
+   2. MAP INITIALIZATION
+========================= */
+window.initMap = function() {
+    console.log("Initializing Map..."); 
+
+    const startPos = { lat: 9.9312, lng: 76.2673 };
+    const mapEl = document.getElementById("googleMap");
+    
+    if (!mapEl) return;
+
+    map = new google.maps.Map(mapEl, {
+        zoom: 15,
+        center: startPos,
+        mapTypeId: "hybrid",
+        tilt: 45,
+        streetViewControl: false,
+        fullscreenControl: true, // Native button
+        gestureHandling: 'cooperative' 
+    });
+
+    marker = new google.maps.Marker({
+        position: startPos,
+        map: map,
+        draggable: false, // Locked by default
+        animation: google.maps.Animation.DROP,
+        title: "Subject Property"
+    });
+
+    // --- Events ---
+    marker.addListener("dragend", () => {
+        const pos = marker.getPosition();
+        updateLocationInputs(pos.lat(), pos.lng());
+    });
+
+    // Handle Native Fullscreen Clicks
+    map.addListener("click", (e) => {
+        if (isMapInFullscreen()) {
+            marker.setPosition(e.latLng);
+            updateLocationInputs(e.latLng.lat(), e.latLng.lng());
+        } else {
+            console.log("Map locked. Use Fullscreen button to edit.");
+        }
+    });
+
+    // Auto-Unlock on Fullscreen
+    const handleFullscreenChange = () => {
+        if (isMapInFullscreen()) {
+            marker.setDraggable(true);
+            mapEl.style.cursor = "crosshair";
+        } else {
+            marker.setDraggable(false);
+            mapEl.style.cursor = "default";
+        }
+    };
+    
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange); 
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("msfullscreenchange", handleFullscreenChange);
+
+    isMapReady = true;
+    if (pendingMapUpdate) updateMapFromState();
+};
+
+/* =========================
+   3. HELPER FUNCTIONS
+========================= */
+// Robust Fullscreen Check
+function isMapInFullscreen() {
+    return document.fullscreenElement || 
+           document.webkitFullscreenElement || 
+           document.mozFullScreenElement || 
+           document.msFullscreenElement;
+}
+
+function updateLocationInputs(lat, lng) {
+    const latInput = document.getElementById("input_lat");
+    const lngInput = document.getElementById("input_lng");
+    
+    if (latInput) latInput.value = lat.toFixed(6);
+    if (lngInput) lngInput.value = lng.toFixed(6);
+
+    // Call Global Save if available
+    if (typeof updateNestedState === "function") {
+        updateNestedState(formState, 'land_inspection_details.latitude', lat.toFixed(6));
+        updateNestedState(formState, 'land_inspection_details.longitude', lng.toFixed(6));
+        
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => saveToServer(), 2000); 
+    }
+}
+
+function updateMapFromState() {
+    if (!isMapReady || !map || !marker) {
+        pendingMapUpdate = true;
+        return;
+    }
+    const lat = parseFloat(getNestedValue(formState, 'land_inspection_details.latitude'));
+    const lng = parseFloat(getNestedValue(formState, 'land_inspection_details.longitude'));
+
+    if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+        const pos = { lat: lat, lng: lng };
+        map.setCenter(pos);
+        marker.setPosition(pos);
+        map.setZoom(19); 
+        
+        const latInput = document.getElementById("input_lat");
+        const lngInput = document.getElementById("input_lng");
+        if(latInput) latInput.value = lat;
+        if(lngInput) lngInput.value = lng;
+
+        pendingMapUpdate = false;
+    }
+}
+
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const pos = { lat: lat, lng: lng };
+
+            if(map && marker) {
+                map.setCenter(pos);
+                marker.setPosition(pos);
+                map.setZoom(19);
+            }
+            updateLocationInputs(lat, lng);
+        }, () => { alert("Error: GPS failed."); });
+    } else { alert("GPS not supported."); }
+}
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=places&v=weekly" async defer></script>
 {% endblock %}
