@@ -103,7 +103,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 MIDDLEWARE+= [ 
-    'coreapi.middleware.LoginRequiredMiddleware'
+    'coreapi.middleware.LoginRequiredMiddleware',
+    'core.middleware.ActiveUserMiddleware'
 ]
 ROOT_URLCONF = 'vadrida.urls'
 

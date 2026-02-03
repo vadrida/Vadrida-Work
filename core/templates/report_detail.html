@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report: {{ report.applicant_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
+        
+        /* HEADER */
+        .header-bar {
+            background: white; border-bottom: 1px solid #ddd; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10;
+        }
+        
+        /* MAIN LAYOUT */
+        .split-container { display: flex; height: calc(100vh - 70px); }
+        .col-pdf { width: 50%; background: #525659; position: relative; }
+        .col-data { width: 50%; overflow-y: auto; background: #fff; padding: 30px; }
+
+        /* PDF IFRAME */
+        .pdf-frame { width: 100%; height: 100%; border: none; display: block; }
+        
+        /* DATA STYLING */
+        .data-group { margin-bottom: 25px; }
+        .data-label { 
+            font-size: 0.85rem; color: #666; text-transform: uppercase; 
+            letter-spacing: 0.5px; font-weight: 700; margin-bottom: 5px; 
+            border-bottom: 2px solid #f0f2f5; padding-bottom: 5px;
+            display: inline-block;
+        }
+        .data-value { 
+            font-size: 1rem; color: #2c3e50; line-height: 1.5; 
+            background: #fafafa; padding: 10px; border-radius: 6px; border: 1px solid #eee;
+        }
+
+        /* IMAGES GRID */
+        .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 10px; }
+        .sketch-card { 
+            border: 1px solid #eee; padding: 5px; border-radius: 8px; 
+            transition: transform 0.2s; background: white; text-align: center;
+        }
+        .sketch-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .sketch-img { 
+            width: 100%; height: 120px; object-fit: cover; 
+            border-radius: 4px; cursor: pointer; 
+        }
+
+        /* SCORE BADGE */
+        .score-box { 
+            text-align: center; padding: 5px 15px; border-radius: 8px; 
+            background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        
+        <div class="d-flex align-items-center gap-3">
+            <a href="/core/dashboard/" class="btn btn-outline-secondary btn-sm rounded-circle shadow-sm" 
+               style="width: 35px; height: 35px; padding: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+               onmouseover="this.style.backgroundColor='#e9ecef'" 
+               onmouseout="this.style.backgroundColor='transparent'">
+                <i class="fas fa-arrow-left text-dark"></i>
+            </a>
+
+            <div style="height: 25px; width: 1px; background-color: #ddd;"></div>
+
+            <div>
+                <h5 class="mb-0 text-dark fw-bold" style="line-height: 1;">{{ report.applicant_name }}</h5>
+                <span class="badge bg-light text-secondary border mt-1 font-monospace" style="font-size: 0.7rem;">
+                    FILE: {{ report.office_file_no }}
+                </span>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-4">
+            <div class="text-end lh-1">
+                <small class="text-muted d-block" style="font-size:0.7rem">SUBMITTED BY</small>
+                <span class="fw-bold text-primary">{{ report.user.user_name }}</span>
+            </div>
+            <div class="text-end lh-1">
+                <small class="text-muted d-block" style="font-size:0.7rem">DATE</small>
+                <span class="fw-bold">{{ report.updated_at|date:"d M, Y" }}</span>
+            </div>
+            <div class="score-box">
+                <div class="fw-bold h5 mb-0">{{ completion_percent }}%</div>
+                <small style="font-size:0.65rem">COMPLETED</small>
+            </div>
+            
+            {% if pdf_url %}
+            <a href="{{ pdf_url }}?download=true" class="btn btn-dark btn-sm rounded-pill px-3">
+                <i class="fas fa-download me-1"></i> PDF
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="split-container">
+        
+        <div class="col-pdf">
+            {% if pdf_url %}
+                <iframe src="{{ pdf_url }}" class="pdf-frame" title="PDF Preview"></iframe>
+            {% else %}
+                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-white-50">
+                    <i class="fas fa-file-pdf fs-1 mb-3"></i>
+                    <span>PDF not generated yet</span>
+                </div>
+            {% endif %}
+        </div>
+
+       <div class="col-data">
+        
+        {% if sketches %}
+        <div class="mb-5">
+            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3"><i class="fas fa-images me-2"></i> Site Images</h6>
+            <div class="img-grid">
+                {% for sketch in sketches %}
+                    <div class="sketch-card">
+                        <a href="{{ sketch.image.url }}" target="_blank">
+                            <img src="{{ sketch.image.url }}" class="sketch-img" alt="Sketch">
+                        </a>
+                        <small class="text-muted d-block mt-1 text-truncate">{{ sketch.source_key }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div>
+            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">
+                <i class="fas fa-file-alt me-2"></i> Report Details
+            </h6>
+            
+            <div class="row">
+                {% for item in structured_data %}
+                    
+                    {# ================= CASE 1: SECTIONS (Nested Dictionaries) ================= #}
+                    {% if item.type == 'section' %}
+                        <div class="col-12 mt-4 mb-2">
+                            <div class="bg-light p-3 rounded border">
+                                <h6 class="text-dark fw-bold text-uppercase mb-3 border-bottom border-dark pb-2">
+                                    {{ item.key }}
+                                </h6>
+                                
+                                {% for sub in item.val %}
+                                    <div class="data-group mb-2">
+                                        
+                                        {# 1.1: ROOF TABLE (Nested) #}
+                                        {% if sub.type == 'roof_table' %}
+                                            <div class="bg-white p-3 rounded border shadow-sm mt-2">
+                                                <h6 class="fw-bold text-primary mb-2">{{ sub.key }}</h6>
+                                                <div class="mb-2"><span class="small text-muted text-uppercase">Type:</span> <span class="fw-bold">{{ sub.main_type }}</span></div>
+                                                <table class="table table-sm table-bordered mb-0 text-center small">
+                                                    <thead class="table-light"><tr>{% for p in sub.percentages %}<th>{{ p.k }}</th>{% endfor %}</tr></thead>
+                                                    <tbody><tr>{% for p in sub.percentages %}<td class="fw-bold text-dark">{{ p.v }}%</td>{% endfor %}</tr></tbody>
+                                                </table>
+                                            </div>
+
+                                        {# 1.2: GROUP BOX (Yards/Floors Nested) #}
+                                        {% elif sub.type == 'group_box' %}
+                                            <div class="bg-white p-3 rounded border shadow-sm mt-2">
+                                                <h6 class="fw-bold text-primary mb-3 border-bottom pb-1">{{ sub.key }}</h6>
+                                                <div class="row g-2">
+                                                    {% for field in sub.fields %}
+                                                        <div class="col-6">
+                                                            <div class="bg-light p-2 rounded border">
+                                                                <div class="text-muted small text-uppercase" style="font-size:0.65rem">{{ field.k }}</div>
+                                                                <div class="fw-bold text-dark small">{{ field.v }}</div>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+
+                                        {# 1.3: RECORD LIST (Survey Docs Nested) #}
+                                        {% elif sub.type == 'record_list' %}
+                                            <div class="mt-2">
+                                                <span class="data-label text-primary">{{ sub.key }}</span>
+                                                {% for record in sub.val %}
+                                                    <div class="mt-2 mb-2 border rounded p-2 bg-white shadow-sm" style="border-left: 3px solid #00a884 !important;">
+                                                        <h6 class="fw-bold text-dark small mb-2"><span class="badge bg-warning text-dark me-1">Rec</span> {{ record.title }}</h6>
+                                                        <div class="row g-1">
+                                                            {% for field in record.fields %}
+                                                                <div class="col-6"><div class="bg-light p-1 rounded"><span class="d-block text-muted" style="font-size:0.6rem">{{ field.k }}</span><span class="fw-bold small">{{ field.v }}</span></div></div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+
+                                        {# 1.4: SIMPLE LIST #}
+                                        {% elif sub.type == 'list' %}
+                                            <span class="data-label text-secondary small fw-bold">{{ sub.key }}</span>
+                                            <ul class="list-group list-group-flush mt-1 mb-2">
+                                                {% for li in sub.val %}
+                                                    <li class="list-group-item bg-transparent py-1 px-0 small"><i class="fas fa-check text-success me-2"></i>{{ li }}</li>
+                                                {% endfor %}
+                                            </ul>
+
+                                        {# 1.5: STANDARD TEXT #}
+                                        {% else %}
+                                            <span class="data-label text-secondary small fw-bold">{{ sub.key }}</span>
+                                            <div class="data-value mt-1">{{ sub.val }}</div>
+                                        {% endif %}
+
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    {# ================= CASE 2: ROOF TABLE (Top Level) ================= #}
+                    {% elif item.type == 'roof_table' %}
+                        <div class="col-12 mb-3">
+                            <div class="p-3 rounded border bg-white shadow-sm border-top-0 border-end-0 border-bottom-0" style="border-left: 4px solid #0d6efd;">
+                                <h6 class="text-primary fw-bold mb-3"><i class="fas fa-home me-2"></i>{{ item.key }}</h6>
+                                <div class="mb-3"><span class="small text-muted text-uppercase fw-bold">Primary Type:</span> <span class="fs-6 fw-bold text-dark ms-2">{{ item.main_type }}</span></div>
+                                <table class="table table-sm table-bordered mb-0 text-center">
+                                    <thead class="table-light"><tr>{% for p in item.percentages %}<th>{{ p.k }}</th>{% endfor %}</tr></thead>
+                                    <tbody><tr>{% for p in item.percentages %}<td class="fw-bold text-primary">{{ p.v }}%</td>{% endfor %}</tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    {# ================= CASE 3: GROUP BOX (Yards/Floors Top Level) ================= #}
+                    {% elif item.type == 'group_box' %}
+                        <div class="col-12 mb-3">
+                            <div class="p-3 rounded border bg-white shadow-sm border-top-0 border-end-0 border-bottom-0" style="border-left: 4px solid #6c757d;">
+                                <h6 class="text-dark fw-bold text-uppercase mb-3">{{ item.key }}</h6>
+                                <div class="row g-3">
+                                    {% for field in item.fields %}
+                                        <div class="col-md-6">
+                                            <div class="d-flex flex-column bg-light p-2 border rounded h-100 justify-content-center">
+                                                <span class="text-muted" style="font-size:0.7rem; text-transform:uppercase;">{{ field.k }}</span>
+                                                <span class="fw-bold text-dark">{{ field.v }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                    {# ================= CASE 4: BOUNDARY ANALYSIS ================= #}
+                    {% elif item.type == 'boundary_group' %}
+                        <div class="col-12 mt-4 mb-2">
+                            <div class="p-3 rounded border" style="background: #f8f9fa;">
+                                <h6 class="text-dark fw-bold text-uppercase mb-4 border-bottom border-dark pb-2">{{ item.key }}</h6>
+                                <div class="row">
+                                    {% for doc in item.val %}
+                                        <div class="col-12 col-xl-6 mb-3">
+                                            <div class="bg-white border rounded shadow-sm h-100">
+                                                <div class="p-2 border-bottom bg-light fw-bold text-primary text-center"><i class="fas fa-file-contract me-2"></i>{{ doc.doc_name }}</div>
+                                                <div class="p-3">
+                                                    {% for k, v in doc.data.items %}
+                                                        <div class="d-flex justify-content-between border-bottom py-2"><span class="text-secondary small fw-bold text-uppercase">{{ k }}</span><span class="text-dark fw-semibold text-end">{{ v }}</span></div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                    {# ================= CASE 5: RECORD LISTS (Survey Docs Top Level) ================= #}
+                    {% elif item.type == 'record_list' %}
+                        <div class="col-12 mb-3">
+                            <div class="data-group">
+                                <span class="data-label text-primary">{{ item.key }}</span>
+                                {% for record in item.val %}
+                                    <div class="mt-2 mb-3 border rounded p-3 bg-white shadow-sm" style="border-left: 4px solid #00a884 !important;">
+                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-2"><span class="badge bg-warning text-dark me-2">Rec</span> {{ record.title }}</h6>
+                                        <div class="row">
+                                            {% for field in record.fields %}
+                                                <div class="col-md-6 mb-2"><div class="d-flex flex-column bg-light p-2 rounded"><span class="text-muted" style="font-size:0.65rem; text-transform:uppercase;">{{ field.k }}</span><span class="fw-bold text-dark" style="font-size:0.85rem;">{{ field.v }}</span></div></div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    {# ================= CASE 6: SIMPLE LISTS ================= #}
+                    {% elif item.type == 'list' %}
+                        <div class="col-12 mb-3">
+                            <div class="data-group">
+                                <span class="data-label">{{ item.key }}</span>
+                                <ul class="list-group mt-1">
+                                    {% for li in item.val %}
+                                        <li class="list-group-item py-2 px-3 bg-light border-0"><i class="fas fa-check text-success me-2 small"></i> {{ li }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                    {# ================= CASE 7: TEXT ================= #}
+                    {% else %}
+                        <div class="col-12 mb-3">
+                            <div class="data-group">
+                                <span class="data-label">{{ item.key }}</span>
+                                <div class="data-value">{{ item.val }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                {% empty %}
+                    <div class="alert alert-light w-100 text-center">No data available</div>
+                {% endfor %}
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

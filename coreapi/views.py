@@ -39,6 +39,8 @@ from chat.models import FolderChatMessage, FolderChatVisit
 from django.core.cache import cache
 from .utils import get_case_folder_info
 from playwright.sync_api import sync_playwright
+import sys
+import asyncio
 
 
 @csrf_protect
@@ -60,24 +62,21 @@ def login_page(request):
     return render(request, "login.html")
 
 
-# def admin_dashboard(request):
-#     users = UserProfile.objects.all()
-#     return render(request, "admin_dashboard.html", {"users": users})
-
 
 def dashboard(request):
     role = request.session.get("user_role")
-    # if role == "admin":
-    #     return redirect("coreapi:admin_dashboard")
-    if role in ["office", "IT", "site"]:
+    
+    # 1. Admin goes to the new Core Dashboard
+    if role == "admin":
+        # Ensure 'core' is in your INSTALLED_APPS and urls.py
+        return redirect("core:admin_dashboard") 
+        
+    # 2. Others go to the Office Dashboard
+    elif role in ["office", "IT", "site"]:
         return redirect("coreapi:office_dashboard")
-    return JsonResponse({"error": "Invalid"}, status=401)
-
-# ================================
-
-def admin_dash(request):
-    return render(request,"admin_dashboard.html")
-
+        
+    # 3. Unknown roles get rejected
+    return JsonResponse({"error": "Unauthorized Role"}, status=401)
 # ==========================
 
 @csrf_protect
@@ -272,151 +271,186 @@ def search_files(request):
         "folders": processed_folders,
         "files": matched_files
     })
-
 @require_http_methods(["GET"])
 def get_folder_contents_api(request):
-    rel_path = request.GET.get("path", "").strip("/") 
+    rel_path = request.GET.get("path", "").strip("/")
+    # 1. Get Pagination Params (Default: Page 1, 50 items per page)
+    page = int(request.GET.get("page", 1))
+    limit = int(request.GET.get("limit", 50))
+    
     base = os.path.realpath(DOCUMENTS_FOLDER)
     abs_path = os.path.realpath(os.path.join(base, rel_path))
+    
     saved_draft = None
-    if not abs_path.startswith(base) or not os.path.isdir(abs_path):
-        return JsonResponse({"folders": [], "files": []})
-    auto_fill_data = None
-    if rel_path:
-        current_folder_name = os.path.basename(abs_path)
-        auto_fill_data = parse_folder_metadata(current_folder_name)
-    folder_name = os.path.basename(abs_path)
-    has_hash = "#" in folder_name
-    is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name)
-    is_chat_folder = bool(has_hash or is_case_folder)
-
-    user_id = request.session.get("user_id")
-    if user_id and rel_path: # Only check if user is logged in and not at root
-        try:
-            # Find a report for this user in this specific folder
-            draft = SiteVisitReport.objects.filter(
-                user_id=user_id, 
-                target_folder=rel_path
-            ).order_by('-updated_at').first()
-            
-            if draft and draft.form_data:
-                # If form_data is string, parse it; else use as is
-                saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
-        except Exception as e:
-            print(f"Draft fetch error: {e}")
-
     folder_info = None
-    if is_chat_folder:
-        folder_info = get_case_folder_info(abs_path)
-    folders = []
-    files = []
+    auto_fill_data = None
+
+    if not abs_path.startswith(base) or not os.path.isdir(abs_path):
+        return JsonResponse({"folders": [], "files": [], "has_next": False})
+
+    # --- METADATA (Only load this on Page 1 to save speed) ---
+    if page == 1:
+        if rel_path:
+            current_folder_name = os.path.basename(abs_path)
+            auto_fill_data = parse_folder_metadata(current_folder_name)
+        
+        # Check for case/chat info
+        folder_name = os.path.basename(abs_path)
+        has_hash = "#" in folder_name
+        is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name)
+        
+        if has_hash or is_case_folder:
+            folder_info = get_case_folder_info(abs_path)
+            
+            # Fetch Saved Draft if exists
+            user_id = request.session.get("user_id")
+            if user_id:
+                try:
+                    draft = SiteVisitReport.objects.filter(
+                        user_id=user_id, target_folder=rel_path
+                    ).order_by('-updated_at').first()
+                    if draft and draft.form_data:
+                        saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
+                        if 'vectors' in saved_draft: del saved_draft['vectors']
+                        # Inject Images
+                        sketches = ReportSketch.objects.filter(report=draft)
+                        if 'images' not in saved_draft: saved_draft['images'] = {}
+                        for sketch in sketches:
+                            if sketch.image: saved_draft['images'][sketch.source_key] = sketch.image.url
+                except Exception as e:
+                    print(f"Draft fetch error: {e}")
+
+    # --- SCANNING & PAGINATION ---
+    all_folders = []
+    all_files = []
+    
     user_id = request.session.get("user_id")
     current_user_profile = None
     if user_id:
-        try:
-            current_user_profile = UserProfile.objects.get(id=user_id)
-        except UserProfile.DoesNotExist:
-            pass
+        try: current_user_profile = UserProfile.objects.get(id=user_id)
+        except: pass
+
     try:
+        # Scan everything (We have to scan all to sort them correctly)
         with os.scandir(abs_path) as it:
             for entry in it:
                 if entry.is_dir():
-                    folder_stats = entry.stat()
-                    name = entry.name
-                    
-                    if rel_path:
-                        full_rel_path = f"{rel_path}/{name}"
-                    else:
-                        full_rel_path = name
-                    
-                    full_abs_path = os.path.join(abs_path, name)
-                    has_hash = "#" in name
-                    is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
-                    has_chat = bool(has_hash or is_case_folder)
-                    
-                    is_unread = False
-                    if has_chat and current_user_profile:
-                        is_unread = check_unread_status(current_user_profile, full_rel_path)
-                    
-                    status_color = None
-                    if has_chat:
-                        cache_key = f"folder_status_{full_abs_path}"
-                        cached_stats = cache.get(cache_key)
-                        if cached_stats:
-                            status_color = cached_stats['status_color']
-                        else:
-                            stats = get_case_folder_info(full_abs_path)
-                            if stats:
-                                status_color = stats['status_color']
-                                cache.set(cache_key, stats, 3600)
-
-                    folders.append({
-                        "name": entry.name,
-                        "path": full_rel_path,
-                        "type": "folder",
-                        "has_chat": has_chat,
-                        "is_unread": is_unread,
-                        "status_color": status_color,
-                        "created": folder_stats.st_mtime
-                    })
+                    all_folders.append(entry)
                 else:
-                    stats = entry.stat() 
-                    ext = os.path.splitext(entry.name)[1].lower()
-                    
-                    if rel_path:
-                        full_file_path = f"{rel_path}/{entry.name}"
-                    else:
-                        full_file_path = entry.name
+                    all_files.append(entry)
 
-                    files.append({
-                        "name": entry.name,
-                        "path": full_file_path, 
-                        "parent_folder": rel_path,
-                        "type": "file",
-                        "extension": ext,
-                        "mime_type": "application/octet-stream",
-                        "size": format_file_size(stats.st_size),
-                    })
+        # Sort (Folders by date, Files by name)
+        all_folders.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        all_files.sort(key=lambda x: x.name.lower())
+
+        # --- CALCULATE SLICE ---
+        total_items = all_folders + all_files
+        start = (page - 1) * limit
+        end = start + limit
+        
+        # Get the slice for this page
+        # Note: We prioritize folders first, then files.
+        # Logic: If page 1 asks for 50 items, and we have 20 folders, we return 20 folders + 30 files.
+        
+        folders_to_process = []
+        files_to_process = []
+        
+        current_idx = 0
+        
+        # Add Folders to result if they fall in the range
+        for f in all_folders:
+            if current_idx >= start and current_idx < end:
+                folders_to_process.append(f)
+            current_idx += 1
+            
+        # Add Files to result if they fall in the range
+        for f in all_files:
+            if current_idx >= start and current_idx < end:
+                files_to_process.append(f)
+            current_idx += 1
+
+        has_next = current_idx > end
+
+        # --- PROCESS ONLY THE SLICE (Performance Win!) ---
+        final_folders = []
+        for entry in folders_to_process:
+            folder_stats = entry.stat()
+            name = entry.name
+            full_rel_path = f"{rel_path}/{name}" if rel_path else name
+            full_abs_path = os.path.join(abs_path, name)
+            
+            # Chat logic
+            has_hash = "#" in name
+            is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
+            has_chat = bool(has_hash or is_case_folder)
+            
+            is_unread = False
+            status_color = None
+            
+            if has_chat:
+                if current_user_profile:
+                    is_unread = check_unread_status(current_user_profile, full_rel_path)
+                
+                # Get Status Color
+                cache_key = f"folder_status_{full_abs_path}"
+                cached_stats = cache.get(cache_key)
+                if cached_stats:
+                    status_color = cached_stats['status_color']
+                else:
+                    stats = get_case_folder_info(full_abs_path)
+                    if stats:
+                        status_color = stats['status_color']
+                        cache.set(cache_key, stats, 3600)
+
+            final_folders.append({
+                "name": name,
+                "path": full_rel_path,
+                "type": "folder",
+                "has_chat": has_chat,
+                "is_unread": is_unread,
+                "status_color": status_color,
+                "created": folder_stats.st_mtime
+            })
+
+        final_files = []
+        for entry in files_to_process:
+            stats = entry.stat()
+            ext = os.path.splitext(entry.name)[1].lower()
+            full_file_path = f"{rel_path}/{entry.name}" if rel_path else entry.name
+            
+            final_files.append({
+                "name": entry.name,
+                "path": full_file_path,
+                "parent_folder": rel_path,
+                "type": "file",
+                "extension": ext,
+                "size": format_file_size(stats.st_size),
+            })
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-    # Sort results
-    folders.sort(key=lambda x: x.get("created", 0), reverse=True)
-    files.sort(key=lambda x: x["name"].lower())
-    
-    current_folder_info = None
-    is_target_folder = bool("#" in os.path.basename(abs_path) or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', os.path.basename(abs_path)))
-
-    if is_target_folder:
-         current_folder_info = get_case_folder_info(abs_path)
-         
-         # ✅ FIX 2: Also save when opening the folder (Missing in your code)
-         if current_folder_info:
-             cache_key = f"folder_status_{abs_path}"
-             cache.set(cache_key, current_folder_info, 3600)
-
     return JsonResponse({
-        "folders": folders,
-        "files": files,
-        "folder_info": current_folder_info,
+        "folders": final_folders,
+        "files": final_files,
+        "folder_info": folder_info,
         "auto_fill": auto_fill_data,
-        "saved_draft": saved_draft
+        "saved_draft": saved_draft,
+        "has_next": has_next, # Tell frontend if there is more
+        "page": page
     })
 
 def parse_folder_metadata(folder_name):
     """
     Robust parsing for various bank folder formats.
-    Ignores simple numeric folders (years/ids like '100', '2025').
     """
     # 1. SKIP INVALID FOLDERS
     # If folder is just a number (e.g., "100", "2025"), ignore it.
     if folder_name.isdigit():
         return None
     
-    # If folder has no separators (_ or # or -), it's likely a container, not a case.
-    if "_" not in folder_name and "#" not in folder_name and " - " not in folder_name:
-        return None
+    # ❌ REMOVED THE STRICT SEPARATOR CHECK
+    # We now trust the Regex below to find the pattern, even if separators vary.
 
     print(f"DEBUG: Parsing case folder -> {folder_name}")
 
@@ -427,20 +461,20 @@ def parse_folder_metadata(folder_name):
     }
 
     # 2. EXTRACT FILE NUMBER
-    # Strict Rule: Must be at the START, followed by a separator (underscore, space, hyphen)
-    # or inside a HDFC pattern.
-    # ^(\d+)  -> Starts with digits
-    # (?=[_ \-]) -> Lookahead ensuring an underscore, space, or dash follows immediately
+    # Strategy: Look for digits at the start, followed by ANY separator (Space, _, -)
+    # ^(\d+)      -> Starts with digits
+    # (?=[_ \-])  -> Lookahead: followed by _, space, or -
     file_match = re.search(r'^(\d+)(?=[_ \-])', folder_name)
     
-    # Fallback: Sometimes HDFC puts "HDFC - 1011..."
+    # Fallback: HDFC style "HDFC - 1011..." or just "1011 John"
     if not file_match:
-        file_match = re.search(r'[\- ]+(\d{4,})(?=[_ \-])', folder_name)
+        # Try to find any sequence of 4+ digits
+        file_match = re.search(r'(\d{4,})', folder_name)
 
     if file_match:
         metadata['file_no'] = file_match.group(1)
 
-    # 3. PRODUCT MAPPING
+    # 3. PRODUCT MAPPING (Same as before)
     product_map = {
         'RESL': 'resale', 'RESA': 'resale',
         'LAPL': 'lap', 'BLLP': 'lap', 'SBLM': 'lap', 'CCOL': 'lap', 'LAP': 'lap',
@@ -453,7 +487,6 @@ def parse_folder_metadata(folder_name):
     }
     
     product_keys = "|".join(product_map.keys())
-    # Regex looks for code surrounded by underscores or at boundaries
     prod_match = re.search(f'(?:^|_| )({product_keys})(?:$|_| )', folder_name, re.IGNORECASE)
     
     if prod_match:
@@ -467,25 +500,30 @@ def parse_folder_metadata(folder_name):
         if name_match:
             metadata['applicant_name'] = name_match.group(1).replace('_', ' ').strip()
     
-    # Strategy B: Name at the END (After last underscore)
-    elif '_' in folder_name:
-        parts = folder_name.split('_')
-        # Filter empty strings caused by trailing underscores
-        parts = [p for p in parts if p.strip()]
+    # Strategy B: Remove the File Number and Product Code, clean the rest
+    else:
+        # Start with the full name
+        clean_name = folder_name
         
-        if len(parts) > 1:
-            possible_name = parts[-1].strip()
-            # Clean file extensions if present
-            possible_name = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', possible_name)
-            
-            # Sanity Check: If name is purely digits or a date, it's not a name.
-            if not re.match(r'^[\d\.\-]+$', possible_name):
-                metadata['applicant_name'] = possible_name
-            elif len(parts) > 2:
-                # Try the previous part if last part was a date/number
-                metadata['applicant_name'] = parts[2]
+        # Remove the file number we found
+        if metadata['file_no']:
+            clean_name = clean_name.replace(metadata['file_no'], '')
 
-    # If we didn't find *any* useful data, return None to avoid partial junk fills
+        # Remove the product code we found
+        if prod_match:
+            clean_name = clean_name.replace(prod_match.group(1), '')
+
+        # Remove separators and file extensions
+        clean_name = re.sub(r'[_ \-]', ' ', clean_name) # Turn _ and - into spaces
+        clean_name = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', clean_name) # Remove .pdf etc
+        
+        # Remove Date patterns (DD.MM.YYYY)
+        clean_name = re.sub(r'\d{2}\.\d{2}\.\d{4}', '', clean_name)
+
+        # Cleanup whitespace
+        metadata['applicant_name'] = clean_name.strip()
+
+    # Final Sanity Check
     if not metadata['file_no'] and not metadata['applicant_name']:
         return None
 
@@ -510,6 +548,16 @@ def auto_save_api(request):
         data = json.loads(request.body)
         folder_path = data.get('folder_path')
         form_payload = data.get('payload')
+        metrics = data.get('completion_metrics')
+        
+        if metrics and 'percent' in metrics:
+            # Handle cases where it might be "100" (string) or 100 (int)
+            try:
+                score = int(float(metrics['percent']))
+            except (ValueError, TypeError):
+                score = 0
+        else:
+            score = 0
         
         if not folder_path or not form_payload:
             return JsonResponse({'success': False, 'error': 'Missing data'})
@@ -570,6 +618,7 @@ def auto_save_api(request):
         report.form_data = form_payload
         report.office_file_no = clean_file_no
         report.applicant_name = clean_name
+        report.completion_score = score
         report.save()
 
         return JsonResponse({
@@ -1178,6 +1227,12 @@ def get_report_data(request, report_id):
 @require_POST
 def finalize_pdf(request):
     try:
+        # --- CORRECT FIX: Force ProactorEventLoop for Windows ---
+        # Playwright requires subprocesses, which only Proactor supports on Windows.
+        if sys.platform == 'win32':
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        # --------------------------------------------------------
+
         # 1. Parse Data
         payload = json.loads(request.body)
         report_id = payload.get('report_id')
@@ -1187,9 +1242,7 @@ def finalize_pdf(request):
         if not html_content:
             return JsonResponse({'success': False, 'error': "No HTML content received"}, status=400)
 
-        # ... (Your DB saving logic remains the same) ...
-
-        # 2. Determine Save Directory (Same as before)
+        # 2. Determine Save Directory
         if not target_path or target_path == "/":
             save_dir = settings.DOCUMENTS_ROOT
         else:
@@ -1199,7 +1252,7 @@ def finalize_pdf(request):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir, exist_ok=True)
 
-        # 3. Filename Logic (Same as before)
+        # 3. Filename Logic
         checklist = payload.get('Valuers_Checklist', {})
         raw_file_no = checklist.get('Office_file_no') or 'Draft'
         raw_name = checklist.get('applicant_name') or 'Report'
@@ -1215,18 +1268,14 @@ def finalize_pdf(request):
                 break
             counter += 1
 
-        # --- THE NEW PDF GENERATION (Using Playwright) ---
+        # 4. GENERATE PDF
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page()
             
-            # 1. SET CONTENT & WAIT
-            # 'networkidle' ensures it waits for images (logo/sketches) to download
+            # Set content & wait for network to be idle (images loaded)
             page.set_content(html_content, wait_until="networkidle") 
             
-            # 2. GENERATE PDF
-            # ... inside finalize_pdf ...
-
             page.pdf(
                 path=full_save_path,
                 format="A4",
@@ -1236,13 +1285,23 @@ def finalize_pdf(request):
             )
             browser.close()
 
-        # 4. Backup Logic (Same as before)
+        # 5. Backup Logic
         try:
             backup_dir = os.path.join(settings.BASE_DIR, 'generated_pdfs')
             if not os.path.exists(backup_dir):
                 os.makedirs(backup_dir, exist_ok=True)
             backup_save_path = os.path.join(backup_dir, pdf_filename)
             shutil.copy2(full_save_path, backup_save_path)
+            
+            if report_id:
+                try:
+                    rpt = SiteVisitReport.objects.get(id=report_id)
+                    rpt.generated_pdf_name = pdf_filename 
+                    rpt.save()
+                except:
+                    pass
+
+            return JsonResponse({'success': True, 'file_path': full_save_path})
         except Exception as copy_error:
             print(f"Warning: Could not save backup copy: {copy_error}")
         
@@ -1252,7 +1311,8 @@ def finalize_pdf(request):
         import traceback
         traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    
+
+
 # ==========================================
 #  PDF GENERATION UTILS
 # ==========================================

@@ -1,0 +1,425 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vadrida Command Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --wa-teal: #00a884;
+            --wa-chat-bg: #efeae2;
+            --wa-incoming: #ffffff;
+            --wa-outgoing: #d9fdd3;
+        }
+        
+        body { 
+            background-color: #d1d7db; 
+            font-family: 'Segoe UI', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; /* Prevent body scroll */
+            margin: 0;
+        }
+
+        .app-header {
+            background-color: var(--wa-teal);
+            height: 120px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            z-index: -1;
+        }
+
+        /* --- FIXED GRID LAYOUT --- */
+        .dashboard-container { 
+            display: flex; 
+            height: 96vh; 
+            margin: 2vh auto; 
+            max-width: 1800px; 
+            width: 98%;
+            gap: 15px; 
+        }
+
+        /* Flex Columns with min-height:0 for scrolling */
+        .col-left { 
+            width: 320px; 
+            display: flex; flex-direction: column; 
+            flex-shrink: 0; 
+            height: 100%;
+        }
+        .col-center { 
+            flex-grow: 1; 
+            display: flex; flex-direction: column; 
+            min-width: 0; 
+            height: 100%;
+        }
+        .col-right { 
+            width: 400px; 
+            display: flex; flex-direction: column; 
+            flex-shrink: 0; 
+            height: 100%;
+        }
+
+        /* PANELS */
+        .panel { 
+            background: white; 
+            display: flex; flex-direction: column; 
+            height: 100%; 
+            overflow: hidden; /* Critical for inner scroll */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        }
+        
+        .panel-header { 
+            background: #f0f2f5; 
+            padding: 10px 16px; 
+            border-bottom: 1px solid #d1d7db; 
+            height: 60px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between; 
+            font-weight: 600; color: #54656f; 
+        }
+
+        /* SCROLLABLE BODY */
+        .panel-body { 
+            flex-grow: 1; 
+            overflow-y: auto; /* Enables scrolling */
+            min-height: 0; /* Flexbox scroll fix */
+            position: relative;
+        }
+
+        /* USER LIST */
+        .user-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f2f5; transition: 0.1s; }
+        .user-item:hover { background-color: #f5f6f6; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #dfe3e5; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: white; font-weight: bold; position: relative; flex-shrink: 0; }
+        .status-dot { width: 13px; height: 13px; border: 2px solid white; border-radius: 50%; position: absolute; bottom: 0; right: 0; }
+        .online { background: #25d366; } .offline { background: #aebac1; }
+
+        /* CHAT */
+        .chat-area { 
+            background-color: var(--wa-chat-bg);
+            background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
+            flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; 
+        }
+        .msg-bubble { max-width: 70%; padding: 6px 10px; border-radius: 7px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); font-size: 14px; }
+        .msg-in { align-self: flex-start; background: var(--wa-incoming); border-top-left-radius: 0; }
+        .msg-out { align-self: flex-end; background: var(--wa-outgoing); border-top-right-radius: 0; }
+        .attachment-box { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 5px; margin-bottom: 5px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        
+        .chat-input-area { background: #f0f2f5; padding: 10px; display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+        .chat-input { border: none; padding: 10px 15px; border-radius: 20px; flex-grow: 1; outline: none; font-size: 14px; }
+
+        /* FOLDERS */
+        .folder-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; }
+        .folder-row:hover { background-color: #f5f6f6; }
+        .folder-icon { font-size: 1.6rem; color: #ffd700; margin-right: 12px; }
+        
+        .folder-details { display: flex; flex-direction: column; min-width: 0; flex-grow: 1; }
+        .folder-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .folder-meta { font-size: 0.75rem; color: #667781; }
+
+        .case-status-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: -2px; }
+        .bg-green-500 { background-color: #22c55e; } .bg-yellow-400 { background-color: #facc15; } .bg-red-500 { background-color: #ef4444; } .bg-gray-400 { background-color: #9ca3af; }
+        .chat-unread-badge { width: 10px; height: 10px; background: #e74c3c; border-radius: 50%; position: absolute; top: -2px; right: -2px; border: 2px solid white; }
+    </style>
+</head>
+<body>
+
+<div class="app-header"></div>
+
+<div class="dashboard-container">
+
+    <div class="col-left">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="d-flex align-items-center gap-2"><i class="fas fa-users"></i> Team</div>
+                <span class="badge bg-success rounded-pill" id="online-count">0</span>
+            </div>
+            <div class="p-2 bg-light border-bottom flex-shrink-0">
+                <input type="text" id="teamSearch" class="form-control form-control-sm border-0" placeholder="Search team..." onkeyup="filterTeam()">
+            </div>
+            <div class="panel-body" id="user-list">
+                <div class="text-center p-4 text-muted small">Loading team...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-center">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="d-flex align-items-center gap-2">📢 Global Chat</div>
+                <button class="btn btn-sm btn-link text-decoration-none" onclick="location.reload()">Refresh</button>
+            </div>
+            
+            <div class="chat-area" id="global-chat-box"></div>
+            
+            <form id="globalChatForm" class="chat-input-area">
+                <label class="btn btn-light rounded-circle text-muted" style="width:40px;height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                    <i class="fas fa-paperclip"></i>
+                    <input type="file" id="chatFileInput" class="d-none">
+                </label>
+                <span id="pendingFileLabel" class="badge bg-primary d-none small me-2">File <i class="fas fa-times ms-1 cursor-pointer" onclick="clearFile()"></i></span>
+                <input type="text" id="globalChatInput" class="chat-input shadow-sm" placeholder="Type a message..." autocomplete="off">
+                <button type="submit" class="btn btn-success rounded-circle shadow-sm" style="width:45px; height:45px;"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-right">
+        <div class="panel">
+            <div class="panel-header">
+                <span><i class="fas fa-file-pdf"></i> Generated Reports</span>
+                <button class="btn btn-sm btn-light" onclick="loadGeneratedReports()">↻</button>
+            </div>
+            
+            <div class="p-2 bg-light border-bottom">
+                <input type="text" id="reportSearch" class="form-control form-control-sm border-0" placeholder="Search filename..." onkeyup="filterReports()">
+            </div>
+            
+            <div class="panel-body p-0" id="report-list">
+                <div class="text-center p-4 text-muted small">Loading reports...</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="userModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-light"><h5 class="modal-title" id="modalUserName">User Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row text-center mb-4"><div class="col-4 border-end"><h3 class="text-primary mb-0" id="modalTotalReports">0</h3><small>Total Reports</small></div><div class="col-4 border-end"><h3 class="text-success mb-0"><span id="modalAvgScore">0</span>%</h3><small>Avg Completion</small></div><div class="col-4"><h5 class="mb-0" id="modalLastSeen">-</h5><small>Last Seen</small></div></div><h6 class="border-bottom pb-2">Recent Reports</h6><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>File</th><th>Client</th><th>Score</th><th>Date</th><th>Action</th></tr></thead><tbody id="modalReportsBody"></tbody></table></div></div></div></div></div>
+<div class="modal fade" id="folderChatModal" tabindex="-1"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content" style="background: #efeae2;"><div class="modal-header bg-success text-white"><h5 class="modal-title fs-6" id="folderChatTitle">Case Chat</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-3" id="folderChatBody"></div><div class="modal-footer p-2 bg-white"><input type="text" id="folderChatInput" class="form-control rounded-pill" placeholder="Type a note..."><button class="btn btn-success rounded-circle" onclick="sendFolderMsg()"><i class="fas fa-paper-plane"></i></button></div></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // --- STATE CONFIG ---
+    const CURRENT_USERNAME = "{{ request.session.user_name|default:'Admin' }}";
+    function getCookie(name) { let v=null; document.cookie?.split(";").forEach(c=>{c=c.trim();if(c.startsWith(name+"="))v=decodeURIComponent(c.slice(name.length+1));}); return v; }
+    const csrftoken = getCookie("csrftoken");
+
+    // 1. DEFINE PROTOCOL
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+
+    let allUsers = [];
+    let allReports = [];
+    let pendingAttachment = null;
+    let liveSyncInterval = null; 
+
+    // 2. CONNECT TO PRESENCE SOCKET (Instant Updates)
+    const presenceWs = new WebSocket(`${protocol}://${location.host}/ws/presence/`);
+    
+    presenceWs.onopen = () => {
+        console.log("✅ Presence System Connected");
+        presenceWs.send(JSON.stringify({ "page": "Admin Dashboard" }));
+    };
+
+    presenceWs.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.type === "team_update") {
+            allUsers = data.members;
+            renderTeam(allUsers);
+        }
+    };
+
+    // 3. LIVE ENGINE (The Backup Heartbeat)
+    function startLiveUpdates() {
+        if (liveSyncInterval) clearInterval(liveSyncInterval);
+        
+        // Force refresh every 2 seconds to ensure status is always accurate
+        liveSyncInterval = setInterval(() => {
+            syncTeamData();             // <--- THIS FIXES YOUR ISSUE
+            loadGeneratedReports(true); 
+        }, 2000);
+    }
+
+    // --- 4. GLOBAL CHAT SOCKET ---
+    const ws = new WebSocket(`${protocol}://${location.host}/ws/chat/global/`);
+    ws.onopen = () => console.log("✅ Global WS Connected");
+    ws.onmessage = (e) => renderSingleMessage(JSON.parse(e.data));
+
+    // --- 5. TEAM DATA LOGIC ---
+    function syncTeamData() {
+        // Fetch fresh data from DB
+        fetch('/core/api/stats/').then(r=>r.json()).then(data => {
+            allUsers = data.team_members || [];
+            renderTeam(allUsers);
+        });
+    }
+
+    function renderTeam(users) {
+        const list = document.getElementById('user-list');
+        const term = document.getElementById('teamSearch').value.toLowerCase();
+        
+        // Prevent typing interruption
+        if(document.activeElement.id === 'teamSearch' && term.length > 0) return;
+
+        const filtered = users.filter(u => u.user_name.toLowerCase().includes(term));
+        
+        const countEl = document.getElementById('online-count');
+        if(countEl) countEl.innerText = users.filter(u => u.is_online).length;
+        
+        list.innerHTML = "";
+        filtered.forEach(u => {
+            const color = ['#00a884','#128C7E','#34B7F1'][u.user_name.length % 3];
+            const initial = u.user_name.charAt(0).toUpperCase();
+            const statusClass = u.is_online ? 'online' : 'offline';
+            
+            list.innerHTML += `
+                <div class="user-item" onclick="openUserModal('${u.id}')">
+                    <div class="avatar" style="background:${color}">
+                        ${initial}
+                        <div class="status-dot ${statusClass}"></div>
+                    </div>
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <div class="fw-bold text-dark" style="font-size:0.95rem">${u.user_name}</div>
+                    </div>
+                </div>`;
+        });
+    }
+    function filterTeam() { renderTeam(allUsers); }
+
+    // --- 6. GENERATED REPORTS LOGIC ---
+    function loadGeneratedReports(isBackgroundUpdate = false) {
+        const list = document.getElementById('report-list');
+        if (!isBackgroundUpdate) {
+            list.innerHTML = '<div class="text-center p-3 text-muted">Scanning PDF folder...</div>';
+        }
+
+        fetch('/core/api/pdfs/')
+            .then(r => r.json())
+            .then(data => {
+                allReports = data.files || [];
+                renderReports(allReports);
+            })
+            .catch(err => {
+                console.error(err);
+                if (!isBackgroundUpdate) {
+                    list.innerHTML = '<div class="text-center p-3 text-danger">Error fetching reports</div>';
+                }
+            });
+    }
+
+    function renderReports(files) {
+        const list = document.getElementById('report-list');
+        const term = document.getElementById('reportSearch').value.toLowerCase();
+        
+        if(document.activeElement.id === 'reportSearch' && term.length > 0) return;
+
+        const filtered = files.filter(f => 
+            f.applicant.toLowerCase().includes(term) || 
+            f.user.toLowerCase().includes(term)
+        );
+        
+        list.innerHTML = "";
+        if(filtered.length === 0) {
+            list.innerHTML = '<div class="text-center p-3 text-muted">No reports found</div>';
+            return;
+        }
+
+        filtered.forEach(f => {
+            const detailUrl = `/core/report-detail/${f.id}/`; 
+            
+            list.innerHTML += `
+                <div class="folder-row" onclick="window.open('${detailUrl}', '_blank')">
+                    <div class="d-flex align-items-center flex-grow-1 min-w-0">
+                        <div class="position-relative me-3">
+                            <i class="fas fa-file-pdf text-danger fs-4"></i>
+                        </div>
+                        <div class="folder-details">
+                            <div class="folder-name text-dark">${f.applicant}</div>
+                            <div class="folder-meta text-muted">
+                                ${f.file_no} • By ${f.user} • ${f.created}
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-muted small"></i>
+                </div>`;
+        });
+    }
+    function filterReports() { renderReports(allReports); }
+
+    // --- 7. CHAT & INPUT LOGIC ---
+    fetch("/chat/history/").then(r=>r.json()).then(data => {
+        const box = document.getElementById('global-chat-box');
+        box.innerHTML = "";
+        if(data.messages) data.messages.forEach(renderSingleMessage);
+        box.scrollTop = box.scrollHeight;
+    });
+
+    function renderSingleMessage(msg) {
+        const box = document.getElementById('global-chat-box');
+        const isMe = msg.user.toLowerCase() === CURRENT_USERNAME.toLowerCase();
+        const bubbleClass = isMe ? 'msg-out' : 'msg-in';
+        
+        let attach = "";
+        if (msg.attached_type !== "none" && msg.attached_path) {
+            let icon = msg.attached_path.endsWith(".pdf") ? "fa-file-pdf text-danger" : "fa-file-image text-primary";
+            attach = `<div class="attachment-box" onclick="window.open('/coreapi/serve-file/?path=${encodeURIComponent(msg.attached_path)}')">
+                        <i class="fas ${icon}"></i> <span class="text-truncate small fw-bold" style="max-width:150px;">${msg.attached_label}</span>
+                      </div>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = `msg-bubble ${bubbleClass}`;
+        div.innerHTML = `<div class="msg-sender">${msg.user}</div>${attach}<div>${msg.content}</div><div class="msg-meta">${msg.time}</div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    const chatForm = document.getElementById('globalChatForm');
+    const fileInput = document.getElementById('chatFileInput');
+    const pendingLabel = document.getElementById('pendingFileLabel');
+
+    fileInput.onchange = () => {
+        const file = fileInput.files[0];
+        if(!file) return;
+        pendingLabel.classList.remove('d-none');
+        pendingLabel.innerHTML = `${file.name} <i class="fas fa-times ms-1" onclick="clearFile()"></i>`;
+        
+        const fd = new FormData(); fd.append('file', file);
+        fetch("/chat/upload/", { method: "POST", headers: { "X-CSRFToken": csrftoken }, body: fd })
+        .then(r => r.json()).then(data => {
+            pendingAttachment = { type: "file", path: data.path, label: data.label };
+        });
+    };
+    window.clearFile = () => { fileInput.value = ""; pendingAttachment = null; pendingLabel.classList.add('d-none'); };
+
+    chatForm.onsubmit = (e) => {
+        e.preventDefault();
+        const input = document.getElementById('globalChatInput');
+        if(!input.value.trim() && !pendingAttachment) return;
+        if(ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                user: CURRENT_USERNAME,
+                content: input.value.trim(),
+                attached_type: pendingAttachment ? pendingAttachment.type : "text",
+                attached_path: pendingAttachment ? pendingAttachment.path : null,
+                attached_label: pendingAttachment ? pendingAttachment.label : null,
+            }));
+            input.value = ""; clearFile();
+        }
+    };
+
+    // --- 8. USER MODAL ---
+    function openUserModal(userId) {
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        modal.show();
+        fetch(`/core/api/user-details/${userId}/`).then(r=>r.json()).then(data=>{
+            document.getElementById('modalUserName').innerText = data.name;
+            document.getElementById('modalTotalReports').innerText = data.total_reports;
+            document.getElementById('modalAvgScore').innerText = data.avg_score;
+            document.getElementById('modalLastSeen').innerText = data.last_seen;
+            const tbody = document.getElementById('modalReportsBody');
+            tbody.innerHTML = "";
+            data.recent_work.forEach(w => {
+                const link = w.id ? `/core/report-detail/${w.id}/` : "#";
+                tbody.innerHTML += `<tr><td>${w.office_file_no||'-'}</td><td>${w.applicant_name||'-'}</td><td class="fw-bold">${w.completion_score}%</td><td>${new Date(w.updated_at).toLocaleDateString()}</td><td><a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary">View</a></td></tr>`;
+            });
+        });
+    }
+
+    // --- INIT ---
+    syncTeamData();
+    loadGeneratedReports();
+    startLiveUpdates();
+</script>
+</body>
+</html>

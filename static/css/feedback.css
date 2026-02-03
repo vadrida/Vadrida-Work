@@ -569,16 +569,7 @@ html, body {
   font-size: 14px;
 }
 
-.form-input,
-.form-select,
-.form-textarea {
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #f9fafb;
-  transition: border-color 0.2s;
-}
+
 
 .form-input:focus,
 .form-select:focus,

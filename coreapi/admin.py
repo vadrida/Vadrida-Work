@@ -24,7 +24,7 @@ class ReportSketchInline(admin.TabularInline):
 # 2. Main Report Admin
 @admin.register(SiteVisitReport)
 class SiteVisitReportAdmin(admin.ModelAdmin):
-    list_display = ('office_file_no', 'applicant_name', 'user', 'created_at')
+    list_display = ('office_file_no', 'applicant_name', 'user', 'created_at','generated_pdf_name')
     search_fields = ('office_file_no', 'applicant_name', 'user__user_name')
     list_filter = ('created_at', 'user')
     
@@ -47,7 +47,7 @@ class SiteVisitReportAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("Meta Info", {
-            "fields": ("user", "office_file_no", "applicant_name", "target_folder", "created_at")
+            "fields": ("user", "office_file_no", "applicant_name", "target_folder", "created_at","generated_pdf_name")
         }),
         ("Captured Data", {
             "fields": ("formatted_data",)

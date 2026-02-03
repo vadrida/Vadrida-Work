@@ -233,6 +233,44 @@
                 document.addEventListener("scroll", aggressiveRestore);
             }
         });
+        
+
     </script>
+{% if request.session.user_id %}
+<script>
+    (function() {
+        // 1. Auto-detect WebSocket Protocol (ws:// or wss://)
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const presenceWs = new WebSocket(`${protocol}://${window.location.host}/ws/presence/`);
+
+        // 2. Determine Current Page Name
+        let pageName = "Browsing";
+        const path = window.location.pathname;
+
+        if (path.includes('office')) {
+            pageName = "Office Dashboard";
+        } else if (path.includes('feedback')) {
+            pageName = "Feedback Form";
+        } else if (path.includes('admin')) {
+            pageName = "Admin Dashboard";
+        } else if (path.includes('report-detail')) {
+            pageName = "Viewing Report";
+        } else {
+            pageName = document.title || "Vadrida App";
+        }
+
+        // 3. Connect & Report Location
+        presenceWs.onopen = () => {
+            // console.log("🟢 Presence Active: " + pageName);
+            presenceWs.send(JSON.stringify({ "page": pageName }));
+        };
+
+        // 4. Handle Disconnect (Optional cleanup)
+        presenceWs.onclose = () => {
+            // console.log("🔴 Presence Disconnected");
+        };
+    })();
+</script>
+{% endif %}
 </body>
 </html>

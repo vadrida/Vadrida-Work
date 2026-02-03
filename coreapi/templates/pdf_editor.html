@@ -496,6 +496,33 @@
         <div class="img-wrapper" id="wrap_Ownership_Analysis_Ownership_Analysis_notes"></div>
 
         <div class="section-title">II. Survey Number & Land Extent</div>
+        <div class="row" style="margin-bottom: 5px;">
+            <div style="width: 50%;">
+                <div class="row">
+                    <label>District:</label>
+                    <div class="field-box" contenteditable="true" data-path="Survey.district"></div>
+                </div>
+                <div class="row">
+                    <label>Village:</label>
+                    <div class="field-box" contenteditable="true" data-path="Survey.village"></div>
+                </div>
+            </div>
+            <div style="width: 50%;">
+                <div class="row">
+                    <label>Taluk:</label>
+                    <div class="field-box" contenteditable="true" data-path="Survey.taluk"></div>
+                </div>
+                <div class="row">
+                    <label>Local Body:</label>
+                    <div class="field-box" contenteditable="true" data-path="Survey.local_body_type"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="row_panchayat_name">
+            <label>Grama Panchayat Name:</label>
+            <div class="field-box" contenteditable="true" data-path="Survey.grama_panchayat"></div>
+        </div>
         <table class="report-table">
             <thead>
                 <tr>
@@ -1226,10 +1253,7 @@
             });
     }
 // Inside pdfedit.html script
-
-function populateFooterDetails() {
-    const TAT_LIMIT = 5; 
-
+function populateFooterDetails(dateOverride = null) {
     // 1. Basic Fields
     const fileNo = getNested(reportData, "Valuers_Checklist.Office_file_no") || "N/A";
     const applicant = getNested(reportData, "Valuers_Checklist.applicant_name") || "N/A";
@@ -1241,45 +1265,52 @@ function populateFooterDetails() {
     const yStr = today.getFullYear();
     const todayFormatted = `${dStr}/${mStr}/${yStr}`;
 
-    // 3. TAT Calculation (Using Data passed from Feedback Page)
-    let tatText = "T + 0";
+    // 3. TAT Calculation
+    let tatText = "T + 0"; // Default fallback
     let tatColor = "#333"; 
 
-    // ✅ READ FROM SAVED STATE
-    const savedDate = reportData.meta_download_date; 
+    // ✅ PRIORITY: Use argument if passed, otherwise use saved report data
+    const savedDate = dateOverride || reportData.meta_download_date; 
 
     if (savedDate) {
         try {
-            // Expected format from server: DD/MM/YYYY or DD-MM-YYYY
-            const parts = savedDate.split(/[^0-9]/); 
+            console.log("Calculating TAT for date:", savedDate);
+
+            // Robust Parsing: Handles "01.02.2024", "01/02/2024", "01-02-2024"
+            const parts = savedDate.split(/[\.\-\/]/); 
+            
             if (parts.length === 3) {
-                const day = parseInt(parts[0]);
-                const month = parseInt(parts[1]) - 1; // JS Month is 0-11
-                const year = parseInt(parts[2]);
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // JS Month is 0-11
+                const year = parseInt(parts[2], 10);
                 
                 const startDate = new Date(year, month, day);
                 
-                // Calculate Days
+                // Calculate Days Difference
                 const msPerDay = 1000 * 60 * 60 * 24;
+                
+                // Normalize 'Today' to midnight to avoid hour mismatches
                 const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                 const startMid = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
                 
-                const diffDays = Math.floor((todayMid - startMid) / msPerDay);
+                const diffTime = todayMid - startMid;
+                const diffDays = Math.floor(diffTime / msPerDay);
                 
+                // ✅ SET TEXT: Simply "T + Number", no matter how big
                 tatText = `T + ${diffDays}`;
 
-                // Color Logic
-                if (diffDays > TAT_LIMIT) {
-                    tatColor = "#d32f2f"; // Red
-                    tatText += " (Overdue)";
-                } else if (diffDays === TAT_LIMIT) {
-                    tatColor = "#f57c00"; // Orange
+                // Color Logic (Optional: Keep colors, just remove text)
+                // You can change '3' to whatever your limit is
+                if (diffDays > 3) {
+                    tatColor = "#d32f2f"; // Red for anything > 3
                 } else {
-                    tatColor = "#2e7d32"; // Green
+                    tatColor = "#2e7d32"; // Green for 0-3
                 }
+            } else {
+                console.warn("Invalid Date Format received:", savedDate);
             }
         } catch (e) {
-            console.error("Date calculation error:", e);
+            console.error("TAT Calculation error:", e);
         }
     }
 
@@ -1386,6 +1417,15 @@ function populateFooterDetails() {
     // --- 1. SMART FIELD VISIBILITY ---
     document.querySelectorAll('.field-box[contenteditable="true"]').forEach(box => {
         const parentRow = box.closest('.row, .row-stacked');
+        const panchayatVal = getNested(reportData, "Survey.grama_panchayat");
+        const panchayatRow = document.getElementById("row_panchayat_name");
+        if (panchayatRow) {
+            if (!panchayatVal || panchayatVal.toString().trim() === "") {
+                panchayatRow.classList.add('hidden-row');
+            } else {
+                panchayatRow.classList.remove('hidden-row');
+            }
+        }
         
         // Reset defaults (in case of re-run)
         box.style.display = 'block'; 

@@ -8,7 +8,7 @@ from coreapi import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(pattern_name='coreapi:login_page', permanent=False)), 
-    path('home/', include('core.urls')), 
+    path('core/', include('core.urls')),
     path('coreapi/', include(('coreapi.urls', 'coreapi'), namespace='coreapi')), 
     path('chat/', include('chat.urls')),
     path('', include('pwa.urls')),

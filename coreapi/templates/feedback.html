@@ -6,17 +6,106 @@
 <link rel="stylesheet" href="{% static 'css/feedback.css' %}">
 
 <style>
-/* Fullscreen Animation & Layout */
+.left-column {
+width: 400px;               /* Starting Width */
+min-width: 250px;           /* Limit: Don't get smaller than this */
+max-width: 60%;             /* Limit: Don't get bigger than 60% of screen */
+
+display: flex;
+flex-direction: column;
+flex-shrink: 0;             /* CRITICAL: Prevents auto-shrinking */
+gap: 16px;
+padding: 16px;
+
+overflow-y: auto;           /* Scroll inside this column */
+border-right: 1px solid #e5e7eb;
+}
+.resizer-gutter {
+    width: 12px;
+    background: #f1f5f9;
+    cursor: col-resize;         /* Cursor looks like <-> */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;             /* Keep handle size fixed */
+    z-index: 50;
+    transition: background 0.2s;
+}
+
+.resizer-gutter:hover, 
+.resizer-gutter.active {
+    background: #3b82f6;        /* Blue when hovering/dragging */
+}
+
+.resizer-icon {
+    font-size: 10px;
+    color: #9ca3af;
+    user-select: none;          /* Cannot select text inside */
+    pointer-events: none;
+}
 .right-column {
-    display: flex;       /* Use Flexbox */
-    flex-direction: column; /* Stack children vertically */
-    height: 100%;        /* Fill height */
-    overflow: hidden;    /* PREVENT the container itself from scrolling */
-    background: white;
-    position: relative;
+    flex-grow: 1;               /* Fill all remaining space */
+    min-width: 0;               /* CRITICAL: Allows flex children to shrink/scroll */
     
-    /* Animation settings */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    
+    overflow-y: auto;           /* Scroll inside this column */
+}
+
+/* Helper to freeze selection while dragging */
+body.resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+/* Add this inside your <style> tag */
+body.resizing iframe,
+body.resizing .preview-container {
+    pointer-events: none; /* Mouse ignores map/pdf while dragging */
+
+/* 1. Ensure inputs fill their container but don't overflow */
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;             /* Force full width */
+    max-width: 100%;         /* Prevent overflowing parent */
+    min-width: 0;            /* Allow shrinking in flex containers */
+    box-sizing: border-box;  /* Include padding in width calculation */
+}
+
+/* 2. Ensure labels wrap text instead of pushing layout */
+.form-label {
+    white-space: normal;     /* Allow text wrapping */
+    word-break: break-word;  /* Break long words if necessary */
+    display: block;          /* Ensure it sits on its own line */
+    max-width: 100%;
+}
+
+/* 3. Make the "Rented Duration" row stack on mobile */
+.duration-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+}
+@media (max-width: 768px) {
+    .feedback-layout { flex-direction: column; height: auto; }
+    .resizer-gutter { display: none; }
+    .left-column, .right-column { width: 100%; max-width: 100%; height: auto; overflow: visible; }
+    .duration-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    /* Ensure the "Years/Months" labels sit correctly */
+    .duration-input-group {
+        width: 100%;
+    }
+    .form-row {
+        grid-template-columns: 1fr !important; /* Force single column */
+        gap: 12px;
+    }
 }
 .right-column.fullscreen-active {
         position: fixed !important;
@@ -78,24 +167,42 @@
     flex-direction: column;
     height: 100%;
 }
+.feedback-layout {
+    display: flex;              /* Side-by-side layout */
+    flex-direction: row;        
+    width: 100%;
+    height: calc(100vh - 70px); /* Full height minus Navbar */
+    overflow: hidden;           /* Prevent page-wide scrollbars */
+    background: #f8fafc;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Navigation Bar -->
-<nav class="feedback-nav">
-  <div class="nav-content">
-    <div class="nav-left">
-      <a href="{% url 'coreapi:dashboard' %}" class="nav-link back-link">
+<nav class="feedback-nav" style="height: 70px;"> <div class="nav-content" style="display: flex; justify-content: space-between; align-items: center; height: 100%;">
+    
+    <div class="nav-left" style="width: 200px; flex-shrink: 0;"> <a href="{% url 'coreapi:dashboard' %}" class="nav-link back-link">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </a>
     </div>
-    <div class="nav-center">
-      <h1 class="page-title">Site Feedback Form</h1>
+
+    <div class="nav-center" style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <h1 class="page-title" style="margin: 0; line-height: 1.2;">Site Feedback Form</h1>
+      
+      <div style="width: 250px; margin-top: 4px;"> <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">
+          <span style="font-size: 10px; color: #6b7280; font-weight: 600; text-transform: uppercase;">Completion</span>
+          <span id="progressText" style="font-size: 11px; font-weight: bold; color: #2563eb;">0%</span>
+        </div>
+        <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+          <div id="progressBar" style="width: 0%; height: 100%; background: #2563eb; transition: width 0.3s ease; border-radius: 2px;"></div>
+        </div>
+      </div>
     </div>
-    <div class="nav-right">
-      <span class="user-info">{{ request.session.user_name }}</span>
+
+    <div class="nav-right" style="width: 200px; flex-shrink: 0; display: flex; justify-content: flex-end;"> <span class="user-info">{{ request.session.user_name }}</span>
     </div>
+
   </div>
 </nav>
 
@@ -121,9 +228,9 @@
           /
       </div>
   </div>
-  <div class="feedback-layout">
+  <div class="feedback-layout" id="mainLayout">
     <!-- LEFT COLUMN: File List + Preview -->
-    <div class="left-column">
+<div class="left-column" id="leftColumn">
   <section class="file-section">
     <div class="section-header">
       <h3 class="section-title">Files</h3>
@@ -191,11 +298,15 @@
 
           </div>
         </div>
-      </section>
+  </section>
+</div>
+   
+<div id="dragHandle" class="resizer-gutter">
+    <div class="resizer-icon">||</div>
 </div>
 
     <!-- RIGHT COLUMN: Comprehensive Feedback Form -->
-   <div class="right-column" id="rightColumnContainer">
+<div class="right-column" id="rightColumnContainer">
       <div class="form-section">
         
         <div class="form-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -204,6 +315,7 @@
                   style="background: transparent; position:sticky; border: none; color: #374151; font-size: 1.1rem; cursor: pointer; padding: 5px;">
             <i class="fas fa-expand"></i>
           </button>
+          
         </div>
 
         <form id="siteFeedbackForm" class="feedback-form">
@@ -219,7 +331,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label">2. Applicant Name</label>
-                <input type="text" data-path="Valuers_Checklist.applicant_name" class="form-input">
+                <input type="text" data-path="Valuers_Checklist.applicant_name" class="form-input" style="display: flex; flex-wrap: wrap;">
               </div>
             </div>
 
@@ -310,7 +422,56 @@
           <!-- II. Survey Number and Land Extend Analysis -->
           <div class="form-section-group">
             <h4 class="form-section-title">II. Survey Number and Land Extend Analysis</h4>
-            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">District</label>
+                    <select data-path="Survey.district" class="form-select" id="districtSelect" onchange="updatePanchayatList()">
+                        <option value="">Select District</option>
+                        <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                        <option value="Kollam">Kollam</option>
+                        <option value="Pathanamthitta">Pathanamthitta</option>
+                        <option value="Alappuzha">Alappuzha</option>
+                        <option value="Kottayam">Kottayam</option>
+                        <option value="Idukki">Idukki</option>
+                        <option value="Ernakulam">Ernakulam</option>
+                        <option value="Thrissur">Thrissur</option>
+                        <option value="Palakkad">Palakkad</option>
+                        <option value="Malappuram">Malappuram</option>
+                        <option value="Kozhikode">Kozhikode</option>
+                        <option value="Wayanad">Wayanad</option>
+                        <option value="Kannur">Kannur</option>
+                        <option value="Kasaragod">Kasaragod</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Taluk</label>
+                    <input type="text" data-path="Survey.taluk" class="form-input" placeholder="Enter Taluk">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Village</label>
+                    <input type="text" data-path="Survey.village" class="form-input" placeholder="Enter Village">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Local Body Type</label>
+                    <select data-path="Survey.local_body_type" class="form-select" id="localBodySelect" onchange="togglePanchayatField()">
+                        <option value="">Select Type</option>
+                        <option value="Municipal Corporation">Municipal Corporation</option>
+                        <option value="Corporation">Corporation</option>
+                        <option value="Municipality">Municipality</option>
+                        <option value="Grama Panchayat">Grama Panchayat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group hidden" id="panchayatWrapper">
+                <label class="form-label">Grama Panchayat Name</label>
+                <select data-path="Survey.grama_panchayat" class="form-select" id="panchayatSelect">
+                    <option value="">Select Panchayat</option>
+                    </select>
+            </div>
             <div class="table-container" style="overflow-x: auto;">
                 <table class="analysis-table survey-table" id="surveyTable">
                     <thead>
@@ -773,9 +934,19 @@
               <label class="form-label">Rented Amount&nbsp;&nbsp;</label> 
               <input type="text" data-path="Building_analysis.rent_amt" class="form-input"> <br>
 
-              <label class="form-label">Rented Duration&nbsp;</label> 
-              <input type="text" data-path="Building_analysis.rent_duration" class="form-input"> <br><br>
+              <label class="form-label">Rented Duration</label>
+                <input type="hidden" id="rent_duration_master" data-path="Building_analysis.rent_duration">
 
+                <div class="duration-row">
+                    <div class="duration-input-group" style="flex: 1;">
+                        <input type="number" id="rent_years" class="form-input" placeholder="0" min="0" oninput="handleRentDurationChange()">
+                        <label style="font-size: 11px; color: gray;">Years</label>
+                    </div>
+                    <div class="duration-input-group" style="flex: 1;">
+                        <input type="number" id="rent_months" class="form-input" placeholder="0" min="0" max="11" oninput="handleRentDurationChange()">
+                        <label style="font-size: 11px; color: gray;">Months</label>
+                    </div>
+                </div>
             <label class="form-label" style="font-size: 15px; font-weight: bolder;">Building Details</label> <br> <br>
 
               <label class="form-label">Building No</label> 
@@ -1364,7 +1535,14 @@
                 <button onclick="setTool('select')" class="tool-btn" title="Select (V)"><i class="fas fa-hand-paper"></i></button>
                 
                 <button onclick="setTool('brush')" class="tool-btn active keep-visible" title="Pencil (P)"><i class="fas fa-pencil-alt"></i></button>
-                <button onclick="setTool('eraser')" class="tool-btn keep-visible" title="Eraser (E)"><i class="fas fa-eraser"></i></button>
+            
+                <button onclick="setEraserMode('object')" class="tool-btn" id="btn_erase_object" title="Object Eraser">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+
+                <button onclick="setEraserMode('rub')" class="tool-btn" id="btn_erase_rub" title="Rubbing Eraser">
+                    <i class="fas fa-eraser"></i>
+                </button>
                 
                 <button onclick="setTool('text')" class="tool-btn" title="Text (T)"><i class="fas fa-font"></i></button>
                 <button onclick="fillSelected()" class="tool-btn" title="Fill Shape"><i class="fas fa-fill-drip"></i></button>
@@ -1385,40 +1563,41 @@
         <div class="toolbar-section">
             <div class="section-label">Properties</div>
             
-            <div class="prop-row">
-                <span>Size:</span>
-                <div style="display:flex; align-items:center; gap:5px; flex:1; justify-content:end;">
-                    <input type="range" id="strokeSize" min="1" max="50" value="3" oninput="updateProp('size', this.value)" style="width: 60px;">
-                    <span id="strokeVal" style="width: 25px; text-align:right;">3px</span>
-                    <input 
-                        type="number" 
-                        id="pencilSize" 
-                        value="3" 
-                        min="1" 
-                        max="100" 
-                        oninput="updateProp('size', this.value)" 
-                        class="border border-gray-300 rounded px-2 py-1 w-16 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-                    >
+            <div id="penSizeControl" class="prop-row" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                <span style="font-size:11px;">Size:</span>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="range" id="strokeSize" min="1" max="50" value="3" oninput="updateProp('size', this.value)" style="width: 70px;">
+                    <span id="strokeVal" style="width: 25px; text-align:right; font-size:10px;">3px</span>
+                    <input type="number" id="pencilSize" value="3" min="1" max="100" oninput="updateProp('size', this.value)" 
+                        class="border border-gray-300 rounded px-1 py-1 w-12 text-xs focus:outline-none">
+                </div>
+            </div>
+
+            <div id="eraserSizeControl" class="prop-row" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:5px; border-top:1px solid #eee; padding-top:5px;">
+                <span style="font-size:11px; font-weight:bold; color:#555;">Rubber Size:</span>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="range" id="eraserSizeSlider" min="5" max="100" value="20" style="width: 80px;" 
+                        oninput="document.getElementById('eraserVal').innerText = this.value + 'px'">
+                    <span id="eraserVal" style="width: 35px; text-align:right; font-size:10px;">20px</span>
                 </div>
             </div>
             
-            <div class="prop-row">
+            <div class="prop-row" style="margin-top: 5px;">
                 <span>Style:</span>
-                <select id="lineStyle" onchange="updateProp('style', this.value)" class="form-select" style="padding: 2px; width: 90px;">
+                <select id="lineStyle" onchange="updateProp('style', this.value)" class="form-select" style="padding: 2px; width: 90px; font-size:11px;">
                     <option value="solid">Solid</option>
                     <option value="dashed">Dashed</option>
                     <option value="dotted">Dotted</option>
                 </select>
             </div>
 
-            <div class="prop-row parallel-box">
+            <div class="prop-row parallel-box" style="margin-top: 5px;">
                 <label style="color: #d97706; font-weight:bold; font-size: 11px; display:flex; align-items:center; gap:5px;">
                     <input type="checkbox" id="parallelToggle"> Parallel
                 </label>
                 <input type="number" id="parallelDist" value="20" class="tiny-input" style="width:40px;">
             </div>
         </div>
-
         <div class="toolbar-section">
             <div class="section-label">Colors</div>
             <div class="color-picker-row">
@@ -1471,8 +1650,14 @@
     </div>
   </div>
 </div>
+<div id="dataLoadingOverlay" class="fixed inset-0 z-[2000] hidden flex flex-col items-center justify-center bg-white bg-opacity-90 backdrop-blur-sm">
+    <div class="spinner border-4 border-gray-200 border-t-blue-600 rounded-full w-12 h-12 animate-spin mb-4"></div>
+    <h3 class="text-lg font-bold text-gray-700">Loading Case Data...</h3>
+    <p class="text-sm text-gray-500">Please wait while we populate the form. This might take some time please wait...</p>
+</div>
 
 <script>
+const forcePaint = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 /* =========================
    1. UTILITIES & CONFIG
 ========================= */
@@ -1494,6 +1679,10 @@ const STORAGE_KEY = 'vadrida_site_feedback_autosave';
 ========================= */
 let currentFolder = "";
 let currentFile = null;
+let currentPage = 1;
+let isLoadingMore = false;
+let hasMoreFiles = true;
+const PAGE_LIMIT = 50; // Load 50 items at a time
 let analysisController = null;
 let currentFolderFiles = [];
 let selectedAnalysisFiles = [];
@@ -1520,7 +1709,13 @@ function getEmptyState() {
     Ownership_Analysis : { document_verification : "", Ownership_Analysis_notes : "", owners_name : "" },
     Survey: { docs: [], survey_notes: "", paddy_land_check: "",
             trees_2008_check: "", total_ltr_extent: "",
-            total_deed_extent: ""},
+            total_deed_extent: "",
+            district: "",
+            taluk: "",
+            village: "",
+            local_body_type: "",
+            grama_panchayat: ""
+        },
 
     Boundary_analysis_property_identification: { 
         ref_doc_1_name: "", ref_doc_2_name: "",
@@ -1572,7 +1767,14 @@ function getEmptyState() {
     },
     Sketch: { landmark_description: "", main_layout: "" }, 
     images: {} ,
-    vectors : {} // We keep this for local reload, but will delete before submit
+    vectors : {},
+    completion_metrics: {
+        percent: 0,
+        filled: 0,
+        total: 0,
+        last_updated: ""
+    },
+     // We keep this for local reload, but will delete before submit
 };
 }
 let formState = getEmptyState();
@@ -1738,12 +1940,14 @@ function addFloor(direction) {
         visibleFloorIndices.push(newIndex);
         visibleFloorIndices.sort((a, b) => a - b);
         renderBuildingRows();
+        updateCompletionStats();
     }
 }
 
 function removeFloor(indexToRemove) {
     visibleFloorIndices = visibleFloorIndices.filter(i => i !== indexToRemove);
     renderBuildingRows();
+    updateCompletionStats();
     // Optional: Clear data for that floor in formState if you want strict cleanup
 }
 /* =========================
@@ -1773,6 +1977,7 @@ function addApartment() {
     
     renderBuildingRows();
     saveLocal();
+    updateCompletionStats();
 }
 
 function removeApartment(index) {
@@ -1783,119 +1988,202 @@ function removeApartment(index) {
     
     renderBuildingRows();
     saveLocal();
+    updateCompletionStats();
 }
 
 /* =========================
    4. FILE EXPLORER LOGIC (SMART RESTORE)
 ========================= */
-function loadFolder(path = "") {
-  if (currentFolder && currentFolder !== path) {
-      saveToServer(true); 
-      clearTimeout(autoSaveTimer); 
-  }
+// --- GLOBAL TIMERS ---
+let loadingTimer = null; 
+let progressInterval = null;
 
-  const scrollContainer = document.querySelector('.file-list-container');
-  if (scrollContainer) folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
+async function loadFolder(path = "", isKnownCase = null) {
+    const overlay = document.getElementById("dataLoadingOverlay");
+    const bar = document.getElementById("loadingProgressBar");
+    const txt = document.getElementById("loadingStatusText");
 
-  currentFolder = path;
-  formState.target_folder = path; 
-  
-  document.getElementById("currentPath").textContent = "/" + (path || "");
-  const banner = document.getElementById("bigPreviewTitle");
-  if(banner) banner.textContent = path ? path : "Home / Root";
-  const topBanner = document.getElementById("topBannerPath");
-  if (topBanner) topBanner.textContent = path ? "/" + path : "/";
+    // 1. RESET TIMERS
+    if (loadingTimer) clearTimeout(loadingTimer);
+    if (progressInterval) clearInterval(progressInterval);
 
-  document.getElementById("scrollContainer").classList.add("hidden");
-  document.getElementById("pdfToolbar").classList.add("hidden");
-  document.getElementById("bigImageFrame").classList.add("hidden");
-  document.getElementById("noSelection").classList.remove("hidden");
+    // --- SMART OVERLAY LOGIC ---
+    let shouldShowOverlay = false;
+    if (isKnownCase !== null) {
+        shouldShowOverlay = isKnownCase;
+    } else {
+        const name = path.split('/').pop() || "";
+        const hasDatePattern = /^\d+_.*\d{2}\.\d{2}\.\d{4}/.test(name);
+        const hasHash = name.includes('#');
+        shouldShowOverlay = (hasDatePattern || hasHash);
+    }
 
-  const statsBox = document.getElementById("folderStatsBox");
-  
-  fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
-    .then(r => r.json())
-    .then(data => {
-      // 1. Start Fresh
-      formState = getEmptyState(); 
+    if (overlay) {
+        if (shouldShowOverlay) {
+            overlay.classList.remove("hidden");
+            overlay.style.display = "flex"; 
+            if(bar) bar.style.width = "10%";
+            if(txt) txt.innerText = "Accessing Case Data...";
+        } else {
+            overlay.classList.add("hidden");
+            overlay.style.display = "none";
+            if(bar) bar.style.width = "0%";
+        }
+    }
+    
+    await forcePaint(); 
 
-      const localDataString = localStorage.getItem(STORAGE_KEY);
-      const localFolder = localStorage.getItem('vadrida_active_folder');
-      let localData = null;
+    // 2. UI RESET & AUTO-SAVE OLD FOLDER
+    if (currentFolder && currentFolder !== path) {
+        saveToServer(true); 
+        clearTimeout(autoSaveTimer); 
+    }
+    
+    // Hide stats box immediately
+    document.getElementById("folderStatsBox").classList.add("hidden"); 
 
-      if (localDataString && localFolder === path) {
-          try { localData = JSON.parse(localDataString); } catch(e) { console.error("Local parse error", e); }
-      }
+    document.getElementById("scrollContainer").classList.add("hidden");
+    document.getElementById("pdfToolbar").classList.add("hidden");
+    document.getElementById("bigImageFrame").classList.add("hidden");
+    document.getElementById("noSelection").classList.remove("hidden");
+    
+    if (!shouldShowOverlay) {
+        formState = getEmptyState(); 
+        syncStateToUI();             
+        localStorage.removeItem(STORAGE_KEY); 
+    }
 
-      const serverDraft = data.saved_draft || {};
+    // RESET PAGINATION STATE
+    currentPage = 1;
+    hasMoreFiles = true;
+    isLoadingMore = false;
+    
+    // UI RESET
+    fileList.innerHTML = ""; 
+    thumbsContainer.innerHTML = "";
+    currentFolder = path;
+    formState.target_folder = path; 
+    
+    // --- UPDATING LOCATIONS ---
+    document.getElementById("currentPath").textContent = "/" + (path || "");
+    
+    // ✅ FIX: Update the Top Banner
+    const topBanner = document.getElementById("topBannerPath");
+    if (topBanner) {
+        topBanner.textContent = path ? "/" + path : "/";
+    }
 
-      // 2. Smart Merge
-      if (localData) {
-          formState = { ...formState, ...serverDraft, ...localData };
-          if (serverDraft.images && Object.keys(serverDraft.images).length > 0) formState.images = serverDraft.images;
-          if (serverDraft.vectors && Object.keys(serverDraft.vectors).length > 0) formState.vectors = serverDraft.vectors;
-      } 
-      else if (data.saved_draft) {
-          formState = { ...formState, ...data.saved_draft };
-      } 
-      else if (data.auto_fill) {
-          updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
-          updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
-          updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
-          saveToServer(); 
-      }
-      
-      if (!formState.images) formState.images = {};
-      if (!formState.vectors) formState.vectors = {};
+    // 3. FETCH DATA
+    try {
+        const response = await fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`);
+        const data = await response.json();
 
-      if (data.folder_info && data.folder_info.download_date) {
-            formState.meta_download_date = data.folder_info.download_date;
-            saveLocal();
-      }
+        localStorage.setItem('vadrida_active_folder', path);
 
-      currentFolderFiles = data.files || [];
-      renderFileList(data.folders || [], data.files || []);
-      renderThumbs(data.files || []);
+        if(shouldShowOverlay) {
+            if(txt) txt.innerText = "Showing Files...";
+            if(bar) bar.style.width = "50%";
+        }
+        await forcePaint(); 
 
-      // 3. UI Sync
-      initBuildingTable();   
-      renderSurveyColumns();          
-      updateAllDocumentDropdowns();  
-      injectPencilIcons(); 
+        // 4. RENDER FILES
+        currentFolderFiles = data.files || [];
+        appendFileList(data.folders || [], data.files || []);
+        renderThumbs(data.files || []);
+        hasMoreFiles = data.has_next;
 
-      const constructionStr = getNestedValue(formState, "Building_analysis.construction_year");
-      parseTimelineString(constructionStr); 
+        await forcePaint(); 
 
-      syncStateToUI();        
-      renderAllSavedImages();
-      updateMapFromState();
+        // 5. HEAVY FORM LOGIC
+        if (shouldShowOverlay) {
+            if(txt) txt.innerText = "Loading Form...";
+            if(bar) bar.style.width = "80%";
+            await forcePaint();
 
-      localStorage.setItem('vadrida_active_folder', path);
+            try {
+                formState = getEmptyState(); 
+                
+                const localDataString = localStorage.getItem(STORAGE_KEY);
+                const localFolder = localStorage.getItem('vadrida_active_folder');
+                let localData = null;
+                
+                if (localDataString && localFolder === path) {
+                    try { localData = JSON.parse(localDataString); } catch(e) {}
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+                
+                const serverDraft = data.saved_draft || {};
 
-      if (data.folder_info) { renderFolderStats(data.folder_info); } 
-      else { if(statsBox) statsBox.classList.add("hidden"); }
+                if (localData) {
+                    formState = { ...formState, ...serverDraft, ...localData };
+                    if (serverDraft.images) formState.images = serverDraft.images;
+                    if (serverDraft.vectors) formState.vectors = serverDraft.vectors;
+                } 
+                else if (Object.keys(serverDraft).length > 0) {
+                    formState = { ...formState, ...data.saved_draft };
+                } 
+                else if (data.auto_fill) {
+                    console.log("Applying Auto-Fill Data:", data.auto_fill);
+                    updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
+                    updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
+                    updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
+                    saveToServer(); 
+                }
+                
+                if (!formState.images) formState.images = {};
+                if (!formState.vectors) formState.vectors = {};
 
-      // ✅ SCROLL RESTORE FIX (Apply to BOTH potential containers)
-      setTimeout(() => {
-          // 1. File List
-          const fileListContainer = document.querySelector('.file-list-container');
-          const savedListScroll = parseInt(localStorage.getItem('vadrida_file_list_scroll') || '0');
-          if (fileListContainer && savedListScroll > 0) {
-              fileListContainer.scrollTop = savedListScroll;
-          }
+                initBuildingTable();   
+                renderSurveyColumns();          
+                updateAllDocumentDropdowns();  
+                injectPencilIcons(); 
+                const constructionStr = getNestedValue(formState, "Building_analysis.construction_year");
+                parseTimelineString(constructionStr); 
+                
+                syncStateToUI();        
+                renderAllSavedImages();
+                updateMapFromState();
 
-          // 2. Feedback Form
-          const savedFormScroll = parseInt(localStorage.getItem('vadrida_form_scroll') || '0');
-          if (savedFormScroll > 0) {
-              const rightCol = document.getElementById('rightColumnContainer');
-              const formEl = document.getElementById('siteFeedbackForm');
-              
-              // Apply to both (The one with overflow:hidden will simply ignore it)
-              if (rightCol) rightCol.scrollTop = savedFormScroll;
-              if (formEl) formEl.scrollTop = savedFormScroll;
-          }
-      }, 100);
-    });
+                if (data.folder_info) renderFolderStats(data.folder_info);
+                updateCompletionStats();
+
+            } catch (formErr) {
+                console.error("Form Logic Error:", formErr);
+            }
+        } 
+        
+        if(shouldShowOverlay) {
+            if(bar) bar.style.width = "100%";
+            if(txt) txt.innerText = "Ready!";
+        }
+        
+        setTimeout(() => {
+            const fileListContainer = document.querySelector('.file-list-container');
+            const savedListScroll = parseInt(localStorage.getItem('vadrida_file_list_scroll') || '0');
+            if (fileListContainer && savedListScroll > 0) fileListContainer.scrollTop = savedListScroll;
+            
+            if (overlay) {
+                overlay.classList.add("hidden");
+                overlay.style.display = "none";
+            }
+        }, 50);
+        attachInfiniteScroll();
+
+    } catch (err) {
+        console.error("Load failed", err);
+        if (overlay && shouldShowOverlay) {
+            overlay.classList.remove("hidden");
+            overlay.style.display = "flex";
+            if(txt) {
+                txt.innerText = "Error loading folder.";
+                txt.style.color = "red";
+            }
+        }
+        setTimeout(() => {
+            if(overlay) overlay.style.display = "none";
+        }, 2000);
+    }
 }
 /* =========================
    CORE: RENDER ALL IMAGES (Self-Healing)
@@ -2004,99 +2292,141 @@ document.getElementById("goBackBtn").onclick = () => {
   loadFolder(parts.join("/"));
 };
 
-function renderFileList(folders, files) {
-  files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
-  fileList.innerHTML = "";
+function appendFileList(folders, files) {
+    // Filter system files
+    files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
 
-  // 1. RENDER FOLDERS
-  folders.forEach(folder => {
-    const li = document.createElement("li");
-    // 'items-start' makes the icon stick to the TOP if text is 2 lines
-    li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
-    li.dataset.folderPath = folder.path; 
+    // 1. RENDER FOLDERS
+    folders.forEach(folder => {
+        const li = document.createElement("li");
+        li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
+        li.dataset.folderPath = folder.path; 
 
-    // --- Status Dot Logic ---
-    let statusDotHtml = "";
-    if (folder.status_color) {
-        let colorClass = "bg-gray-400";
-        if (folder.status_color === "green") colorClass = "bg-green-500";
-        else if (folder.status_color === "yellow") colorClass = "bg-yellow-400";
-        else if (folder.status_color === "red") colorClass = "bg-red-500";
+        let statusDotHtml = folder.status_color 
+            ? `<span class="block w-2 h-2 rounded-full bg-${folder.status_color === 'yellow' ? 'yellow-400' : folder.status_color + '-500'} mt-1 flex-shrink-0"></span>`
+            : `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`;
+
+        const leftDiv = document.createElement("div");
+        leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0"; 
         
-        // Added flex-shrink-0 to prevent dot from squishing
-        statusDotHtml = `<span class="block w-2 h-2 rounded-full ${colorClass} mt-1 flex-shrink-0"></span>`;
-    } else {
-        statusDotHtml = `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`; 
-    }
-
-    const leftDiv = document.createElement("div");
-    // 'min-w-0' is CRITICAL. It allows the text container to shrink and wrap.
-    leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0"; 
-    
-    leftDiv.innerHTML = `
-      <div class="flex flex-col items-center justify-start flex-shrink-0 w-8 pt-0.5">
-          <span class="text-xl leading-none">📁</span> 
-          ${statusDotHtml}
-      </div>
-      <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
-    `;
-    
-    leftDiv.onclick = () => loadFolder(folder.path);
-    li.appendChild(leftDiv);
-
-    // --- Chat Icon Logic ---
-    if (folder.has_chat) {
-       const chatBtnWrapper = document.createElement("div");
-       chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1"; 
-       
-       const chatBtn = document.createElement("button");
-       chatBtn.className = "w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center";
-       chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
-       chatBtn.onclick = (e) => {
-           e.stopPropagation();
-           openFolderChat(folder.path, folder.name);
-           const dot = chatBtnWrapper.querySelector('.unread-dot');
-           if(dot) dot.remove();
-       };
-       chatBtnWrapper.appendChild(chatBtn);
-       
-       if (folder.is_unread) {
-           const dot = document.createElement("span");
-           dot.className = "unread-dot absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white";
-           chatBtnWrapper.appendChild(dot);
-       }
-       li.appendChild(chatBtnWrapper);
-    }
-
-    fileList.appendChild(li);
-  });
-
-  // 2. RENDER FILES
-  files.forEach(file => {
-      const li = document.createElement("li");
-      li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
-      
-      // Fixed: Removed fixed height, allowed wrapping
-      li.innerHTML = `
-        <div class="flex justify-between items-start">
-          <div class="min-w-0 pr-2 flex-1">
-            <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
-            <div class="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">${file.extension || "FILE"}</div>
+        leftDiv.innerHTML = `
+          <div class="flex flex-col items-center justify-start flex-shrink-0 w-8 pt-0.5">
+              <span class="text-xl leading-none">📁</span> 
+              ${statusDotHtml}
           </div>
-        </div>`;
+          <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
+        `;
         
-      li.onclick = () => {
-          document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
-          li.classList.add("bg-blue-100");
-          loadBigPreview(file);
-          setFileInfo(file);
-      };
-      fileList.appendChild(li);
-  });
+        const isCaseFolder = (folder.status_color !== null && folder.status_color !== undefined);
+        leftDiv.onclick = () => loadFolder(folder.path, isCaseFolder);
+        li.appendChild(leftDiv);
 
-  if (!folders.length && !files.length) {
-    fileList.innerHTML = `<li class="p-3 text-gray-400 text-center text-sm">Empty Folder</li>`;
-  }
+        // Chat Icon Logic (Keep existing logic)
+        if (folder.has_chat) {
+             // ... (Keep your chat button creation code) ...
+             // Just copy-paste the chat button logic from your previous renderFileList here
+             const chatBtnWrapper = document.createElement("div");
+             chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1"; 
+             const chatBtn = document.createElement("button");
+             chatBtn.className = "w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center";
+             chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
+             chatBtn.onclick = (e) => { e.stopPropagation(); openFolderChat(folder.path, folder.name); };
+             chatBtnWrapper.appendChild(chatBtn);
+             li.appendChild(chatBtnWrapper);
+        }
+        fileList.appendChild(li);
+    });
+
+    // 2. RENDER FILES
+    files.forEach(file => {
+        const li = document.createElement("li");
+        li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
+        li.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="min-w-0 pr-2 flex-1">
+              <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
+              <div class="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">${file.extension || "FILE"}</div>
+            </div>
+          </div>`;
+        
+        li.onclick = () => {
+            document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
+            li.classList.add("bg-blue-100");
+            loadBigPreview(file);
+            setFileInfo(file);
+        };
+        fileList.appendChild(li);
+    });
+    
+    // Append Thumbnails separately
+    appendThumbs(files); 
+}
+
+// New Append Thumbs function (similar to renderThumbs but appends)
+function appendThumbs(files) {
+    if (!files.length) return;
+    
+    // Only remove "No files" message if it exists
+    const noThumbMsg = thumbsContainer.querySelector('.no-thumbs');
+    if(noThumbMsg) noThumbMsg.remove();
+
+    files.forEach(file => {
+        // ... (Keep EXACTLY the same card creation logic as your current renderThumbs) ...
+        const card = document.createElement("div");
+        card.className = "thumb-item";
+        // ... rest of logic ...
+        thumbsContainer.appendChild(card);
+    });
+    
+    // Start processing queue
+    processThumbQueue();
+}
+function attachInfiniteScroll() {
+    const scrollContainer = document.querySelector('.file-list-container');
+    if (!scrollContainer) return;
+
+    // Remove old listener to avoid duplicates
+    scrollContainer.onscroll = null;
+
+    scrollContainer.onscroll = () => {
+        // Check if we are near the bottom (20px threshold)
+        if (scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 20) {
+            loadMoreContents();
+        }
+    };
+}
+
+async function loadMoreContents() {
+    if (isLoadingMore || !hasMoreFiles) return;
+    
+    isLoadingMore = true;
+    currentPage++; // Increment Page
+    
+    // Show a tiny spinner at the bottom
+    const loader = document.createElement('li');
+    loader.id = "infinite-loader";
+    loader.className = "p-2 text-center text-gray-400 text-xs";
+    loader.innerHTML = "Loading more...";
+    fileList.appendChild(loader);
+
+    try {
+        const response = await fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(currentFolder)}&page=${currentPage}&limit=${PAGE_LIMIT}`);
+        const data = await response.json();
+        
+        loader.remove(); // Remove spinner
+        
+        if (data.files.length === 0 && data.folders.length === 0) {
+            hasMoreFiles = false;
+        } else {
+            appendFileList(data.folders || [], data.files || []);
+            hasMoreFiles = data.has_next;
+        }
+    } catch (err) {
+        console.error("Load more failed", err);
+        loader.remove();
+    } finally {
+        isLoadingMore = false;
+    }
 }
 /* =========================
    5. THUMBNAILS & PREVIEWS
@@ -2490,18 +2820,20 @@ window.addEventListener("resize", () => {
 
 window.addEventListener("resize", enforceTabletLandscape);
 window.addEventListener("orientationchange", enforceTabletLandscape);
+
 /* =========================
    8. SKETCH PAD & DRAWING LOGIC (COMPLETE & FIXED)
 ========================= */
-
 // --- STATE ---
-let elements = [];       // Current shapes
-let redoStack = [];      // For Redo functionality
+let elements = [];       
+let redoStack = []; 
+let undoStack = [];     
 let selectedElement = null; 
+let attachedErasers = [];
 let clipboard = null;    
 
-// --- VIEWPORT STATE (Zoom/Pan) ---
-let camera = { x: 0, y: 0, z: 1 }; // x/y = pan, z = zoom level
+// --- VIEWPORT STATE ---
+let camera = { x: 0, y: 0, z: 1 }; 
 
 // --- INTERACTION STATE ---
 let isDrawing = false;
@@ -2510,35 +2842,36 @@ let isResizing = false;
 let isPanning = false; 
 let isPromptOpen = false;
 
-let startX, startY; // Screen coordinates
-let lastX, lastY;   // For panning calculations
+// --- ERASER STATE ---
+let isEraserActive = false;
+let eraserMode = 'rub'; // 'object' or 'rub'
 let currentTool = 'brush'; 
 
+let startX, startY; 
+let lastX, lastY;   
+let lastTime = 0; // For speed calculation
+const MAX_ERASER_SIZE = 80;
+const SPEED_SENSITIVITY = 2; // Higher = harder to grow eraser
 // --- CANVAS SETUP ---
 function resizeCanvas() {
     if(!canvas) return;
     const sidebar = document.getElementById('sketchSidebar');
-    // Get width of sidebar (it changes when collapsed)
     const sidebarWidth = sidebar ? sidebar.offsetWidth : 0; 
     
-    const saved = JSON.stringify(elements);
-    
-    // Canvas width is Window - Sidebar
+    // Save current elements to restore after resize if needed, 
+    // but usually elements array is the source of truth.
     canvas.width = window.innerWidth - sidebarWidth;
     canvas.height = window.innerHeight; 
     
-    if(saved) elements = JSON.parse(saved);
     renderScene();
 }
-
-function openSketchPad(path) {
+async function openSketchPad(path) {
     activeSketchPath = path;
     sketchModal.classList.remove('hidden');
 
     const elem = document.documentElement;
     if (elem.requestFullscreen) elem.requestFullscreen().catch(e=>console.log(e));
 
-    // --- CHANGE: Start exactly at MIN_ZOOM ---
     camera = { x: 0, y: 0, z: MIN_ZOOM };
 
     // Update Compass
@@ -2558,24 +2891,52 @@ function openSketchPad(path) {
         container.appendChild(compass);
     }
 
-    setTimeout(() => {
-        resizeCanvas();
-        if (formState.vectors && formState.vectors[path]) {
-            elements = JSON.parse(JSON.stringify(formState.vectors[path]));
-        } else {
-            elements = []; 
-        }
-        redoStack = []; 
-        
-        // --- CHANGE: Center the canvas for the zoomed-out view ---
-        // This ensures the "sheet" looks centered when you open it
-        camera.x = (canvas.width - (canvas.width * MIN_ZOOM)) / 2;
-        camera.y = (canvas.height - (canvas.height * MIN_ZOOM)) / 2;
+    // --- LAZY LOAD VECTORS ---
+    let vectorsToLoad = [];
 
-        renderScene();
-    }, 100); 
+    // 1. If we have them in memory (e.g. just drew them), use them
+    if (formState.vectors && formState.vectors[path]) {
+        vectorsToLoad = JSON.parse(JSON.stringify(formState.vectors[path]));
+        initCanvasWithData(vectorsToLoad);
+    } 
+    // 2. If not, FETCH from server (The "Edit" Feature)
+    else if (formState.report_id) {
+        // Show a loading cursor
+        document.body.style.cursor = 'wait';
+        try {
+            const res = await fetch(`/coreapi/api/get-report-data/${formState.report_id}/`);
+            const data = await res.json();
+            
+            if (data.vectors && data.vectors[path]) {
+                if(!formState.vectors) formState.vectors = {};
+                formState.vectors[path] = data.vectors[path];
+                vectorsToLoad = data.vectors[path];
+            }
+        } catch (e) {
+            console.error("Error fetching vectors:", e);
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+        initCanvasWithData(vectorsToLoad);
+    } 
+    else {
+        initCanvasWithData([]);
+    }
 }
 
+// Helper to render after fetching
+function initCanvasWithData(data) {
+    resizeCanvas(); // Ensure canvas size is correct
+    elements = data || [];
+    redoStack = []; 
+    undoStack = []; // Clear history
+    
+    // Center the view
+    camera.x = (canvas.width - (canvas.width * MIN_ZOOM)) / 2;
+    camera.y = (canvas.height - (canvas.height * MIN_ZOOM)) / 2;
+
+    renderScene();
+}
 function closeSketchModal() {
     sketchModal.classList.add('hidden');
     activeSketchPath = null;
@@ -2631,19 +2992,44 @@ function toWorld(screenX, screenY) {
 // ================= TOOLBAR FUNCTIONS =================
 function setTool(tool) {
     currentTool = tool;
+    isEraserActive = false;
     selectedElement = null;
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
     
-    // Highlight active button
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
     const btn = document.querySelector(`button[onclick="setTool('${tool}')"]`);
     if(btn) btn.classList.add('active');
     
-    // Cursor handling
     if(tool === 'select') canvas.style.cursor = 'grab';
     else if(tool === 'text') canvas.style.cursor = 'text';
     else canvas.style.cursor = 'crosshair';
 
+    // Hide Eraser Specific Controls
+    const eraserCtrl = document.getElementById('eraserSizeControl');
+    if(eraserCtrl) eraserCtrl.style.display = 'none';
+    const objEraser = document.getElementById('btn_erase_object');
+    if(objEraser) objEraser.classList.remove('active');
+    const rubEraser = document.getElementById('btn_erase_rub');
+    if(rubEraser) rubEraser.classList.remove('active');
+
     renderScene();
+}
+function setEraserMode(mode) {
+    currentTool = 'eraser'; 
+    isEraserActive = true;
+    eraserMode = mode;
+    selectedElement = null;
+    
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    
+    // Highlight specific eraser button
+    const btn = document.getElementById(`btn_erase_${mode}`);
+    if(btn) btn.classList.add('active');
+    
+    // Show size slider ONLY for rubbing mode
+    const eraserCtrl = document.getElementById('eraserSizeControl');
+    if(eraserCtrl) eraserCtrl.style.display = (mode === 'rub') ? 'flex' : 'none';
+    
+    canvas.style.cursor = 'cell'; 
 }
 function updateProp(prop, value) {
     // 1. HANDLE SIZE CHANGES
@@ -2720,33 +3106,53 @@ function fillSelected() {
         alert("Select a shape (Rect, Circle, Triangle) to fill.");
     }
 }
-
+/* =========================
+   HISTORY MANAGER (Snapshots)
+========================= */
+function saveToHistory() {
+    // Save a copy of the current elements array as a string
+    if (undoStack.length > 50) undoStack.shift(); // Limit history to 50 steps
+    undoStack.push(JSON.stringify(elements));
+    redoStack = []; // Clear redo stack whenever a new action happens
+}
 function undoSketch() {
-    if (elements.length > 0) {
-        const popped = elements.pop();
-        redoStack.push(popped);
+    if (undoStack.length > 0) {
+        // 1. Save current state to Redo Stack before undoing
+        redoStack.push(JSON.stringify(elements));
+        
+        // 2. Restore previous state
+        const previousState = undoStack.pop();
+        elements = JSON.parse(previousState);
+        
+        // 3. Reset Selection to avoid ghost boxes
+        selectedElement = null;
+        attachedErasers = [];
+        
         renderScene();
     }
 }
 
 function redoSketch() {
     if (redoStack.length > 0) {
-        const popped = redoStack.pop();
-        elements.push(popped);
+        // 1. Save current state to Undo Stack
+        undoStack.push(JSON.stringify(elements));
+        
+        // 2. Restore next state
+        const nextState = redoStack.pop();
+        elements = JSON.parse(nextState);
+        
         renderScene();
     }
 }
 
-// Trigger with Popup
 function triggerClearSketch() {
     if (elements.length === 0) return; 
-    // Use the existing global showConfirm function
     showConfirm(
         "Clear Drawing?",
-        "Are you sure you want to delete everything? This cannot be undone.",
+        "Are you sure you want to delete everything?",
         () => {
+            saveToHistory(); // ✅ Save before clearing!
             elements = [];
-            redoStack = [];
             renderScene();
         }
     );
@@ -2763,47 +3169,56 @@ function triggerSaveSketch() {
     );
 }
 
-// ================= CORE RENDERING ENGINE =================
+/* =========================
+   CORE RENDERING ENGINE (True Erasure Fix)
+========================= */
 function renderScene() {
     if (!ctx) return;
     
-    // 1. Clear Screen
+    // 1. Clear the ENTIRE canvas to start fresh frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // 2. Save Context & Apply Camera Transform
     ctx.save();
     ctx.translate(camera.x, camera.y);
     ctx.scale(camera.z, camera.z);
 
-    // 3. Draw White Background (World Space)
-    // We draw a huge rectangle so it looks like an infinite canvas
-    ctx.fillStyle = "white";
-    // Draw slightly larger than viewport to ensure coverage
-    const worldTopLeft = toWorld(0,0);
-    const worldBotRight = toWorld(canvas.width, canvas.height);
-    ctx.fillRect(worldTopLeft.x, worldTopLeft.y, 
-                 (worldBotRight.x - worldTopLeft.x), 
-                 (worldBotRight.y - worldTopLeft.y));
+    // ❌ REMOVED: Do NOT draw a white background rectangle here.
+    // We want the base to be transparent so 'destination-out' cuts to transparency.
 
-    // 4. Draw All Elements
+    // 2. Draw Elements
     elements.forEach(el => {
-        ctx.save(); 
-        
-        ctx.beginPath();
-        ctx.strokeStyle = el.color;
+        // A. Setup Style for this element
         ctx.lineWidth = el.size;
-        ctx.fillStyle = el.fill || 'transparent';
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-
+        
+        // B. Handle Line Styles (Dashed/Dotted)
         if (el.style === 'dashed') ctx.setLineDash([15, 10]);
         else if (el.style === 'dotted') ctx.setLineDash([3, 8]);
         else ctx.setLineDash([]);
 
-        if (el.type === 'brush') {
+        // C. CRITICAL: Handle Eraser Mode vs Drawing Mode
+        if (el.isEraser) {
+            // "destination-out" removes existing pixels where we draw
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.strokeStyle = "rgba(0,0,0,1)"; // Color is irrelevant, only Alpha matters
+            ctx.fillStyle = "rgba(0,0,0,1)";
+        } else {
+            // "source-over" is standard drawing on top
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = el.color;
+            ctx.fillStyle = el.fill || 'transparent';
+        }
+
+        ctx.beginPath();
+
+        // --- D. DRAWING PATHS ---
+        if (el.type === 'brush' || el.type === 'rub_stroke') {
             if(el.points.length > 0) {
                 ctx.moveTo(el.points[0].x, el.points[0].y);
                 el.points.forEach(p => ctx.lineTo(p.x, p.y));
+                
+                // Important: Fill is mostly for shapes, Stroke is for lines
                 ctx.stroke();
             }
         } 
@@ -2838,35 +3253,36 @@ function renderScene() {
             if(el.text) drawTextCenter(ctx, el.text, el.x, el.y, el.size);
         } 
         else if (el.type === 'text') {
-            ctx.font = (el.size * 3) + "px Arial"; // Scale font with size
+            // Text needs standard blending always
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.font = (el.size * 3) + "px Arial"; 
             ctx.fillStyle = el.color; 
-            ctx.fillText(el.text || "", el.x, el.y); // Fix undefined text
+            ctx.fillText(el.text || "", el.x, el.y);
         }
 
-        ctx.restore(); 
+        // Reset for next loop iteration
+        // This is important because 'destination-out' is sticky
+        ctx.globalCompositeOperation = 'source-over';
+        
     });
 
-    // 5. Draw Selection Box
+    // 3. Draw Selection Box (Always on top)
     if (selectedElement) {
-        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = "#3b82f6"; 
-        ctx.lineWidth = 2 / camera.z; // Keep selection line thin regardless of zoom
+        ctx.lineWidth = 2 / camera.z; 
         ctx.setLineDash([5, 5]);
         
         let b = getBounds(selectedElement);
         if(b) {
             ctx.strokeRect(b.x - 5, b.y - 5, b.w + 10, b.h + 10);
-            // Resize Handle
             ctx.fillStyle = "#3b82f6";
             ctx.fillRect(b.x + b.w - 5, b.y + b.h - 5, 10, 10);
         }
-        ctx.restore();
     }
 
-    // 6. Restore Camera (End Frame)
     ctx.restore();
 }
-
 // Helper: Draw Arrow
 function drawArrow(ctx, fromx, fromy, tox, toy, width) {
     const headlen = width * 5; 
@@ -2895,24 +3311,62 @@ function drawTextCenter(ctx, text, x, y, size) {
     ctx.textBaseline = "middle";
     ctx.fillText(text, x, y);
 }
-
+/* ==========================================
+   HELPER: GET BOUNDING BOX (Fixed for Brush/Rubber)
+   ========================================== */
 function getBounds(el) {
     if(!el) return null;
-    if(el.type === 'rect' || el.type === 'triangle') return {x: el.x, y: el.y, w: el.w, h: el.h};
-    if(el.type === 'circle') return {x: el.x - el.r, y: el.y - el.r, w: el.r*2, h: el.r*2};
+
+    // 1. RECT / TRIANGLE
+    if(el.type === 'rect' || el.type === 'triangle') {
+        return {x: el.x, y: el.y, w: el.w, h: el.h};
+    }
+    
+    // 2. CIRCLE
+    if(el.type === 'circle') {
+        return {x: el.x - el.r, y: el.y - el.r, w: el.r*2, h: el.r*2};
+    }
+    
+    // 3. TEXT
     if(el.type === 'text') {
         ctx.font = (el.size * 3) + "px Arial";
         const width = ctx.measureText(el.text || "").width;
         return {x: el.x, y: el.y - (el.size*3), w: width, h: (el.size*3)};
     }
+    
+    // 4. LINE / ARROW
     if(el.type === 'line' || el.type === 'arrow') {
         let minX = Math.min(el.x, el.endX), maxX = Math.max(el.x, el.endX);
         let minY = Math.min(el.y, el.endY), maxY = Math.max(el.y, el.endY);
         return {x: minX, y: minY, w: maxX-minX, h: maxY-minY};
     }
+
+    // 5. BRUSH / RUBBER STROKE (The Fix!)
+    if (el.type === 'brush' || el.type === 'rub_stroke') {
+        if (!el.points || el.points.length === 0) return null;
+
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        
+        el.points.forEach(p => {
+            if(p.x < minX) minX = p.x;
+            if(p.x > maxX) maxX = p.x;
+            if(p.y < minY) minY = p.y;
+            if(p.y > maxY) maxY = p.y;
+        });
+
+        // Add the stroke width padding so we catch the edges
+        const padding = (el.size || 10) / 2;
+        
+        return {
+            x: minX - padding,
+            y: minY - padding,
+            w: (maxX - minX) + (padding * 2),
+            h: (maxY - minY) + (padding * 2)
+        };
+    }
+
     return null;
 }
-
 // ================= INTERACTION HANDLERS =================
 const getPos = (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -2925,13 +3379,45 @@ const getPos = (e) => {
     return { x: cx - rect.left, y: cy - rect.top };
 };
 
-// Hit Test (must use World Coordinates)
-function isHit(el, wx, wy) {
-    const b = getBounds(el);
-    if(b) return (wx >= b.x && wx <= b.x + b.w && wy >= b.y && wy <= b.y + b.h);
-    return false;
-}
+// --- HELPER: HIT TEST (Improved Tolerance) ---
+function isHit(el, x, y) {
+    const TOLERANCE = 10 / camera.z; // 10px buffer, adjusted for zoom
 
+    // 1. Brush / Rubber Strokes
+    if (el.type === 'brush' || el.type === 'rub_stroke') {
+        // Check distance to any point in the path
+        return el.points.some(p => Math.hypot(p.x - x, p.y - y) < (el.size + TOLERANCE));
+    }
+    
+    // 2. Lines / Arrows
+    if (el.type === 'line' || el.type === 'arrow') {
+        // Distance from point to line segment formula
+        const A = x - el.x;
+        const B = y - el.y;
+        const C = el.endX - el.x;
+        const D = el.endY - el.y;
+        const dot = A * C + B * D;
+        const len_sq = C * C + D * D;
+        let param = -1;
+        if (len_sq !== 0) param = dot / len_sq;
+        
+        let xx, yy;
+        if (param < 0) { xx = el.x; yy = el.y; }
+        else if (param > 1) { xx = el.endX; yy = el.endY; }
+        else { xx = el.x + param * C; yy = el.y + param * D; }
+        
+        const dist = Math.hypot(x - xx, y - yy);
+        return dist < (el.size + TOLERANCE);
+    }
+
+    // 3. Shapes (Rect/Circle) - Check if inside OR on edge
+    const b = getBounds(el);
+    if (!b) return false;
+    
+    // Simple Box check with Tolerance
+    return (x >= b.x - TOLERANCE && x <= b.x + b.w + TOLERANCE && 
+            y >= b.y - TOLERANCE && y <= b.y + b.h + TOLERANCE);
+}
 // --- INTERACTION STATE UPDATES ---
 let isPinching = false;
 let startPinchDist = 0;
@@ -2945,11 +3431,10 @@ const handleStart = (e) => {
     // 1. PINCH ZOOM START
     if (e.touches && e.touches.length === 2) {
         e.preventDefault();
-        if (isDrawing) { elements.pop(); isDrawing = false; }
+        if (isDrawing) { elements.pop(); isDrawing = false; } 
         isPinching = true;
         isDragging = false;
         isPanning = false;
-        
         startPinchDist = getTouchDistance(e);
         startZoomLevel = camera.z;
         startPinchCenter = getTouchCenter(e); 
@@ -2963,24 +3448,89 @@ const handleStart = (e) => {
 
     startX = worldPos.x;
     startY = worldPos.y;
-    lastX = screenPos.x; 
-    lastY = screenPos.y;
+    lastX = worldPos.x;
+    lastY = worldPos.y;
+    lastTime = Date.now();
 
-    // 2. PANNING (Select Tool)
+    // 2. ERASER LOGIC (Object or Rubber)
+    if (isEraserActive) {
+        if (eraserMode === 'object') {
+            // OBJECT ERASER
+            let hitIndex = -1;
+            for (let i = elements.length - 1; i >= 0; i--) {
+                // Ignore "Eraser Strokes" so we don't accidentally delete the hole
+                if (!elements[i].isEraser && isHit(elements[i], startX, startY)) {
+                    hitIndex = i;
+                    break;
+                }
+            }
+
+            if (hitIndex !== -1) {
+                saveToHistory(); // Save before delete
+                elements.splice(hitIndex, 1); 
+                renderScene();
+            }
+        } 
+        else if (eraserMode === 'rub') {
+            saveToHistory(); // Save before rubbing
+            isDrawing = true;
+            let baseSize = parseInt(document.getElementById('eraserSizeSlider')?.value) || 20;
+            elements.push({
+                type: 'rub_stroke',
+                isEraser: true, // Invisible flag
+                points: [{x: startX, y: startY}],
+                size: baseSize,
+                color: 'white' 
+            });
+        }
+        return;
+    }
+
+    // 3. SELECT / PAN TOOL (Updated)
     if (currentTool === 'select') {
         let hitFound = false;
+        attachedErasers = []; // Reset sticky list
+
         for (let i = elements.length - 1; i >= 0; i--) {
-            if (isHit(elements[i], startX, startY)) {
+            const el = elements[i];
+
+            // A. Skip Erasers (Can't select a hole directly)
+            if (el.isEraser) continue;
+
+            // B. ✅ NEW: Skip Pencil/Brush Drawings (Make them unselectable)
+            if (el.type === 'brush') continue;
+
+            // C. Check Hit
+            if (isHit(el, startX, startY)) {
                 hitFound = true; 
-                selectedElement = elements[i];
-                if(selectedElement.size) document.getElementById('strokeSize').value = selectedElement.size;
-                if(selectedElement.color) document.getElementById('mainColor').value = selectedElement.color;
+                selectedElement = el;
                 
+                // D. ✅ STICKY LOGIC: Find erasers attached to THIS object
+                // This ensures holes move with the shape
+                elements.forEach(otherEl => {
+                    if (otherEl.isEraser && areOverlapping(selectedElement, otherEl)) {
+                        attachedErasers.push(otherEl);
+                    }
+                });
+
+                // Update UI Sliders
+                if(selectedElement.size) {
+                    const slider = document.getElementById('strokeSize');
+                    if(slider) slider.value = selectedElement.size;
+                }
+                if(selectedElement.color) {
+                    const picker = document.getElementById('mainColor');
+                    if(picker) picker.value = selectedElement.color;
+                }
+                
+                // Resize vs Move Logic
                 const b = getBounds(selectedElement);
                 if(b && Math.abs(startX - (b.x + b.w)) < (20/camera.z) && Math.abs(startY - (b.y + b.h)) < (20/camera.z)) {
                     isResizing = true; 
+                    saveToHistory(); 
                 } else {
                     isDragging = true;
+                    saveToHistory();
                 }
                 break;
             }
@@ -2988,35 +3538,34 @@ const handleStart = (e) => {
         
         if (!hitFound) {
             selectedElement = null;
-            isPanning = true;      
-            canvas.style.cursor = 'grabbing';
+            attachedErasers = [];
+            isPanning = false;      
+            canvas.style.cursor = 'default';
         }
         renderScene();
         return;
     }
 
-    // 3. DRAWING
+    // 4. DRAWING
     isDrawing = true;
     redoStack = []; 
     
+    saveToHistory(); 
+
     let color = document.getElementById('mainColor').value;
     let sizeInput = document.getElementById('pencilSize');
     let sliderInput = document.getElementById('strokeSize');
-    let size = parseInt(sizeInput.value) || parseInt(sliderInput.value) || 3;
-    let style = document.getElementById('lineStyle').value;
-    let isParallel = document.getElementById('parallelToggle').checked;
+    let size = parseInt(sizeInput?.value) || parseInt(sliderInput?.value) || 3;
+    let style = document.getElementById('lineStyle')?.value || 'solid';
+    let isParallel = document.getElementById('parallelToggle')?.checked;
     
-    if (currentTool === 'eraser') { color = '#FFFFFF'; style = 'solid'; }
-
-    // Create Main Element
     let newEl = { type: currentTool, color, size, style, x: startX, y: startY };
 
-    if (currentTool === 'brush' || currentTool === 'eraser') {
-        newEl.type = 'brush'; 
+    if (currentTool === 'brush') {
         newEl.points = [{x: startX, y: startY}];
-    } else if (currentTool === 'line' || currentTool === 'arrow') {
+    } else if (['line', 'arrow'].includes(currentTool)) {
         newEl.endX = startX; newEl.endY = startY;
-    } else if (['rect','triangle'].includes(currentTool)) {
+    } else if (['rect', 'triangle'].includes(currentTool)) {
         newEl.w = 0; newEl.h = 0; newEl.text = "";
     } else if (currentTool === 'circle') {
         newEl.r = 0; newEl.text = "";
@@ -3024,35 +3573,30 @@ const handleStart = (e) => {
 
     elements.push(newEl);
     
-    // --- UPDATED: PARALLEL MODE FOR BRUSH & LINES ---
-    if (isParallel && (currentTool === 'line' || currentTool === 'brush')) {
-        let dist = parseInt(document.getElementById('parallelDist').value) || 20;
-        
-        // Clone the main element
+    if (isParallel && ['line', 'brush'].includes(currentTool)) {
+        let dist = parseInt(document.getElementById('parallelDist')?.value) || 20;
         let parallelEl = JSON.parse(JSON.stringify(newEl));
-        
-        // Offset properties
         parallelEl.x += dist; 
         parallelEl.y += dist; 
-        
-        if (parallelEl.endX !== undefined) {
-             parallelEl.endX += dist; 
-             parallelEl.endY += dist;
-        }
-        
-        // CRITICAL: Offset the points array for Brush
-        if (parallelEl.points) {
-            parallelEl.points = parallelEl.points.map(p => ({
-                x: p.x + dist,
-                y: p.y + dist
-            }));
-        }
-
-        parallelEl.isGhost = true; // Tag it so handleMove updates it correctly
+        if (parallelEl.endX !== undefined) { parallelEl.endX += dist; parallelEl.endY += dist; }
+        if (parallelEl.points) { parallelEl.points = parallelEl.points.map(p => ({ x: p.x + dist, y: p.y + dist })); }
+        parallelEl.isGhost = true; 
         elements.push(parallelEl);
     }
 };
+// --- HELPER: CHECK OVERLAP ---
+function areOverlapping(el1, el2) {
+    const b1 = getBounds(el1);
+    const b2 = getBounds(el2);
+    
+    if (!b1 || !b2) return false;
 
+    // Standard Bounding Box Intersection Check
+    return !(b2.x > b1.x + b1.w || 
+             b2.x + b2.w < b1.x || 
+             b2.y > b1.y + b1.h || 
+             b2.y + b2.h < b1.y);
+}
 const handleMove = (e) => {
     if(e.type === 'touchmove') e.preventDefault();
 
@@ -3083,10 +3627,38 @@ const handleMove = (e) => {
         renderScene();
         return;
     }
+    // 3. RUBBING ERASER (Dynamic Size)
+    if (isEraserActive && eraserMode === 'rub' && isDrawing) {
+        const now = Date.now();
+        const dt = now - lastTime;
+        const dist = Math.hypot(worldPos.x - lastX, worldPos.y - lastY);
+        const speed = dist / (dt || 1); // Pixels per ms
 
-    // 3. MANIPULATION
+        // Calculate dynamic size
+        const baseSize = parseInt(document.getElementById('eraserSizeSlider')?.value) || 20;
+        const speedFactor = Math.min(speed * SPEED_SENSITIVITY, 4.0); 
+        const dynamicSize = Math.min(baseSize * (1 + speedFactor), MAX_ERASER_SIZE);
+
+        const activeEraser = elements[elements.length - 1];
+        activeEraser.points.push({x: worldPos.x, y: worldPos.y});
+        
+        // Update size to max reached
+        if (dynamicSize > activeEraser.size) {
+            activeEraser.size = dynamicSize;
+        }
+
+        lastX = worldPos.x;
+        lastY = worldPos.y;
+        lastTime = now;
+        
+        renderScene();
+        return;
+    }
+
+    // 4. MANIPULATION
     if (currentTool === 'select' && selectedElement) {
         if (isDragging) {
+            // A. Move the Main Object
             if(selectedElement.type === 'brush') {
                 selectedElement.points.forEach(p => { p.x += dx; p.y += dy; });
             } else if (['line','arrow'].includes(selectedElement.type)) {
@@ -3095,9 +3667,20 @@ const handleMove = (e) => {
             } else {
                 selectedElement.x += dx; selectedElement.y += dy;
             }
+
+            // ✅ B. Move Attached Erasers (Sticky Effect)
+            attachedErasers.forEach(eraser => {
+                // Erasers are always type 'rub_stroke' (which is basically a brush)
+                if (eraser.points) {
+                    eraser.points.forEach(p => { p.x += dx; p.y += dy; });
+                }
+            });
+
             startX = worldPos.x; startY = worldPos.y; 
             renderScene();
-        } else if (isResizing) {
+        } 
+        else if (isResizing) {
+            // ... (Keep your existing resizing logic) ...
             if(['rect','triangle'].includes(selectedElement.type)) {
                 selectedElement.w = worldPos.x - selectedElement.x;
                 selectedElement.h = worldPos.y - selectedElement.y;
@@ -3111,7 +3694,6 @@ const handleMove = (e) => {
         }
         return;
     }
-
     // 4. DRAWING
     if (!isDrawing) return;
     
@@ -3270,17 +3852,49 @@ function getTouchCenter(e) {
         y: ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top
     };
 }
-// ============================================
-
-/* ==========================================
-   SMART SAVE: CROP CANVAS TO CONTENT
-   ========================================== */
 /* =========================
    CORE: SAVE SKETCH (Direct Update)
 ========================= */
 function saveSketchModal() {
     if (!activeSketchPath) return;
-    if (elements.length === 0) { closeSketchModal(); return; }
+    // 1. Check if Canvas is Empty
+    if (elements.length === 0) {
+        // If empty, user wants to DELETE the sketch.
+        
+        // A. Remove data from state
+        if (formState.images && formState.images[activeSketchPath]) {
+            delete formState.images[activeSketchPath];
+        }
+        if (formState.vectors && formState.vectors[activeSketchPath]) {
+            delete formState.vectors[activeSketchPath];
+        }
+
+        // B. Remove Thumbnail from UI immediately
+        const safeId = activeSketchPath.replace(/\./g, '_');
+        const imgElement = document.getElementById(`img_preview_${safeId}`);
+        if (imgElement) {
+            imgElement.src = "";
+            imgElement.classList.add('hidden');
+            imgElement.style.display = 'none';
+        }
+        
+        // C. Restore Placeholder (if it's the main layout)
+        const placeholder = document.getElementById(`placeholder_${safeId}`);
+        if (placeholder) {
+            placeholder.classList.remove('hidden');
+            placeholder.style.display = 'flex'; // Or whatever your CSS uses
+        }
+
+        // D. Close and Save
+        console.log("Canvas empty -> Sketch deleted.");
+        saveLocal();
+        closeSketchModal();
+        updateCompletionStats(); // Update progress bar (it will go down)
+        
+       clearTimeout(autoSaveTimer);
+    // ✅ PASS 'true' TO FORCE HEAVY SAVE (Send vectors)
+    autoSaveTimer = setTimeout(() => saveToServer(true), 1000);
+}
 
     // --- CROP LOGIC (Keep exactly as is) ---
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -3300,12 +3914,33 @@ function saveSketchModal() {
     canvas.height = cropHeight;
     camera = { x: -minX + padding, y: -minY + padding, z: 1 };
     renderScene(); 
-    const dataUrl = canvas.toDataURL('image/png');
     canvas.width = prevCanvasWidth;
     canvas.height = prevCanvasHeight;
     camera = prevCamera;
     renderScene();
     // --- END CROP ---
+
+    // 2. CREATE FINAL COMPOSITE (Flatten transparency to white)
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tCtx = tempCanvas.getContext('2d');
+
+    // A. Fill White Background
+    tCtx.fillStyle = "white";
+    tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // B. Draw the Main Canvas on top
+    tCtx.drawImage(canvas, 0, 0);
+
+    // 3. Get Data URL from the flattened canvas
+    const dataUrl = tempCanvas.toDataURL('image/png');
+    
+    // Restore
+    canvas.width = prevCanvasWidth;
+    canvas.height = prevCanvasHeight;
+    camera = prevCamera;
+    renderScene();    
 
     // Save Data
     if (!formState.images) formState.images = {};
@@ -3318,6 +3953,7 @@ function saveSketchModal() {
     
     saveLocal();
     closeSketchModal();
+    updateCompletionStats();
     
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(() => saveToServer(), 1000);
@@ -3449,45 +4085,53 @@ function updateArrayState(obj, path, value, isChecked) {
 /* =========================
    9. DATA SYNC & SUBMISSION
 ========================= */
-async function saveToServer(isLeaving = false) {
+async function saveToServer(isHeavySave = false) {
     if (!currentFolder) return; 
     const fileNo = getNestedValue(formState, 'Valuers_Checklist.Office_file_no');
     const applicant = getNestedValue(formState, 'Valuers_Checklist.applicant_name');
 
-    // If either is missing/empty, STOP immediately. Do not save.
+    // Validation
     if (!fileNo || !applicant || fileNo.toString().trim() === "" || applicant.toString().trim() === "") {
-        console.log("Skipping Auto-Save: Missing File No or Applicant Name.");
+        console.log("Skipping Auto-Save: Missing fields.");
         return; 
     }
 
-    // Optional: Visual Indicator for saving
     const btn = document.getElementById('triggerSubmitBtn');
     if(!isLeaving && btn) btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Saving...';
 
     try {
+        // 1. CLONE STATE
         const payload = JSON.parse(JSON.stringify(formState));
-        // delete payload.vectors; // Optional optimization
+        
+        // 2. OPTIMIZE: If this is just typing (not saving a sketch), remove heavy data
+        if (!isHeavySave) {
+            delete payload.vectors; 
+            delete payload.images; 
+        }
+
         payload.target_folder = currentFolder;
 
         const response = await fetch('/coreapi/api/auto-save/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
             body: JSON.stringify({ 
-                folder_path: currentFolder,
+                folder_path: currentFolder, 
                 payload: payload 
             })
         });
         
         const res = await response.json();
         if(res.success) {
-            console.log("Saved at", res.last_saved);
-            if(!isLeaving && btn) btn.innerText = 'Submit Feedback'; 
+            console.log("Saved", isHeavySave ? "(Full)" : "(Text)");
+            if(!isLeaving && btn) btn.innerText = 'Submit Feedback';
+            
+            // Capture ID if created
+            if(res.report_id) formState.report_id = res.report_id;
         }
     } catch(err) {
         console.error("Save error", err);
     }
 }
-
 /* =========================
    UI SYNC (UPDATED: Clears Sketches Too)
 ========================= */
@@ -3557,6 +4201,16 @@ function syncStateToUI() {
             img.style.display = 'none';
         }
     });
+    splitRentDurationToUI();
+    updatePanchayatList();   // 1. Load the list based on saved District
+    togglePanchayatField();  // 2. Show/Hide box based on saved Local Body
+    
+    // 3. Restore the specific Panchayat selected (after list is re-generated)
+    const savedPanchayat = getNestedValue(formState, 'Survey.grama_panchayat');
+    if(savedPanchayat) {
+        document.getElementById('panchayatSelect').value = savedPanchayat;
+    }
+    updateCompletionStats();
 }
 /* ==========================================
    UPDATED: INJECT ICONS (Conditional Upload)
@@ -3809,6 +4463,7 @@ function addSurveyColumn() {
     formState.Survey.docs.push({ name: "", scedule_no: "" });
     renderSurveyColumns();
     saveLocal();
+    updateCompletionStats();
 }
 
 function updateAllDocumentDropdowns() {
@@ -3860,6 +4515,7 @@ document.getElementById('siteFeedbackForm').addEventListener('input', (e) => {
 
     // B. Save to Local Storage (Instant)
     saveLocal();
+    updateCompletionStats();
 
     // C. Debounce Save to Server (10 Seconds)
     clearTimeout(autoSaveTimer);
@@ -3911,14 +4567,25 @@ document.getElementById('triggerResetBtn').onclick = (e) => {
 };
 
 async function performSubmit() {
+    // 1. Validation: Basic Fields
     const fileNo = getNestedValue(formState, 'Valuers_Checklist.Office_file_no');
     const applicant = getNestedValue(formState, 'Valuers_Checklist.applicant_name');
 
     if (!fileNo || !applicant || fileNo.toString().trim() === "" || applicant.toString().trim() === "") {
         alert("Error: You must provide an 'Office File No.' and 'Applicant Name' before submitting.");
+        return; 
+    }
+
+    // 2. ✅ NEW Validation: Completion Percentage
+    // Ensure metrics exist (default to 0 if undefined)
+    const currentPercent = (formState.completion_metrics && formState.completion_metrics.percent) || 0;
+    
+    if (currentPercent < 20) {
+        alert(`Incomplete Report: Your completion status is only ${currentPercent}%. You need at least 20% to submit.`);
         return; // Stop execution
     }
-    // 1. If Sketch Pad is open, save it first
+
+    // 3. Save Sketch if open
     if (!document.getElementById('sketchModal').classList.contains('hidden')) {
         saveSketchModal();
     }
@@ -3929,32 +4596,26 @@ async function performSubmit() {
         btn.textContent = "Submitting...";
         btn.disabled = true;
 
-        // 2. Prepare Payload
+        // 4. Prepare Payload
         let payload = JSON.parse(JSON.stringify(formState));
-        
-        // Ensure ID and Folder are attached
         payload.report_id = formState.report_id; 
         payload.target_folder = currentFolder; 
 
-        // Cleanup
         if(payload.vectors) delete payload.vectors;
         payload = cleanPayload(payload);
         if (!payload) payload = {};
 
-        // 3. Send Request
+        // 5. Send Request
         const response = await fetch('/coreapi/api/save-feedback/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
             body: JSON.stringify({ payload })
         });
 
-        // 4. Check for HTTP Errors (e.g. 500 Internal Server Error)
         if (!response.ok) {
             throw new Error(`Server Error: ${response.status} ${response.statusText}`);
         }
 
-        // 5. Safely Parse JSON
-        // We get text first to debug if it's not JSON
         const textResponse = await response.text(); 
         let res;
         try {
@@ -3964,13 +4625,12 @@ async function performSubmit() {
             throw new Error("Invalid server response. Data might be saved, but response was bad.");
         }
         
-        // 6. Handle Success/Fail Logic
         if(res.success) {
-            // Update ID locally
-            formState.report_id = res.report_id;
-            saveLocal(); 
-
-            // Redirect
+            // formState.report_id = res.report_id; // No need to save ID if we are deleting state
+            
+            // ✅ FIX: Clear local storage so next form starts clean
+            localStorage.removeItem(STORAGE_KEY); 
+            
             window.location.href = res.redirect_url;
         } else {
             btn.textContent = originalText;
@@ -3980,14 +4640,11 @@ async function performSubmit() {
 
     } catch (err) {
         console.error("Submit Failed:", err);
-        // Reset button
         const btn = document.getElementById('triggerSubmitBtn');
         if(btn) {
             btn.textContent = "Submit Feedback";
             btn.disabled = false;
         }
-        
-        // Detailed Alert
         alert("Submission Issue: " + err.message + "\n(Check Console for details)");
     }
 }
@@ -5069,6 +5726,7 @@ function toggleOwnershipNotes() {
         // 3. Save
         saveLocal();
     }
+    updateCompletionStats();
 }
 
 /* ==========================================
@@ -5225,6 +5883,7 @@ function toggleEncroachmentFields() {
             saveLocal();
         }
     }
+    updateCompletionStats();
 }
 /* ==========================================
    LOGIC: Toggle Railway Distance Row
@@ -5248,15 +5907,47 @@ function toggleRailwayDistance() {
             saveLocal();
         }
     }
+    updateCompletionStats();
 }
 
 /* =========================
-   10. APP INIT
+   10. APP INIT (Smart Restoration)
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
     console.log("App Initializing...");
 
-    // 1. Restorations
+    // 1. DETECT NAVIGATION TYPE
+    // Check if the page was reloaded (F5)
+    const navEntry = performance.getEntriesByType("navigation")[0];
+    const isReload = navEntry && navEntry.type === 'reload';
+    
+    // Check previous URL
+    const previousUrl = document.referrer || "";
+    // Adjust strings if your URLs differ slightly
+    const cameFromEditor = previousUrl.includes("pdf-editor") || previousUrl.includes("pdf_editor");
+
+    // 2. DECISION LOGIC
+    if (isReload || cameFromEditor) {
+        console.log("♻️ Restoration Mode: (Reloaded or Back from Editor)");
+        // We DO NOTHING here. We let the standard code below load the data from LocalStorage.
+    } 
+    else {
+        console.log("✨ Fresh Entry: Clearing Old Context");
+        // Clear Active Folder (So file explorer starts at Root)
+        localStorage.removeItem('vadrida_active_folder');
+        
+        // Clear Form Draft (Start with blank form)
+        localStorage.removeItem(STORAGE_KEY);
+        
+        // Reset internal state immediately
+        formState = getEmptyState();
+        
+        // Clear scroll positions
+        localStorage.removeItem('vadrida_file_list_scroll');
+    }
+
+    // --- STANDARD RESTORATION LOGIC ---
+
     const lastPath = localStorage.getItem('vadrida_active_folder');
     
     setTimeout(() => {
@@ -5267,6 +5958,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initBuildingTable();
     
+    // Load Folder: If we preserved lastPath (Reload/Editor), load it. Otherwise load "" (Root).
     if (lastPath) loadFolder(lastPath);
     else loadFolder(""); 
     
@@ -5276,27 +5968,29 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAllDocumentDropdowns();
 
     // Load saved images
-    Object.keys(formState.images).forEach(path => {
-        const safeId = path.replace(/\./g, '_');
-        const previewImg = document.getElementById(`img_preview_${safeId}`);
-        if (previewImg) {
-            previewImg.src = formState.images[path];
-            previewImg.classList.remove('hidden');
-            if(path === 'Sketch.main_layout') {
-                const ph = document.getElementById(`placeholder_${safeId}`);
-                if(ph) ph.classList.add('hidden');
+    if (formState.images) {
+        Object.keys(formState.images).forEach(path => {
+            const safeId = path.replace(/\./g, '_');
+            const previewImg = document.getElementById(`img_preview_${safeId}`);
+            if (previewImg) {
+                previewImg.src = formState.images[path];
+                previewImg.classList.remove('hidden');
+                if(path === 'Sketch.main_layout') {
+                    const ph = document.getElementById(`placeholder_${safeId}`);
+                    if(ph) ph.classList.add('hidden');
+                }
             }
-        }
-    });
+        });
+    }
 
     // ============================================================
-    // ✅ SCROLL MEMORY & FULLSCREEN LOGIC
+    // SCROLL MEMORY & FULLSCREEN LOGIC
     // ============================================================
     const fsBtn = document.getElementById('toggleFormFullscreenBtn');
     const rightCol = document.getElementById('rightColumnContainer');
     const icon = fsBtn ? fsBtn.querySelector('i') : null;
 
-    // 1. Restore Fullscreen Mode
+    // Restore Fullscreen Mode
     const wasFullscreen = localStorage.getItem('vadrida_form_fullscreen') === 'true';
     if (wasFullscreen && rightCol && icon) {
         rightCol.classList.add('fullscreen-active');
@@ -5305,21 +5999,14 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = 'hidden'; 
     }
 
-    // C. Attach Click Listener with Seamless Scroll
+    // Attach Click Listener
     if (fsBtn && rightCol) {
         fsBtn.onclick = () => {
-            // 1. CAPTURE: Grab exact scroll position BEFORE the layout changes
             const currentScroll = rightCol.scrollTop;
-
-            // 2. TOGGLE: Change the class
             rightCol.classList.toggle('fullscreen-active');
             const isNowFullscreen = rightCol.classList.contains('fullscreen-active');
-
-            // 3. RESTORE: Put the scroll position back immediately
-            // We do this instantly so the user doesn't see a jump
             rightCol.scrollTop = currentScroll;
 
-            // 4. Update Icons & LocalStorage
             if (isNowFullscreen) {
                 icon.className = 'fas fa-compress';
                 icon.style.color = '#ef4444';
@@ -5333,14 +6020,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
     }
+    
     // Date restriction
     const dateInput = document.querySelector('input[data-path="Valuers_Checklist.inspection_date"]');
     if (dateInput) {
         const today = new Date().toISOString().split("T")[0];
         dateInput.setAttribute("max", today);
     }
-});
 
+    // Logout Listener (Backup safety)
+    const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('vadrida_active_folder');
+        });
+    });
+});
 /* =========================
    1. GLOBAL VARIABLES
 ========================= */
@@ -5480,7 +6176,242 @@ function getCurrentLocation() {
         }, () => { alert("Error: GPS failed."); });
     } else { alert("GPS not supported."); }
 }
+/* =========================
+   RENT DURATION LOGIC
+========================= */
+function handleRentDurationChange() {
+    const y = document.getElementById('rent_years').value || 0;
+    const m = document.getElementById('rent_months').value || 0;
+    
+    // Combine into a single string for the database
+    const finalString = `${y} Years ${m} Months`;
+    
+    const masterInput = document.getElementById('rent_duration_master');
+    masterInput.value = finalString;
+    
+    // Trigger the existing auto-save logic
+    masterInput.dispatchEvent(new Event('input', { bubbles: true }));
+}
 
+function splitRentDurationToUI() {
+    const masterInput = document.getElementById('rent_duration_master');
+    const val = masterInput.value || "";
+    
+    // Parse "X Years Y Months"
+    const yearsMatch = val.match(/(\d+)\s*Years/i);
+    const monthsMatch = val.match(/(\d+)\s*Months/i);
+    
+    if (yearsMatch) document.getElementById('rent_years').value = yearsMatch[1];
+    if (monthsMatch) document.getElementById('rent_months').value = monthsMatch[1];
+}
+/* =========================
+   LOCATION & PANCHAYAT LOGIC
+========================= */
+
+// Dummy data for now - You can replace these lists later
+const panchayatData = {
+    "Ernakulam": ["Aluva", "Angamaly", "Kalady", "Kunnathunad", "Paravur"],
+    "Thiruvananthapuram": ["Attingal", "Nedumangad", "Neyyattinkara", "Varkala"],
+    "Kollam": ["Karunagappally", "Kottarakkara", "Punalur"],
+    "Thrissur": ["Chalakudy", "Kodungallur", "Guruvayur"],
+    "Kozhikode": ["Vadakara", "Koyilandy", "Ramanattukara"]
+    // Add other districts as empty arrays or full lists later
+};
+
+function togglePanchayatField() {
+    const typeSelect = document.getElementById('localBodySelect');
+    const wrapper = document.getElementById('panchayatWrapper');
+    
+    // Check if "Grama Panchayat" is selected
+    if (typeSelect && typeSelect.value === "Grama Panchayat") {
+        wrapper.classList.remove('hidden');
+    } else {
+        wrapper.classList.add('hidden');
+        // Optional: Clear the value if hidden
+        const pSelect = document.getElementById('panchayatSelect');
+        if(pSelect) {
+            pSelect.value = "";
+            // We manually trigger the data update since we changed value via JS
+            const path = pSelect.getAttribute('data-path');
+            if(path) updateNestedState(formState, path, "");
+        }
+    }
+    updateCompletionStats();
+}
+
+function updatePanchayatList() {
+    const districtSelect = document.getElementById('districtSelect');
+    const panchayatSelect = document.getElementById('panchayatSelect');
+    const selectedDist = districtSelect.value;
+    
+    // 1. Clear existing options
+    panchayatSelect.innerHTML = '<option value="">Select Panchayat</option>';
+    
+    // 2. Get list for this district
+    const list = panchayatData[selectedDist] || []; // Returns empty array if district not found
+    
+    // 3. Populate new options
+    list.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        panchayatSelect.appendChild(opt);
+    });
+}
+/* =========================
+   COMPLETION TRACKING LOGIC (With Sketch Awareness)
+========================= */
+function updateCompletionStats() {
+    // 1. Select inputs (excluding hidden ones)
+    const allInputs = document.querySelectorAll('[data-path]:not([type="hidden"]), [data-array]:not([type="hidden"])');
+    
+    let totalFields = 0;
+    let filledFields = 0;
+    let uniqueArrayFields = new Set(); 
+
+    allInputs.forEach(el => {
+        // Ignore the hidden master input for years/months
+        if (el.id === 'rent_duration_master') return;
+
+        // A. Checkboxes & Radios (Group Logic)
+        if (el.type === 'checkbox' || el.type === 'radio') {
+            const name = el.getAttribute('data-array') || el.name;
+            if (!uniqueArrayFields.has(name)) {
+                uniqueArrayFields.add(name);
+                totalFields++;
+                const group = document.querySelectorAll(`[data-array="${name}"], [name="${name}"]`);
+                let isGroupFilled = false;
+                group.forEach(item => { if(item.checked) isGroupFilled = true; });
+                if (isGroupFilled) filledFields++;
+            }
+        } 
+        // B. Text, Number, Selects, Textareas
+        else {
+            // Strict check: Ignore "notselected" (dropdown default) and empty strings
+            // We only count it as a "field" if it is actually visible on screen
+            if (el.offsetParent !== null) { 
+                totalFields++;
+                
+                const val = el.value.trim();
+                const path = el.getAttribute('data-path');
+                
+                // 1. Check for Text
+                const hasText = val !== "" && val !== "notselected";
+                
+                // 2. Check for Saved Image/Sketch (The Fix)
+                // We check if the 'images' object in state has a key matching this input's path
+                const hasImage = path && formState.images && formState.images[path] && formState.images[path].length > 0;
+
+                // If EITHER is present, it is filled
+                if (hasText || hasImage) {
+                    filledFields++;
+                }
+            }
+        }
+    });
+
+    // 2. Calculate
+    let percent = 0;
+    if (totalFields > 0) {
+        percent = Math.round((filledFields / totalFields) * 100);
+    }
+
+    // 3. Update UI
+    const bar = document.getElementById('progressBar');
+    const txt = document.getElementById('progressText');
+    if (bar && txt) {
+        bar.style.width = percent + "%";
+        txt.innerText = percent + "%";
+        
+        if(percent < 30) bar.style.background = "#ef4444";
+        else if(percent < 70) bar.style.background = "#facc15";
+        else bar.style.background = "#4ade80";
+    }
+
+    // 4. Save to State
+    if(formState.completion_metrics) {
+        formState.completion_metrics = {
+            percent: percent,
+            filled: filledFields,
+            total: totalFields,
+            last_updated: new Date().toISOString()
+        };
+    }
+}
+/* =========================
+   DRAGGABLE RESIZER LOGIC (Desktop + Tablet Fix)
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const resizer = document.getElementById('dragHandle');
+    const leftSide = document.getElementById('leftColumn');
+    const container = document.getElementById('mainLayout');
+
+    if (!resizer || !leftSide || !container) return;
+
+    let isResizing = false;
+
+    // Helper: Get X coordinate from either Mouse or Touch event
+    const getX = (e) => {
+        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    };
+
+    // 1. START DRAGGING
+    const startDrag = (e) => {
+        isResizing = true;
+        document.body.classList.add('resizing');
+        resizer.classList.add('active');
+        
+        // Prevent default touch actions (like scrolling while dragging)
+        if (e.type === 'touchstart') {
+            // e.preventDefault(); // Optional: Uncomment if dragging causes page scroll
+        }
+    };
+
+    // 2. WHILE DRAGGING
+    const onDrag = (e) => {
+        if (!isResizing) return;
+
+        // Prevent selecting text or scrolling while resizing
+        if(e.type.includes('touch')) e.preventDefault(); 
+
+        const containerRect = container.getBoundingClientRect();
+        const clientX = getX(e);
+        
+        // Calculate new width relative to container left edge
+        const newWidth = clientX - containerRect.left;
+
+        // Constraints
+        const minW = 300; 
+        const maxW = containerRect.width - 640; // Keep space for right side
+
+        if (newWidth > minW && newWidth < maxW) {
+            leftSide.style.width = `${newWidth}px`;
+            leftSide.style.flexBasis = `${newWidth}px`; // Force flex update
+        }
+    };
+
+    // 3. STOP DRAGGING
+    const stopDrag = () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.classList.remove('resizing');
+            resizer.classList.remove('active');
+            
+            // Fix: Re-render canvas if it was open during resize
+            if (typeof resizeCanvas === 'function') resizeCanvas();
+        }
+    };
+
+    // --- ATTACH LISTENERS (MOUSE) ---
+    resizer.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', stopDrag);
+
+    // --- ATTACH LISTENERS (TOUCH / TABLET) ---
+    resizer.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('touchend', stopDrag);
+});
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=places&v=weekly" async defer></script>
 {% endblock %}

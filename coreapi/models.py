@@ -11,6 +11,9 @@ class UserProfile(models.Model):
     role = models.CharField(max_length=20)
     password = models.CharField(max_length=200, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
+    current_page = models.CharField(max_length=255, null=True, blank=True)
+    
 
     def save(self, *args, **kwargs):
         if self.password and not self.password.startswith("pbkdf2_"):
@@ -27,13 +30,16 @@ class SiteVisitReport(models.Model):
     
     office_file_no = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    generated_pdf_name = models.CharField(max_length=255, blank=True, null=True)
     
     # Store the text data here (cleaned, without images)
     form_data = models.JSONField(default=dict)
     target_folder = models.CharField(max_length=500, blank=True, null=True, default="")
+    completion_score = models.IntegerField(default=0)  # Stores 0 to 100
     # Optional: Keep this for the "Main" layout if you want it easily accessible, 
     # or you can move it to the child model too.
     main_sketch = models.ImageField(upload_to='main_sketches/', blank=True, null=True)
+  
 
     def __str__(self):
         return f"Report {self.office_file_no}"

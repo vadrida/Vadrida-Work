@@ -6,6 +6,7 @@ from coreapi.models import UserProfile
 from django.utils import timezone
 import hashlib
 from .models import ChatMessage, FolderChatMessage, FolderChatVisit
+from coreapi.models import UserProfile
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -124,3 +125,100 @@ class FolderChatConsumer(AsyncWebsocketConsumer):
             user=user, folder_path=path, defaults={'last_visit': timezone.now()}
         )
         return user.user_name
+    
+
+class PresenceConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.group_name = "presence_global"
+        
+        # 1. Add this connection to the global presence group
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+        # 2. Mark User as Online Immediately
+        user = self.scope["user"]
+        # Note: If you use custom auth (session based), ensure user is in scope
+        # If using session['user_id'], you might need to fetch manually.
+        # Assuming standard Django Auth or middleware populates scope['user']
+        if user.is_authenticated:
+            await self.update_user_status(user, is_online=True)
+            
+        # 3. Broadcast the new Team List to everyone
+        await self.broadcast_team_state()
+
+    async def disconnect(self, close_code):
+        # 1. Mark User Offline
+        user = self.scope["user"]
+        if user.is_authenticated:
+            await self.update_user_status(user, is_online=False)
+
+        # 2. Remove from group & Broadcast update
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        await self.broadcast_team_state()
+
+    async def receive(self, text_data):
+        # 1. Listen for "Page Change" events from the client
+        data = json.loads(text_data)
+        page_name = data.get("page", "")
+        
+        user = self.scope["user"]
+        if user.is_authenticated and page_name:
+            # Update DB with new page location
+            await self.update_user_page(user, page_name)
+            # Tell everyone "Alan is now on Feedback Page"
+            await self.broadcast_team_state()
+
+    # --- Database Methods (Must be Async) ---
+    @database_sync_to_async
+    def update_user_status(self, user, is_online):
+        try:
+            # Adjust query to match your specific User Model setup
+            profile = UserProfile.objects.get(user=user)
+            profile.is_online = is_online
+            profile.last_seen = timezone.now()
+            profile.save()
+        except Exception as e:
+            print(f"Error updating status: {e}")
+
+    @database_sync_to_async
+    def update_user_page(self, user, page):
+        try:
+            profile = UserProfile.objects.get(user=user)
+            profile.current_page = page
+            profile.save()
+        except:
+            pass
+
+    @database_sync_to_async
+    def get_team_list(self):
+        # Fetch all users formatted for the frontend
+        users = UserProfile.objects.all().order_by('-is_online', 'user_name')
+        data = []
+        for u in users:
+            data.append({
+                "id": u.id,
+                "user_name": u.user_name,
+                "is_online": u.is_online,
+                "current_page": u.current_page,
+                "last_seen": u.last_seen.strftime("%H:%M") if u.last_seen else "-"
+            })
+        return data
+
+    async def broadcast_team_state(self):
+        # Get fresh list
+        team_data = await self.get_team_list()
+        # Send to group
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "presence_update",
+                "team_data": team_data
+            }
+        )
+
+    async def presence_update(self, event):
+        # Send data to WebSocket
+        await self.send(text_data=json.dumps({
+            "type": "team_update",
+            "members": event["team_data"]
+        }))
