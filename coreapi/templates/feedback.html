@@ -425,7 +425,7 @@ body.resizing .preview-container {
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">District</label>
-                    <select data-path="Survey.district" class="form-select" id="districtSelect" onchange="updatePanchayatList()">
+                    <select data-path="Survey.district" class="form-select" id="districtSelect">
                         <option value="">Select District</option>
                         <option value="Thiruvananthapuram">Thiruvananthapuram</option>
                         <option value="Kollam">Kollam</option>
@@ -468,9 +468,7 @@ body.resizing .preview-container {
 
             <div class="form-group hidden" id="panchayatWrapper">
                 <label class="form-label">Grama Panchayat Name</label>
-                <select data-path="Survey.grama_panchayat" class="form-select" id="panchayatSelect">
-                    <option value="">Select Panchayat</option>
-                    </select>
+                <input type="text" data-path="Survey.grama_panchayat" class="form-input" id="panchayatSelect" placeholder="Enter Panchayat Name">
             </div>
             <div class="table-container" style="overflow-x: auto;">
                 <table class="analysis-table survey-table" id="surveyTable">
@@ -1774,7 +1772,6 @@ function getEmptyState() {
         total: 0,
         last_updated: ""
     },
-     // We keep this for local reload, but will delete before submit
 };
 }
 let formState = getEmptyState();
@@ -2094,6 +2091,8 @@ async function loadFolder(path = "", isKnownCase = null) {
 
         await forcePaint(); 
 
+       // ... inside loadFolder function ...
+
         // 5. HEAVY FORM LOGIC
         if (shouldShowOverlay) {
             if(txt) txt.innerText = "Loading Form...";
@@ -2103,39 +2102,50 @@ async function loadFolder(path = "", isKnownCase = null) {
             try {
                 formState = getEmptyState(); 
                 
+                // Get Server Data First
+                const serverDraft = data.saved_draft || {};
+                const hasServerData = Object.keys(serverDraft).length > 0;
+
+                // Get Local Data
                 const localDataString = localStorage.getItem(STORAGE_KEY);
                 const localFolder = localStorage.getItem('vadrida_active_folder');
                 let localData = null;
-                
                 if (localDataString && localFolder === path) {
                     try { localData = JSON.parse(localDataString); } catch(e) {}
-                } else {
-                    localStorage.removeItem(STORAGE_KEY);
                 }
-                
-                const serverDraft = data.saved_draft || {};
 
-                if (localData) {
-                    formState = { ...formState, ...serverDraft, ...localData };
-                    if (serverDraft.images) formState.images = serverDraft.images;
-                    if (serverDraft.vectors) formState.vectors = serverDraft.vectors;
+                // --- THE FIX: PRIORITY LOGIC ---
+                
+                // 1. If Server has data, USE IT (This lets User B see User A's work)
+                if (hasServerData) {
+                    console.log("📥 Using Server Data (Priority)");
+                    // Merge server data on top of empty state
+                    formState = { ...formState, ...serverDraft };
+                    
+                    // Critical: Update Local Storage to match Server so they are in sync
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(formState));
                 } 
-                else if (Object.keys(serverDraft).length > 0) {
-                    formState = { ...formState, ...data.saved_draft };
-                } 
+                // 2. If Server is empty, but we have a Local Draft, use that
+                else if (localData) {
+                    console.log("📂 Using Local Draft (Server was empty)");
+                    formState = { ...formState, ...localData };
+                }
+                // 3. Otherwise, check for Auto-Fill (New Case)
                 else if (data.auto_fill) {
-                    console.log("Applying Auto-Fill Data:", data.auto_fill);
+                    console.log("✨ Applying Auto-Fill");
                     updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
                     updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
                     updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
                     saveToServer(); 
                 }
-                
+
+                // Ensure images/vectors objects exist
                 if (!formState.images) formState.images = {};
                 if (!formState.vectors) formState.vectors = {};
 
+                // ... (Rest of the rendering logic remains the same) ...
                 initBuildingTable();   
-                renderSurveyColumns();          
+                renderSurveyColumns();           
                 updateAllDocumentDropdowns();  
                 injectPencilIcons(); 
                 const constructionStr = getNestedValue(formState, "Building_analysis.construction_year");
@@ -2152,7 +2162,6 @@ async function loadFolder(path = "", isKnownCase = null) {
                 console.error("Form Logic Error:", formErr);
             }
         } 
-        
         if(shouldShowOverlay) {
             if(bar) bar.style.width = "100%";
             if(txt) txt.innerText = "Ready!";
@@ -2184,6 +2193,25 @@ async function loadFolder(path = "", isKnownCase = null) {
             if(overlay) overlay.style.display = "none";
         }, 2000);
     }
+}
+function getStatusDotHtml(statusColor) {
+    let colorClass = "";
+    
+    // Explicitly define full class names so Tailwind picks them up
+    if (statusColor === "green") {
+        colorClass = "bg-green-500";
+    } else if (statusColor === "yellow") {
+        colorClass = "bg-yellow-400";
+    } else if (statusColor === "red") {
+        colorClass = "bg-red-500";
+    } else if (statusColor === "pending" || statusColor === "grey" || statusColor === "gray") {
+        colorClass = "bg-gray-400"; // Grey for pending
+    } else {
+        // No status or unknown
+        return `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`; 
+    }
+
+    return `<span class="block w-2 h-2 rounded-full ${colorClass} mt-1 flex-shrink-0"></span>`;
 }
 /* =========================
    CORE: RENDER ALL IMAGES (Self-Healing)
@@ -2296,15 +2324,24 @@ function appendFileList(folders, files) {
     // Filter system files
     files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
 
+    // --- SORTING LOGIC (Newest First) ---
+    const sortByDateDesc = (a, b) => {
+        const timeA = a.mtime || 0; // Backend must send 'mtime'
+        const timeB = b.mtime || 0;
+        return timeB - timeA; 
+    };
+
+    folders.sort(sortByDateDesc);
+    files.sort(sortByDateDesc);
+
     // 1. RENDER FOLDERS
     folders.forEach(folder => {
         const li = document.createElement("li");
         li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
         li.dataset.folderPath = folder.path; 
 
-        let statusDotHtml = folder.status_color 
-            ? `<span class="block w-2 h-2 rounded-full bg-${folder.status_color === 'yellow' ? 'yellow-400' : folder.status_color + '-500'} mt-1 flex-shrink-0"></span>`
-            : `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`;
+        // Use the helper function you added earlier
+        let statusDotHtml = getStatusDotHtml(folder.status_color);
 
         const leftDiv = document.createElement("div");
         leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0"; 
@@ -2314,17 +2351,19 @@ function appendFileList(folders, files) {
               <span class="text-xl leading-none">📁</span> 
               ${statusDotHtml}
           </div>
-          <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
+          <div class="flex flex-col">
+              <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
+              <span class="text-[10px] text-gray-400">
+                ${folder.created ? new Date(folder.created * 1000).toLocaleDateString() : ''}
+              </span>
+          </div>
         `;
         
         const isCaseFolder = (folder.status_color !== null && folder.status_color !== undefined);
         leftDiv.onclick = () => loadFolder(folder.path, isCaseFolder);
         li.appendChild(leftDiv);
 
-        // Chat Icon Logic (Keep existing logic)
         if (folder.has_chat) {
-             // ... (Keep your chat button creation code) ...
-             // Just copy-paste the chat button logic from your previous renderFileList here
              const chatBtnWrapper = document.createElement("div");
              chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1"; 
              const chatBtn = document.createElement("button");
@@ -2341,11 +2380,18 @@ function appendFileList(folders, files) {
     files.forEach(file => {
         const li = document.createElement("li");
         li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
+        
+        // Added Date display
+        const dateStr = file.mtime ? new Date(file.mtime * 1000).toLocaleDateString() : '';
+
         li.innerHTML = `
           <div class="flex justify-between items-start">
             <div class="min-w-0 pr-2 flex-1">
               <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
-              <div class="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">${file.extension || "FILE"}</div>
+              <div class="flex gap-2 mt-0.5">
+                  <div class="text-[10px] text-gray-400 uppercase tracking-wider">${file.extension || "FILE"}</div>
+                  <div class="text-[10px] text-gray-400">${dateStr}</div>
+              </div>
             </div>
           </div>`;
         
@@ -2361,7 +2407,6 @@ function appendFileList(folders, files) {
     // Append Thumbnails separately
     appendThumbs(files); 
 }
-
 // New Append Thumbs function (similar to renderThumbs but appends)
 function appendThumbs(files) {
     if (!files.length) return;
@@ -2729,27 +2774,48 @@ searchInput.addEventListener("input", e => {
     globalSearch(q);
   }, 800); 
 });
-
 function globalSearch(query) {
-  fileList.innerHTML = `<li class="file-item loading">Searching...</li>`;
-  
-  // Create a new controller for this specific request
-  currentSearchController = new AbortController();
-  const signal = currentSearchController.signal;
+    fileList.innerHTML = `<li class="file-item loading">Searching...</li>`;
+    
+    // Create a new controller for this specific request
+    if (currentSearchController) currentSearchController.abort();
+    currentSearchController = new AbortController();
+    const signal = currentSearchController.signal;
 
-  fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`, { signal })
-    .then(r => r.json())
-    .then(data => {
-      renderFileList(data.folders || [], data.files || []);
-      renderThumbs(data.files || []);
-    })
-    .catch(err => {
-        if (err.name === 'AbortError') {
-            console.log('Search aborted');
-        } else {
-            console.error('Search failed', err);
-        }
-    });
+    fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`, { signal })
+        .then(r => r.json())
+        .then(data => {
+            // --- 1. SORTING LOGIC (Newest First) ---
+            // Sorts by 'mtime' (Modified Time). 
+            const sortByDateDesc = (a, b) => {
+                const timeA = a.mtime || 0;
+                const timeB = b.mtime || 0;
+                return timeB - timeA; 
+            };
+
+            const sortedFolders = (data.folders || []).sort(sortByDateDesc);
+            const sortedFiles = (data.files || []).sort(sortByDateDesc);
+
+            // --- 2. CLEAR & RENDER ---
+            fileList.innerHTML = ""; // Clear "Searching..." text
+            
+            if (sortedFolders.length === 0 && sortedFiles.length === 0) {
+                fileList.innerHTML = `<li class="p-4 text-gray-500 text-center">No matches found for "${query}"</li>`;
+                thumbsContainer.innerHTML = "";
+                return;
+            }
+
+            // --- 3. CALL THE CORRECT FUNCTION ---
+            // WAS: renderFileList (Error) -> NOW: appendFileList (Correct)
+            appendFileList(sortedFolders, sortedFiles);
+            renderThumbs(sortedFiles);
+        })
+        .catch(err => {
+            if (err.name !== 'AbortError') {
+                console.error('Search failed', err);
+                fileList.innerHTML = `<li class="text-red-500 p-2">Error searching.</li>`;
+            }
+        });
 }
 /* =========================
    REFRESH BUTTON (Fixed)
@@ -2867,61 +2933,27 @@ function resizeCanvas() {
 }
 async function openSketchPad(path) {
     activeSketchPath = path;
-    sketchModal.classList.remove('hidden');
 
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) elem.requestFullscreen().catch(e=>console.log(e));
-
-    camera = { x: 0, y: 0, z: MIN_ZOOM };
-
-    // Update Compass
-    const container = document.getElementById('sketchContainer');
-    const existingCompass = document.getElementById('sketchCompassOverlay');
-    if (existingCompass) existingCompass.remove();
-
-    if (path === 'Sketch.main_layout') {
-        const compass = document.createElement('img');
-        compass.id = 'sketchCompassOverlay';
-        compass.src = "/static/images/compass-icon.png"; 
-        compass.alt = "N";
-        Object.assign(compass.style, {
-            position: 'absolute', top: '20px', right: '25px', width: '60px',
-            opacity: '0.8', pointerEvents: 'none', zIndex: '100'
-        });
-        container.appendChild(compass);
-    }
-
-    // --- LAZY LOAD VECTORS ---
-    let vectorsToLoad = [];
-
-    // 1. If we have them in memory (e.g. just drew them), use them
+    // 1. Reset and Load
+    // We clear current memory and then pull from formState
+    elements = []; 
     if (formState.vectors && formState.vectors[path]) {
-        vectorsToLoad = JSON.parse(JSON.stringify(formState.vectors[path]));
-        initCanvasWithData(vectorsToLoad);
-    } 
-    // 2. If not, FETCH from server (The "Edit" Feature)
-    else if (formState.report_id) {
-        // Show a loading cursor
-        document.body.style.cursor = 'wait';
-        try {
-            const res = await fetch(`/coreapi/api/get-report-data/${formState.report_id}/`);
-            const data = await res.json();
-            
-            if (data.vectors && data.vectors[path]) {
-                if(!formState.vectors) formState.vectors = {};
-                formState.vectors[path] = data.vectors[path];
-                vectorsToLoad = data.vectors[path];
-            }
-        } catch (e) {
-            console.error("Error fetching vectors:", e);
-        } finally {
-            document.body.style.cursor = 'default';
-        }
-        initCanvasWithData(vectorsToLoad);
-    } 
-    else {
-        initCanvasWithData([]);
+        console.log("📝 Loading existing vectors for:", path);
+        // Create a deep copy to avoid reference bugs
+        elements = JSON.parse(JSON.stringify(formState.vectors[path]));
     }
+
+    // 2. UI Visibility
+    sketchModal.classList.remove('hidden');
+    
+    // 3. CRITICAL: Trigger Canvas Prep
+    // We must resize and clear history so the user starts fresh
+    resizeCanvas(); 
+    undoStack = [];
+    redoStack = [];
+
+    // 4. Force immediate render of loaded elements
+    renderScene(); 
 }
 
 // Helper to render after fetching
@@ -3857,45 +3889,32 @@ function getTouchCenter(e) {
 ========================= */
 function saveSketchModal() {
     if (!activeSketchPath) return;
-    // 1. Check if Canvas is Empty
-    if (elements.length === 0) {
-        // If empty, user wants to DELETE the sketch.
-        
-        // A. Remove data from state
-        if (formState.images && formState.images[activeSketchPath]) {
-            delete formState.images[activeSketchPath];
-        }
-        if (formState.vectors && formState.vectors[activeSketchPath]) {
-            delete formState.vectors[activeSketchPath];
-        }
 
-        // B. Remove Thumbnail from UI immediately
+    // IF CANVAS IS EMPTY: The user wants to remove the existing sketch
+    if (elements.length === 0) {
+        // 1. Explicitly null out the data so the backend sees the deletion signal
+        if (!formState.images) formState.images = {};
+        formState.images[activeSketchPath] = ""; 
+
+        if (!formState.vectors) formState.vectors = {};
+        formState.vectors[activeSketchPath] = [];
+
+        // 2. Hide the thumbnail preview
         const safeId = activeSketchPath.replace(/\./g, '_');
         const imgElement = document.getElementById(`img_preview_${safeId}`);
         if (imgElement) {
             imgElement.src = "";
             imgElement.classList.add('hidden');
-            imgElement.style.display = 'none';
-        }
-        
-        // C. Restore Placeholder (if it's the main layout)
-        const placeholder = document.getElementById(`placeholder_${safeId}`);
-        if (placeholder) {
-            placeholder.classList.remove('hidden');
-            placeholder.style.display = 'flex'; // Or whatever your CSS uses
         }
 
-        // D. Close and Save
-        console.log("Canvas empty -> Sketch deleted.");
         saveLocal();
         closeSketchModal();
-        updateCompletionStats(); // Update progress bar (it will go down)
         
-       clearTimeout(autoSaveTimer);
-    // ✅ PASS 'true' TO FORCE HEAVY SAVE (Send vectors)
-    autoSaveTimer = setTimeout(() => saveToServer(true), 1000);
-}
-
+        // 3. Trigger a save to the server immediately (HEAVY SAVE)
+        // This sends the empty strings to trigger the Python delete logic above
+        saveToServer(true); 
+        return;
+    }
     // --- CROP LOGIC (Keep exactly as is) ---
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     elements.forEach(el => {
@@ -4086,52 +4105,46 @@ function updateArrayState(obj, path, value, isChecked) {
    9. DATA SYNC & SUBMISSION
 ========================= */
 async function saveToServer(isHeavySave = false) {
-    if (!currentFolder) return; 
-    const fileNo = getNestedValue(formState, 'Valuers_Checklist.Office_file_no');
-    const applicant = getNestedValue(formState, 'Valuers_Checklist.applicant_name');
+    if (!currentFolder || currentFolder === "") currentFolder = "Drafts"; 
 
-    // Validation
-    if (!fileNo || !applicant || fileNo.toString().trim() === "" || applicant.toString().trim() === "") {
-        console.log("Skipping Auto-Save: Missing fields.");
-        return; 
-    }
-
-    const btn = document.getElementById('triggerSubmitBtn');
-    if(!isLeaving && btn) btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Saving...';
+    const payload = JSON.parse(JSON.stringify(formState));
+    if (!isHeavySave) { delete payload.vectors; delete payload.images; }
+    payload.target_folder = currentFolder;
 
     try {
-        // 1. CLONE STATE
-        const payload = JSON.parse(JSON.stringify(formState));
-        
-        // 2. OPTIMIZE: If this is just typing (not saving a sketch), remove heavy data
-        if (!isHeavySave) {
-            delete payload.vectors; 
-            delete payload.images; 
-        }
-
-        payload.target_folder = currentFolder;
-
         const response = await fetch('/coreapi/api/auto-save/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-            body: JSON.stringify({ 
-                folder_path: currentFolder, 
-                payload: payload 
-            })
+            body: JSON.stringify({ folder_path: currentFolder, payload: payload })
         });
         
         const res = await response.json();
-        if(res.success) {
-            console.log("Saved", isHeavySave ? "(Full)" : "(Text)");
-            if(!isLeaving && btn) btn.innerText = 'Submit Feedback';
+
+        if (res.success) {
+            if (res.report_id) formState.report_id = res.report_id;
             
-            // Capture ID if created
-            if(res.report_id) formState.report_id = res.report_id;
+            if (res.new_folder_path) {
+                // Auto-switched to the correct indexed folder
+                currentFolder = res.new_folder_path;
+                formState.target_folder = res.new_folder_path;
+                localStorage.setItem('vadrida_active_folder', res.new_folder_path);
+                
+                document.getElementById("topBannerPath").textContent = "/" + res.new_folder_path;
+                document.getElementById("currentPath").textContent = "/" + res.new_folder_path;
+                console.log("📂 Context auto-linked to correct folder.");
+            }
+        } else if (res.mismatch) {
+            // 🛑 HANDLE REJECTION
+            console.error("🚫 Save rejected: Office File No doesn't exist in system index.");
+            // Optional: You could turn the input border red here
+            const fileInp = document.querySelector('[data-path="Valuers_Checklist.Office_file_no"]');
+            if(fileInp) fileInp.style.borderColor = "red";
         }
     } catch(err) {
-        console.error("Save error", err);
+        console.error("❌ Save Failed:", err);
     }
 }
+
 /* =========================
    UI SYNC (UPDATED: Clears Sketches Too)
 ========================= */
@@ -4202,14 +4215,14 @@ function syncStateToUI() {
         }
     });
     splitRentDurationToUI();
-    updatePanchayatList();   // 1. Load the list based on saved District
+    // updatePanchayatList();   // 1. Load the list based on saved District
     togglePanchayatField();  // 2. Show/Hide box based on saved Local Body
     
     // 3. Restore the specific Panchayat selected (after list is re-generated)
-    const savedPanchayat = getNestedValue(formState, 'Survey.grama_panchayat');
-    if(savedPanchayat) {
-        document.getElementById('panchayatSelect').value = savedPanchayat;
-    }
+    // const savedPanchayat = getNestedValue(formState, 'Survey.grama_panchayat');
+    // if(savedPanchayat) {
+    //     document.getElementById('panchayatSelect').value = savedPanchayat;
+    // }
     updateCompletionStats();
 }
 /* ==========================================
@@ -5144,17 +5157,23 @@ initGalleryGestures();
 function loadBigPreview(file) {
     currentFile = file;
 
-    // 1. Construct Path logic
-    let fullPath = file.file;
+    // --- FIX: Prioritize the file's explicit path ---
+    // Search results have 'path', Folder list usually implies it.
+    let fullPath = file.path; 
+    
+    // Fallback: If no path exists, construct it from current folder
     if (!fullPath) {
-        // Fallback if path is missing
         const folderPrefix = currentFolder ? currentFolder.replace(/\/$/, "") + "/" : "";
         fullPath = folderPrefix + file.name;
     }
+    
+    // Ensure we store the correct path back on the object
+    currentFile.path = fullPath;
 
     const banner = document.getElementById("bigPreviewTitle");
     if(banner) banner.textContent = fullPath;
 
+    // ... (The rest of the UI reset logic is fine, copy it from your existing code below) ...
     // 2. Reset UI
     document.getElementById("scrollContainer").classList.add("hidden");
     document.getElementById("pdfToolbar").classList.add("hidden");
@@ -6043,6 +6062,7 @@ document.addEventListener("DOMContentLoaded", () => {
 let map, marker;
 let isMapReady = false;
 let pendingMapUpdate = false;
+let userMarker, directionBeam;
 
 /* =========================
    2. MAP INITIALIZATION
@@ -6052,6 +6072,7 @@ window.initMap = function() {
 
     const startPos = { lat: 9.9312, lng: 76.2673 };
     const mapEl = document.getElementById("googleMap");
+  
     
     if (!mapEl) return;
 
@@ -6071,6 +6092,27 @@ window.initMap = function() {
         draggable: false, // Locked by default
         animation: google.maps.Animation.DROP,
         title: "Subject Property"
+    });
+    // 🔵 Blue Dot (User)
+    userMarker = new google.maps.Marker({
+        map: map,
+        clickable: false,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: '#4285F4', fillOpacity: 1, scale: 7,
+            strokeColor: 'white', strokeWeight: 2
+        }
+    });
+    userHeading = new google.maps.Marker({
+        map: map,
+        clickable: false,
+        visible: false,
+        icon: {
+            path: "M-10,0 L0,-20 L10,0 A15,15 0 0,1 -10,0 Z", // Cone shape
+            fillColor: '#4285F4', fillOpacity: 0.3, scale: 2,
+            strokeWeight: 0, rotation: 0,
+            anchor: new google.maps.Point(0, 0)
+        }
     });
 
     // --- Events ---
@@ -6108,6 +6150,39 @@ window.initMap = function() {
     isMapReady = true;
     if (pendingMapUpdate) updateMapFromState();
 };
+
+function startLiveTracking() {
+    // 1. TRACK POSITION (The Blue Dot)
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition((position) => {
+            const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            userMarker.setPosition(pos);
+        }, (err) => console.warn("GPS error:", err), { enableHighAccuracy: true });
+    }
+
+    // 2. TRACK DIRECTION (The Beam)
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientationabsolute', (event) => {
+            let heading = event.alpha; // North is 0
+            if (event.webkitCompassHeading) heading = event.webkitCompassHeading; // iOS Fix
+
+            if (heading !== null && userMarker.getPosition()) {
+                const userPos = userMarker.getPosition();
+                // Create a short line pointing in the direction the user is facing
+                const beamLength = 0.0002; // Roughly 20 meters
+                const endLat = userPos.lat() + (beamLength * Math.cos(heading * Math.PI / 180));
+                const endLng = userPos.lng() + (beamLength * Math.sin(heading * Math.PI / 180));
+
+                directionBeam.setPath([userPos, { lat: endLat, lng: endLng }]);
+                directionBeam.setVisible(true);
+            }
+        }, true);
+    }
+}
+
 
 /* =========================
    3. HELPER FUNCTIONS
@@ -6160,21 +6235,44 @@ function updateMapFromState() {
     }
 }
 
-function getCurrentLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const pos = { lat: lat, lng: lng };
+async function getCurrentLocation() {
+    // 1. Request Compass Permission (CRITICAL for iOS/Android)
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+            const permission = await DeviceOrientationEvent.requestPermission();
+            if (permission !== 'granted') return alert("Permission denied for compass.");
+        } catch (e) { console.error(e); }
+    }
 
-            if(map && marker) {
-                map.setCenter(pos);
-                marker.setPosition(pos);
-                map.setZoom(19);
-            }
-            updateLocationInputs(lat, lng);
-        }, () => { alert("Error: GPS failed."); });
-    } else { alert("GPS not supported."); }
+    // 2. Start Live Position Tracking
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition((position) => {
+            const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+            
+            userMarker.setPosition(pos);
+            userHeading.setPosition(pos);
+            userHeading.setVisible(true);
+            
+            // Optional: Auto-zoom to user the first time
+            // map.setCenter(pos);
+        }, (err) => alert("GPS Error: " + err.message), { enableHighAccuracy: true });
+    }
+
+    // 3. Start Direction Tracking (Heading)
+    window.addEventListener('deviceorientation', (event) => {
+        let heading = 0;
+        if (event.webkitCompassHeading) {
+            heading = event.webkitCompassHeading; // iOS
+        } else {
+            heading = 360 - event.alpha; // Android logic
+        }
+
+        if (userHeading) {
+            const icon = userHeading.getIcon();
+            icon.rotation = heading;
+            userHeading.setIcon(icon);
+        }
+    }, true);
 }
 /* =========================
    RENT DURATION LOGIC

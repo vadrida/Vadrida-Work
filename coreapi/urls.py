@@ -17,6 +17,7 @@ urlpatterns = [
     path("api/refresh/", views.refresh_files, name="refresh_files"),
     path('api/thumbnail/', views.get_thumbnail, name='get_thumbnail'),
     path('render-page/', views.render_pdf_page, name='render_pdf_page'),
+    path('create-folder/', views.create_folder_page, name='create_folder'),
 
     # File serving
     path('serve-file/', views.serve_file, name='serve_file'),
@@ -26,6 +27,8 @@ urlpatterns = [
     # path("manager/", views.admin_dashboard, name="admin_dashboard"),
     path("office/", views.office_dashboard, name="office_dashboard"),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path('office-verification/', views.office_verification, name='office_verification'),
+    path('office-dash/', views.office, name='office'),
     
     # Feedback Form URLs
     path("feedback/", views.feedback, name="feedback"),
@@ -34,4 +37,6 @@ urlpatterns = [
     path('api/get-report-data/<str:report_id>/', views.get_report_data, name='get_report_data'),
     path('api/finalize-pdf/', views.finalize_pdf, name='finalize_pdf'),
     path('api/auto-save/', views.auto_save_api, name='auto_save'),
+    path('api/get-report-data/', views.get_site_report_data, name='get_site_report_data'),
+    path('api/save-corrections/', views.save_office_corrections, name='save_office_corrections'),
 ]

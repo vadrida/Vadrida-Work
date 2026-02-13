@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Master Summary Report{% endblock %}
+
+{% block extra_head %}
+<style>
+    .page-container { background: #f8f9fa; min-height: 100vh; padding: 30px; }
+    
+    /* Header & Filters */
+    .filter-bar {
+        background: white; padding: 15px; border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
+        display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+    }
+    
+    /* Table Styling */
+    .summary-table { width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 10px; overflow: hidden; }
+    .summary-table thead th {
+        background: #343a40; color: white; padding: 15px;
+        font-weight: 600; text-transform: uppercase; font-size: 0.8rem;
+        border: none;
+    }
+    .summary-table tbody td {
+        padding: 12px 15px; border-bottom: 1px solid #eee;
+        font-size: 0.9rem; vertical-align: middle;
+    }
+    .summary-table tbody tr:last-child td { border-bottom: none; }
+    .summary-table tbody tr:hover { background-color: #f1f5f9; }
+
+    /* Badges */
+    .badge-sub { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+    .badge-pen { background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+
+    /* Pagination (Centered at bottom) */
+    .pagination-wrapper { display: flex; justify-content: center; margin-top: 30px; }
+    .pagination .page-link { color: #343a40; border-radius: 5px; margin: 0 3px; border: none; background: #e9ecef; }
+    .pagination .page-item.active .page-link { background-color: #343a40; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    
+    <form method="GET" class="filter-bar">
+        <h4 class="fw-bold m-0 me-3">Summary</h4>
+        
+        <select name="bank" class="form-select form-select-sm" style="width: 200px;" onchange="this.form.submit()">
+            {% for bank in banks %}
+                <option value="{{ bank }}" {% if selected_bank == bank %}selected{% endif %}>{{ bank }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="district" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+            <option value="">All Districts</option>
+            {% for dist in districts %}
+                <option value="{{ dist }}" {% if selected_district == dist %}selected{% endif %}>{{ dist }}</option>
+            {% endfor %}
+        </select>
+
+        <div class="ms-auto d-flex gap-2">
+            <button type="button" class="btn btn-success btn-sm px-3" onclick="exportToExcel()">
+                <i class="fas fa-file-excel me-2"></i> Export Excel
+            </button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table id="summaryTable" class="summary-table">
+                <thead>
+                    <tr>
+                        <th width="5%">Sl No.</th>
+                        <th>File No</th>
+                        <th>Bank ID</th>
+                        <th>Applicant Name</th>
+                        <th>Product</th>
+                        <th class="text-center">Amount</th>
+                        <th>District</th>
+                        <th>Sub. Date</th>
+                        <th>Office Staff</th>
+                        <th>Site Staff</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in page_obj %}
+                    <tr>
+                        <td class="text-muted fw-bold">{{ forloop.counter0|add:page_obj.start_index }}</td>
+                        <td class="fw-bold text-primary">{{ row.office_file_no }}</td>
+                        <td class="font-monospace text-muted">{{ row.bank_file_no }}</td>
+                        <td>{{ row.applicant_name }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ row.product }}</span></td>
+                        <td class="text-center fw-bold">{{ row.amount }}</td>
+                        <td>{{ row.district }}</td>
+                        <td>
+                            {% if row.submission_date == "Pending" %}
+                                <span class="badge-pen">Pending</span>
+                            {% else %}
+                                <span class="badge-sub">{{ row.submission_date }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-secondary small">{{ row.office_staff }}</td>
+                        <td class="text-secondary small">{{ row.site_staff }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            No folders found for <strong>{{ selected_bank }}</strong> 
+                            {% if selected_district %} in <strong>{{ selected_district }}</strong>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="pagination-wrapper">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&bank={{ selected_bank }}&district={{ selected_district }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&bank={{ selected_bank }}&district={{ selected_district }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&bank={{ selected_bank }}&district={{ selected_district }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    function exportToExcel() {
+        // 1. Prompt User for Filename
+        let filename = prompt("Enter filename for Excel export:", "{{ selected_bank }}_Summary");
+        
+        if (filename) {
+            if (!filename.endsWith(".xls")) filename += ".xls";
+            
+            // 2. Clone Table to Clean Data (Remove HTML badges if needed, or keep for style)
+            // For simple HTML to Excel, passing the outerHTML works but styling is limited.
+            var table = document.getElementById("summaryTable");
+            var html = table.outerHTML.replace(/ /g, '%20');
+
+            var downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+            
+            var dataType = 'application/vnd.ms-excel';
+            
+            if(navigator.msSaveOrOpenBlob){
+                var blob = new Blob(['\ufeff', html], { type: dataType });
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                downloadLink.href = 'data:' + dataType + ', ' + html;
+                downloadLink.download = filename;
+                downloadLink.click();
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,412 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Analysis - Vadrida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --wa-teal: #00a884;
+            --bg-gray: #d1d7db;
+        }
+        body { background-color: var(--bg-gray); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+        
+        /* HEADER */
+        .app-header {
+            background-color: var(--wa-teal); height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* CONTAINER */
+        .analysis-container { max-width: 1400px; margin: 20px auto; padding: 0 15px; }
+
+        /* CARDS */
+        .stat-card {
+            background: white; border-radius: 12px; border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 100%; overflow: hidden;
+        }
+        
+        /* FILTER BAR */
+        .filter-bar {
+            background: white; padding: 10px 20px; border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+
+        /* TOGGLES */
+        .role-btn-group { background: #f0f2f5; padding: 4px; border-radius: 25px; display: inline-flex; }
+        .role-btn-group label {
+            border: none; border-radius: 20px; padding: 6px 20px;
+            font-weight: 600; font-size: 0.9rem; color: #54656f; cursor: pointer; transition: 0.2s;
+        }
+        .role-btn-group input:checked + label {
+            background-color: white; color: var(--wa-teal); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* CHART */
+        .chart-container { position: relative; height: 320px; width: 100%; }
+        
+        /* TABLE */
+        .table-custom th {
+            font-size: 0.75rem; text-transform: uppercase; color: #8696a0;
+            background: #f9f9fa; border-bottom: 2px solid #f0f2f5; padding: 12px 15px;
+        }
+        .table-custom td { vertical-align: middle; padding: 12px 15px; border-bottom: 1px solid #f0f2f5; }
+        .user-avatar {
+            width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: white; font-size: 0.85rem;
+        }
+        /* Update your existing .stat-card or add this specific override */
+        .contributors-card {
+            display: flex;
+            flex-direction: column;
+            min-height: 350px; /* Ensures it has enough space */
+        }
+
+        #topContributorsList {
+            flex-grow: 1;
+            overflow-y: auto; /* Adds a scrollbar if content is too long */
+            max-height: 400px; /* Prevents infinite stretching */
+        }
+
+        /* Ensure the avatar doesn't shrink */
+        .user-avatar {
+            flex-shrink: 0; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="d-flex align-items-center gap-3">
+            <a href="/core/dashboard/" class="btn btn-outline-light btn-sm rounded-circle" style="width: 35px; height: 35px; display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h5 class="mb-0 fw-bold">Performance Analytics</h5>
+        </div>
+        <div class="d-flex align-items-center gap-2 text-white-50">
+            <i class="fas fa-chart-line"></i> Deep Dive Analysis
+        </div>
+    </div>
+
+    <div class="analysis-container">
+        
+        <div class="filter-bar">
+            
+            <div class="role-btn-group">
+                <input type="radio" class="btn-check" name="role_filter" id="role_overall" onchange="fetchAnalysisData()">
+                <label for="role_overall">Overall</label>
+                <input type="radio" class="btn-check" name="role_filter" id="role_site" checked onchange="fetchAnalysisData()">
+                <label for="role_site">Site Team</label>
+                <input type="radio" class="btn-check" name="role_filter" id="role_office" onchange="fetchAnalysisData()">
+                <label for="role_office">Office Team</label>
+            </div>
+
+            <div class="role-btn-group">
+                <input type="radio" class="btn-check" name="sort_filter" id="sort_reports" checked onchange="fetchAnalysisData()">
+                <label for="sort_reports"><i class="fas fa-layer-group me-1"></i> Volume</label>
+                <input type="radio" class="btn-check" name="sort_filter" id="sort_score" onchange="fetchAnalysisData()">
+                <label for="sort_score"><i class="fas fa-star me-1"></i> Quality</label>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 bg-light p-2 rounded-pill px-3">
+                
+                <div class="d-flex align-items-center gap-2 border-end pe-3">
+                    <span class="text-muted small fw-bold text-uppercase"><i class="fas fa-calendar-week me-1"></i>Trend:</span>
+                    <select id="rangePicker" class="form-select form-select-sm border-0 bg-transparent fw-bold text-dark" style="width: auto; cursor:pointer;" onchange="handleRangeChange()">
+                        <option value="none" selected disabled>-- Select Range --</option>
+                        <option value="3">Last 3 Months</option>
+                        <option value="6">Last 6 Months</option>
+                        <option value="12">Year to Date</option>
+                    </select>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small fw-bold text-uppercase"><i class="far fa-calendar-alt me-1"></i>Specific:</span>
+                    <input type="month" id="monthPicker" class="form-control form-control-sm fw-bold text-primary border-0 bg-transparent" style="width: auto; cursor:pointer;" onchange="handleMonthChange()">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row g-4">
+            
+            <div class="col-lg-8">
+                <div class="stat-card p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1" id="chartMainTitle">Select a period...</h5>
+                            <p class="text-muted small" id="chartSubTitle">Choose a Range or Specific Month above</p>
+                        </div>
+                        <div class="d-flex gap-3 text-end">
+                            <div>
+                                <small class="d-block text-muted" style="font-size: 0.7rem">TOTAL REPORTS</small>
+                                <span class="fw-bold fs-5 text-dark" id="dispTotalReports">-</span>
+                            </div>
+                            <div>
+                                <small class="d-block text-muted" style="font-size: 0.7rem">AVG SCORE</small>
+                                <span class="fw-bold fs-5 text-success" id="dispAvgScore">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-3 h-100">
+                    <div class="stat-card p-3 d-flex flex-column justify-content-center text-center">
+                        <div class="mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                            <i id="velocityIcon" class="fas fa-chart-line text-primary fs-2"></i>
+                        </div>
+                        <h6 class="text-muted small fw-bold text-uppercase">Current Velocity</h6>
+                        <h2 id="dispVelocity" class="text-dark fw-bold mb-0">0%</h2>
+                        <small id="velocitySubtext" class="text-muted">Comparing to last month</small>
+                    </div>
+                    
+                   <div class="stat-card p-0 contributors-card"> <div class="p-3 bg-light border-bottom">
+                            <h6 class="text-dark fw-bold mb-0 text-uppercase small">🏆 Top Contributors</h6>
+                        </div>
+                        <div class="p-2" id="topContributorsList">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="stat-card">
+                    <div class="p-3 border-bottom">
+                        <h6 class="fw-bold mb-0 text-dark">Detailed Breakdown</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Team Member</th>
+                                    <th class="text-center">Reports</th>
+                                    <th style="width: 35%;">Avg. Score</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="breakdownBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+   let mainChart;
+function initChart() {
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    mainChart = new Chart(ctx, {
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Avg Quality (%)',
+                        type: 'line',
+                        data: [],
+                        borderColor: '#00a884',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        yAxisID: 'y',
+                        order: 0, // 0 sits on top of 1
+                        pointRadius: 4,
+                        fill: false
+                    },
+                    {
+                        label: 'Volume',
+                        type: 'bar',
+                        data: [],
+                        backgroundColor: 'rgba(209, 215, 219, 0.7)',
+                        yAxisID: 'y1',
+                        order: 1,
+                        // Fix the width issues
+                        maxBarThickness: 40,
+                        categoryPercentage: 0.4,
+                        barPercentage: 0.9
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { type: 'linear', position: 'left', min: 0, max: 100 },
+                    y1: { type: 'linear', position: 'right', beginAtZero: true, suggestedMax: 10, grid: { display: false } }
+                }
+            }
+        });
+    }
+ async function fetchAnalysisData() {
+    // 1. Get current filter states
+    const roleEl = document.querySelector('input[name="role_filter"]:checked');
+    const sortEl = document.querySelector('input[name="sort_filter"]:checked');
+    
+    const role = roleEl ? roleEl.id.replace('role_', '') : 'site';
+    const sortBy = sortEl ? sortEl.id.replace('sort_', '') : 'reports';
+    const range = document.getElementById('rangePicker')?.value || '6';
+    const month = document.getElementById('monthPicker')?.value || '';
+
+    // Update the Chart Titles based on selection
+    const mainTitle = document.getElementById('chartMainTitle');
+    const subTitle = document.getElementById('chartSubTitle');
+    
+    if (month) {
+        const dateObj = new Date(month + "-01");
+        mainTitle.innerText = `${dateObj.toLocaleString('default', { month: 'long', year: 'numeric' })} Performance`;
+        subTitle.innerText = `Detailed metrics for ${role} team members`;
+    } else {
+        mainTitle.innerText = `Last ${range} Months Trend`;
+        subTitle.innerText = `Comparative volume vs quality for ${role} team`;
+    }
+
+    const url = `/core/api/analysis-data/?role=${role}&range=${range}&month=${month}&sort_by=${sortBy}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+
+        // --- A. UPDATE VELOCITY CARD ---
+        const velEl = document.getElementById('dispVelocity');
+        const velIcon = document.getElementById('velocityIcon');
+        const velVal = data.velocity || 0;
+
+        if (velEl && velIcon) {
+            velEl.innerText = (velVal > 0 ? '+' : '') + velVal + '%';
+            if (velVal > 0) {
+                velEl.className = "text-success fw-bold mb-0";
+                velIcon.className = "fas fa-arrow-trend-up text-success fs-2";
+            } else if (velVal < 0) {
+                velEl.className = "text-danger fw-bold mb-0";
+                velIcon.className = "fas fa-arrow-trend-down text-danger fs-2";
+            } else {
+                velEl.className = "text-dark fw-bold mb-0";
+                velIcon.className = "fas fa-minus text-muted fs-2";
+            }
+        }
+        
+        // --- B. UPDATE THE GRAPH ---
+        if (mainChart) {
+            mainChart.data.labels = data.labels;
+            mainChart.data.datasets[0].data = data.quality; 
+            mainChart.data.datasets[1].data = data.volume;
+            mainChart.update();
+        }
+
+        // --- C. UPDATE THE HEADER STATS ---
+        document.getElementById('dispTotalReports').innerText = data.total_count || 0;
+        document.getElementById('dispAvgScore').innerText = (data.total_avg || 0) + "%";
+
+        // --- D. UPDATE CONTRIBUTORS & BREAKDOWN ---
+        // This will now show Office or Site users depending on the 'role' filter
+        renderTopContributors(data.team_stats.slice(0, 3));
+        renderBreakdownTable(data.team_stats);
+        
+    } catch (error) {
+        console.error("Critical Analysis Error:", error);
+    }
+}
+    // --- 3. RENDER HELPERS ---
+    function renderTopContributors(contributors) {
+        const container = document.getElementById('topContributorsList');
+        container.innerHTML = contributors.map((u, i) => `
+            <div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3" style="background: #f8f9fa; border: 1px solid #eee;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="user-avatar" style="background:${u.color}; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items:center; justify-content:center; color:white; font-weight:bold;">
+                        ${u.name.charAt(0)}
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">${u.name}</div>
+                        <div class="text-muted" style="font-size: 0.7rem;">Rank #${i+1} • Score: ${u.score}%</div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold text-primary" style="font-size: 0.9rem;">${u.reports}</div>
+                    <div class="text-muted" style="font-size: 0.6rem; text-transform: uppercase;">Reports</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderBreakdownTable(team) {
+        const tbody = document.getElementById('breakdownBody');
+        tbody.innerHTML = team.map(member => `
+            <tr>
+                <td class="ps-4">
+                    <div class="fw-bold text-dark">${member.name}</div>
+                    <div class="text-muted small">${member.role_display}</div>
+                </td>
+                <td class="text-center fw-bold">${member.reports}</td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="progress flex-grow-1" style="height: 6px; background-color: #f0f2f5;">
+                            <div class="progress-bar" style="width: ${member.score}%; background-color: var(--wa-teal);"></div>
+                        </div>
+                        <span class="small fw-bold">${member.score}%</span>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <span class="badge ${member.score >= 80 ? 'bg-success-subtle text-success' : 'bg-primary-subtle text-primary'} rounded-pill px-3">
+                        ${member.score >= 80 ? 'Excellent' : member.score >= 50 ? 'Good' : 'Average'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // --- 4. CONTROLS ---
+    function handleRangeChange() {
+    document.getElementById('monthPicker').value = ""; // Clear specific month
+    fetchAnalysisData();
+    }
+
+    function handleMonthChange() {
+        document.getElementById('rangePicker').value = "none"; // Clear trend range
+        fetchAnalysisData();
+    }
+
+   document.addEventListener("DOMContentLoaded", () => {
+    // 1. Get the current date
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+    
+    // 2. Format as YYYY-MM (e.g., "2026-02")
+    const currentYearMonth = `${year}-${month}`;
+    
+    // 3. Apply to the month picker
+    const monthPicker = document.getElementById('monthPicker');
+    if (monthPicker) {
+        monthPicker.max = currentYearMonth;
+        
+        // Optional: If you want to prevent users from manually typing a future date
+        monthPicker.addEventListener('input', function() {
+            if (this.value > currentYearMonth) {
+                this.value = currentYearMonth;
+                alert("Future months cannot be selected.");
+            }
+        });
+    }
+
+    // Initialize your chart and data fetch
+    initChart();
+    document.getElementById('rangePicker').value = "6";
+    fetchAnalysisData();
+});
+</script>
+</body>
+</html>

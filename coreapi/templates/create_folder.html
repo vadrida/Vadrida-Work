@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Create New File{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --brand-blue: #004a8f;       
+        --brand-accent: #0066cc;     
+        --bg-app: #f0f2f5;           
+        --bg-white: #ffffff;
+        --text-dark: #1f2937;        
+        --text-grey: #6b7280;        
+        --border-color: #d1d5db;     
+        --success: #059669;
+        --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        background-color: var(--bg-app);
+        font-family: 'Roboto', 'Segoe UI', sans-serif;
+        color: var(--text-dark);
+    }
+
+    /* --- LAYOUT GRID --- */
+    .create-workspace {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr; /* Form takes 60%, Preview takes 40% */
+        gap: 30px;
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+        align-items: start; /* Align to top */
+    }
+
+    /* Responsive: Stack on mobile */
+    @media (max-width: 900px) {
+        .create-workspace {
+            grid-template-columns: 1fr;
+        }
+        .preview-card {
+            order: -1; /* Show preview on top on mobile */
+            margin-bottom: 20px;
+        }
+    }
+
+    /* --- BACK BUTTON --- */
+    .btn-cancel {
+        display: inline-flex; align-items: center; gap: 8px;
+        background-color: white; border: 1px solid var(--border-color);
+        border-radius: 4px; padding: 10px 16px;
+        color: var(--text-grey); text-decoration: none;
+        font-size: 13px; font-weight: 600;
+        transition: all 0.2s ease; margin-bottom: 20px;
+    }
+    .btn-cancel:hover {
+        color: var(--brand-blue); border-color: var(--brand-blue);
+        background-color: #eff6ff; transform: translateX(-3px);
+    }
+
+    /* --- CARDS --- */
+    .form-card, .preview-card {
+        background: var(--bg-white);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: var(--brand-blue); color: white; padding: 20px;
+    }
+    .card-header h2 { margin: 0; font-size: 18px; font-weight: 600; }
+    .card-header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 12px; }
+
+    .card-body { padding: 30px; }
+
+    /* --- PREVIEW SPECIFIC --- */
+    .preview-card .card-header { background: #1e293b; /* Darker for contrast */ }
+    
+    .folder-icon-large {
+        font-size: 60px; color: #fbbf24; /* Folder Yellow */
+        display: block; margin-bottom: 15px; text-align: center;
+    }
+
+    .generated-name-box {
+        background: #f1f5f9;
+        border: 2px dashed #cbd5e1;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 14px;
+        color: #334155;
+        word-break: break-all;
+        text-align: center;
+        min-height: 60px;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .preview-label {
+        font-size: 11px; font-weight: 700; color: var(--text-grey);
+        text-transform: uppercase; margin-bottom: 8px; display: block; text-align: center;
+    }
+
+    /* --- FORM ELEMENTS --- */
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-grey); margin-bottom: 6px; }
+    .form-input, .form-select {
+        width: 100%; padding: 10px 12px; font-size: 14px;
+        border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box;
+    }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+    .btn-submit {
+        background: var(--brand-accent); color: white; width: 100%; padding: 12px;
+        font-size: 14px; font-weight: 600; border: none; border-radius: 4px;
+        cursor: pointer; transition: background 0.2s; text-transform: uppercase;
+    }
+    .btn-submit:hover { background: var(--brand-blue); }
+    .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 20px auto; padding: 0 20px;">
+    <a href="{% url 'coreapi:office' %}" class="btn-cancel">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="create-workspace">
+    
+    <div class="form-card">
+        <div class="card-header">
+            <h2>Create File Folder</h2>
+            <p>Enter details to generate standard structure</p>
+        </div>
+
+        <div class="card-body">
+            <form id="createFolderForm">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Office File Number</label>
+                        <input type="text" id="office_file_no" class="form-input trigger-preview" placeholder="e.g. 1011567" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Branch Name</label>
+                        <input type="text" id="branch" class="form-input trigger-preview" placeholder="e.g. Kottayam" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Applicant Name</label>
+                    <input type="text" id="applicant_name" class="form-input trigger-preview" placeholder="Enter Full Name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Bank Application Number</label>
+                        <input type="text" id="bank_app_no" class="form-input trigger-preview" placeholder="e.g. 123456789" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product Type</label>
+                        <select id="product_type" class="form-select trigger-preview" required>
+                            <option value="" disabled selected>Select Product...</option>
+                            <option value="RESL">RESL</option>
+                            <option value="CONS">CONS</option>
+                            <option value="PURC">PURC</option>
+                            <option value="LAPL">LAPL</option>
+                            <option value="TOP">TOPUP</option>
+                            <option value="PD">PD</option>
+                            <option value="Takeover">Takeover</option>
+                            <option value="Rennovation">Rennovation</option>
+                            <option value="Extension">Extension</option>
+                            <option value="NPA">NPA</option>
+                            <option value="OTHERS">Others</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-submit" onclick="submitFolderCreation()">
+                    <i class="fas fa-folder-plus"></i> Create Folder
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="preview-card">
+        <div class="card-header">
+            <h2>Folder Preview</h2>
+            <p>This is how the folder will appear on the drive</p>
+        </div>
+        <div class="card-body">
+            <i class="fas fa-folder-open folder-icon-large"></i>
+            
+            <span class="preview-label">GENERATED FOLDER NAME</span>
+            <div id="folderNamePreview" class="generated-name-box">
+                Waiting for input...
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 4px; font-size: 12px; color: #92400e;">
+                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                <strong>Format:</strong><br>
+                FileNo_Applicant_Branch_BankAppNo_Product
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- LIVE PREVIEW LOGIC ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const inputs = document.querySelectorAll('.trigger-preview');
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        });
+    });
+
+    function updatePreview() {
+        // 1. Get Values
+        const fileNo = document.getElementById('office_file_no').value.trim() || "FILE";
+        const applicant = document.getElementById('applicant_name').value.trim().replace(/\s+/g, '_') || "NAME";
+        const branch = document.getElementById('branch').value.trim().replace(/\s+/g, '_') || "BRANCH";
+        const bankApp = document.getElementById('bank_app_no').value.trim() || "APPNO";
+        const product = document.getElementById('product_type').value || "PROD";
+
+        // 2. Construct String (Requested Order)
+        // officefilenumber_applicantname_branchname_bankappnumber_product
+        const folderName = `${fileNo}_${applicant}_${branch}_${bankApp}_${product}`;
+
+        // 3. Update UI
+        document.getElementById('folderNamePreview').innerText = folderName;
+    }
+
+    // --- SUBMIT LOGIC ---
+    function submitFolderCreation() {
+        const btn = document.querySelector('.btn-submit');
+        const originalText = btn.innerHTML;
+        
+        // 1. Validate
+        const fileNo = document.getElementById('office_file_no').value.trim();
+        const branch = document.getElementById('branch').value.trim();
+        const product = document.getElementById('product_type').value;
+        const applicant = document.getElementById('applicant_name').value.trim();
+        const bankApp = document.getElementById('bank_app_no').value.trim();
+
+        if (!fileNo || !branch || !product || !applicant || !bankApp) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        // 2. UI Feedback
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+        // 3. Prepare Payload
+        const finalFolderName = document.getElementById('folderNamePreview').innerText;
+        
+        const payload = {
+            folder_name: finalFolderName,
+            metadata: {
+                office_file_no: fileNo,
+                branch: branch,
+                product: product,
+                applicant: applicant,
+                bank_app_no: bankApp
+            }
+        };
+
+        console.log("Creating Folder:", payload);
+        
+        // Simulate Success (Replace with fetch in next step)
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Folder Created!';
+            btn.style.background = "var(--success)";
+            setTimeout(() => {
+                alert(`Folder created successfully:\n${finalFolderName}`);
+                window.location.href = "{% url 'coreapi:office' %}"; // Redirect back
+            }, 1000);
+        }, 1500);
+    }
+</script>
+{% endblock %}

@@ -15,4 +15,7 @@ urlpatterns = [
     path('api/stats/', views.dashboard_stats_api, name='api_stats'),
     path('api/pdfs/', views.list_pdfs_api, name='api_pdfs'),
     path('view-pdf/<str:filename>/', views.view_pdf, name='view_pdf'),
+    path('report-analysis/', views.report_analysis_view, name='report_analysis'),
+    path('api/analysis-data/', views.analysis_data_api, name='analysis_data_api'),
+    path('summary-report/', views.admin_summary_page, name='admin_summary_page'),
 ]

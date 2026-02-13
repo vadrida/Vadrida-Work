@@ -1,10 +1,9 @@
-# chat/consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from coreapi.models import UserProfile
 from django.utils import timezone
 import hashlib
+from urllib.parse import unquote
 from .models import ChatMessage, FolderChatMessage, FolderChatVisit
 from coreapi.models import UserProfile
 
@@ -65,7 +64,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             user=self.user, content=content,
             attached_type=att_type, attached_path=path, attached_label=label
         )
-    
+
 class FolderChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # 1. Get Path & Create Group
@@ -75,8 +74,6 @@ class FolderChatConsumer(AsyncWebsocketConsumer):
             return
 
         self.folder_path = query_string.split('path=')[-1]
-        # Simple URL decode (replace %20 with space, etc)
-        from urllib.parse import unquote
         self.folder_path = unquote(self.folder_path)
 
         path_hash = hashlib.md5(self.folder_path.encode('utf-8')).hexdigest()
@@ -125,89 +122,91 @@ class FolderChatConsumer(AsyncWebsocketConsumer):
             user=user, folder_path=path, defaults={'last_visit': timezone.now()}
         )
         return user.user_name
-    
 
+# --- FIXED PRESENCE CONSUMER ---
 class PresenceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.group_name = "presence_global"
         
-        # 1. Add this connection to the global presence group
-        await self.channel_layer.group_add(self.group_name, self.channel_name)
-        await self.accept()
-
-        # 2. Mark User as Online Immediately
-        user = self.scope["user"]
-        # Note: If you use custom auth (session based), ensure user is in scope
-        # If using session['user_id'], you might need to fetch manually.
-        # Assuming standard Django Auth or middleware populates scope['user']
-        if user.is_authenticated:
-            await self.update_user_status(user, is_online=True)
+        # 1. Get User from Session (Fixed Auth)
+        self.user = await self.get_user_from_session()
+        
+        if self.user:
+            await self.channel_layer.group_add(self.group_name, self.channel_name)
+            await self.accept()
             
-        # 3. Broadcast the new Team List to everyone
-        await self.broadcast_team_state()
+            # 2. Update Last Seen
+            await self.update_user_activity(self.user)
+            
+            # 3. Broadcast
+            await self.broadcast_team_state()
+        else:
+            await self.close()
 
     async def disconnect(self, close_code):
-        # 1. Mark User Offline
-        user = self.scope["user"]
-        if user.is_authenticated:
-            await self.update_user_status(user, is_online=False)
-
-        # 2. Remove from group & Broadcast update
-        await self.channel_layer.group_discard(self.group_name, self.channel_name)
-        await self.broadcast_team_state()
+        if hasattr(self, 'user') and self.user:
+            # We don't "set offline" because we don't have that field.
+            # We just let the last_seen timestamp age.
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+            # Optional: Broadcast that someone left (or just wait for next update)
+            await self.broadcast_team_state()
 
     async def receive(self, text_data):
-        # 1. Listen for "Page Change" events from the client
         data = json.loads(text_data)
         page_name = data.get("page", "")
         
-        user = self.scope["user"]
-        if user.is_authenticated and page_name:
-            # Update DB with new page location
-            await self.update_user_page(user, page_name)
-            # Tell everyone "Alan is now on Feedback Page"
+        if self.user and page_name:
+            # Update DB
+            await self.update_user_page(self.user, page_name)
             await self.broadcast_team_state()
 
-    # --- Database Methods (Must be Async) ---
+    # --- HELPERS ---
     @database_sync_to_async
-    def update_user_status(self, user, is_online):
-        try:
-            # Adjust query to match your specific User Model setup
-            profile = UserProfile.objects.get(user=user)
-            profile.is_online = is_online
-            profile.last_seen = timezone.now()
-            profile.save()
-        except Exception as e:
-            print(f"Error updating status: {e}")
+    def get_user_from_session(self):
+        session = self.scope.get("session")
+        if not session or "user_id" not in session: return None
+        try: return UserProfile.objects.get(id=session["user_id"])
+        except UserProfile.DoesNotExist: return None
+
+    @database_sync_to_async
+    def update_user_activity(self, user):
+        user.last_seen = timezone.now()
+        # We don't set is_online because it doesn't exist
+        user.save()
 
     @database_sync_to_async
     def update_user_page(self, user, page):
-        try:
-            profile = UserProfile.objects.get(user=user)
-            profile.current_page = page
-            profile.save()
-        except:
-            pass
+        user.current_page = page
+        user.last_seen = timezone.now() # Update seen time on page change
+        user.save()
 
     @database_sync_to_async
     def get_team_list(self):
-        # Fetch all users formatted for the frontend
-        users = UserProfile.objects.all().order_by('-is_online', 'user_name')
+        # 1. FIX: Sort by 'last_seen' (Descending) instead of 'is_online'
+        users = UserProfile.objects.all().order_by('-last_seen', 'user_name')
+        
         data = []
+        now = timezone.now()
+        
         for u in users:
+            # 2. FIX: Calculate "Online" dynamically (e.g., active in last 2 mins)
+            is_active = False
+            if u.last_seen:
+                diff = (now - u.last_seen).total_seconds()
+                if diff < 120: # 2 minutes timeout
+                    is_active = True
+
             data.append({
                 "id": u.id,
                 "user_name": u.user_name,
-                "is_online": u.is_online,
+                "is_online": is_active, # Computed Value
                 "current_page": u.current_page,
                 "last_seen": u.last_seen.strftime("%H:%M") if u.last_seen else "-"
             })
         return data
 
     async def broadcast_team_state(self):
-        # Get fresh list
         team_data = await self.get_team_list()
-        # Send to group
         await self.channel_layer.group_send(
             self.group_name,
             {
@@ -217,7 +216,6 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         )
 
     async def presence_update(self, event):
-        # Send data to WebSocket
         await self.send(text_data=json.dumps({
             "type": "team_update",
             "members": event["team_data"]

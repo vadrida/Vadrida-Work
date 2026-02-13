@@ -1,0 +1,661 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Verification Portal{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* --- THEME VARIABLES --- */
+    :root {
+        --sidebar-w: 280px;
+        --actions-w: 300px;
+        --header-h: 60px;
+        --brand-blue: #004a8f;       
+        --brand-accent: #0066cc;     
+        --bg-app: #f0f2f5;           
+        --bg-white: #ffffff;
+        --text-dark: #1f2937;        
+        --text-grey: #6b7280;        
+        --border-color: #d1d5db;     
+        --success: #059669;
+        --danger: #dc2626;
+        --warning: #d97706;
+        --font-stack: 'Roboto', 'Segoe UI', sans-serif;
+        --shadow-card: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* --- GLOBAL RESET --- */
+    body {
+        font-family: var(--font-stack);
+        background-color: var(--bg-app);
+        color: var(--text-dark);
+        margin: 0; padding: 0;
+        font-size: 14px; 
+    }
+
+    /* --- LAYOUT GRID --- */
+    .office-workspace {
+        display: grid;
+        grid-template-columns: var(--sidebar-w) 1fr var(--actions-w);
+        grid-template-rows: 1fr;
+        height: calc(100vh - var(--header-h));
+        overflow: hidden;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1024px) {
+        .office-workspace {
+            grid-template-columns: 1fr; 
+            grid-template-rows: auto 1fr auto;
+            height: auto; min-height: 100vh; overflow-y: auto;
+        }
+        .col-files, .col-actions { height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
+        .col-analysis { padding: 15px; overflow: visible; }
+        .data-row { grid-template-columns: 1fr auto; gap: 8px; }
+        .field-label { grid-column: 1 / -1; margin-bottom: 4px; }
+    }
+
+    /* --- SIDEBARS --- */
+    .col-files, .col-actions {
+        background: var(--bg-white);
+        border-right: 1px solid var(--border-color);
+        border-left: 1px solid var(--border-color);
+        display: flex; flex-direction: column;
+        overflow: hidden; 
+    }
+
+    .sidebar-header {
+        padding: 15px 20px; background: var(--brand-blue); color: white;
+        font-weight: 500; display: flex; justify-content: space-between; align-items: center;
+    }
+    .sidebar-header h5 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .info-group { padding: 12px 20px; border-bottom: 1px solid #f3f4f6; }
+    .info-label { font-size: 11px; font-weight: 700; color: var(--text-grey); text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .info-value { font-size: 13px; color: var(--brand-blue); font-weight: 500; word-break: break-word; }
+
+    /* --- MAIN CONTENT --- */
+    .col-analysis {
+        background: var(--bg-app);
+        overflow-y: auto;
+        padding: 20px 30px;
+        padding-bottom: 100px;
+    }
+
+    .page-header {
+        margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+        background: white; padding: 15px 20px; border-radius: 8px; box-shadow: var(--shadow-card);
+    }
+    .page-title h2 { margin: 0; font-size: 18px; color: var(--brand-blue); font-weight: 700; }
+    .case-id { font-size: 12px; color: var(--text-grey); margin-top: 4px; font-family: monospace; }
+
+    /* --- CARDS & ROWS --- */
+    .data-section {
+        background: white; border-radius: 8px; box-shadow: var(--shadow-card);
+        margin-bottom: 20px; border: 1px solid #e5e7eb; overflow: hidden;
+    }
+    .section-header {
+        background: #f9fafb; padding: 12px 20px; border-bottom: 1px solid #e5e7eb;
+        color: var(--brand-blue); font-weight: 700; font-size: 13px; text-transform: uppercase;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .section-header::before { content: ''; display: block; width: 4px; height: 14px; background: var(--brand-accent); border-radius: 2px; }
+
+    .data-row {
+        display: grid; grid-template-columns: 250px 1fr 100px; 
+        padding: 12px 20px; border-bottom: 1px solid #f3f4f6; align-items: start; transition: background 0.1s;
+    }
+    .data-row:hover { background-color: #f8fafc; }
+
+    .field-label { font-size: 12px; font-weight: 500; color: var(--text-grey); padding-top: 6px; }
+    .field-value { font-size: 14px; color: var(--text-dark); font-weight: 400; line-height: 1.5; padding: 4px 8px 4px 0; }
+
+    /* --- CONTROLS --- */
+    .action-group { display: flex; gap: 8px; justify-content: flex-end; }
+    
+    .btn-edit {
+        background: white; border: 1px solid #e5e7eb; color: var(--text-grey);
+        padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-edit:hover { border-color: var(--brand-accent); color: var(--brand-accent); }
+    .btn-edit.active { background: var(--brand-accent); color: white; border-color: var(--brand-accent); }
+
+    .edit-input {
+        width: 100%; padding: 6px 10px; font-size: 13px; border: 1px solid var(--border-color);
+        border-radius: 4px; margin-top: 5px; outline: none; transition: border 0.2s;
+    }
+    .edit-input:focus { border-color: var(--brand-accent); box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1); }
+
+    /* --- DOC TABLE --- */
+    .doc-table-wrapper { margin-top: 10px; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb; padding: 10px; }
+    .doc-row-entry { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 8px; }
+    .btn-add-doc {
+        background: white; border: 1px dashed var(--brand-accent); color: var(--brand-accent);
+        width: 100%; padding: 8px; font-weight: 500; font-size: 12px; cursor: pointer; border-radius: 4px;
+    }
+
+    /* --- UTILS --- */
+    .hidden { display: none !important; }
+    .search-box { width: 90%; margin: 10px auto; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; display: block; font-size: 13px;}
+    .log-item { padding: 10px 15px; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
+    .log-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; background: #fee2e2; color: #991b1b; font-weight: bold; font-size: 10px; margin-top: 2px; }
+    .btn-primary { background: var(--brand-blue); color: white; border: none; padding: 12px; width: 100%; font-weight: 500; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="office-workspace">
+    
+    <aside class="col-files">
+        <div class="sidebar-header">
+            <a href="{% url 'coreapi:office' %}">Back</a>
+            <h5>Case Search</h5>
+            <i class="fas fa-search"></i>
+        </div>
+        
+        <div style="padding: 15px; border-bottom: 1px solid var(--border-color);">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-grey); display: block; margin-bottom: 5px;">ENTER FILE NUMBER</label>
+            <input type="text" id="searchInput" class="search-box" style="width: 100%; margin: 0;" placeholder="e.g. 1011672">
+            <button onclick="performSearch()" class="btn-primary" style="margin-top: 10px; border-radius: 4px;">SEARCH</button>
+        </div>
+
+        <div id="metaContainer" class="hidden" style="flex: 1; overflow-y: auto;">
+            <div class="sidebar-header" style="background: #f3f4f6; color: var(--text-dark); border-bottom: 1px solid var(--border-color);">
+                <h5 style="font-size: 12px;">Case Details</h5>
+            </div>
+            <div class="info-group"><span class="info-label">User</span><div class="info-value" id="meta_user">--</div></div>
+            <div class="info-group"><span class="info-label">File No</span><div class="info-value" id="meta_file_no">--</div></div>
+            <div class="info-group"><span class="info-label">Applicant</span><div class="info-value" id="meta_applicant">--</div></div>
+            <div class="info-group"><span class="info-label">Target Folder</span><div class="info-value" id="meta_folder" style="font-size:11px; color:#6b7280;">--</div></div>
+            <div class="info-group"><span class="info-label">Created</span><div class="info-value" id="meta_created">--</div></div>
+            <div class="info-group"><span class="info-label">PDF</span><div class="info-value" id="meta_pdf">--</div></div>
+            <div class="info-group"><span class="info-label">Score</span><div class="info-value" id="meta_score" style="color:var(--success); font-weight:700;">0%</div></div>
+        </div>
+
+        <div style="margin-top: auto; padding: 20px; border-top: 1px solid var(--border-color);">
+            <a href="{% url 'coreapi:logout_api' %}" onclick="return confirmLogout()" style="display: flex; align-items: center; gap: 10px; color: var(--danger); text-decoration: none; font-weight: 500;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="col-analysis" id="mainScrollArea">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+            
+            <div class="page-title">
+                <h2 style="margin: 0; font-size: 18px; color: var(--brand-blue); font-weight: 700;">Verification Report</h2>
+                <div class="case-id" id="activeCaseDisplay" style="font-size: 12px; color: var(--text-grey); margin-top: 4px; font-family: monospace;">Waiting for input...</div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div id="loadingSpinner" class="hidden" style="color: var(--brand-accent);">
+                    <i class="fas fa-spinner fa-spin fa-lg"></i>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="formContent">
+            <div style="text-align: center; padding: 100px 0; color: var(--text-grey);">
+                <i class="fas fa-database fa-3x" style="opacity: 0.2; margin-bottom: 15px;"></i>
+                <p>Enter a File Number on the left to retrieve data.</p>
+            </div>
+        </div>
+    </main>
+
+    <aside class="col-actions">
+        <div class="sidebar-header">
+            <h5>Correction Log</h5>
+            <span id="logCount" class="hidden" style="background: white; color: var(--brand-blue); padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">0</span>
+        </div>
+        <div id="logContainer" style="flex: 1; overflow-y: auto;">
+            <div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">
+                No corrections pending.
+            </div>
+        </div>
+        <div style="padding: 20px; background: #f9fafb; border-top: 1px solid var(--border-color);">
+            <button onclick="saveData()" class="btn-primary" id="btn-save" style="background: var(--success);">
+                <i class="fas fa-save" style="margin-right: 8px;"></i> SAVE CHANGES
+            </button>
+        </div>
+    </aside>
+
+</div>
+
+<script>
+    let autoSaveTimer;
+    const DOC_OPTIONS = [ "Agreement",
+    "Encumbrance",
+    "Building Permit",
+    "Declaration",
+    "Location Sketch",
+    "Development Permit",
+    "Title Deed",
+    "Survey Sketch",
+    "Building Certificate",
+    "LTR",
+    "Building Tax receipt",
+    "Approved plan",
+    "Possession",
+    "Engineers plan",
+    "Other Document"];
+    let currentFileNo = null;
+    let modifiedFields = new Set();
+    const scrollArea = document.getElementById('mainScrollArea');
+
+    // --- 1. INITIALIZATION ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const lastFile = localStorage.getItem("vadrida_last_file");
+        if(lastFile) {
+            document.getElementById('searchInput').value = lastFile;
+            performSearch(true);
+        }
+        scrollArea.addEventListener('scroll', () => {
+            if(currentFileNo) localStorage.setItem(`scroll_${currentFileNo}`, scrollArea.scrollTop);
+        });
+    });
+
+    // --- 2. HELPERS ---
+    function triggerAutoSave() {
+        clearTimeout(autoSaveTimer);
+        const btn = document.getElementById('btn-save');
+        if(btn) btn.innerText = "Saving..."; // Visual feedback
+        
+        autoSaveTimer = setTimeout(() => {
+            saveData(true); // Quiet Mode
+        }, 1000);
+    }
+
+    function toggleOtherInput(selectElement, id) {
+        const customInput = selectElement.nextElementSibling;
+        if (selectElement.value === "Other Document") {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+            customInput.value = "";
+        }
+        serializeDocs(id);
+        triggerAutoSave();
+    }
+
+    function getCookie(name) {
+        let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return v ? v[2] : null;
+    }
+
+    // --- 3. SEARCH ---
+    function performSearch(isRestore = false) {
+        const val = document.getElementById('searchInput').value.trim();
+        if(!val) return;
+
+        if(!isRestore) {
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+            document.getElementById('metaContainer').classList.add('hidden');
+        }
+
+        fetch(`/coreapi/api/get-report-data/?file_no=${val}`)
+            .then(r => r.json())
+            .then(resp => {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+                if(resp.found) {
+                    currentFileNo = resp.real_file_no || val;
+                    localStorage.setItem("vadrida_last_file", currentFileNo);
+                    
+                    document.getElementById('activeCaseDisplay').innerText = `CASE ID: ${currentFileNo}`;
+                    populateMeta(resp.meta);
+                    renderGrid(resp.data);
+                    
+                    restoreDrafts(currentFileNo);
+                    restoreScroll(currentFileNo);
+                } else {
+                    if(!isRestore) alert("Record Not Found");
+                    document.getElementById('activeCaseDisplay').innerText = "Record Not Found";
+                }
+            })
+            .catch(e => console.error(e));
+    }
+
+    function populateMeta(meta) {
+        document.getElementById('metaContainer').classList.remove('hidden');
+        document.getElementById('meta_user').innerText = meta.user || "--";
+        document.getElementById('meta_file_no').innerText = meta.office_file_no || "--";
+        document.getElementById('meta_applicant').innerText = meta.applicant_name || "--";
+        document.getElementById('meta_folder').innerText = meta.target_folder || "--";
+        document.getElementById('meta_created').innerText = meta.created_at || "--";
+        document.getElementById('meta_pdf').innerText = meta.generated_pdf_name || "Pending";
+        document.getElementById('meta_score').innerText = (meta.completion_score || 0) + "%";
+    }
+
+    function restoreScroll(fileNo) {
+        const pos = localStorage.getItem(`scroll_${fileNo}`);
+        if(pos) setTimeout(() => scrollArea.scrollTop = parseInt(pos), 100);
+    }
+
+    // --- 4. RENDER GRID ---
+    function renderGrid(data) {
+        const container = document.getElementById('formContent');
+        container.innerHTML = "";
+        
+        const sections = ['Valuers_Checklist', 'Ownership_Analysis', 'Survey', 'Boundary_analysis_property_identification', 'Demarcation', 'Access', 'Purchase_resale', 'Building_analysis', 'land_inspection_details', 'Sketch'];
+
+        sections.forEach(sec => {
+            const sData = data[sec];
+            if(!sData) return;
+
+            // Filter Empty Fields
+            const rows = Object.entries(sData).filter(([k,v]) => {
+                if(!v || v==="---" || v==="Not Provided") return false;
+                if(Array.isArray(v) && v.length===0) return false;
+                if(typeof v==='object' && Object.keys(v).length===0) return false;
+                return true;
+            });
+
+            if(rows.length === 0) return;
+
+            // Create Section Card
+            const card = document.createElement('div');
+            card.className = "data-section";
+            card.innerHTML = `<div class="section-header">${sec.replace(/_/g, ' ')}</div>`;
+
+            rows.forEach(([key, val]) => {
+                const uid = `${sec}_${key}`;
+                const path = `${sec}.${key}`;
+                const isDoc = (key === "documents_received");
+                
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "data-row";
+                rowDiv.id = `row_${uid}`;
+
+                // --- CONTENT LOGIC ---
+                let contentHtml = "";
+                let docArray = []; 
+
+                if(isDoc) {
+                    // 1. PARSE DATA
+                    if (Array.isArray(val)) {
+                        docArray = val;
+                    } else if (typeof val === 'string' && val.trim().startsWith('[')) {
+                        try { docArray = JSON.parse(val); } catch(e) { docArray = []; }
+                    } else if (typeof val === 'string') {
+                        docArray = [{name: val, num: "", date: ""}];
+                    }
+
+                    // 2. GENERATE PREVIEW HTML (Read Only)
+                    let displayHtml = docArray.map(d => {
+                        let name = (typeof d === 'string') ? d : (d.name || "Unknown");
+                        let num = (typeof d === 'object' && d.num) ? `<span style='color:#059669; font-weight:bold;'>#${d.num}</span>` : "";
+                        let date = (typeof d === 'object' && d.date) ? `<span style='color:#6b7280; font-size:11px;'>(${d.date})</span>` : "";
+                        return `<div style="margin-bottom:4px; padding-bottom:4px; border-bottom:1px dashed #eee;">
+                                    <i class="fas fa-file-alt" style="color:#cbd5e1; margin-right:5px;"></i>
+                                    <strong>${name}</strong> ${num} ${date}
+                                </div>`;
+                    }).join("");
+                    if(!displayHtml) displayHtml = "No Documents";
+
+                    // 3. GENERATE EDITOR HTML (The Fix: Build strings immediately)
+                    // We manually build the HTML for existing rows here instead of calling addDocRow later
+                    let initialRowsHtml = docArray.map(d => {
+                        // Extract data safely
+                        let docName = (typeof d === 'string') ? d : (d.name || "");
+                        let docNum = (typeof d === 'object') ? (d.num || "") : ""; 
+                        let docDate = (typeof d === 'object') ? (d.date || "") : "";
+                        
+                        // Check custom vs standard
+                        let isCustom = docName && !DOC_OPTIONS.includes(docName);
+                        
+                        // Build Options
+                        let opts = `<option value="" disabled ${!docName?'selected':''}>Select...</option>`;
+                        DOC_OPTIONS.forEach(o => {
+                            let isSelected = (isCustom && o === "Other Document") || (o === docName);
+                            opts += `<option value="${o}" ${isSelected?'selected':''}>${o}</option>`;
+                        });
+
+                        // Return the Row HTML string
+                        return `
+                        <div class="doc-row-entry">
+                            <div>
+                                <select class="edit-input" style="margin:0" onchange="toggleOtherInput(this, '${uid}')">${opts}</select>
+                                <input type="text" class="edit-input ${isCustom ? '' : 'hidden'}" 
+                                    style="margin-top:5px; border-color:#2563eb;" 
+                                    placeholder="Type Document Name..." 
+                                    value="${isCustom ? docName : ''}" 
+                                    oninput="serializeDocs('${uid}'); triggerAutoSave()">
+                            </div>
+                            <input type="text" class="edit-input" style="margin:0" placeholder="Ref No" value="${docNum}" oninput="serializeDocs('${uid}'); triggerAutoSave()">
+                            <input type="text" class="edit-input" style="margin:0" placeholder="Date" value="${docDate}" oninput="serializeDocs('${uid}'); triggerAutoSave()">
+                            <i class="fas fa-trash" style="color:var(--danger); cursor:pointer; margin-top:8px;" onclick="this.parentElement.remove(); serializeDocs('${uid}'); triggerAutoSave()"></i>
+                        </div>`;
+                    }).join("");
+
+                    // 4. RENDER FINAL BLOCK
+                    contentHtml = `
+                        <div class="field-value" id="view_${uid}">${displayHtml}</div>
+                        <div id="editor_${uid}" class="hidden doc-table-wrapper">
+                            <div style="font-size:11px; font-weight:bold; color:#dc2626; margin-bottom:5px;">VERIFY DOCUMENTS:</div>
+                            
+                            <div id="doc_body_${uid}">${initialRowsHtml}</div>
+                            
+                            <button class="btn-add-doc" onclick="addDocRow('${uid}')">+ Add Document</button>
+                            <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(docArray)}'>
+                        </div>
+                    `;
+                } else {
+                    // Standard Fields (Unchanged)
+                    contentHtml = `
+                        <div class="field-value">${val}</div>
+                        <div id="editor_${uid}" class="hidden" style="margin-top:8px;">
+                            <label style="font-size:10px; font-weight:bold; color:#dc2626;">NEW VALUE:</label>
+                            <input type="text" id="input_${uid}" data-path="${path}" data-label="${key}" class="edit-input" placeholder="Enter verified value..." value="${val}">
+                        </div>
+                    `;
+                }
+
+                rowDiv.innerHTML = `
+                    <div class="field-label">${key.replace(/_/g, ' ')}</div>
+                    <div>${contentHtml}</div>
+                    <div class="action-group">
+                        <button class="btn-edit" id="btn_${uid}" onclick="toggleEdit('${uid}', '${key}', ${isDoc})">Edit</button>
+                    </div>
+                `;
+                card.appendChild(rowDiv);
+            });
+            container.appendChild(card);
+        });
+
+        // Run after grid is built
+        resetLogs();
+    }
+
+    // --- 5. INTERACTION & EDITING ---
+    function toggleEdit(id, label, isDoc) {
+        const btn = document.getElementById(`btn_${id}`);
+        const editor = document.getElementById(`editor_${id}`);
+        const input = document.getElementById(`input_${id}`);
+
+        if(editor.classList.contains("hidden")) {
+            editor.classList.remove("hidden");
+            btn.classList.add("active");
+            btn.innerText = "Cancel";
+            
+            if(!isDoc) {
+                input.focus();
+                input.oninput = () => {
+                    logChange(id, label);
+                    saveDraft(currentFileNo, id, input.value); // FIX: Save Draft on input
+                    triggerAutoSave();
+                }
+            }
+            logChange(id, label);
+        } else {
+            editor.classList.add("hidden");
+            btn.classList.remove("active");
+            btn.innerText = "Edit";
+            removeLog(id);
+            removeDraft(currentFileNo, id); 
+        }
+    }
+
+    // --- 6. DOCUMENT LOGIC ---
+    function addDocRow(id, data=null) {
+        const container = document.getElementById(`doc_body_${id}`);
+        const div = document.createElement('div');
+        div.className = "doc-row-entry";
+
+        // Logic for Manual Add (empty) vs Data Load (filled)
+        let docName="", docNum="", docDate="", isCustom=false;
+        if (typeof data === 'string') {
+            docName = data;
+            if(docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
+        } else if (data && typeof data === 'object') {
+            docName = data.name || ""; docNum = data.num || ""; docDate = data.date || "";
+            if(docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
+        }
+
+        let opts = `<option value="" disabled ${!docName?'selected':''}>Select...</option>`;
+        DOC_OPTIONS.forEach(o => {
+            const isSelected = (isCustom && o === "Other Document") || (o === docName);
+            opts += `<option value="${o}" ${isSelected ? 'selected' : ''}>${o}</option>`;
+        });
+
+        div.innerHTML = `
+            <div>
+                <select class="edit-input" style="margin:0" onchange="toggleOtherInput(this, '${id}')">${opts}</select>
+                <input type="text" class="edit-input ${isCustom ? '' : 'hidden'}" 
+                       style="margin-top:5px; border-color:#2563eb;" 
+                       placeholder="Type Name..." 
+                       value="${isCustom ? docName : ''}" 
+                       oninput="serializeDocs('${id}'); triggerAutoSave()">
+            </div>
+            <input type="text" class="edit-input" style="margin:0" placeholder="Ref No" value="${docNum}" oninput="serializeDocs('${id}'); triggerAutoSave()">
+            <input type="text" class="edit-input" style="margin:0" placeholder="Date" value="${docDate}" oninput="serializeDocs('${id}'); triggerAutoSave()">
+            <i class="fas fa-trash" style="color:var(--danger); cursor:pointer; margin-top:8px;" onclick="this.parentElement.remove(); serializeDocs('${id}'); triggerAutoSave()"></i>
+        `;
+        container.appendChild(div);
+        
+        if(!data) serializeDocs(id);
+    }
+
+    function serializeDocs(id) {
+        const rows = document.querySelectorAll(`#doc_body_${id} .doc-row-entry`);
+        const docs = [];
+        rows.forEach(r => {
+            const firstCol = r.children[0]; 
+            const select = firstCol.querySelector('select');
+            const customInput = firstCol.querySelector('input');
+            const numInput = r.children[1]; 
+            const dateInput = r.children[2]; 
+
+            let finalName = select.value;
+            if (select.value === "Other Document") finalName = customInput.value;
+
+            if(finalName) {
+                docs.push({ name: finalName, num: numInput.value, date: dateInput.value });
+            }
+        });
+
+        const jsonStr = JSON.stringify(docs); // Store result
+        document.getElementById(`input_${id}`).value = jsonStr;
+        
+        logChange(id, "Documents");
+        saveDraft(currentFileNo, id, jsonStr); // FIX: Save Draft on change
+    }
+
+    // --- 7. STORAGE & SAVE ---
+    function saveDraft(fileNo, id, val) {
+        if(!fileNo) return;
+        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
+        drafts[id] = val;
+        localStorage.setItem(`draft_${fileNo}`, JSON.stringify(drafts));
+    }
+
+    function removeDraft(fileNo, id) {
+        if(!fileNo) return;
+        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
+        delete drafts[id];
+        localStorage.setItem(`draft_${fileNo}`, JSON.stringify(drafts));
+    }
+
+    function restoreDrafts(fileNo) {
+        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
+        Object.keys(drafts).forEach(id => {
+            const input = document.getElementById(`input_${id}`);
+            if(input) {
+                const label = input.getAttribute('data-label');
+                const isDoc = (label === "documents_received");
+                toggleEdit(id, label, isDoc);
+
+                if(isDoc) {
+                    document.getElementById(`doc_body_${id}`).innerHTML = "";
+                    try { JSON.parse(drafts[id]).forEach(d => addDocRow(id, d)); } catch(e){}
+                } else {
+                    input.value = drafts[id];
+                }
+            }
+        });
+    }
+
+    function resetLogs() {
+        modifiedFields.clear();
+        document.getElementById('logContainer').innerHTML = '<div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">No corrections pending.</div>';
+        document.getElementById('logCount').classList.add('hidden');
+    }
+
+    function logChange(id, label) {
+        modifiedFields.add(id);
+        const box = document.getElementById('logContainer');
+        if(box.querySelector('#emptyLog')) box.innerHTML = "";
+        if(!document.getElementById(`log_${id}`)) {
+            box.innerHTML += `<div id="log_${id}" class="log-item"><strong>${label}</strong><br><span class="log-badge">Draft Saved</span></div>`;
+        }
+        document.getElementById('logCount').innerText = modifiedFields.size;
+        document.getElementById('logCount').classList.remove('hidden');
+    }
+
+    function removeLog(id) {
+        modifiedFields.delete(id);
+        const el = document.getElementById(`log_${id}`);
+        if(el) el.remove();
+        document.getElementById('logCount').innerText = modifiedFields.size;
+        if(modifiedFields.size === 0) {
+            document.getElementById('logCount').classList.add('hidden');
+            document.getElementById('logContainer').innerHTML = '<div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">No corrections pending.</div>';
+        }
+    }
+
+    function saveData(isAuto = false) {
+        if(modifiedFields.size === 0) return;
+        
+        const btn = document.getElementById('btn-save');
+        if(!isAuto) btn.innerText = "Saving...";
+
+        const corrections = {};
+        modifiedFields.forEach(id => {
+            const inp = document.getElementById(`input_${id}`);
+            corrections[inp.getAttribute('data-path')] = inp.value;
+        });
+
+        fetch('/coreapi/api/save-corrections/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ file_no: currentFileNo, corrections: corrections })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if(d.success) {
+                btn.innerText = "Saved ✓";
+                setTimeout(() => btn.innerText = "SAVE CHANGES", 2000);
+                if(!isAuto) {
+                    // Manual save = Clean up drafts
+                    localStorage.removeItem(`draft_${currentFileNo}`);
+                    performSearch(); 
+                }
+            } else {
+                console.error("Save Error:", d.error);
+                btn.innerText = "Retry Save";
+            }
+        });
+    }
+    
+    function confirmLogout() { return confirm("Logout?"); }
+</script>
+{% endblock %}

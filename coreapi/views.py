@@ -28,7 +28,6 @@ from django.contrib.auth.decorators import login_required
 from weasyprint import HTML, CSS
 from .models import UserProfile, SiteVisitReport
 import fitz  
-from .utils import generate_site_report_pdf
 from django.shortcuts import render, get_object_or_404
 import shutil
 from urllib.parse import unquote
@@ -67,17 +66,126 @@ def dashboard(request):
     role = request.session.get("user_role")
     
     # 1. Admin goes to the new Core Dashboard
-    if role == "admin":
-        # Ensure 'core' is in your INSTALLED_APPS and urls.py
+    if role in ["admin", "accountant"]:
         return redirect("core:admin_dashboard") 
         
     # 2. Others go to the Office Dashboard
-    elif role in ["office", "IT", "site"]:
+    elif role == "site":
         return redirect("coreapi:office_dashboard")
-        
+    
+    elif role == "office":
+        return redirect("coreapi:office")
+    
+    elif role == "IT":
+        return redirect("coreapi:office_verification")
+    
     # 3. Unknown roles get rejected
-    return JsonResponse({"error": "Unauthorized Role"}, status=401)
+    return JsonResponse({"error": "Invalid role"}, status=500)
 # ==========================
+
+@csrf_protect
+def office_verification(request):
+    """
+    Renders the three-part office verification dashboard.
+    """
+    if request.session.get("user_role") not in ["office", "IT"]:
+        return redirect("coreapi:login_page")
+        
+    rel_path = request.GET.get("path", "").strip("/")
+    report = None
+    
+    if rel_path:
+        # Fetch the site staff's report for this folder
+        report = SiteVisitReport.objects.filter(target_folder=rel_path).first()
+
+    context = {
+        'current_path': rel_path,
+        'report': report,
+        'site_data': report.form_data if report else {},
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
+    }
+    return render(request, "office_verification.html", context)
+
+@csrf_protect
+def get_site_report_data(request):
+    file_no = request.GET.get('file_no')
+    folder_path = request.GET.get('path', '')
+    
+    report = None
+
+    # 1. Search Logic (Same as before)
+    if raw_path := request.GET.get('path', ''):
+        clean_path = unquote(raw_path).replace('\\', '/').replace('G:/My Drive/', '').strip('/')
+        report = SiteVisitReport.objects.filter(target_folder__endswith=clean_path).order_by('-updated_at').first()
+
+    if not report and file_no:
+        report = SiteVisitReport.objects.filter(office_file_no=file_no).first()
+
+    if report:
+        # 2. Prepare Metadata for Sidebar
+        meta = {
+            "user": report.user.user_name if report.user else "Unknown",  # Get name from UserProfile
+            "office_file_no": report.office_file_no,
+            "applicant_name": report.applicant_name,
+            "target_folder": report.target_folder,
+            "created_at": report.created_at.strftime("%d-%b-%Y %I:%M %p"),
+            "generated_pdf_name": report.generated_pdf_name or "Not Generated",
+            "completion_score": report.completion_score
+        }
+        
+        return JsonResponse({
+            'found': True, 
+            'data': report.form_data or {}, 
+            'meta': meta,
+            'real_file_no': report.office_file_no
+        })
+    else:
+        return JsonResponse({'found': False, 'message': 'Report not found'})
+      
+def save_office_corrections(request):
+    """
+    Saves corrections back to the SiteVisitReport form_data.
+    Handles nested keys like 'Valuers_Checklist.applicant_name'
+    """
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+            file_no = payload.get('file_no')
+            corrections = payload.get('corrections', {}) # e.g. {'Valuers_Checklist.applicant_name': 'New Name'}
+
+            if not file_no:
+                return JsonResponse({'error': 'Missing file number'}, status=400)
+
+            report = SiteVisitReport.objects.filter(office_file_no=file_no).first()
+            if not report:
+                return JsonResponse({'error': 'Report not found'}, status=404)
+
+            # Get current data
+            current_data = report.form_data if report.form_data else {}
+            
+            # Apply corrections using dot notation (Parent.Child)
+            for path, value in corrections.items():
+                keys = path.split('.')
+                d = current_data
+                # Navigate to the last key
+                for key in keys[:-1]:
+                    if key not in d: 
+                        d[key] = {} # Create dict if missing
+                    d = d[key]
+                # Set the value
+                d[keys[-1]] = value
+            
+            # Save back to DB
+            report.form_data = current_data
+            report.save()
+
+            return JsonResponse({'success': True, 'message': 'Corrections saved successfully'})
+
+        except Exception as e:
+            print(f"Error saving: {e}")
+            return JsonResponse({'error': str(e)}, status=500)
+            
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @csrf_protect
 @ratelimit(key="ip", rate="5/m", block=True)
@@ -130,7 +238,29 @@ def logout_api(request):
 # ----------------------------
 DOCUMENTS_FOLDER = settings.DOCUMENTS_ROOT
 
-# views.py
+@csrf_protect
+def office(request):
+    """
+    Renders the Office Landing Page with Actions & Profile.
+    """
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return redirect("coreapi:login_page")
+        
+    try:
+        user_profile = UserProfile.objects.get(id=user_id)
+    except UserProfile.DoesNotExist:
+        return redirect("coreapi:login_page")
+
+    context = {
+        "user_profile": user_profile,
+        "last_login": user_profile.last_seen if user_profile.last_seen else "Never",
+        "created_at": user_profile.created_at
+    }
+    return render(request, "office.html", context)
+
+def create_folder_page(request):
+    return render(request, "create_folder.html")
 
 def office_dashboard(request):
     """
@@ -213,10 +343,24 @@ def format_file_size(size_bytes):
 @require_http_methods(["GET"])
 def search_folders_api(request):
     q = request.GET.get("q", "").lower()
-    folders, _ = scan_root_folders_only(DOCUMENTS_FOLDER)
+    
+    # 1. Get from Index instead of Disk
+    index = get_index()
+    all_folders = index.get("folders", [])
 
+    # 2. Filter
     if q:
-        folders = [f for f in folders if q in f["name"].lower() or q in f["id"].lower()]
+        folders = [
+            f for f in all_folders 
+            if q in f["name"].lower() or q in f.get("id", "").lower()
+        ]
+    else:
+        # If no query, return top-level folders (or first 50 cached folders)
+        # Assuming your index stores root paths correctly
+        folders = all_folders[:50] 
+
+    # 3. Sort Newest First
+    folders.sort(key=lambda x: x.get('mtime', 0), reverse=True)
 
     return JsonResponse({"folders": folders})
 
@@ -227,54 +371,72 @@ def search_files(request):
     if not q or len(q) < 2:
         return JsonResponse({"folders": [], "files": []})
 
+    # 1. Get the Index (Instant RAM access)
     index = get_index()
     
-    # 1. Filter Folders
-    raw_folders = [f.copy() for f in index.get("folders", []) if q in f["name"].lower()][:20]
-    
+    # --- HELPER: Sort by Modified Time (Descending) ---
+    # Requires 'mtime' to be saved in your index. If missing, defaults to 0.
+    def sort_newest(item):
+        return item.get('mtime', 0)
+
+    # 2. Filter & Sort FOLDERS
+    # We filter first, THEN sort, THEN slice.
+    matched_folders = [
+        f for f in index.get("folders", []) 
+        if q in f["name"].lower()
+    ]
+    # Sort: Newest First
+    matched_folders.sort(key=sort_newest, reverse=True)
+    # Slice: Take top 20
+    matched_folders = matched_folders[:20]
+
+    # --- PROCESS FOLDERS (Chat/Unread Status) ---
     processed_folders = []
     
-    # --- FIX 1: Get UserProfile Object ---
     user_id = request.session.get("user_id")
     current_user_profile = None
     if user_id:
-        try:
-            current_user_profile = UserProfile.objects.get(id=user_id)
-        except UserProfile.DoesNotExist:
-            pass
-    # -------------------------------------
+        try: current_user_profile = UserProfile.objects.get(id=user_id)
+        except: pass
 
-    for folder in raw_folders:
-        name = folder['name']
-        path = folder['path']
+    for folder in matched_folders:
+        # Create a copy so we don't mutate the cached index
+        f_copy = folder.copy()
         
-        # --- A. Chat Pattern Matching ---
+        name = f_copy['name']
+        path = f_copy['path']
+        
         has_hash = "#" in name
         is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
-        
         has_chat = bool(has_hash or is_case_folder)
         
-        # --- B. Unread Status Check ---
         is_unread = False
         if has_chat and current_user_profile:
-            # --- FIX 2: Pass Object ---
             is_unread = check_unread_status(current_user_profile, path)
 
-        folder['has_chat'] = has_chat
-        folder['is_unread'] = is_unread
-        
-        processed_folders.append(folder)
+        f_copy['has_chat'] = has_chat
+        f_copy['is_unread'] = is_unread
+        processed_folders.append(f_copy)
 
-    matched_files = [f for f in index.get("files", []) if q in f["name"].lower()][:50]
+    # 3. Filter & Sort FILES
+    matched_files = [
+        f for f in index.get("files", []) 
+        if q in f["name"].lower()
+    ]
+    # Sort: Newest First
+    matched_files.sort(key=sort_newest, reverse=True)
+    # Slice: Take top 50
+    matched_files = matched_files[:50]
 
     return JsonResponse({
         "folders": processed_folders,
         "files": matched_files
     })
+
+
 @require_http_methods(["GET"])
 def get_folder_contents_api(request):
     rel_path = request.GET.get("path", "").strip("/")
-    # 1. Get Pagination Params (Default: Page 1, 50 items per page)
     page = int(request.GET.get("page", 1))
     limit = int(request.GET.get("limit", 50))
     
@@ -288,21 +450,18 @@ def get_folder_contents_api(request):
     if not abs_path.startswith(base) or not os.path.isdir(abs_path):
         return JsonResponse({"folders": [], "files": [], "has_next": False})
 
-    # --- METADATA (Only load this on Page 1 to save speed) ---
+    # --- METADATA (Page 1 Only) ---
     if page == 1:
         if rel_path:
             current_folder_name = os.path.basename(abs_path)
             auto_fill_data = parse_folder_metadata(current_folder_name)
         
-        # Check for case/chat info
         folder_name = os.path.basename(abs_path)
         has_hash = "#" in folder_name
         is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name)
         
         if has_hash or is_case_folder:
             folder_info = get_case_folder_info(abs_path)
-            
-            # Fetch Saved Draft if exists
             user_id = request.session.get("user_id")
             if user_id:
                 try:
@@ -311,8 +470,7 @@ def get_folder_contents_api(request):
                     ).order_by('-updated_at').first()
                     if draft and draft.form_data:
                         saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
-                        if 'vectors' in saved_draft: del saved_draft['vectors']
-                        # Inject Images
+                        # if 'vectors' in saved_draft: del saved_draft['vectors']
                         sketches = ReportSketch.objects.filter(report=draft)
                         if 'images' not in saved_draft: saved_draft['images'] = {}
                         for sketch in sketches:
@@ -320,7 +478,7 @@ def get_folder_contents_api(request):
                 except Exception as e:
                     print(f"Draft fetch error: {e}")
 
-    # --- SCANNING & PAGINATION ---
+    # --- SCANNING & SORTING ---
     all_folders = []
     all_files = []
     
@@ -331,7 +489,6 @@ def get_folder_contents_api(request):
         except: pass
 
     try:
-        # Scan everything (We have to scan all to sort them correctly)
         with os.scandir(abs_path) as it:
             for entry in it:
                 if entry.is_dir():
@@ -339,31 +496,23 @@ def get_folder_contents_api(request):
                 else:
                     all_files.append(entry)
 
-        # Sort (Folders by date, Files by name)
+        # ✅ FIX 1: Sort BOTH by Date Descending (Newest First)
         all_folders.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-        all_files.sort(key=lambda x: x.name.lower())
+        all_files.sort(key=lambda x: x.stat().st_mtime, reverse=True) # Changed from name to mtime
 
-        # --- CALCULATE SLICE ---
-        total_items = all_folders + all_files
+        # --- PAGINATION SLICE ---
         start = (page - 1) * limit
         end = start + limit
         
-        # Get the slice for this page
-        # Note: We prioritize folders first, then files.
-        # Logic: If page 1 asks for 50 items, and we have 20 folders, we return 20 folders + 30 files.
-        
         folders_to_process = []
         files_to_process = []
-        
         current_idx = 0
         
-        # Add Folders to result if they fall in the range
         for f in all_folders:
             if current_idx >= start and current_idx < end:
                 folders_to_process.append(f)
             current_idx += 1
             
-        # Add Files to result if they fall in the range
         for f in all_files:
             if current_idx >= start and current_idx < end:
                 files_to_process.append(f)
@@ -371,7 +520,7 @@ def get_folder_contents_api(request):
 
         has_next = current_idx > end
 
-        # --- PROCESS ONLY THE SLICE (Performance Win!) ---
+        # --- PROCESS FOLDERS ---
         final_folders = []
         for entry in folders_to_process:
             folder_stats = entry.stat()
@@ -379,7 +528,6 @@ def get_folder_contents_api(request):
             full_rel_path = f"{rel_path}/{name}" if rel_path else name
             full_abs_path = os.path.join(abs_path, name)
             
-            # Chat logic
             has_hash = "#" in name
             is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', name)
             has_chat = bool(has_hash or is_case_folder)
@@ -391,7 +539,6 @@ def get_folder_contents_api(request):
                 if current_user_profile:
                     is_unread = check_unread_status(current_user_profile, full_rel_path)
                 
-                # Get Status Color
                 cache_key = f"folder_status_{full_abs_path}"
                 cached_stats = cache.get(cache_key)
                 if cached_stats:
@@ -409,9 +556,11 @@ def get_folder_contents_api(request):
                 "has_chat": has_chat,
                 "is_unread": is_unread,
                 "status_color": status_color,
-                "created": folder_stats.st_mtime
+                "created": folder_stats.st_mtime,
+                "mtime": folder_stats.st_mtime  # ✅ FIX 2: Send mtime
             })
 
+        # --- PROCESS FILES ---
         final_files = []
         for entry in files_to_process:
             stats = entry.stat()
@@ -425,6 +574,7 @@ def get_folder_contents_api(request):
                 "type": "file",
                 "extension": ext,
                 "size": format_file_size(stats.st_size),
+                "mtime": stats.st_mtime  # ✅ FIX 2: Send mtime
             })
 
     except Exception as e:
@@ -436,201 +586,296 @@ def get_folder_contents_api(request):
         "folder_info": folder_info,
         "auto_fill": auto_fill_data,
         "saved_draft": saved_draft,
-        "has_next": has_next, # Tell frontend if there is more
+        "has_next": has_next,
         "page": page
     })
 
+
 def parse_folder_metadata(folder_name):
     """
-    Robust parsing for various bank folder formats.
+    Bank-Specific Parsing Logic for Auto-Fill.
+    Detects the pattern based on the starting ID of the folder string.
     """
-    # 1. SKIP INVALID FOLDERS
-    # If folder is just a number (e.g., "100", "2025"), ignore it.
-    if folder_name.isdigit():
-        return None
-    
-    # ❌ REMOVED THE STRICT SEPARATOR CHECK
-    # We now trust the Regex below to find the pattern, even if separators vary.
-
-    print(f"DEBUG: Parsing case folder -> {folder_name}")
+    print(f"DEBUG: Analyzing Folder -> {folder_name}")
 
     metadata = {
         'file_no': '',
         'applicant_name': '',
         'product': 'notselected'
     }
-
-    # 2. EXTRACT FILE NUMBER
-    # Strategy: Look for digits at the start, followed by ANY separator (Space, _, -)
-    # ^(\d+)      -> Starts with digits
-    # (?=[_ \-])  -> Lookahead: followed by _, space, or -
-    file_match = re.search(r'^(\d+)(?=[_ \-])', folder_name)
     
-    # Fallback: HDFC style "HDFC - 1011..." or just "1011 John"
-    if not file_match:
-        # Try to find any sequence of 4+ digits
-        file_match = re.search(r'(\d{4,})', folder_name)
-
-    if file_match:
-        metadata['file_no'] = file_match.group(1)
-
-    # 3. PRODUCT MAPPING (Same as before)
+    # --- PRODUCT CODE MAPPING (Common for all banks) ---
     product_map = {
         'RESL': 'resale', 'RESA': 'resale',
         'LAPL': 'lap', 'BLLP': 'lap', 'SBLM': 'lap', 'CCOL': 'lap', 'LAP': 'lap',
-        'PRCS': '1st purchase', 'PUCH': '1st purchase', 'LAND': '1st purchase', 'PURC': '1st purchase',
+        'PRCS': '1st purchase', 'PUCH': '1st purchase', 'LAND': '1st purchase', 'PURC': '1st purchase', 'PUR': '1st purchase',
         'CONS': 'construction', 'CONST': 'construction',
         'PDPD': 'pd', 'PD': 'pd',
         'TOUP': 'topup', 'TOP': 'topup',
         'RENO': 'renovation',
-        'TAKO': 'takeover', 'HLBG': 'takeover', 'BT': 'takeover'
+        'TAKO': 'takeover', 'HLBG': 'takeover', 'BT': 'takeover',
+        'NPA': 'npa'
     }
-    
-    product_keys = "|".join(product_map.keys())
-    prod_match = re.search(f'(?:^|_| )({product_keys})(?:$|_| )', folder_name, re.IGNORECASE)
-    
-    if prod_match:
-        code = prod_match.group(1).upper()
-        metadata['product'] = product_map.get(code, 'notselected')
 
-    # 4. APPLICANT NAME STRATEGIES
-    # Strategy A: Hash #NAME#
-    if '#' in folder_name:
+    # Helper to find product in string
+    def find_product(text):
+        keys = "|".join(product_map.keys())
+        match = re.search(f'(?:_|^| )({keys})(?:_|$| )', text, re.IGNORECASE)
+        if match:
+            return product_map.get(match.group(1).upper(), 'notselected')
+        return 'notselected'
+
+    # =========================================================================
+    # BANK SPECIFIC STRATEGIES
+    # =========================================================================
+
+    # 1. HDFC (1000...) & 9. SIB (9000...)
+    # Pattern: ID_#NAME#_Loc_Date_..._PRODUCT
+    # Ex: 1011398_#SWAPNA_S_R#_TVM_02.12.2025_118XXX_117VMJ_704656665_RESL
+    if folder_name.startswith("10") or folder_name.startswith("90") or folder_name.startswith("10") or "#" in folder_name:
+        # File No: Start digits
+        file_match = re.match(r'^(\d+)', folder_name)
+        if file_match: metadata['file_no'] = file_match.group(1)
+
+        # Name: Inside # hashes #
         name_match = re.search(r'#([^#]+)#', folder_name)
-        if name_match:
+        if name_match: 
             metadata['applicant_name'] = name_match.group(1).replace('_', ' ').strip()
+        
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 2. Muthoot (2000...)
+    # Pattern: ID_Code_Code_Loc_PRODUCT_Loc_Code_Code_Date_NAME
+    # Ex: 2427_999OTR_114JAY_KOT_LAPL_KOLLAM_S0147_HKAY92150408_24.01.2026_Anandhumon Shaji
+    if folder_name.startswith("2"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0] # First part is ID
+            metadata['applicant_name'] = parts[-1].strip() # Last part is Name
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 3. Bajaj (3000...)
+    # Pattern: ID_Loc_Date_Code_Code_LongCode_PRODUCT_NAME
+    # Ex: 3120_TSR_08.05.2025_104FMY_107SRJ_SME000015744679_LAPL_Angel Wilson
+    if folder_name.startswith("3"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0]
+            metadata['applicant_name'] = parts[-1].strip()
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 4. DCB (4000...)
+    # Pattern: ID_Loc_Name_Date_Code_Code_LongCode_PRODUCT_Name2
+    # Ex: 40144_KOT_Anil_29.01.2026_999OTR_114JAY_APPL01685793_PDPD_SAJIMON C S
+    # Note: Name appears twice sometimes, usually the last one is full name
+    if folder_name.startswith("4"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0]
+            metadata['applicant_name'] = parts[-1].strip() # Prefer last part
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 5. PNBHFL (5000...)
+    # Pattern: ID_Loc_Date_Loc_PAN_Code_LongCode_PRODUCT_NAME
+    # Ex: 50382_KOT_02.02.2026_Kottayam_PAN_114JAY_NHL.KTYM.0126.1473599_LAPL_SNEHA SIBY
+    if folder_name.startswith("5"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0]
+            metadata['applicant_name'] = parts[-1].strip()
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 6. SBI (6000...)
+    # Pattern: ID_Loc_Code_Date_Code_Code_NA_PRODUCT_NAME
+    # Ex: 6097_ALP_RASMECCALA_26.07.2025_109NNU_103VIS_N.A_CONS_PRASEEJA
+    if folder_name.startswith("6"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0]
+            metadata['applicant_name'] = parts[-1].strip()
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 7. CSB (7000...)
+    # Pattern: ID_Loc_Date_Code_Code_PRODUCT_NAME
+    # Ex: 7113_EKM_28.05.2025_109NNU_107SRJ_LAPL_Pathrose
+    if folder_name.startswith("7"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0]
+            metadata['applicant_name'] = parts[-1].strip()
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # 8. Chola (8000...)
+    # Pattern 1: ID_Loc_Date_Loc_Code_ID_PRODUCT_NAME
+    # Pattern 2: ID_Loc_Date_Loc_Code_LongCode_PRODUCT_NAME
+    # Ex: 864_EKM_02.09.2025_COCHIN _`_109NNU_864_LAPL_REENA and UNNIMAYA
+    # Ex: 8065_KOL_21.05.2025_Thiruvalla_106JOJ_HL05NUR000036070_NPA_SHIMOJ PALAKKOOL POLAPPADY
+    if folder_name.startswith("8"):
+        parts = folder_name.split('_')
+        if len(parts) > 1:
+            metadata['file_no'] = parts[0]
+            metadata['applicant_name'] = parts[-1].strip()
+        metadata['product'] = find_product(folder_name)
+        return metadata
+
+    # =========================================================================
+    # FALLBACK STRATEGY (If none of the above match strictly)
+    # =========================================================================
     
-    # Strategy B: Remove the File Number and Product Code, clean the rest
-    else:
-        # Start with the full name
-        clean_name = folder_name
+    # Try generic underscore splitting
+    if '_' in folder_name:
+        parts = folder_name.split('_')
+        # Assume first part is ID if digits
+        if parts[0].isdigit():
+            metadata['file_no'] = parts[0]
         
-        # Remove the file number we found
-        if metadata['file_no']:
-            clean_name = clean_name.replace(metadata['file_no'], '')
-
-        # Remove the product code we found
-        if prod_match:
-            clean_name = clean_name.replace(prod_match.group(1), '')
-
-        # Remove separators and file extensions
-        clean_name = re.sub(r'[_ \-]', ' ', clean_name) # Turn _ and - into spaces
-        clean_name = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', clean_name) # Remove .pdf etc
+        # Assume last part is Name if not product code
+        possible_name = parts[-1].strip()
+        # Clean file extensions
+        possible_name = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', possible_name)
         
-        # Remove Date patterns (DD.MM.YYYY)
-        clean_name = re.sub(r'\d{2}\.\d{2}\.\d{4}', '', clean_name)
-
-        # Cleanup whitespace
-        metadata['applicant_name'] = clean_name.strip()
-
-    # Final Sanity Check
-    if not metadata['file_no'] and not metadata['applicant_name']:
-        return None
+        # Determine product
+        found_product = find_product(folder_name)
+        if found_product != 'notselected':
+            metadata['product'] = found_product
+            # If the last part was the product code, take the 2nd to last part as name
+            if possible_name.upper() in product_map:
+                if len(parts) > 2:
+                    metadata['applicant_name'] = parts[-2].strip()
+            else:
+                metadata['applicant_name'] = possible_name
+        else:
+             metadata['applicant_name'] = possible_name
 
     return metadata
+
+def update_user_activity(user_id):
+    """Updates last_seen for a user. Call this on key interactions."""
+    try:
+        UserProfile.objects.filter(id=user_id).update(last_seen=timezone.now())
+    except Exception:
+        pass
 
 @csrf_protect
 @require_POST
 def auto_save_api(request):
-    """
-    Saves the current form state to the database.
-    VALIDATION: Rejects save if File No or Applicant Name is missing.
-    CLEANUP: Removes junk records (empty fields) and duplicates for this folder.
-    """
-    if not request.session.get("user_id"):
+    user_id = request.session.get("user_id")
+    if not user_id:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    update_user_activity(user_id)
 
     try:
-        # Get the User object
-        user = UserProfile.objects.get(id=request.session["user_id"])
-        
-        # Parse Request Data
+        user = UserProfile.objects.get(id=user_id)
         data = json.loads(request.body)
-        folder_path = data.get('folder_path')
-        form_payload = data.get('payload')
-        metrics = data.get('completion_metrics')
         
-        if metrics and 'percent' in metrics:
-            # Handle cases where it might be "100" (string) or 100 (int)
-            try:
-                score = int(float(metrics['percent']))
-            except (ValueError, TypeError):
-                score = 0
-        else:
+        current_folder_path = data.get('folder_path', "").strip("/")
+        form_payload = data.get('payload', {})
+        
+        metrics = form_payload.get('completion_metrics', {})
+        try:
+            score = int(float(metrics.get('percent', 0)))
+        except (ValueError, TypeError):
             score = 0
         
-        if not folder_path or not form_payload:
-            return JsonResponse({'success': False, 'error': 'Missing data'})
+        # ---------------------------------------------------------
+        # 🛑 LOGIC UPDATE 1: COMPLETION THRESHOLD (< 10%)
+        # ---------------------------------------------------------
+        # If less than 10%, we acknowledge the request but DO NOT save to DB.
+        if score < 10:
+            return JsonResponse({
+                'success': True, 
+                'message': 'Skipped: Completion under 10%',
+                'saved': False
+            })
 
-        # Extract core fields
         checklist = form_payload.get('Valuers_Checklist', {})
-        office_file_no_val = checklist.get('Office_file_no')
-        applicant_name_val = checklist.get('applicant_name')
+        user_file_no = str(checklist.get('Office_file_no', "")).strip()
+        applicant_name = str(checklist.get('applicant_name', "")).strip()
+
+        if not user_file_no or not applicant_name:
+             return JsonResponse({'success': False, 'error': 'Required identification missing'})
+
+        # Initial assumption: we save to current folder
+        final_target_path = current_folder_path
+        folder_changed = False
 
         # =========================================================
-        # 🛑 CONDITION 1: VALIDATION GATEKEEPER
+        # 🛡️ STRICT MATCHING & REDIRECTION LOGIC
         # =========================================================
-        # Convert to string and strip whitespace to ensure they aren't just empty spaces
-        clean_file_no = str(office_file_no_val).strip() if office_file_no_val else ""
-        clean_name = str(applicant_name_val).strip() if applicant_name_val else ""
+        if score >= 20 and user_file_no:
+            current_folder_name = os.path.basename(current_folder_path)
+            # Handle cases where folder might not have underscores
+            folder_parts = current_folder_name.split('_')
+            folder_file_no = folder_parts[0] if folder_parts else ""
 
-        if not clean_file_no or not clean_name:
-            # Silently fail (success=False) so we don't save junk data
-            print("Auto-save skipped: Missing Office File No or Applicant Name")
-            return JsonResponse({'success': False, 'error': 'Required fields missing. Not saved.'})
+            if user_file_no != folder_file_no:
+                print(f"🔍 Mismatch! User: {user_file_no} vs Folder: {folder_file_no}. Searching index...")
+                
+                # Query the In-Memory Index
+                index = get_index()
+                all_folders = index.get("folders", [])
+                
+                # Find folder starting with "user_file_no_"
+                match = next((f for f in all_folders if f['name'].startswith(f"{user_file_no}_")), None)
+                
+                if match:
+                    final_target_path = match['path']
+                    folder_changed = True
+                    print(f"🚀 Found correct folder: {final_target_path}")
+                else:
+                    # Critical mismatch and no valid folder found
+                    print(f"❌ No matching folder found for {user_file_no}. Save rejected.")
+                    return JsonResponse({
+                        'success': False, 
+                        'error': 'File Number mismatch. No valid folder found in index.',
+                        'mismatch': True
+                    })
 
         # =========================================================
-        # 🧹 CONDITION 2: GARBAGE COLLECTION (CLEANUP)
+        # 💾 LOGIC UPDATE 2: SAVE OPERATION (Unique Office File No)
         # =========================================================
-        # Delete ANY existing records for this user/folder that have missing data.
-        # This cleans up the "records with no file number and names" you mentioned.
-        SiteVisitReport.objects.filter(
-            user=user, 
-            target_folder=folder_path
-        ).filter(
-            Q(office_file_no__isnull=True) | Q(office_file_no='') |
-            Q(applicant_name__isnull=True) | Q(applicant_name='')
-        ).delete()
+        
+        # We use update_or_create using 'office_file_no' as the ONLY lookup field.
+        # This prevents duplicate records for the same file number.
+        report, created = SiteVisitReport.objects.update_or_create(
+            office_file_no=user_file_no,  # <--- Lookup Key
+            defaults={
+                'user': user,  # Update the user ownership to the last person who saved
+                'target_folder': final_target_path,
+                'form_data': form_payload,
+                'applicant_name': applicant_name,
+                'completion_score': score
+            }
+        )
 
-        # =========================================================
-        # 🔍 CONDITION 3: ROBUST LOOKUP & DE-DUPLICATION
-        # =========================================================
-        # Find existing valid reports for this folder, newest first
-        reports = SiteVisitReport.objects.filter(
-            user=user, 
-            target_folder=folder_path
-        ).order_by('-updated_at')
-
-        if reports.exists():
-            # Keep the newest one
-            report = reports.first()
-            
-            # Delete older duplicates if they exist
-            if reports.count() > 1:
-                print(f"Cleaning up {reports.count() - 1} redundant reports for {folder_path}")
-                for dup in reports[1:]:
-                    dup.delete()
-        else:
-            # Create new if no valid report exists
-            report = SiteVisitReport(user=user, target_folder=folder_path)
-
-        # Update Fields
-        report.form_data = form_payload
-        report.office_file_no = clean_file_no
-        report.applicant_name = clean_name
-        report.completion_score = score
-        report.save()
+        # Cleanup: If we moved folders, ensure no lingering drafts exist under the old folder name
+        # (Optional, but good for hygiene)
+        if folder_changed:
+            SiteVisitReport.objects.filter(
+                user=user, 
+                target_folder=current_folder_path
+            ).exclude(id=report.id).delete()
 
         return JsonResponse({
             'success': True, 
             'last_saved': datetime.now().strftime("%H:%M:%S"),
-            'report_id': report.id
+            'report_id': report.id,
+            'new_folder_path': final_target_path if folder_changed else None,
+            'saved': True
         })
 
     except Exception as e:
         print(f"Auto-save error: {e}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
+            
 # chat folders////////////////
 
 def check_unread_status(user_profile, folder_path):
@@ -1047,8 +1292,7 @@ def generate_image_from_vectors(vector_list, width=1000, height=1000):
     except Exception as e:
         print(f"Vector generation error: {e}")
         return None
-
-# --- MAIN VIEW ---
+# --- MAIN VIEW (Refactored for Strict Folder Matching) ---
 @csrf_protect
 @require_POST
 def save_feedback(request):
@@ -1065,40 +1309,78 @@ def save_feedback(request):
         
         # 2. Extract Data
         checklist_data = payload.get('Valuers_Checklist', {})
-        office_file_no_val = checklist_data.get('Office_file_no')
-        applicant_name_val = checklist_data.get('applicant_name')
-        target_folder_val = payload.get('target_folder') 
+        office_file_no_val = str(checklist_data.get('Office_file_no', "")).strip()
+        applicant_name_val = str(checklist_data.get('applicant_name', "")).strip()
+        current_folder_path = payload.get('target_folder', "").strip("/")
+        
+        # 3. Completion Threshold Check
+        metrics = payload.get('completion_metrics', {})
+        try:
+            score = int(float(metrics.get('percent', 0)))
+        except (ValueError, TypeError):
+            score = 0
 
-        # 3. IDENTIFY REPORT
+        final_target_path = current_folder_path
+        folder_changed = False
+
+        # =========================================================
+        # 🛡️ THE TRAFFIC CONTROLLER (Strict Folder Matching)
+        # =========================================================
+        # Logic triggers only if form is >= 20% filled
+        if score >= 20 and office_file_no_val:
+            # Extract ID from current folder name (e.g., "2428_Mahesh" -> "2428")
+            current_folder_name = os.path.basename(current_folder_path)
+            folder_file_no = current_folder_name.split('_')[0]
+
+            if office_file_no_val != folder_file_no:
+                print(f"🔍 Mismatch! User: {office_file_no_val} vs Folder: {folder_file_no}. Searching index...")
+                
+                # Query the In-Memory Index (Previously built at server start)
+                index = get_index()
+                all_folders = index.get("folders", [])
+                
+                # Search for folder starting with "office_file_no_val_"
+                match = next((f for f in all_folders if f['name'].startswith(f"{office_file_no_val}_")), None)
+                
+                if match:
+                    final_target_path = match['path']
+                    folder_changed = True
+                    print(f"🚀 Found correct folder: {final_target_path}")
+                else:
+                    # 🛑 ABORT SAVE: Mismatch detected but no matching folder found in index
+                    print(f"❌ No matching folder found for {office_file_no_val}. Save rejected.")
+                    return JsonResponse({
+                        'success': False, 
+                        'error': f'Office File No {office_file_no_val} does not match current folder and was not found in system.',
+                        'mismatch': True
+                    })
+
+        # 4. IDENTIFY REPORT
         report_id = payload.get('report_id')
         report = None
 
         if report_id:
-            try:
-                report = SiteVisitReport.objects.get(id=report_id, user=user)
-            except SiteVisitReport.DoesNotExist:
-                report = None
+            report = SiteVisitReport.objects.filter(id=report_id, user=user).first()
 
-        if not report and target_folder_val:
+        if not report:
+            # Use final_target_path to ensure we are looking in the right place
             report = SiteVisitReport.objects.filter(
                 user=user, 
-                target_folder=target_folder_val
+                target_folder=final_target_path
             ).order_by('-updated_at').first()
 
-        # 4. EXTRACT IMAGES AND VECTORS
-        # We pop 'images' so huge strings don't go into the text DB
+        # 5. EXTRACT IMAGES AND VECTORS
         images_data = payload.pop('images', {}) 
-        # We KEEP 'vectors' in the payload so the history works, but we reference it
         vectors_data = payload.get('vectors', {})
 
-        # 5. CREATE OR UPDATE REPORT
+        # 6. CREATE OR UPDATE REPORT
         if report:
             print(f"Updating report: {report.id}")
             report.form_data = payload
             report.office_file_no = office_file_no_val
             report.applicant_name = applicant_name_val
-            if target_folder_val:
-                report.target_folder = target_folder_val
+            report.target_folder = final_target_path # Update to final path
+            report.completion_score = score
             report.save()
         else:
             print("Creating NEW report")
@@ -1107,20 +1389,28 @@ def save_feedback(request):
                 form_data=payload,
                 office_file_no=office_file_no_val,
                 applicant_name=applicant_name_val,
-                target_folder=target_folder_val
+                target_folder=final_target_path,
+                completion_score=score
             )
 
-        # 6. PROCESS SKETCHES (Priority: Base64 > Vector Gen)
-        
-        # Combine keys from both sources to ensure we catch everything
+        # 7. PROCESS SKETCHES (With Explicit Deletion Logic)
         all_sketch_keys = set(images_data.keys()) | set(vectors_data.keys())
 
         for source_key in all_sketch_keys:
-            image_file = None
+            image_file = None 
             is_base64 = False
-
-            # STRATEGY A: Try Base64 Image (Highest Quality/Exact Match)
+            
             base64_val = images_data.get(source_key)
+            vector_val = vectors_data.get(source_key)
+            
+            # ✅ THE MISSING PIECE: If both values are empty, the user cleared the sketch.
+            # We MUST delete the record, otherwise the old one stays in the DB forever.
+            if not base64_val and not vector_val:
+                print(f"🗑️ Deleting sketch record for: {source_key}")
+                ReportSketch.objects.filter(report=report, source_key=source_key).delete()
+                continue 
+
+            # STRATEGY A: Try Base64 Image
             if base64_val and isinstance(base64_val, str) and base64_val.startswith('data:image'):
                 try:
                     format_header, imgstr = base64_val.split(';base64,') 
@@ -1131,38 +1421,35 @@ def save_feedback(request):
                 except Exception as e:
                     print(f"Base64 error for {source_key}: {e}")
 
-            # STRATEGY B: If no Base64, try generating from Vectors (Fallback)
-            if not image_file and source_key in vectors_data:
+            # STRATEGY B: Fallback to Vectors
+            if not image_file and vector_val: 
                 print(f"Generating image from vectors for: {source_key}")
-                vector_list = vectors_data[source_key]
-                # Generate a file named .png
-                generated_file = generate_image_from_vectors(vector_list)
+                generated_file = generate_image_from_vectors(vector_val)
                 if generated_file:
                     generated_file.name = f"{source_key}_{report.id}_generated.png"
                     image_file = generated_file
 
-            # SAVE TO DB if we have a file
+            # SAVE/UPDATE only if we have a valid file
             if image_file:
                 ReportSketch.objects.update_or_create(
                     report=report,
                     source_key=source_key,
                     defaults={'image': image_file}
                 )
-                print(f"Saved sketch for {source_key} (From {'Base64' if is_base64 else 'Vectors'})")
 
         return JsonResponse({
             'success': True, 
             'report_id': report.id,
+            'new_folder_path': final_target_path if folder_changed else None,
             'redirect_url': f"/coreapi/pdf-editor/{report.id}/"
         })
 
     except Exception as e:
         print(f"Save Feedback Error: {e}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)            
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+             
 # --- STEP 2: RENDER EDITOR PAGE ---
-# views.py
 
-# views.py (Update these specific functions)
 
 def get_report_data_with_sketches(report):
     """

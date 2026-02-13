@@ -28,7 +28,7 @@ class SiteVisitReport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    office_file_no = models.CharField(max_length=50, blank=True, null=True, db_index=True)
+    office_file_no = models.CharField(max_length=50, unique=True, null=True, blank=True, db_index=True)
     applicant_name = models.CharField(max_length=255, blank=True, null=True)
     generated_pdf_name = models.CharField(max_length=255, blank=True, null=True)
     

@@ -20,7 +20,7 @@
             background-color: #d1d7db; 
             font-family: 'Segoe UI', sans-serif; 
             height: 100vh; 
-            overflow: hidden; /* Prevent body scroll */
+            overflow: hidden; 
             margin: 0;
         }
 
@@ -31,6 +31,25 @@
             position: absolute;
             top: 0;
             z-index: -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px 30px;
+        }
+
+        .logout-btn {
+            background: rgba(60, 154, 52, 0.811);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 5px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .logout-btn:hover {
+            background: rgb(99, 255, 1);
+            color: white;
         }
 
         /* --- FIXED GRID LAYOUT --- */
@@ -43,7 +62,7 @@
             gap: 15px; 
         }
 
-        /* Flex Columns with min-height:0 for scrolling */
+        /* Flex Columns */
         .col-left { 
             width: 320px; 
             display: flex; flex-direction: column; 
@@ -68,7 +87,7 @@
             background: white; 
             display: flex; flex-direction: column; 
             height: 100%; 
-            overflow: hidden; /* Critical for inner scroll */
+            overflow: hidden; 
             box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
         }
         
@@ -84,14 +103,18 @@
         /* SCROLLABLE BODY */
         .panel-body { 
             flex-grow: 1; 
-            overflow-y: auto; /* Enables scrolling */
-            min-height: 0; /* Flexbox scroll fix */
+            overflow-y: auto; 
+            min-height: 0; 
             position: relative;
         }
 
         /* USER LIST */
         .user-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f2f5; transition: 0.1s; }
         .user-item:hover { background-color: #f5f6f6; }
+        /* Style for disabled users */
+        .user-item.disabled { cursor: default; opacity: 0.7; }
+        .user-item.disabled:hover { background-color: white; }
+
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: #dfe3e5; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: white; font-weight: bold; position: relative; flex-shrink: 0; }
         .status-dot { width: 13px; height: 13px; border: 2px solid white; border-radius: 50%; position: absolute; bottom: 0; right: 0; }
         .online { background: #25d366; } .offline { background: #aebac1; }
@@ -113,20 +136,24 @@
         /* FOLDERS */
         .folder-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; }
         .folder-row:hover { background-color: #f5f6f6; }
-        .folder-icon { font-size: 1.6rem; color: #ffd700; margin-right: 12px; }
         
         .folder-details { display: flex; flex-direction: column; min-width: 0; flex-grow: 1; }
         .folder-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .folder-meta { font-size: 0.75rem; color: #667781; }
 
-        .case-status-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; position: absolute; bottom: 0; right: -2px; }
-        .bg-green-500 { background-color: #22c55e; } .bg-yellow-400 { background-color: #facc15; } .bg-red-500 { background-color: #ef4444; } .bg-gray-400 { background-color: #9ca3af; }
-        .chat-unread-badge { width: 10px; height: 10px; background: #e74c3c; border-radius: 50%; position: absolute; top: -2px; right: -2px; border: 2px solid white; }
+        .role-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #e9ecef; color: #666; margin-left: 8px; }
+        /* Add this to your <style> tag */
+        .btn-primary:hover {
+            background-color: #075e54 !important; /* Darker WhatsApp Teal */
+            transform: translateY(-1px);
+            transition: all 0.2s;
+        }
     </style>
 </head>
 <body>
 
-<div class="app-header"></div>
+<div class="app-header">
+</div>
 
 <div class="dashboard-container">
 
@@ -149,7 +176,22 @@
         <div class="panel">
             <div class="panel-header">
                 <div class="d-flex align-items-center gap-2">📢 Global Chat</div>
-                <button class="btn btn-sm btn-link text-decoration-none" onclick="location.reload()">Refresh</button>
+                
+                <div class="d-flex gap-2"> <button class="btn btn-sm btn-light" onclick="location.reload()" title="Reload Page">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </button>
+
+                    <a href="{% url 'core:report_analysis' %}" class="btn btn-sm btn-primary shadow-sm" style="background-color: #128C7E; border: none;">
+                        <i class="fas fa-chart-bar me-2"></i>Analysis
+                    </a>
+                     <a href="{% url 'core:admin_summary_page' %}" class="btn btn-sm btn-primary shadow-sm" style="background-color: #128C7E; border: none;">
+                        <i class="fas fa-chart-bar me-2"></i>Bills
+                    </a>
+
+                    <a href="{% url 'coreapi:logout_api' %}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
             </div>
             
             <div class="chat-area" id="global-chat-box"></div>
@@ -185,59 +227,73 @@
 
 </div>
 
-<div class="modal fade" id="userModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-light"><h5 class="modal-title" id="modalUserName">User Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row text-center mb-4"><div class="col-4 border-end"><h3 class="text-primary mb-0" id="modalTotalReports">0</h3><small>Total Reports</small></div><div class="col-4 border-end"><h3 class="text-success mb-0"><span id="modalAvgScore">0</span>%</h3><small>Avg Completion</small></div><div class="col-4"><h5 class="mb-0" id="modalLastSeen">-</h5><small>Last Seen</small></div></div><h6 class="border-bottom pb-2">Recent Reports</h6><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>File</th><th>Client</th><th>Score</th><th>Date</th><th>Action</th></tr></thead><tbody id="modalReportsBody"></tbody></table></div></div></div></div></div>
-<div class="modal fade" id="folderChatModal" tabindex="-1"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content" style="background: #efeae2;"><div class="modal-header bg-success text-white"><h5 class="modal-title fs-6" id="folderChatTitle">Case Chat</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-3" id="folderChatBody"></div><div class="modal-footer p-2 bg-white"><input type="text" id="folderChatInput" class="form-control rounded-pill" placeholder="Type a note..."><button class="btn btn-success rounded-circle" onclick="sendFolderMsg()"><i class="fas fa-paper-plane"></i></button></div></div></div></div>
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalUserName">User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center mb-4">
+                    <div class="col-4 border-end">
+                        <h3 class="text-primary mb-0" id="modalTotalReports">0</h3>
+                        <small>Total Reports</small>
+                    </div>
+                    <div class="col-4 border-end">
+                        <h3 class="text-success mb-0"><span id="modalAvgScore">0</span></h3>
+                        <small>Avg Completion</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="mb-0" id="modalLastSeen">-</h5>
+                        <small>Last Seen</small>
+                    </div>
+                </div>
+                <h6 class="border-bottom pb-2">Recent Reports</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr><th>File</th><th>Client</th><th>Score</th><th>Date</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="modalReportsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- STATE CONFIG ---
     const CURRENT_USERNAME = "{{ request.session.user_name|default:'Admin' }}";
     function getCookie(name) { let v=null; document.cookie?.split(";").forEach(c=>{c=c.trim();if(c.startsWith(name+"="))v=decodeURIComponent(c.slice(name.length+1));}); return v; }
     const csrftoken = getCookie("csrftoken");
-
-    // 1. DEFINE PROTOCOL
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
 
     let allUsers = [];
     let allReports = [];
     let pendingAttachment = null;
-    let liveSyncInterval = null; 
 
-    // 2. CONNECT TO PRESENCE SOCKET (Instant Updates)
+    // --- WEBSOCKETS ---
     const presenceWs = new WebSocket(`${protocol}://${location.host}/ws/presence/`);
+    presenceWs.onopen = () => presenceWs.send(JSON.stringify({ "page": "Admin Dashboard" }));
     
-    presenceWs.onopen = () => {
-        console.log("✅ Presence System Connected");
-        presenceWs.send(JSON.stringify({ "page": "Admin Dashboard" }));
-    };
-
     presenceWs.onmessage = (e) => {
         const data = JSON.parse(e.data);
         if (data.type === "team_update") {
             allUsers = data.members;
             renderTeam(allUsers);
         }
+        if (data.type === "report_generated") {
+            loadGeneratedReports(true); 
+        }
     };
 
-    // 3. LIVE ENGINE (The Backup Heartbeat)
-    function startLiveUpdates() {
-        if (liveSyncInterval) clearInterval(liveSyncInterval);
-        
-        // Force refresh every 2 seconds to ensure status is always accurate
-        liveSyncInterval = setInterval(() => {
-            syncTeamData();             // <--- THIS FIXES YOUR ISSUE
-            loadGeneratedReports(true); 
-        }, 2000);
-    }
-
-    // --- 4. GLOBAL CHAT SOCKET ---
     const ws = new WebSocket(`${protocol}://${location.host}/ws/chat/global/`);
-    ws.onopen = () => console.log("✅ Global WS Connected");
     ws.onmessage = (e) => renderSingleMessage(JSON.parse(e.data));
 
-    // --- 5. TEAM DATA LOGIC ---
+    // --- TEAM LIST LOGIC (Updated with Roles & Click Conditions) ---
     function syncTeamData() {
-        // Fetch fresh data from DB
         fetch('/core/api/stats/').then(r=>r.json()).then(data => {
             allUsers = data.team_members || [];
             renderTeam(allUsers);
@@ -248,86 +304,177 @@
         const list = document.getElementById('user-list');
         const term = document.getElementById('teamSearch').value.toLowerCase();
         
-        // Prevent typing interruption
+        // Prevent update if user is actively searching
         if(document.activeElement.id === 'teamSearch' && term.length > 0) return;
 
+        // 1. Filter by Search Term
         const filtered = users.filter(u => u.user_name.toLowerCase().includes(term));
         
+        // 2. Update Online Count
         const countEl = document.getElementById('online-count');
         if(countEl) countEl.innerText = users.filter(u => u.is_online).length;
         
         list.innerHTML = "";
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="text-center p-3 text-muted">No users found</div>';
+            return;
+        }
+
+        // 3. Group Users
+        const groups = {
+            'Site Team': [],
+            'Office Team': [],
+            'Other Staff': []
+        };
+
         filtered.forEach(u => {
-            const color = ['#00a884','#128C7E','#34B7F1'][u.user_name.length % 3];
-            const initial = u.user_name.charAt(0).toUpperCase();
-            const statusClass = u.is_online ? 'online' : 'offline';
-            
-            list.innerHTML += `
-                <div class="user-item" onclick="openUserModal('${u.id}')">
-                    <div class="avatar" style="background:${color}">
-                        ${initial}
-                        <div class="status-dot ${statusClass}"></div>
-                    </div>
-                    <div class="flex-grow-1 d-flex align-items-center">
-                        <div class="fw-bold text-dark" style="font-size:0.95rem">${u.user_name}</div>
-                    </div>
-                </div>`;
+            const role = (u.role || "").toLowerCase();
+            if (role === 'site') {
+                groups['Site Team'].push(u);
+            } else if (role === 'office') {
+                groups['Office Team'].push(u);
+            } else {
+                groups['Other Staff'].push(u);
+            }
         });
+
+        // 4. Helper to Render a Group
+        const renderGroup = (headerTitle, groupUsers) => {
+            if (groupUsers.length === 0) return;
+
+            // Add Header
+           list.innerHTML += `
+                <div class="px-3 py-2 bg-light border-bottom border-top text-uppercase text-muted fw-bold" 
+                     style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                    ${headerTitle}
+                </div>`;
+
+            if (headerTitle === 'Site Team') {
+                // Sort Site Team by Score (Highest First)
+                groupUsers.sort((a, b) => b.avg_score - a.avg_score);
+            } else {
+                // Sort others Alphabetically
+                groupUsers.sort((a, b) => a.user_name.localeCompare(b.user_name));
+            }
+            // Render Rows
+            groupUsers.forEach(u => {
+                const color = ['#00a884','#128C7E','#34B7F1'][u.user_name.length % 3];
+                const initial = u.user_name.charAt(0).toUpperCase();
+                const statusClass = u.is_online ? 'online' : 'offline';
+                const roleDisplay = u.role ? u.role.toUpperCase() : 'N/A';
+                
+                const isClickable = (u.role || "").toLowerCase() === 'site';
+                const clickAttr = isClickable ? `onclick="openUserModal('${u.id}')"` : '';
+                const rowClass = isClickable ? 'user-item' : 'user-item disabled';
+                const cursorStyle = isClickable ? 'cursor: pointer;' : 'cursor: default;';
+
+                // We determine the badge color for the score
+                let scoreBadge = '';
+                if(isClickable) {
+                    let badgeColor = 'bg-secondary';
+                    if (u.avg_score >= 80) badgeColor = 'bg-success';
+                    else if (u.avg_score >= 50) badgeColor = 'bg-primary';
+                    else if (u.avg_score > 0) badgeColor = 'bg-warning text-dark';
+                    
+                    scoreBadge = `<span class="badge ${badgeColor} rounded-pill ms-2" style="font-size:0.65rem">${u.avg_score}%</span>`;
+                }
+
+                list.innerHTML += `
+                    <div class="${rowClass}" ${clickAttr} style="${cursorStyle}">
+                        <div class="avatar" style="background:${color}">
+                            ${initial}
+                            <div class="status-dot ${statusClass}"></div>
+                        </div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="fw-bold text-dark" style="font-size:0.9rem">${u.user_name}</span>
+                                ${!isClickable ? `<span class="role-badge" style="font-size:0.6rem; opacity:0.7">${roleDisplay}</span>` : scoreBadge}
+                            </div>
+                            ${ u.is_online 
+                                ? '<small class="text-success fw-bold" style="font-size:0.7rem">Online</small>' 
+                                : `<small class="text-muted" style="font-size:0.7rem">Last seen: ${u.last_seen}</small>` 
+                            }
+                        </div>
+                        ${isClickable ? '<i class="fas fa-chevron-right text-muted small ms-2"></i>' : ''}
+                    </div>`;
+            });
+        };
+        // 5. Render in Specific Order
+        renderGroup('Site Team', groups['Site Team']);
+        renderGroup('Office Team', groups['Office Team']);
+        renderGroup('Other Staff', groups['Other Staff']);
     }
     function filterTeam() { renderTeam(allUsers); }
 
-    // --- 6. GENERATED REPORTS LOGIC ---
+    // --- REPORT MODAL POPULATION ---
+    function openUserModal(userId) {
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        modal.show();
+        
+        // Populate with real data from backend
+        fetch(`/core/api/user-details/${userId}/`).then(r=>r.json()).then(data=>{
+            document.getElementById('modalUserName').innerText = data.name;
+            document.getElementById('modalTotalReports').innerText = data.total_reports;
+            document.getElementById('modalAvgScore').innerText = data.avg_score;
+            document.getElementById('modalLastSeen').innerText = data.last_seen ? new Date(data.last_seen).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Never";
+            const avgEl = document.getElementById('modalAvgScore'); 
+            if(avgEl) avgEl.innerText = data.avg_score + "%";
+            const tbody = document.getElementById('modalReportsBody');
+            tbody.innerHTML = "";
+            
+            if(data.recent_work.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No reports generated yet</td></tr>`;
+            } else {
+                data.recent_work.forEach(w => {
+                    // Assuming report details view exists, otherwise link to file if available
+                    const link = `/core/report-detail/${w.id}/`; 
+                    const score = w.completion_score ? Math.round(w.completion_score) : 0;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${w.office_file_no||'-'}</td>
+                            <td>${w.applicant_name||'-'}</td>
+                            <td>
+                                <div class="progress" style="height: 6px; width: 60px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: ${w.completion_score}%"></div>
+                                </div>
+                                <small>${w.completion_score}%</small>
+                            </td>
+                            <td>${new Date(w.updated_at).toLocaleDateString()}</td>
+                            <td><a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                        </tr>`;
+                });
+            }
+        });
+    }
+
+    // --- OTHER LOGIC (Chat, Reports) ---
     function loadGeneratedReports(isBackgroundUpdate = false) {
         const list = document.getElementById('report-list');
-        if (!isBackgroundUpdate) {
-            list.innerHTML = '<div class="text-center p-3 text-muted">Scanning PDF folder...</div>';
-        }
+        if (!isBackgroundUpdate) list.innerHTML = '<div class="text-center p-3 text-muted">Scanning...</div>';
 
-        fetch('/core/api/pdfs/')
-            .then(r => r.json())
-            .then(data => {
-                allReports = data.files || [];
-                renderReports(allReports);
-            })
-            .catch(err => {
-                console.error(err);
-                if (!isBackgroundUpdate) {
-                    list.innerHTML = '<div class="text-center p-3 text-danger">Error fetching reports</div>';
-                }
-            });
+        fetch('/core/api/pdfs/').then(r => r.json()).then(data => {
+            allReports = data.files || [];
+            renderReports(allReports);
+        });
     }
 
     function renderReports(files) {
         const list = document.getElementById('report-list');
         const term = document.getElementById('reportSearch').value.toLowerCase();
-        
-        if(document.activeElement.id === 'reportSearch' && term.length > 0) return;
-
-        const filtered = files.filter(f => 
-            f.applicant.toLowerCase().includes(term) || 
-            f.user.toLowerCase().includes(term)
-        );
+        const filtered = files.filter(f => f.applicant.toLowerCase().includes(term) || f.user.toLowerCase().includes(term));
         
         list.innerHTML = "";
-        if(filtered.length === 0) {
-            list.innerHTML = '<div class="text-center p-3 text-muted">No reports found</div>';
-            return;
-        }
+        if(filtered.length === 0) { list.innerHTML = '<div class="text-center p-3 text-muted">No reports found</div>'; return; }
 
         filtered.forEach(f => {
-            const detailUrl = `/core/report-detail/${f.id}/`; 
-            
             list.innerHTML += `
-                <div class="folder-row" onclick="window.open('${detailUrl}', '_blank')">
+                <div class="folder-row" onclick="window.open('/core/report-detail/${f.id}/', '_blank')">
                     <div class="d-flex align-items-center flex-grow-1 min-w-0">
-                        <div class="position-relative me-3">
-                            <i class="fas fa-file-pdf text-danger fs-4"></i>
-                        </div>
+                        <i class="fas fa-file-pdf text-danger fs-4 me-3"></i>
                         <div class="folder-details">
                             <div class="folder-name text-dark">${f.applicant}</div>
-                            <div class="folder-meta text-muted">
-                                ${f.file_no} • By ${f.user} • ${f.created}
-                            </div>
+                            <div class="folder-meta text-muted">${f.file_no} • ${f.user} • ${f.created}</div>
                         </div>
                     </div>
                     <i class="fas fa-chevron-right text-muted small"></i>
@@ -336,7 +483,7 @@
     }
     function filterReports() { renderReports(allReports); }
 
-    // --- 7. CHAT & INPUT LOGIC ---
+    // Chat Logic
     fetch("/chat/history/").then(r=>r.json()).then(data => {
         const box = document.getElementById('global-chat-box');
         box.innerHTML = "";
@@ -398,28 +545,8 @@
         }
     };
 
-    // --- 8. USER MODAL ---
-    function openUserModal(userId) {
-        const modal = new bootstrap.Modal(document.getElementById('userModal'));
-        modal.show();
-        fetch(`/core/api/user-details/${userId}/`).then(r=>r.json()).then(data=>{
-            document.getElementById('modalUserName').innerText = data.name;
-            document.getElementById('modalTotalReports').innerText = data.total_reports;
-            document.getElementById('modalAvgScore').innerText = data.avg_score;
-            document.getElementById('modalLastSeen').innerText = data.last_seen;
-            const tbody = document.getElementById('modalReportsBody');
-            tbody.innerHTML = "";
-            data.recent_work.forEach(w => {
-                const link = w.id ? `/core/report-detail/${w.id}/` : "#";
-                tbody.innerHTML += `<tr><td>${w.office_file_no||'-'}</td><td>${w.applicant_name||'-'}</td><td class="fw-bold">${w.completion_score}%</td><td>${new Date(w.updated_at).toLocaleDateString()}</td><td><a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary">View</a></td></tr>`;
-            });
-        });
-    }
-
-    // --- INIT ---
     syncTeamData();
     loadGeneratedReports();
-    startLiveUpdates();
 </script>
 </body>
 </html>

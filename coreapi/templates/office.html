@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Office Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* --- THEME VARIABLES (Consistent with Verification Portal) --- */
+    :root {
+        --brand-blue: #004a8f;       
+        --brand-accent: #0066cc;     
+        --bg-app: #f0f2f5;           
+        --bg-white: #ffffff;
+        --text-dark: #1f2937;        
+        --text-grey: #6b7280;        
+        --border-color: #d1d5db;     
+        --success: #059669;
+        --shadow-card: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    body {
+        background-color: var(--bg-app);
+        font-family: 'Roboto', 'Segoe UI', sans-serif;
+        color: var(--text-dark);
+    }
+
+    /* --- LAYOUT --- */
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 1fr 400px; /* Action Area | Profile Sidebar */
+        gap: 30px;
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+        height: calc(100vh - 140px); /* Fill screen minus header/margin */
+    }
+
+    /* Responsive: Stack on mobile */
+    @media (max-width: 900px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+            height: auto;
+        }
+    }
+
+    /* --- LEFT: ACTION AREA --- */
+    .action-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .welcome-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--brand-blue);
+        margin-bottom: 10px;
+    }
+
+    .action-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: var(--shadow-card);
+        text-decoration: none;
+        color: var(--text-dark);
+    }
+
+    .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: var(--brand-accent);
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        background: #eff6ff;
+        color: var(--brand-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .card-content h3 { margin: 0 0 5px 0; font-size: 18px; font-weight: 600; color: var(--brand-blue); }
+    .card-content p { margin: 0; font-size: 13px; color: var(--text-grey); }
+
+    /* --- RIGHT: PROFILE PANEL --- */
+    .profile-card {
+        background: var(--bg-white);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-header {
+        background: var(--brand-blue);
+        height: 100px;
+        position: relative;
+    }
+
+    .profile-pic-container {
+        width: 100px;
+        height: 100px;
+        background: #e5e7eb;
+        border: 4px solid var(--bg-white);
+        border-radius: 50%;
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 40px;
+        overflow: hidden;
+    }
+    
+    .profile-pic-container img {
+        width: 100%; height: 100%; object-fit: cover;
+    }
+
+    .profile-body {
+        padding: 60px 30px 30px 30px; /* Top padding clears the image */
+    }
+
+    .info-row {
+        margin-bottom: 15px;
+    }
+    
+    .info-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-grey);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* View Mode Styling */
+    .info-value {
+        font-size: 14px;
+        color: var(--text-dark);
+        font-weight: 500;
+        padding: 8px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    /* Edit Mode Styling */
+    .info-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 14px;
+        color: var(--text-dark);
+        display: none; /* Hidden by default */
+    }
+    .info-input:focus { outline: none; border-color: var(--brand-accent); }
+
+    .btn-action {
+        width: 100%;
+        padding: 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+        margin-top: 10px;
+    }
+
+    .btn-edit { background: var(--bg-app); color: var(--text-dark); border: 1px solid var(--border-color); }
+    .btn-edit:hover { background: #e5e7eb; }
+
+    .btn-save { background: var(--success); color: white; display: none; }
+    .btn-save:hover { background: #047857; }
+
+    .badge-role {
+        background: #dbeafe; color: #1e40af; 
+        padding: 4px 8px; border-radius: 12px; 
+        font-size: 12px; font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <div class="action-panel">
+        <div class="welcome-text">Welcome, {{ user_profile.user_name }}</div>
+        
+        <a href="{% url 'coreapi:office_verification' %}" class="action-card">
+            <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
+            <div class="card-content">
+                <h3>Correct Site Report</h3>
+                <p>Review, verify, and edit site visit reports submitted by field staff.</p>
+            </div>
+            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
+        </a>
+
+        <a href="{% url 'coreapi:create_folder' %}" class="action-card"> <div class="card-icon"><i class="fas fa-folder-plus"></i></div>
+            <div class="card-content">
+                <h3>Create File Folder</h3>
+                <p>Generate new file structures for incoming loan applications.</p>
+            </div>
+            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
+        </a>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-pic-container">
+                <i class="fas fa-user"></i>
+                <img src="" alt="" class="hidden"> 
+            </div>
+        </div>
+
+        <div class="profile-body">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: var(--brand-blue);">{{ user_profile.user_name }}</h2>
+                <span class="badge-role">{{ user_profile.role|upper }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Full Name</span>
+                <div class="info-value">{{ user_profile.user_name }}</div>
+                <input type="text" class="info-input" id="input_name" value="{{ user_profile.user_name }}">
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Email Address</span>
+                <div class="info-value">{{ user_profile.email }}</div>
+                <input type="email" class="info-input" id="input_email" value="{{ user_profile.email }}">
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Phone Number</span>
+                <div class="info-value">{{ user_profile.ph_no }}</div>
+                <input type="text" class="info-input" id="input_phone" value="{{ user_profile.ph_no }}">
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Last Login</span>
+                <div class="info-value" style="color: #9ca3af;">{{ last_login }}</div>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Account Created</span>
+                <div class="info-value" style="color: #9ca3af;">{{ created_at|date:"d M Y" }}</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let isEditing = false;
+
+    function toggleEditMode() {
+        const values = document.querySelectorAll('.info-value');
+        const inputs = document.querySelectorAll('.info-input');
+        const editBtn = document.querySelector('.btn-edit');
+        const saveBtn = document.querySelector('.btn-save');
+
+        isEditing = !isEditing;
+
+        if (isEditing) {
+            // Switch to Edit Mode
+            values.forEach(el => el.style.display = 'none');
+            inputs.forEach(el => el.style.display = 'block');
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'block';
+        } else {
+            // Cancel / Switch Back
+            values.forEach(el => el.style.display = 'block');
+            inputs.forEach(el => el.style.display = 'none');
+            editBtn.style.display = 'block';
+            saveBtn.style.display = 'none';
+        }
+    }
+
+    function saveProfile() {
+        // Collect Data
+        const name = document.getElementById('input_name').value;
+        const email = document.getElementById('input_email').value;
+        const phone = document.getElementById('input_phone').value;
+
+        // NOTE: Backend logic for saving profile updates goes here.
+        // For now, we just simulate a UI update.
+        
+        alert("Profile update functionality to be implemented.");
+        
+        // Optionally update UI values immediately
+        // document.querySelectorAll('.info-value')[0].innerText = name;
+        // ...
+        
+        toggleEditMode(); // Exit edit mode
+    }
+</script>
+{% endblock %}

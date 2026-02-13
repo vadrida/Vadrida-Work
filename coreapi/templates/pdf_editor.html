@@ -8,413 +8,240 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
+    /* Global Variables for easy maintenance */
+    :root {
+        --primary-teal: #075e54;
+        --soft-bg: #b9e0e081;
+        --border-muted: #d1d7db;
+        --header-gray: #f1f4f5;
+        --text-main: #202124;
+    }
 
     body { background-color: #525659; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
     *, *:before, *:after { box-sizing: border-box; }
 
-
-
     .paper-container {
-
         margin-top: 50px; display: flex; flex-direction: column; align-items: center; gap: 30px; margin-bottom: 100px;
-
     }
-
-
 
     /* PDF Page Simulation A4 */
-
     .pdf-sheet {
-
         width: 210mm; 
-
         min-height: 297mm; 
-
         background: white; 
-
         padding: 15mm; 
-
         box-shadow: 0 0 10px rgba(0,0,0,0.5); 
-
-        font-size: 9pt; 
-
+        font-size: 9.5pt; /* Increased slightly for readability */
         position: relative; 
-
         box-sizing: border-box;
-
-        overflow: hidden; /* Keeps content inside A4 page */
-
+        overflow: hidden;
+        color: var(--text-main);
     }
-
-
 
     /* --- LOGO STYLING --- */
-
     .header-logo {
-
         position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;
-
     }
-
 
     input[type="checkbox"], input[type="radio"] {
-            accent-color: #008000 !important; /* Force Green */
-            cursor: pointer;
-            width: 13px;
-            height: 13px;
-            /* Ensure background prints */
-            -webkit-print-color-adjust: exact; 
-            print-color-adjust: exact;
-        }
+        accent-color: var(--primary-teal) !important;
+        cursor: pointer;
+        width: 13px;
+        height: 13px;
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+    }
+
     /* Typography & Layout */
-
-    h1 { margin: 10px 0 15px 0; font-size: 16pt; text-transform: uppercase; text-align: center; color: #333; }
-
-    
+    h1 { 
+        margin: 10px 0 20px 0; 
+        font-size: 18pt; 
+        text-transform: uppercase; 
+        text-align: center; 
+        color: var(--primary-teal); 
+        letter-spacing: 1px;
+    }
 
     .section-title { 
-
-        background: #e0e0e0; padding: 4px 8px; font-weight: bold; 
-
-        border: 1px solid #999; margin-top: 15px; margin-bottom: 5px; font-size: 10pt;
-
+        background: var(--header-gray); 
+        padding: 6px 12px; 
+        font-weight: bold; 
+        border-left: 4px solid var(--primary-teal); /* Modern left-accent */
+        border-top: 1px solid var(--border-muted);
+        border-right: 1px solid var(--border-muted);
+        border-bottom: 1px solid var(--border-muted);
+        margin-top: 18px; 
+        margin-bottom: 8px; 
+        font-size: 10.5pt;
+        color: var(--primary-teal);
+        text-transform: uppercase;
     }
 
-    
+    label { font-weight: bold; color: #444; font-size: 8.5pt; margin-right: 5px; white-space: nowrap; }
 
-    .row { 
-
-        display: flex; gap: 10px; margin-bottom: 5px; align-items: baseline; 
-
-    }
-
-    
-
-    label { font-weight: bold; color: #555; font-size: 8pt; margin-right: 5px; white-space: nowrap; }
-
-
-
-    /* --- IMPROVED FIELD BOX (THE FIX) --- */
-
+    /* --- ENHANCED FIELD BOX --- */
     .field-box { 
-
-        border-bottom: 1px dotted #000; 
-
-        min-height: 18px; 
-
-        line-height: 1.4; 
-
-        background: #fcfcfc; 
-
+        border: 1px solid var(--border-muted); /* Solid border for better definition */
+        border-radius: 3px;
+        min-height: 20px; 
+        line-height: 1.5; 
+        background: var(--soft-bg); /* Soft tint for inputs */
         color: #000; 
-
         flex-grow: 1; 
-
-        padding: 2px 4px;
-
-        
-
-        /* Text Wrapping Logic */
-
-        white-space: pre-wrap;       /* Preserves spaces/newlines, wraps text */
-
-        word-wrap: break-word;       /* Breaks long words */
-
-        overflow-wrap: break-word;   /* Standard property for breaking */
-
-        word-break: break-word;      
-
-        
-
-        /* Display Logic */
-
-        display: block; 
-
-        width: 100%; 
-
-        overflow: visible;           /* ALLOWS EXPANSION */
-
-    }
-
-
-
-    [contenteditable="true"]:focus { background-color: #e8f0fe; outline: none; border-bottom: 1px solid blue; }
-
-    [contenteditable="true"]:hover { background-color: #fffde7; cursor: text; }
-
-
-
-    /* --- TABLE STYLES (STRICT) --- */
-
-    .report-table { 
-
-        width: 100%; 
-
-        border-collapse: collapse; 
-
-        table-layout: fixed; /* STRICT COLUMN WIDTHS */
-
-        margin-bottom: 10px;
-
-    }
-
-    .report-table th, .report-table td { 
-
-        border: 1px solid #999; 
-
-        padding: 4px; 
-
-        text-align: center; 
-
-        vertical-align: middle; 
-
-        
-
-        /* Allow cell to grow vertically, but not horizontally */
-
-        overflow-wrap: break-word; 
-
+        padding: 3px 6px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
         word-break: break-word;
-
+        display: block; 
+        width: 100%; 
+        overflow: visible;
     }
 
-    .report-table th { background: #f0f0f0; font-weight: bold; }
-
+    [contenteditable="true"]:focus { 
+        background-color: #fff; 
+        outline: none; 
+        border: 1px solid var(--primary-teal); 
+        box-shadow: 0 0 4px rgba(7, 94, 84, 0.2);
+    }
     
+    [contenteditable="true"]:hover { background-color: #f0f7f6; cursor: text; }
 
-    /* Input inside table cells */
+    /* --- TABLE STYLES --- */
+    .report-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 12px; }
+    
+    .report-table th, .report-table td { 
+        border: 1px solid var(--border-muted); 
+        padding: 6px; 
+        text-align: center; 
+        vertical-align: middle; 
+        overflow-wrap: break-word; 
+    }
+    
+    .report-table th { 
+        background: var(--header-gray); 
+        font-weight: bold; 
+        color: #333;
+        font-size: 8.5pt;
+    }
 
     .report-table .field-box { 
-
-        border-bottom: none; 
-
-        background: transparent; 
-
+        border: 1px solid var(--border-muted); /* Match main boxes */
+        background: var(--soft-bg);            /* Match darker background */
         width: 100%; 
-
-        min-height: 100%; 
-
+        min-height: 22px; 
         text-align: center;
-
+        padding: 2px 4px;
+        border-radius: 2px;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,0.03);
     }
 
-
-
-    /* --- HEADER INPUT WRAPPER (BOUNDARY TABLE) --- */
-
-    .header-input-wrapper {
-
-        display: flex;
-
-        flex-direction: column;
-
-        align-items: center;
-
-        gap: 2px;
-
-        width: 100%; /* Force it to fit the TH */
-
+    .report-table td {
+        padding: 4px; /* Reduced padding to fit the new boxed inputs */
     }
-
-
-
     .header-input {
-
-        border-bottom: 1px solid #ccc !important; /* Force line visibility */
-
-        background: transparent;
-
+        border: 1px solid var(--border-muted) !important;
+        background: var(--soft-bg) !important;
         width: 100%; 
-
-        min-height: 18px;
-
+        min-height: 22px;
         font-weight: bold;
-
         text-align: center;
-
         font-size: 8pt;
-
         outline: none;
-
+        border-radius: 2px;
+        color: var(--primary-teal);
     }
-
-
-
-    /* --- STACKED ROWS (NOTES) --- */
-
-    .row-stacked {
-
-        display: flex;
-
-        flex-direction: column;
-
-        gap: 5px;
-
-        margin-bottom: 10px;
-
+    .report-table .field-box:focus, 
+    .header-input:focus {
+        background-color: #ffffff !important;
+        border-color: var(--primary-teal) !important;
+        outline: none;
+    }
+   /* --- ARRAY / GRID ALIGNMENT --- */
+    .checkbox-group { 
+        display: grid;
+        /* This creates a 3-column grid. Adjust '1fr 1fr 1fr' to '1fr 1fr' for 2 columns */
+        grid-template-columns: 1fr 1fr 1fr; 
+        gap: 8px 15px; 
+        flex-grow: 1;
         width: 100%;
-
-    }
-
-    .row-stacked label { font-weight: bold; color: #555; font-size: 9pt; }
-
-    .row-stacked .field-box {
-
-        border: 1px solid #ddd;
-
+        padding: 5px 10px;
+        background: var(--soft-bg); /* Matches the input tint */
+        border: 1px solid var(--border-muted);
         border-radius: 4px;
-
-        padding: 8px;
-
-        min-height: 60px; /* Taller default for notes */
-
     }
 
+    .checkbox-item { 
+        display: flex; 
+        align-items: center; 
+        gap: 6px; 
+        font-size: 8.5pt; 
+        cursor: pointer;
+        white-space: nowrap; /* Prevents text from breaking mid-item */
+    }
 
+    /* Adjust the main row to ensure the label and grid align well */
+    .row { 
+        display: flex; 
+        gap: 10px; 
+        margin-bottom: 10px; 
+        align-items: flex-start; /* Aligns label to top of the grid */
+    }
+    .checkbox-item:hover { background: #f1f3f4; }
 
-    /* Checkbox Styles */
+    /* Footer border strengthening */
+    .pdf-footer {
+        position: absolute; bottom: 15mm; left: 15mm; 
+        width: calc(100% - 30mm); 
+        border-top: 2px solid var(--primary-teal);
+        padding-top: 8px; font-size: 9pt; display: flex; justify-content: space-between;
+    }
+    /* Update these in your <style> block */
+.pdf-checkbox {
+    display: inline-block; 
+    width: 12px; 
+    height: 12px;
+    border: 1px solid #333; 
+    background: transparent;
+    margin-right: 5px; 
+    vertical-align: middle; 
+    position: relative;
+}
 
-    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.pdf-checkbox.checked { 
+    /* This fills the box with your primary teal color */
+    background-color: var(--primary-teal) !important; 
+    border-color: var(--primary-teal) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
 
-    .checkbox-item { display: flex; align-items: center; gap: 4px; font-size: 8pt; cursor: pointer; }
+/* For Radios, we can make it a solid circle */
+.pdf-radio {
+    display: inline-block; 
+    width: 12px; 
+    height: 12px;
+    border: 1px solid #333; 
+    border-radius: 50%; 
+    background: transparent;
+    margin-right: 5px; 
+    vertical-align: middle;
+}
 
-    .checkbox-item input { margin: 0; cursor: pointer; }
+.pdf-radio.checked {
+    background-color: var(--primary-teal) !important;
+    border-color: var(--primary-teal) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
 
-    .checkbox-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 4px; width: 100%; text-align: left; }
-
-    .checkbox-grid-2 .checkbox-item { font-size: 7.5pt; justify-content: flex-start; }
-
-
-
-    /* Image Wrapper */
-
-    .img-wrapper { width: 100%; min-height: 50px; margin: 10px 0; display: flex; justify-content: center; align-items: center; }
-
-    .img-wrapper img { max-width: 100%; max-height: 500px; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto; }
-
-
-
-    /* Save UI */
-
-    .floating-save { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-
-    .btn-save { background: #28a745; color: white; padding: 15px 30px; border: none; border-radius: 50px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; }
-
-    
-
-    /* Print Hiding */
-
+    /* Print Specifics to ensure background colors persist */
     @media print {
-
-        .floating-save, .nav-left, .btn-save, button, .modal-overlay { display: none !important; }
-
-        body { background-color: white; }
-
-        .paper-container { margin: 0; }
-
-        .pdf-sheet { box-shadow: none; margin: 0; width: 100%; height: auto; page-break-after: always; }
-
+        .pdf-sheet { box-shadow: none; padding: 0; }
+        .section-title, .field-box, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
-
-
-
-    /* Modal Styles (kept compact for brevity, use your existing ones if they differ) */
-
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-
-    .hidden { display: none !important; }
-
-    .save-dialog { width: 600px; height: 500px; background: white; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-
-    .dialog-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
-
-    .dialog-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-    .toolbar-row { display: flex; gap: 10px; padding: 10px 15px; border-bottom: 1px solid #eee; background: #fff; align-items: center; }
-
-    .path-bar { flex: 1; display: flex; align-items: center; gap: 8px; background: #f1f3f4; padding: 6px 10px; border-radius: 4px; border: 1px solid #ddd; }
-
-    .path-input { border: none; background: transparent; width: 100%; outline: none; }
-
-    .folder-list { flex: 1; overflow-y: auto; padding: 5px 0; }
-
-    .folder-item { display: flex; align-items: center; padding: 10px 20px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
-
-    .folder-item:hover { background-color: #e8f0fe; }
-
-    .dialog-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; background: #f8f9fa; }
-
-    .btn-dialog { padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
-
-    .btn-cancel { background: white; border: 1px solid #ddd; color: #555; }
-
-    .btn-confirm { background: #1a73e8; color: white; }
-
+    
     .hidden-row { display: none !important; }
-
-    /* --- FOOTER STYLING --- */
-
-.pdf-footer {
-
-    position: absolute;
-
-    bottom: 15mm;       /* Align with page padding */
-
-    left: 15mm;         /* Align with page padding */
-
-    width: calc(100% - 30mm); /* Full width inside margins */
-
-    border-top: 2px solid #333;
-
-    padding-top: 5px;
-
-    font-size: 10pt;
-
-    font-family: 'Segoe UI', sans-serif;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    z-index: 10;
-
-}
-
-
-
-.footer-section {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 3px;
-
-}
-
-
-
-.footer-item {
-
-    color: #333;
-
-    font-weight: 600;
-
-}
-
-
-
-.footer-item span {
-
-    font-weight: normal;
-
-    color: #000;
-
-    margin-left: 5px;
-
-}
-
 </style>
 {% endblock %}
 
@@ -1080,13 +907,19 @@
         <label>Landmark:</label>
         <div class="field-box" contenteditable="true" data-path="Sketch.landmark_description"></div>
         <div class="img-wrapper" id="wrap_Sketch_landmark_description"></div>
-        
+
         <p style="margin-top: 10px; font-weight: bold; color: #777;">Hand Sketch:</p>
-        <div class="img-wrapper" id="wrap_Sketch_main_layout">
-            <span style="width: 50px; margin-left: 450px; margin-bottom: 70px; "><img src="{% static 'images/compass-icon.png' %}" alt="compass"></span>
-            <span style="color:#ccc;">(No sketch provided)</span>
+
+        <div class="img-wrapper" id="wrap_Sketch_main_layout" style="position: relative; min-height: 300px; display: block;">
             
-        </div> 
+            <div class="compass-container" style="position: absolute; top: 10px; right: 10px; z-index: 10; width: 50px;">
+                <img src="{% static 'images/compass-icon.png' %}" alt="compass" style="width: 100%; height: auto; display: block;">
+            </div>
+
+            <div id="sketch_content_area" style="width: 100%; height: 100%; min-height: 280px; display: flex; justify-content: center; align-items: center;">
+                <span id="no_sketch_text" style="color:#ccc;">(No sketch provided)</span>
+            </div>
+        </div>
         
         <div class="row-stacked" style="margin-top: 10px;">
             <label>Overall Remarks (Comments on land extend, sold value, sold date etc... comparing with the subject property)</label>
@@ -1134,8 +967,13 @@
     </div>
     
 
-    <div class="floating-save">
-        <button id="saveFinal" class="btn-save">💾 Save Final PDF</button>
+    <div class="floating-save" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 60px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2);">
+    
+        <button id="saveFinal" class="btn-save" style="background-color: #075e54; color: #ffffff; padding: 15px 35px; border: none; border-radius: 50px; font-size: 14pt; font-weight: bold; font-family: 'Times New Roman', Times, serif; box-shadow: 0 8px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;">
+            <i class="fas fa-file-pdf" style="font-size: 1.2em;"></i> 
+            Save Final PDF
+        </button>
+
     </div>
 
 </div>
@@ -1228,7 +1066,7 @@
             // Hide map if no data
             imgElement.style.display = 'none';
             if(textElement) {
-                textElement.innerText = "Location not tagged (Go back to Feedback form)";
+                textElement.innerText = "Location not tagged";
                 textElement.style.color = "red";
             }
         }
@@ -1374,8 +1212,20 @@ function populateFooterDetails(dateOverride = null) {
             if (!b64) continue; 
             const safeKey = key.replace(/\./g, '_');
             const wrapper = document.getElementById('wrap_' + safeKey);
+            
             if (wrapper) {
-                wrapper.innerHTML = `<img src="${b64}" id="img_${safeKey}" style="max-width: 100%; max-height: 400px; display: block; margin: 0 auto;" />`;
+                // Targeted Update: Find the specific content area
+                const contentArea = wrapper.querySelector('#sketch_content_area');
+                
+                if (contentArea) {
+                    // Only replace the content inside the area (keeps the compass div safe)
+                    contentArea.innerHTML = `<img src="${b64}" id="img_${safeKey}" 
+                        style="max-width: 100%; max-height: 500px; object-fit: contain; display: block; margin: 0 auto;" />`;
+                } else {
+                    // Fallback for other image wrappers (Landmark, Discrepancy notes, etc.)
+                    wrapper.innerHTML = `<img src="${b64}" id="img_${safeKey}" 
+                        style="max-width: 100%; max-height: 500px; object-fit: contain; display: block; margin: 0 auto;" />`;
+                }
             }
         }
 
@@ -1687,7 +1537,7 @@ function populateFooterDetails(dateOverride = null) {
         
         if (type === 'checkbox') {
             span.className = 'pdf-checkbox';
-            if (isChecked) { span.innerHTML = '✔'; span.classList.add('checked'); }
+            if (isChecked) {span.classList.add('checked'); }
         } else if (type === 'radio') {
             span.className = 'pdf-radio';
             if (isChecked) { span.classList.add('checked'); }
@@ -1738,7 +1588,7 @@ function populateFooterDetails(dateOverride = null) {
                     margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 30px; 
                 }
 
-                body { background-color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                body { background-color: white; font-family: 'Times New Roman', Times, serif; }
 
                 .print-scale {
                     transform: scale(0.80); 
