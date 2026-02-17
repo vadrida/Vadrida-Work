@@ -39,4 +39,7 @@ urlpatterns = [
     path('api/auto-save/', views.auto_save_api, name='auto_save'),
     path('api/get-report-data/', views.get_site_report_data, name='get_site_report_data'),
     path('api/save-corrections/', views.save_office_corrections, name='save_office_corrections'),
+    path('api/create-folder/', views.create_folder_api, name='create_folder_api'),
+    path('api/get-sequence/', views.get_next_sequence_api, name='get_sequence'),
+    path('api/check-duplicate/', views.check_duplicate_api, name='check_duplicate'),
 ]

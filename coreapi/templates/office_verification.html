@@ -139,6 +139,44 @@
     .log-item { padding: 10px 15px; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
     .log-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; background: #fee2e2; color: #991b1b; font-weight: bold; font-size: 10px; margin-top: 2px; }
     .btn-primary { background: var(--brand-blue); color: white; border: none; padding: 12px; width: 100%; font-weight: 500; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    /* --- SURVEY TABLE STYLES --- */
+    .survey-row { 
+        display: grid; 
+        grid-template-columns: 2fr 1.5fr 0.5fr 0.5fr auto; 
+        gap: 8px; 
+        align-items: center; 
+        margin-bottom: 8px; 
+        padding: 8px; 
+        background: #fff; 
+        border: 1px solid #e5e7eb; 
+        border-radius: 4px; 
+    }
+    .survey-row input[type="text"] { width: 100%; box-sizing: border-box; }
+    .chk-label { font-size: 10px; font-weight: bold; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .badge-dry { background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid #bbf7d0; }
+    .badge-wet { background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid #bfdbfe; }
+        /* --- CHECKBOX GRID STYLES --- */
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2 Columns */
+        gap: 8px;
+        margin-top: 5px;
+    }
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background 0.1s;
+    }
+    .checkbox-label:hover { background: #f3f4f6; }
+    .checkbox-label input { margin-right: 8px; accent-color: var(--brand-accent); }
+
+    /* View Mode (Disabled) Style */
+    .checkbox-label.disabled { cursor: default; color: #374151; }
+    .checkbox-label.disabled input:checked { accent-color: #059669; } /* Green for confirmed items */
 </style>
 {% endblock %}
 
@@ -331,7 +369,14 @@
         if(pos) setTimeout(() => scrollArea.scrollTop = parseInt(pos), 100);
     }
 
-    // --- 4. RENDER GRID ---
+    const CHECKLIST_OPTIONS = [
+    "Agreement", "Encumbrance", "Building Permit", "Declaration", 
+    "Location Sketch", "Development Permit", "Title Deed", "Survey Sketch", 
+    "Building Certificate", "LTR", "Building Tax receipt", "Approved plan", 
+    "Possession", "Engineers plan"
+    ];
+
+    // --- 4. RENDER GRID (UPDATED FOR CHECKBOXES) ---
     function renderGrid(data) {
         const container = document.getElementById('formContent');
         container.innerHTML = "";
@@ -344,15 +389,14 @@
 
             // Filter Empty Fields
             const rows = Object.entries(sData).filter(([k,v]) => {
-                if(!v || v==="---" || v==="Not Provided") return false;
-                if(Array.isArray(v) && v.length===0) return false;
-                if(typeof v==='object' && Object.keys(v).length===0) return false;
+                if(v === null || v === undefined || v === "" || v === "---" || v === "Not Provided") return false;
+                if(Array.isArray(v) && v.length === 0) return false;
+                if(typeof v === 'object' && Object.keys(v).length === 0) return false;
                 return true;
             });
 
             if(rows.length === 0) return;
 
-            // Create Section Card
             const card = document.createElement('div');
             card.className = "data-section";
             card.innerHTML = `<div class="section-header">${sec.replace(/_/g, ' ')}</div>`;
@@ -360,92 +404,120 @@
             rows.forEach(([key, val]) => {
                 const uid = `${sec}_${key}`;
                 const path = `${sec}.${key}`;
-                const isDoc = (key === "documents_received");
                 
+                const isDoc = (key === "documents_received");
+                const isSurvey = (key === "Surveydocs" || key === "docs"); 
+
                 const rowDiv = document.createElement('div');
                 rowDiv.className = "data-row";
                 rowDiv.id = `row_${uid}`;
 
-                // --- CONTENT LOGIC ---
                 let contentHtml = "";
-                let docArray = []; 
 
-                if(isDoc) {
-                    // 1. PARSE DATA
-                    if (Array.isArray(val)) {
-                        docArray = val;
-                    } else if (typeof val === 'string' && val.trim().startsWith('[')) {
-                        try { docArray = JSON.parse(val); } catch(e) { docArray = []; }
-                    } else if (typeof val === 'string') {
-                        docArray = [{name: val, num: "", date: ""}];
+                // ----------------------------------------------------
+                // TYPE 1: CHECKBOX LIST (Documents Received)
+                // ----------------------------------------------------
+                if (isDoc) {
+                    let currentDocs = [];
+                    // Parse Data
+                    if (Array.isArray(val)) currentDocs = val;
+                    else if (typeof val === 'string') {
+                        try { currentDocs = JSON.parse(val); } catch(e) { 
+                            // Handle simple string case
+                            currentDocs = [val]; 
+                        }
                     }
 
-                    // 2. GENERATE PREVIEW HTML (Read Only)
-                    let displayHtml = docArray.map(d => {
-                        let name = (typeof d === 'string') ? d : (d.name || "Unknown");
-                        let num = (typeof d === 'object' && d.num) ? `<span style='color:#059669; font-weight:bold;'>#${d.num}</span>` : "";
-                        let date = (typeof d === 'object' && d.date) ? `<span style='color:#6b7280; font-size:11px;'>(${d.date})</span>` : "";
-                        return `<div style="margin-bottom:4px; padding-bottom:4px; border-bottom:1px dashed #eee;">
-                                    <i class="fas fa-file-alt" style="color:#cbd5e1; margin-right:5px;"></i>
-                                    <strong>${name}</strong> ${num} ${date}
-                                </div>`;
-                    }).join("");
-                    if(!displayHtml) displayHtml = "No Documents";
+                    // Helper to generate checkboxes
+                    const generateCheckboxes = (isEditable) => {
+                        return CHECKLIST_OPTIONS.map(opt => {
+                            const isChecked = currentDocs.includes(opt);
+                            // In View mode, only show Checked items (Cleaner) 
+                            // OR show all disabled. Let's show all disabled as requested.
+                            const disabledAttr = isEditable ? `onchange="serializeCheckboxes('${uid}')"` : 'disabled';
+                            const classAttr = isEditable ? '' : 'disabled';
+                            
+                            return `
+                            <label class="checkbox-label ${classAttr}">
+                                <input type="checkbox" value="${opt}" ${isChecked ? 'checked' : ''} ${disabledAttr}> 
+                                ${opt}
+                            </label>`;
+                        }).join("");
+                    };
 
-                    // 3. GENERATE EDITOR HTML (The Fix: Build strings immediately)
-                    // We manually build the HTML for existing rows here instead of calling addDocRow later
-                    let initialRowsHtml = docArray.map(d => {
-                        // Extract data safely
-                        let docName = (typeof d === 'string') ? d : (d.name || "");
-                        let docNum = (typeof d === 'object') ? (d.num || "") : ""; 
-                        let docDate = (typeof d === 'object') ? (d.date || "") : "";
-                        
-                        // Check custom vs standard
-                        let isCustom = docName && !DOC_OPTIONS.includes(docName);
-                        
-                        // Build Options
-                        let opts = `<option value="" disabled ${!docName?'selected':''}>Select...</option>`;
-                        DOC_OPTIONS.forEach(o => {
-                            let isSelected = (isCustom && o === "Other Document") || (o === docName);
-                            opts += `<option value="${o}" ${isSelected?'selected':''}>${o}</option>`;
-                        });
-
-                        // Return the Row HTML string
-                        return `
-                        <div class="doc-row-entry">
-                            <div>
-                                <select class="edit-input" style="margin:0" onchange="toggleOtherInput(this, '${uid}')">${opts}</select>
-                                <input type="text" class="edit-input ${isCustom ? '' : 'hidden'}" 
-                                    style="margin-top:5px; border-color:#2563eb;" 
-                                    placeholder="Type Document Name..." 
-                                    value="${isCustom ? docName : ''}" 
-                                    oninput="serializeDocs('${uid}'); triggerAutoSave()">
-                            </div>
-                            <input type="text" class="edit-input" style="margin:0" placeholder="Ref No" value="${docNum}" oninput="serializeDocs('${uid}'); triggerAutoSave()">
-                            <input type="text" class="edit-input" style="margin:0" placeholder="Date" value="${docDate}" oninput="serializeDocs('${uid}'); triggerAutoSave()">
-                            <i class="fas fa-trash" style="color:var(--danger); cursor:pointer; margin-top:8px;" onclick="this.parentElement.remove(); serializeDocs('${uid}'); triggerAutoSave()"></i>
-                        </div>`;
-                    }).join("");
-
-                    // 4. RENDER FINAL BLOCK
+                    // A. VIEW HTML (Read Only)
                     contentHtml = `
-                        <div class="field-value" id="view_${uid}">${displayHtml}</div>
-                        <div id="editor_${uid}" class="hidden doc-table-wrapper">
-                            <div style="font-size:11px; font-weight:bold; color:#dc2626; margin-bottom:5px;">VERIFY DOCUMENTS:</div>
-                            
-                            <div id="doc_body_${uid}">${initialRowsHtml}</div>
-                            
-                            <button class="btn-add-doc" onclick="addDocRow('${uid}')">+ Add Document</button>
-                            <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(docArray)}'>
+                        <div class="field-value" id="view_${uid}">
+                            <div class="checkbox-grid" style="pointer-events:none;">
+                                ${generateCheckboxes(false)}
+                            </div>
+                        </div>
+                        
+                        <div id="editor_${uid}" class="hidden">
+                            <div class="checkbox-grid" id="chk_container_${uid}">
+                                ${generateCheckboxes(true)}
+                            </div>
+                            <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(currentDocs)}'>
                         </div>
                     `;
-                } else {
-                    // Standard Fields (Unchanged)
+
+                // ----------------------------------------------------
+                // TYPE 2: SURVEY DOCUMENTS (Complex Table)
+                // ----------------------------------------------------
+                } else if (isSurvey) {
+                    // (Keep existing Survey Logic...)
+                    let surveyArr = [];
+                    if(Array.isArray(val)) surveyArr = val;
+                    else if(typeof val === 'string') { try { surveyArr = JSON.parse(val); } catch(e){ surveyArr = []; } }
+
+                    let viewHtml = surveyArr.map(item => {
+                        const dry = item.check_dry ? `<span class="badge-dry">DRY</span>` : '';
+                        const wet = item.check_wet ? `<span class="badge-wet">WET</span>` : '';
+                        return `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed #eee;">
+                            <div><div style="font-weight:600; font-size:13px;">${item.name || 'Doc'}</div><div style="font-size:11px; color:#64748b;">Re-Sy: ${item.re_sy_subdiv_no || '--'}</div></div>
+                            <div style="display:flex; gap:5px;">${dry} ${wet}</div>
+                        </div>`;
+                    }).join("");
+                    
                     contentHtml = `
-                        <div class="field-value">${val}</div>
+                        <div class="field-value" id="view_${uid}">${viewHtml || "No Docs"}</div>
+                        <div id="editor_${uid}" class="hidden doc-table-wrapper">
+                            <div id="survey_body_${uid}"></div>
+                            <button class="btn-add-doc" onclick="addSurveyRow('${uid}')">+ Add Survey Doc</button>
+                            <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(surveyArr)}'>
+                        </div>
+                    `;
+                    setTimeout(() => { if(document.getElementById(`survey_body_${uid}`)) surveyArr.forEach(d => addSurveyRow(uid, d)); }, 0);
+
+                // ----------------------------------------------------
+                // TYPE 3: STANDARD TEXT (With Array/JSON Cleaning)
+                // ----------------------------------------------------
+                } else {
+                    let displayVal = val;
+                    let editVal = val;
+
+                    // Clean up ["Array Strings"]
+                    if (typeof val === 'string' && val.trim().startsWith('[') && val.trim().endsWith(']')) {
+                        try {
+                            const parsed = JSON.parse(val);
+                            if (Array.isArray(parsed)) {
+                                displayVal = parsed.join(", ");
+                                editVal = displayVal;
+                            }
+                        } catch(e) {}
+                    } else if (Array.isArray(val)) {
+                        displayVal = val.join(", ");
+                        editVal = displayVal;
+                    } else if(typeof val === 'object') {
+                        displayVal = JSON.stringify(val);
+                        editVal = displayVal;
+                    }
+
+                    contentHtml = `
+                        <div class="field-value">${displayVal}</div>
                         <div id="editor_${uid}" class="hidden" style="margin-top:8px;">
-                            <label style="font-size:10px; font-weight:bold; color:#dc2626;">NEW VALUE:</label>
-                            <input type="text" id="input_${uid}" data-path="${path}" data-label="${key}" class="edit-input" placeholder="Enter verified value..." value="${val}">
+                            <input type="text" id="input_${uid}" data-path="${path}" data-label="${key}" class="edit-input" placeholder="Enter value..." value="${editVal}">
                         </div>
                     `;
                 }
@@ -454,16 +526,92 @@
                     <div class="field-label">${key.replace(/_/g, ' ')}</div>
                     <div>${contentHtml}</div>
                     <div class="action-group">
-                        <button class="btn-edit" id="btn_${uid}" onclick="toggleEdit('${uid}', '${key}', ${isDoc})">Edit</button>
+                        <button class="btn-edit" id="btn_${uid}" onclick="toggleEdit('${uid}', '${key}', ${isDoc || isSurvey})">Edit</button>
                     </div>
                 `;
                 card.appendChild(rowDiv);
             });
             container.appendChild(card);
         });
-
-        // Run after grid is built
+        
         resetLogs();
+    }
+
+    // --- NEW HELPER FOR CHECKBOXES ---
+    function serializeCheckboxes(uid) {
+        const container = document.getElementById(`chk_container_${uid}`);
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        
+        const selected = [];
+        checkboxes.forEach(chk => {
+            if(chk.checked) selected.push(chk.value);
+        });
+        
+        // Update Hidden Input with JSON String
+        const jsonStr = JSON.stringify(selected);
+        document.getElementById(`input_${uid}`).value = jsonStr;
+        
+        // Log & Save
+        const label = document.getElementById(`input_${uid}`).getAttribute('data-label');
+        logChange(uid, label);
+        triggerAutoSave();
+    }
+
+    // --- NEW HELPER FUNCTIONS FOR SURVEY DOCS ---
+
+    function addSurveyRow(id, data = null) {
+        const container = document.getElementById(`survey_body_${id}`);
+        const div = document.createElement('div');
+        div.className = "survey-row";
+
+        const name = data ? (data.name || "") : "";
+        const resy = data ? (data.re_sy_subdiv_no || "") : "";
+        const isDry = data ? (data.check_dry === true) : false;
+        const isWet = data ? (data.check_wet === true) : false;
+
+        div.innerHTML = `
+            <input type="text" class="edit-input" style="margin:0" placeholder="Doc Name (LTR...)" value="${name}" oninput="serializeSurvey('${id}'); triggerAutoSave()">
+            <input type="text" class="edit-input" style="margin:0" placeholder="123/4-2" value="${resy}" oninput="serializeSurvey('${id}'); triggerAutoSave()">
+            
+            <label class="chk-label">
+                <input type="checkbox" ${isDry ? 'checked' : ''} onchange="serializeSurvey('${id}'); triggerAutoSave()">
+            </label>
+            
+            <label class="chk-label">
+                <input type="checkbox" ${isWet ? 'checked' : ''} onchange="serializeSurvey('${id}'); triggerAutoSave()">
+            </label>
+
+            <i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="this.parentElement.remove(); serializeSurvey('${id}'); triggerAutoSave()"></i>
+        `;
+        container.appendChild(div);
+    }
+
+    function serializeSurvey(id) {
+        const rows = document.querySelectorAll(`#survey_body_${id} .survey-row`);
+        const result = [];
+
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('input');
+            const name = inputs[0].value.trim();
+            const resy = inputs[1].value.trim();
+            const dry = inputs[2].checked;
+            const wet = inputs[3].checked;
+
+            if(name || resy) {
+                result.push({
+                    "name": name,
+                    "re_sy_subdiv_no": resy,
+                    "check_dry": dry,
+                    "check_wet": wet
+                });
+            }
+        });
+
+        // Store as JSON string in the hidden input
+        document.getElementById(`input_${id}`).value = JSON.stringify(result);
+        
+        // Log changes
+        logChange(id, "Survey Docs");
     }
 
     // --- 5. INTERACTION & EDITING ---
@@ -576,22 +724,35 @@
     }
 
     function restoreDrafts(fileNo) {
-        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
-        Object.keys(drafts).forEach(id => {
-            const input = document.getElementById(`input_${id}`);
-            if(input) {
-                const label = input.getAttribute('data-label');
-                const isDoc = (label === "documents_received");
-                toggleEdit(id, label, isDoc);
+    let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
+    Object.keys(drafts).forEach(id => {
+    const input = document.getElementById(`input_${id}`);
+    if(input) {
+            const label = input.getAttribute('data-label');
+            const isDoc = (label === "documents_received");
+            const isSurvey = (label === "Surveydocs" || label === "docs"); // Add this
 
-                if(isDoc) {
-                    document.getElementById(`doc_body_${id}`).innerHTML = "";
-                    try { JSON.parse(drafts[id]).forEach(d => addDocRow(id, d)); } catch(e){}
-                } else {
-                    input.value = drafts[id];
+            // Open the editor
+            toggleEdit(id, label, (isDoc || isSurvey));
+
+            // Set the hidden value
+            input.value = drafts[id];
+
+            // Rebuild UI based on saved JSON
+            if(isDoc) {
+                document.getElementById(`doc_body_${id}`).innerHTML = "";
+                try { JSON.parse(drafts[id]).forEach(d => addDocRow(id, d)); } catch(e){}
+            } 
+            else if (isSurvey) {
+                // REBUILD SURVEY ROWS
+                const surveyBody = document.getElementById(`survey_body_${id}`);
+                if(surveyBody) {
+                    surveyBody.innerHTML = "";
+                    try { JSON.parse(drafts[id]).forEach(d => addSurveyRow(id, d)); } catch(e){}
                 }
             }
-        });
+        }
+    });
     }
 
     function resetLogs() {

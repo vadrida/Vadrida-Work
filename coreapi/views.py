@@ -40,7 +40,8 @@ from .utils import get_case_folder_info
 from playwright.sync_api import sync_playwright
 import sys
 import asyncio
-
+from .models import ClientFolder
+from django.db import transaction
 
 @csrf_protect
 def refresh_files(request):
@@ -261,6 +262,139 @@ def office(request):
 
 def create_folder_page(request):
     return render(request, "create_folder.html")
+
+
+@csrf_protect
+@require_POST
+def create_folder_api(request):
+    try:
+        user_id = request.session.get("user_id")
+        if not user_id: return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=401)
+
+        data = json.loads(request.body)
+        
+        # 1. Extract Data
+        structure = data.get('structure', {})
+        meta = data.get('metadata', {})
+        
+        bank_code = meta.get('bank_code') 
+        dist_code = meta.get('dist_code') 
+        year = meta.get('year', '26')    
+        
+        # # 2. Check for Duplicate (DB Check)
+        # existing = ClientFolder.objects.filter(
+        #     bank_ref_no=meta.get('bank_ref'),
+        #     bank_code=bank_code
+        # ).exists()
+        
+        # if existing:
+        #      return JsonResponse({'success': False, 'error': 'A file with this Bank Ref No already exists!'})
+
+        # 3. DB Transaction (Get Next Sequence)
+        with transaction.atomic():
+            current_count = ClientFolder.objects.filter(
+                year=year, 
+                bank_code=bank_code, 
+                district_code=dist_code
+            ).count()
+            
+            next_seq = current_count + 1
+            seq_str = f"{next_seq:04d}"
+            
+            # 4. Generate Unique ID & Name
+            unique_id = f"{bank_code}{year}{dist_code}{seq_str}"
+            applicant_clean = meta.get('applicant', 'XXX')
+            
+            folder_name = f"{unique_id}_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
+            # ---------------------------------------------------------
+            # 🔧 PATH FIX: Force Root to 'G:\My Drive'
+            # ---------------------------------------------------------
+            #  'settings.DOCUMENTS_ROOT' is 'G:\My Drive\2025_2026'
+            # So we go one level up to get 'G:\My Drive'
+            
+            base_drive_root = os.path.dirname(settings.DOCUMENTS_ROOT) 
+            # OR explicitly: base_drive_root = r"G:\My Drive"
+            
+            # Construct: G:\My Drive \ 2026_2027 \ 1000.HDFC \ KL01.TVM \ Folder...
+            path_components = [
+                base_drive_root,
+                structure.get('year', '2026_2027'),
+                structure.get('bank_folder', 'Unknown'),
+                structure.get('dist_folder', 'Unknown'),
+                folder_name
+            ]
+            full_path = os.path.join(*path_components)
+            full_path = os.path.normpath(full_path)
+            
+            if os.path.exists(full_path):
+                 return JsonResponse({'success': False, 'error': 'System Error: Folder exists on disk but not in DB.'})
+
+            # 5. Create Folders
+            os.makedirs(full_path, exist_ok=True)
+            for sub in ['Photos', 'Documents', 'Reports']:
+                os.makedirs(os.path.join(full_path, sub), exist_ok=True)
+
+            # 6. Save to DB
+            ClientFolder.objects.create(
+                unique_file_no=unique_id,
+                year=year,
+                bank_code=bank_code,
+                district_code=dist_code,
+                sequence_no=next_seq,
+                applicant_name=meta.get('applicant'),
+                product=meta.get('product'),
+                bank_ref_no=meta.get('bank_ref'),
+                site_staff_code=meta.get('site_code'),
+                office_staff_code=meta.get('off_code'),
+                full_folder_path=full_path
+            )
+
+        return JsonResponse({'success': True, 'new_id': unique_id})
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+# In coreapi/views.py
+
+@require_GET
+def get_next_sequence_api(request):
+    # 1. Get parameters from the frontend
+    bank_code = request.GET.get('bank_code')
+    dist_code = request.GET.get('dist_code')
+    year = request.GET.get('year', '26')
+
+    # 2. Safety Check
+    if not (bank_code and dist_code):
+        return JsonResponse({'seq': '0001'})
+
+    # 3. Count existing files for this SPECIFIC combo
+    # e.g. Count HDFC (01) files in TVM (01)
+    count = ClientFolder.objects.filter(
+        year=year,
+        bank_code=bank_code,
+        district_code=dist_code
+    ).count()
+
+    # 4. Return next number (Count + 1)
+    next_seq = count + 1
+    return JsonResponse({'seq': f"{next_seq:04d}"}) # Returns "0043"
+
+@require_GET
+def check_duplicate_api(request):
+    bank_code = request.GET.get('bank_code')
+    bank_ref = request.GET.get('bank_ref')
+    
+    if not bank_code or not bank_ref:
+        return JsonResponse({'exists': False})
+
+    # Check if this Bank Ref exists for this specific Bank
+    exists = ClientFolder.objects.filter(
+        bank_code=bank_code, 
+        bank_ref_no=bank_ref
+    ).exists()
+    
+    return JsonResponse({'exists': exists})
 
 def office_dashboard(request):
     """

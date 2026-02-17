@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 import json
-from .models import UserProfile, SiteVisitReport, ReportSketch
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder
 
 # 1. Improved Inline for Sketches
 class ReportSketchInline(admin.TabularInline):
@@ -59,3 +59,30 @@ class SiteVisitReportAdmin(admin.ModelAdmin):
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("user_name", "email", "role", "created_at")
     search_fields = ("user_name", "email")
+
+@admin.register(ClientFolder)
+class ClientFolderAdmin(admin.ModelAdmin):
+    # What columns to show in the list
+    list_display = (
+        'unique_file_no', 
+        'applicant_name', 
+        'bank_code', 
+        'district_code', 
+        'product', 
+        'created_at'
+    )
+    
+    # Enable clicking on these to edit
+    list_display_links = ('unique_file_no', 'applicant_name')
+    
+    # Add a Search Bar (Search by Name, File No, Bank Ref)
+    search_fields = ('unique_file_no', 'applicant_name', 'bank_ref_no', 'full_folder_path')
+    
+    # Add Filters on the right side
+    list_filter = ('year', 'bank_code', 'district_code', 'product', 'created_at')
+    
+    # Order by newest first
+    ordering = ('-created_at',)
+    
+    # Make the list per page smaller for speed
+    list_per_page = 50

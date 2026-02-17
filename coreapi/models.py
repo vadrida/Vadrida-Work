@@ -59,4 +59,27 @@ class ReportSketch(models.Model):
 
     def __str__(self):
         return f"Sketch for {self.source_key} (Report {self.report.id})"
+
+class ClientFolder(models.Model):
+    # The Unique 10-digit ID (Primary Key)
+    unique_file_no = models.CharField(max_length=20, unique=True, primary_key=True)
     
+    # Specifics for counting
+    year = models.CharField(max_length=4)        # e.g. "26"
+    bank_code = models.CharField(max_length=10)  # e.g. "01"
+    district_code = models.CharField(max_length=10) # e.g. "07"
+    sequence_no = models.IntegerField()          # e.g. 1, 2, 3...
+
+    # Metadata
+    applicant_name = models.CharField(max_length=255)
+    product = models.CharField(max_length=100)
+    bank_ref_no = models.CharField(max_length=100)
+    
+    site_staff_code = models.CharField(max_length=50)
+    office_staff_code = models.CharField(max_length=50)
+    
+    full_folder_path = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.unique_file_no} - {self.applicant_name}"
