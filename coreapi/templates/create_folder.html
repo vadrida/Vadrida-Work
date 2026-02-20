@@ -7,71 +7,178 @@
 <style>
     /* --- THEME & LAYOUT --- */
     :root {
-        --brand-blue: #004a8f; --brand-accent: #0066cc;     
-        --bg-app: #f4f6f8; --bg-white: #ffffff;
-        --text-dark: #1e293b; --text-grey: #64748b;        
-        --border-color: #e2e8f0; --success: #10b981;
+        --brand-blue: #004a8f;
+        --brand-accent: #0066cc;
+        --bg-app: #f4f6f8;
+        --bg-white: #ffffff;
+        --text-dark: #1e293b;
+        --text-grey: #64748b;
+        --border-color: #e2e8f0;
+        --success: #10b981;
         --shadow-soft: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     }
-    body { background-color: var(--bg-app); font-family: 'Inter', system-ui, sans-serif; color: var(--text-dark); line-height: 1.6; }
+
+    body {
+        background-color: var(--bg-app);
+        font-family: 'Inter', system-ui, sans-serif;
+        color: var(--text-dark);
+        line-height: 1.6;
+    }
 
     .create-workspace {
-        display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 40px;
-        max-width: 1200px; margin: 40px auto; padding: 0 20px; align-items: start;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+        align-items: start;
     }
-    @media (max-width: 1000px) { .create-workspace { grid-template-columns: 1fr; } .preview-card { order: -1; margin-bottom: 30px; } }
+
+    @media (max-width: 1000px) {
+        .create-workspace {
+            grid-template-columns: 1fr;
+        }
+
+        .preview-card {
+            order: -1;
+            margin-bottom: 30px;
+        }
+    }
 
     /* CARDS */
-    .form-card, .preview-card {
-        background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-soft); overflow: hidden;
+    .form-card,
+    .preview-card {
+        background: var(--bg-white);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
     }
-    .card-header { background: white; border-bottom: 1px solid var(--border-color); padding: 25px 30px; }
-    .card-header h2 { margin: 0; font-size: 20px; color: var(--brand-blue); font-weight: 700; }
-    .card-body { padding: 30px; }
+
+    .card-header {
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        padding: 25px 30px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--brand-blue);
+        font-weight: 700;
+    }
+
+    .card-body {
+        padding: 30px;
+    }
 
     /* FORM ELEMENTS */
-    .form-group { margin-bottom: 25px; }
+    .form-group {
+        margin-bottom: 25px;
+    }
+
     .form-label {
-        font-size: 12px; font-weight: 600; color: var(--text-grey);
-        text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-grey);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
     }
-    .form-input, .form-select {
-        width: 100%; padding: 12px 15px; font-size: 15px; color: var(--text-dark);
-        border: 1px solid var(--border-color); border-radius: 6px; background-color: #f8fafc;
-        transition: all 0.2s; box-sizing: border-box;
+
+    .form-input,
+    .form-select {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 15px;
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+        box-sizing: border-box;
     }
-    .form-input:focus, .form-select:focus {
-        outline: none; background-color: white; border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        background-color: white;
+        border-color: var(--brand-accent);
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
     }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
 
     /* BUTTONS */
     .btn-submit {
-        background: var(--brand-accent); color: white; width: 100%; padding: 16px;
-        font-size: 16px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px;
+        background: var(--brand-accent);
+        color: white;
+        width: 100%;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
         transition: transform 0.1s, background 0.2s;
     }
-    .btn-submit:hover { background: var(--brand-blue); transform: translateY(-1px); }
-    
+
+    .btn-submit:hover {
+        background: var(--brand-blue);
+        transform: translateY(-1px);
+    }
+
     .btn-back {
-        display: inline-flex; align-items: center; gap: 8px; color: var(--text-grey); text-decoration: none;
-        font-weight: 500; font-size: 14px; margin-bottom: 20px; padding: 8px 12px; border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-grey);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 20px;
+        padding: 8px 12px;
+        border-radius: 6px;
         transition: background 0.2s;
     }
-    .btn-back:hover { background: #e2e8f0; color: var(--text-dark); }
+
+    .btn-back:hover {
+        background: #e2e8f0;
+        color: var(--text-dark);
+    }
 
     /* PREVIEW */
     .id-display {
-        font-size: 32px; font-weight: 800; color: var(--brand-blue);
-        letter-spacing: 1px; margin-bottom: 20px; font-family: 'Courier New', monospace;
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--brand-blue);
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+        font-family: 'Courier New', monospace;
     }
+
     .path-box {
-        background: #1e293b; color: #4ade80; /* Terminal Green */
-        font-family: 'Courier New', monospace; font-size: 14px;
-        padding: 20px; border-radius: 8px; word-break: break-all; line-height: 1.6;
+        background: #1e293b;
+        color: #4ade80;
+        /* Terminal Green */
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        padding: 20px;
+        border-radius: 8px;
+        word-break: break-all;
+        line-height: 1.6;
     }
-    .hidden { display: none; }
+
+    .hidden {
+        display: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -81,13 +188,13 @@
 </div>
 
 <div class="create-workspace">
-    
+
     <div class="form-card">
         <div class="card-header">
             <h2>Create New File</h2>
             <p>Enter details for the 2026-2027 standard structure</p>
         </div>
-        
+
         <div class="card-body">
             <form id="createFolderForm">
                 {% csrf_token %}
@@ -96,17 +203,17 @@
                     <div class="form-group">
                         <label class="form-label">Select Bank</label>
                         <select id="bank_select" class="form-select trigger-preview">
-                            <option value="1000" data-name="HDFC">1000. HDFC</option>
-                            <option value="2000" data-name="Muthoot">2000. Muthoot</option>
-                            <option value="3000" data-name="Bajaj">3000. Bajaj</option>
-                            <option value="4000" data-name="DCB">4000. DCB</option>
-                            <option value="5000" data-name="PNBHFL">5000. PNBHFL</option>
-                            <option value="6000" data-name="SBI">6000. SBI</option>
-                            <option value="7000" data-name="CSB">7000. CSB</option>
-                            <option value="8000" data-name="Chola">8000. Chola</option>
-                            <option value="9000" data-name="SIB">9000. SIB</option>
-                            <option value="10000" data-name="CHOLA SME">10000. CHOLA SME</option>
-                            <option value="11000" data-name="ICICI">11000. ICICI</option>
+                            <option value="01" data-name="HDFC">01. HDFC</option>
+                            <option value="02" data-name="Muthoot">02. Muthoot</option>
+                            <option value="03" data-name="Bajaj">03. Bajaj</option>
+                            <option value="04" data-name="DCB">04. DCB</option>
+                            <option value="05" data-name="PNBHFL">05. PNBHFL</option>
+                            <option value="06" data-name="SBI">06. SBI</option>
+                            <option value="07" data-name="CSB">07. CSB</option>
+                            <option value="08" data-name="Chola">08. Chola</option>
+                            <option value="09" data-name="SIB">09. SIB</option>
+                            <option value="10" data-name="CHOLA SME">10. CHOLA SME</option>
+                            <option value="11" data-name="ICICI">11. ICICI</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -130,15 +237,63 @@
                     </div>
                 </div>
 
+               <div class="form-group hidden" id="local_body_container">
+                    <label class="form-label">Local Body Type <span style="color:var(--brand-accent);">(Required for this Bank)</span></label>
+                    <select id="local_body_select" class="form-select trigger-preview">
+                        <option value="MUN">Municipal (MUN)</option>
+                        <option value="COR">Corporation (COR)</option>
+                        <option value="PAN">Panchayat (PAN)</option>
+                    </select>
+                </div>
+
+                <div class="form-group hidden" id="muthoot_branch_container">
+                    <label class="form-label">Muthoot Branch <span style="color:var(--brand-accent);">(Required for Muthoot)</span></label>
+                    <select id="muthoot_branch_select" class="form-select trigger-preview">
+                        <option value="THRISSUR" data-code="S0002" data-num="85">THRISSUR</option>
+                        <option value="ALAPPUZHA" data-code="S0130" data-num="57">ALAPPUZHA</option>
+                        <option value="KOZHIKODE" data-code="S0131" data-num="182">KOZHIKODE</option>
+                        <option value="VYTTILA" data-code="S0142" data-num="11">VYTTILA</option>
+                        <option value="ANGAMALY" data-code="S0143" data-num="48">ANGAMALY</option>
+                        <option value="MUVATTUPUZHA" data-code="S0144" data-num="42">MUVATTUPUZHA</option>
+                        <option value="KOTTAYAM" data-code="S0145" data-num="66">KOTTAYAM</option>
+                        <option value="PATHANAMTHITTA" data-code="S0146" data-num="122">PATHANAMTHITTA</option>
+                        <option value="KOLLAM" data-code="S0147" data-num="143">KOLLAM</option>
+                        <option value="ATTINGAL" data-code="S0148" data-num="177">ATTINGAL</option>
+                        <option value="THIRUVANANTHAPURAM" data-code="S0149" data-num="210">THIRUVANANTHAPURAM</option>
+                        <option value="VADAKARA" data-code="S0150" data-num="271">VADAKARA</option>
+                        <option value="KANNUR" data-code="S0151" data-num="315">KANNUR</option>
+                        <option value="THALASSERY" data-code="S0152" data-num="296">THALASSERY</option>
+                        <option value="PATTAMBI" data-code="S0154" data-num="128">PATTAMBI</option>
+                        <option value="MANJERI" data-code="S0162" data-num="175">MANJERI</option>
+                        <option value="PIRAVOM" data-code="S0253" data-num="33">PIRAVOM</option>
+                        <option value="PONKUNNAM" data-code="R0050" data-num="87">PONKUNNAM</option>
+                        <option value="ADOOR" data-code="R0051" data-num="126">ADOOR</option>
+                        <option value="KAYAMKULAM" data-code="R0052" data-num="102">KAYAMKULAM</option>
+                        <option value="KOTTARAKARA" data-code="R0053" data-num="145">KOTTARAKARA</option>
+                        <option value="NEYYATTINKARA" data-code="R0054" data-num="233">NEYYATTINKARA</option>
+                        <option value="NEDUMANGAD" data-code="R0055" data-num="204">NEDUMANGAD</option>
+                        <option value="BALUSSERI" data-code="R0056" data-num="234">BALUSSERI</option>
+                        <option value="PAYYANUR" data-code="R0057" data-num="327">PAYYANUR</option>
+                        <option value="OTTAPALAM" data-code="R0058" data-num="138">OTTAPALAM</option>
+                        <option value="IRINJALAKUDA" data-code="R0059" data-num="63">IRINJALAKUDA</option>
+                        <option value="PALAKKAD" data-code="S0153" data-num="145">PALAKKAD</option>
+                        <option value="SHORNUR" data-code="S0154" data-num="146">SHORNUR (146)</option>
+                        <option value="CHALAKUDY" data-code="S0155" data-num="80">CHALAKUDY</option>
+                        <option value="SHORNUR" data-code="S0154" data-num="180">SHORNUR (180)</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Applicant Name</label>
-                    <input type="text" id="applicant_name" class="form-input trigger-preview" placeholder="Enter Full Name" required>
+                    <input type="text" id="applicant_name" class="form-input trigger-preview"
+                        placeholder="Enter Full Name" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Product Type</label>
-                        <select id="product_select" class="form-select trigger-preview" onchange="toggleManualInput('product_select', 'other_product_container', 'product_manual')">
+                        <select id="product_select" class="form-select trigger-preview"
+                            onchange="toggleManualInput('product_select', 'other_product_container', 'product_manual')">
                             <option value="PRCS">Purchase</option>
                             <option value="CONS">Construction</option>
                             <option value="TOPU">Topup</option>
@@ -149,26 +304,29 @@
                             <option value="LAPL">LAP</option>
                             <option value="EXTE">Extension</option>
                             <option value="NPAN">NPA</option>
-                            <option value="OTHER">Other...</option>
+                            <option value="DESK">Desktop</option>
+                            <option value="OTHR">Other...</option>
                         </select>
                         <div id="other_product_container" class="hidden" style="margin-top: 10px;">
-                            <input type="text" id="product_manual" class="form-input trigger-preview" placeholder="Type Product Name...">
+                            <input type="text" id="product_manual" class="form-input trigger-preview"
+                                placeholder="Type Product Name...">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Bank File Ref No.</label>
-                        <input type="text" id="bank_ref" class="form-input trigger-preview" placeholder="e.g. 123456" required>
+                        <input type="text" id="bank_ref" class="form-input trigger-preview" placeholder="e.g. 123456"
+                            required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Site Staff Code</label>
-                        <select id="site_code_select" class="form-select trigger-preview" onchange="toggleManualInput('site_code_select', 'other_site_container', 'site_code_manual')">
+                        <select id="site_code_select" class="form-select trigger-preview"
+                            onchange="toggleManualInput('site_code_select', 'other_site_container', 'site_code_manual')">
                             <option value="100SAN">100SAN</option>
                             <option value="103VIS">103VIS</option>
-                            <!-- <option value="104FMY">104FMY</option> -->
                             <option value="106JOJ">106JOJ</option>
                             <option value="107SRJ">107SRJ</option>
                             <option value="109NNU">109NNU</option>
@@ -179,7 +337,8 @@
                             <option value="OTHER">Other...</option>
                         </select>
                         <div id="other_site_container" class="hidden" style="margin-top: 10px;">
-                            <input type="text" id="site_code_manual" class="form-input trigger-preview" placeholder="Type Site Code...">
+                            <input type="text" id="site_code_manual" class="form-input trigger-preview"
+                                placeholder="Type Site Code...">
                         </div>
                     </div>
 
@@ -220,33 +379,58 @@
 </div>
 
 <script>
-    const CURRENT_YEAR = "26"; 
-    let currentSequence = "0001"; 
-
-    const bankCodeMap = {
-        "1000": "01", "2000": "02", "3000": "03", "4000": "04", 
-        "5000": "05", "6000": "06", "7000": "07", "8000": "08", 
-        "9000": "09", "10000": "10", "11000": "11"
-    };
+    const CURRENT_YEAR = "26";
+    let currentSequence = "0001";
 
     document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById('bank_select').addEventListener('change', fetchNextSequence);
+        const bankSelect = document.getElementById('bank_select');
+        
+        bankSelect.addEventListener('change', () => {
+            toggleExtraFields(); // Changed function name
+            fetchNextSequence();
+        });
+        
         document.getElementById('district_select').addEventListener('change', fetchNextSequence);
+        document.getElementById('local_body_select').addEventListener('change', updatePreview);
+        document.getElementById('muthoot_branch_select').addEventListener('change', updatePreview);
 
         document.querySelectorAll('.trigger-preview').forEach(el => {
-            if(el.id !== 'bank_select' && el.id !== 'district_select') {
+            if (el.id !== 'bank_select' && el.id !== 'district_select' && el.id !== 'local_body_select' && el.id !== 'muthoot_branch_select') {
                 el.addEventListener('input', updatePreview);
             }
         });
-        fetchNextSequence(); 
+        
+        toggleExtraFields(); 
+        fetchNextSequence();
     });
+
+    // --- CHECK WHICH EXTRA DROPDOWN SHOULD BE SHOWN ---
+    function toggleExtraFields() {
+        const bankCode = document.getElementById('bank_select').value;
+        const lbContainer = document.getElementById('local_body_container');
+        const muthootContainer = document.getElementById('muthoot_branch_container');
+        
+        // Reset both to hidden
+        lbContainer.classList.add('hidden');
+        muthootContainer.classList.add('hidden');
+
+        // PNBHFL (05), Chola (08), CHOLA SME (10)
+        if (["05", "08", "10"].includes(bankCode)) {
+            lbContainer.classList.remove('hidden');
+        } 
+        // Muthoot (02)
+        else if (bankCode === "02") {
+            muthootContainer.classList.remove('hidden');
+        }
+        
+        updatePreview();
+    }
 
     function fetchNextSequence() {
         const bankEl = document.getElementById('bank_select');
         const distEl = document.getElementById('district_select');
-        
-        const bankFolderID = bankEl.value; 
-        const shortBankCode = bankCodeMap[bankFolderID] || "00";
+
+        const shortBankCode = bankEl.value; 
         const distCode = distEl.value;
 
         document.getElementById('uniqueIdDisplay').innerText = "Checking DB...";
@@ -255,13 +439,13 @@
         fetch(`/coreapi/api/get-sequence/?bank_code=${shortBankCode}&dist_code=${distCode}&year=${CURRENT_YEAR}`)
             .then(response => response.json())
             .then(data => {
-                currentSequence = data.seq; 
-                document.getElementById('uniqueIdDisplay').style.color = "#004a8f"; 
-                updatePreview(); 
+                currentSequence = data.seq;
+                document.getElementById('uniqueIdDisplay').style.color = "#004a8f";
+                updatePreview();
             })
             .catch(err => {
                 console.error("Seq Error", err);
-                currentSequence = "0001"; 
+                currentSequence = "0001";
                 updatePreview();
             });
     }
@@ -270,13 +454,13 @@
         const select = document.getElementById(selectId);
         const container = document.getElementById(containerId);
         const input = document.getElementById(inputId);
-        
+
         if (select.value === "OTHER") {
             container.classList.remove('hidden');
             input.focus();
         } else {
             container.classList.add('hidden');
-            input.value = ""; 
+            input.value = "";
         }
         updatePreview();
     }
@@ -285,24 +469,40 @@
         // --- 1. GATHER DATA ---
         const bankEl = document.getElementById('bank_select');
         const distEl = document.getElementById('district_select');
-        
-        const bankFolderID = bankEl.value; 
-        const bankName = bankEl.options[bankEl.selectedIndex].getAttribute('data-name');
-        const shortBankCode = bankCodeMap[bankFolderID] || "00";
 
-        const distId = distEl.value; 
+        const shortBankCode = bankEl.value;
+        const bankName = bankEl.options[bankEl.selectedIndex].getAttribute('data-name');
+
+        const distId = distEl.value;
         const distName = distEl.options[distEl.selectedIndex].getAttribute('data-name');
 
-        // --- UPDATED: WRAP NAME IN # AND UPPERCASE ---
+        // --- CHECK EXTRA FIELDS (Local Body OR Muthoot Branch) ---
+        let extraPart = ""; // This will hold whichever one is active
+        let localBodyValue = "";
+        let muthootBranchValue = "";
+
+        if (!document.getElementById('local_body_container').classList.contains('hidden')) {
+            localBodyValue = document.getElementById('local_body_select').value;
+            extraPart = `_${localBodyValue}`; // Example: "_MUN"
+        } 
+        else if (!document.getElementById('muthoot_branch_container').classList.contains('hidden')) {
+            const mSelect = document.getElementById('muthoot_branch_select');
+            const mOption = mSelect.options[mSelect.selectedIndex];
+            
+            const mName = mOption.value; // e.g. "SHORNUR"
+            const mCode = mOption.getAttribute('data-code'); // e.g. "S0154"
+            const mNum = mOption.getAttribute('data-num'); // e.g. "180"
+            
+            muthootBranchValue = `${mName}_${mCode}_${mNum}`;
+            extraPart = `_${muthootBranchValue}`; // Example: "_SHORNUR_S0154_180"
+        }
+
         const rawName = document.getElementById('applicant_name').value.trim();
-        // 1. Replace spaces with underscores
-        // 2. Uppercase it
-        // 3. Default to XXX if empty
         const cleanName = rawName.replace(/\s+/g, '_').toUpperCase() || "XXX";
-        const applicant = `#${cleanName}#`; // Result: #ALAN_ROY#
+        const applicant = `#${cleanName}#`;
 
         const bankRef = document.getElementById('bank_ref').value.trim() || "XXX";
-        
+
         let product = document.getElementById('product_select').value;
         if (product === "OTHER") {
             product = document.getElementById('product_manual').value.trim().toUpperCase().replace(/\s+/g, '_') || "XXX";
@@ -314,64 +514,57 @@
         }
 
         const officeCode = document.getElementById('office_code_select').value;
-        
+
         const d = new Date();
         const dateStr = ("0" + d.getDate()).slice(-2) + ("0" + (d.getMonth() + 1)).slice(-2) + d.getFullYear();
 
         // --- 2. GENERATE ID ---
         const uniqueID = `${shortBankCode}${CURRENT_YEAR}${distId}${currentSequence}`;
-        
-        // --- 3. GENERATE FOLDER NAME (Name is already wrapped in # above) ---
-        const folderName = `${uniqueID}_${applicant}_${product}_${distName}_${dateStr}_${siteCode}_${officeCode}_${bankRef}`;
-        
-        const fullPath = `2026_2027 / ${bankFolderID}.${bankName} / KL${distId}.${distName} /\n${folderName}`;
+
+        // --- 3. GENERATE FOLDER NAME ---
+        // 'extraPart' seamlessly injects whichever one is active
+        const folderName = `${uniqueID}_${applicant}_${product}_${distName}${extraPart}_${dateStr}_${siteCode}_${officeCode}_${bankRef}`;
+
+        const fullPath = `2026_2027 / ${shortBankCode}.${bankName} / KL${distId}.${distName} /\n${folderName}`;
 
         // --- 4. UPDATE UI ---
         document.getElementById('uniqueIdDisplay').innerText = uniqueID;
         document.getElementById('folderRawPreview').innerText = fullPath;
 
-        // NOTE: We send 'cleanName' (without hashes) in metadata, 
-        // so the backend can choose how to format it if needed, 
-        // OR we can send 'applicant' (with hashes). 
-        // Let's send 'cleanName' and let Backend add the hashes too.
-        return { 
-            folderName, 
-            bankFolderID, 
-            bankName, 
-            distId, 
+        return {
+            folderName,
+            shortBankCode,
+            bankName,
+            distId,
             distName,
-            cleanName // ALAN_ROY (No hashes)
+            cleanName,
+            localBodyValue,
+            muthootBranchValue // Send this to backend
         };
     }
 
-    // --- MAIN SUBMIT FUNCTION (WITH DUPLICATE CHECK) ---
+    // --- MAIN SUBMIT FUNCTION ---
     function submitFolderCreation() {
         const btn = document.querySelector('.btn-submit');
         const originalText = btn.innerHTML;
-        
-        // 1. Validate
-        if(!document.getElementById('applicant_name').value) {
+
+        if (!document.getElementById('applicant_name').value) {
             Swal.fire('Error', 'Applicant Name is required', 'error'); return;
         }
-        if(!document.getElementById('bank_ref').value) {
+        if (!document.getElementById('bank_ref').value) {
             Swal.fire('Error', 'Bank Ref No is required', 'error'); return;
         }
 
         const data = updatePreview();
-        const bankEl = document.getElementById('bank_select');
-        const bankFolderID = bankEl.value; 
-        const shortBankCode = bankCodeMap[bankFolderID] || "00"; 
         const bankRef = document.getElementById('bank_ref').value.trim();
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
 
-        // 2. CHECK DUPLICATE
-        fetch(`/coreapi/api/check-duplicate/?bank_code=${shortBankCode}&bank_ref=${bankRef}`)
+        fetch(`/coreapi/api/check-duplicate/?bank_code=${data.shortBankCode}&bank_ref=${bankRef}`)
             .then(r => r.json())
             .then(checkResp => {
                 if (checkResp.exists) {
-                    // DUPLICATE FOUND
                     Swal.fire({
                         title: 'Duplicate Bank Ref!',
                         text: `Bank Ref "${bankRef}" already exists! Create anyway?`,
@@ -383,41 +576,36 @@
                         cancelButtonText: 'No, Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            executeCreation(btn, originalText, data, shortBankCode, bankRef);
+                            executeCreation(btn, originalText, data, bankRef);
                         } else {
                             btn.disabled = false;
                             btn.innerHTML = originalText;
                         }
                     });
                 } else {
-                    // NO DUPLICATE
-                    executeCreation(btn, originalText, data, shortBankCode, bankRef);
+                    executeCreation(btn, originalText, data, bankRef);
                 }
             })
             .catch(err => {
                 console.error(err);
-                // If check fails, just proceed
-                executeCreation(btn, originalText, data, shortBankCode, bankRef);
+                executeCreation(btn, originalText, data, bankRef);
             });
     }
 
-    // --- HELPER: EXECUTE CREATION ---
-    function executeCreation(btn, originalText, data, shortBankCode, bankRef) {
+    function executeCreation(btn, originalText, data, bankRef) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
 
-        // Extract remaining fields
         const distEl = document.getElementById('district_select');
         const distCode = distEl.value;
-        const applicant = document.getElementById('applicant_name').value.trim().replace(/\s+/g, '_');
-        
+
         let product = document.getElementById('product_select').value;
         if (product === "OTHER") product = document.getElementById('product_manual').value.trim().toUpperCase().replace(/\s+/g, '_');
-        
+
         let siteCode = document.getElementById('site_code_select').value;
         if (siteCode === "OTHER") siteCode = document.getElementById('site_code_manual').value.trim().toUpperCase();
 
         const offCode = document.getElementById('office_code_select').value;
-        
+
         const d = new Date();
         const dateStr = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear();
 
@@ -429,7 +617,7 @@
             },
             body: JSON.stringify({
                 metadata: {
-                    bank_code: shortBankCode,
+                    bank_code: data.shortBankCode,
                     dist_code: distCode,
                     year: "26",
                     applicant: data.cleanName,
@@ -438,41 +626,44 @@
                     site_code: siteCode,
                     off_code: offCode,
                     dist_name: data.distName,
-                    date_str: dateStr
+                    date_str: dateStr,
+                    local_body: data.localBodyValue,
+                    muthoot_branch: data.muthootBranchValue // Passes Muthoot info to backend
                 },
                 structure: {
                     year: "2026_2027",
-                    bank_folder: `${data.bankFolderID}.${data.bankName}`, 
+                    bank_folder: `${data.shortBankCode}.${data.bankName}`,
                     dist_folder: `KL${data.distId}.${data.distName}`
                 }
             })
         })
-        .then(r => r.json())
-        .then(resp => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
+            .then(r => r.json())
+            .then(resp => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
 
-            if(resp.success) {
-                Swal.fire({
-                    title: 'Folder Created!',
-                    text: `Unique ID: ${resp.new_id}`,
-                    icon: 'success',
-                    confirmButtonText: 'Great',
-                    confirmButtonColor: '#004a8f'
-                });
-                
-                document.getElementById('createFolderForm').reset();
-                document.getElementById('uniqueIdDisplay').innerText = "--";
-                fetchNextSequence(); 
-            } else {
-                Swal.fire('Error', resp.error, 'error');
-            }
-        })
-        .catch(err => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            Swal.fire('System Error', 'Could not connect to server', 'error');
-        });
+                if (resp.success) {
+                    Swal.fire({
+                        title: 'Folder Created!',
+                        text: `Unique ID: ${resp.new_id}`,
+                        icon: 'success',
+                        confirmButtonText: 'Great',
+                        confirmButtonColor: '#004a8f'
+                    });
+
+                    document.getElementById('createFolderForm').reset();
+                    document.getElementById('uniqueIdDisplay').innerText = "--";
+                    toggleExtraFields(); // Reset visibility
+                    fetchNextSequence();
+                } else {
+                    Swal.fire('Error', resp.error, 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                Swal.fire('System Error', 'Could not connect to server', 'error');
+            });
     }
 </script>
 {% endblock %}

@@ -234,7 +234,7 @@ GENERATED_PDFS_ROOT = os.path.join(BASE_DIR , "generated_pdfs")
 os.makedirs(GENERATED_PDFS_ROOT, exist_ok=True)
 
 
-DOCUMENTS_ROOT = r"G:\My Drive\2025_2026"
+DOCUMENTS_ROOT = r"G:\My Drive\2026_2027"
 
 CHANNEL_LAYERS = {
     "default": {

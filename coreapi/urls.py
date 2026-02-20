@@ -42,4 +42,6 @@ urlpatterns = [
     path('api/create-folder/', views.create_folder_api, name='create_folder_api'),
     path('api/get-sequence/', views.get_next_sequence_api, name='get_sequence'),
     path('api/check-duplicate/', views.check_duplicate_api, name='check_duplicate'),
+    path('api/upload-site-photos/', views.upload_site_photos_api, name='upload_site_photos'),
+    path('api/db-case-search/', views.db_case_search_api, name='db_case_search'),
 ]

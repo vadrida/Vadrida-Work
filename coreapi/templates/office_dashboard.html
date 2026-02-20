@@ -82,7 +82,7 @@
             <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
                 Select a file to preview
             </div>
-
+            
             <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10 flex-shrink-0 h-10">
                 <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
                 <div class="flex items-center gap-2">
@@ -92,13 +92,14 @@
                 </div>
             </div>
 
-            <div id="scrollContainer" class="hidden flex-1 overflow-y-auto p-4 flex flex-col items-center gap-4 bg-gray-200/50">
+            <div id="scrollContainer" class="hidden flex-1 overflow-auto p-4 flex flex-col items-center gap-4 bg-gray-200/50">
                 <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
                     <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
                 </div>
             </div>
 
             <img id="bigImageFrame" class="hidden w-full h-full object-contain" src="" />
+            <iframe id="nativePdfViewer" class="hidden flex-1 w-full border-none" src=""></iframe>
 
         </div>
       </div>
@@ -759,39 +760,26 @@ function renderThumbs(files) {
 /* =========================
    PREVIEW
 ========================= */
+/* =========================
+   PREVIEW LOGIC
+========================= */
 function loadBigPreview(file) {
   currentFile = file;
 
-  // --- DEBUGGING: Check Console (F12) to see values ---
-  console.log("Opening File:", file.name);
-  console.log("Current Global Folder:", currentFolder);
-  console.log("File Path from Server:", file.path);
-
-  // 1. CONSTRUCT PATH ROBUSTLY
   let displayPath = file.path;
-
-  // Check if server path is missing or just the filename (no slashes)
-  // We also make sure we aren't in the root (currentFolder isn't empty)
   if (!displayPath || (displayPath.indexOf("/") === -1 && currentFolder)) {
-      // Force construct: Folder + / + Name
-      // Remove any trailing slashes from folder to avoid double //
       const cleanFolder = currentFolder.replace(/\/$/, ""); 
       displayPath = `${cleanFolder}/${file.name}`;
   } 
-  
-  // If we are in root and path is just filename, prepend a slash for visual clarity
   if (!currentFolder && displayPath.indexOf("/") === -1) {
       displayPath = `/${file.name}`;
   }
 
-  // 2. UPDATE BANNER
   const banner = document.getElementById("bigPreviewTitle");
   banner.textContent = displayPath;
-  
-  // Ensure CSS allows wrapping
   banner.className = "font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4";
 
-  // 3. RESET UI
+  // Reset UI
   if(typeof pdfMain !== 'undefined' && pdfMain) pdfMain.innerHTML = "";
   document.getElementById("scrollContainer").classList.add("hidden");
   document.getElementById("pdfToolbar").classList.add("hidden");
@@ -799,20 +787,20 @@ function loadBigPreview(file) {
   document.getElementById("noSelection").classList.add("hidden");
   document.getElementById("downloadPdfBtn").classList.remove("hidden");
 
-  // 4. RESET STATE
+  // Reset State
   if(typeof viewerState !== 'undefined') {
-      viewerState.path = file.path; // Use original path for fetching
+      viewerState.path = file.path; 
       viewerState.nextPageToLoad = 0;
       viewerState.isLoading = false;
       viewerState.isFinished = false;
   }
+  pdfZoomState.scale = 1.0; // Reset Zoom!
 
   // Clear previous pages
   const scrollContainer = document.getElementById("scrollContainer");
   const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
   existingImages.forEach(img => img.remove());
 
-  // 5. LOAD CONTENT
   const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
   const ext = file.name.split(".").pop().toLowerCase();
 
@@ -821,7 +809,7 @@ function loadBigPreview(file) {
     const bigImg = document.getElementById("bigImageFrame");
     bigImg.src = url;
     bigImg.classList.remove("hidden");
-    document.getElementById("pdfToolbar").classList.add("hidden"); 
+    resetImageZoom();
     return;
   }
 
@@ -832,8 +820,12 @@ function loadBigPreview(file) {
     const sentinel = document.getElementById("scrollSentinel");
     sentinel.classList.remove("hidden");
     
-    // Trigger Infinite Scroll
-    if(typeof loadNextPage === 'function') loadNextPage();
+    // Reset alignment
+    scrollContainer.classList.remove('items-start');
+    scrollContainer.classList.add('items-center');
+    updateZoomDisplayUI(); // Show 100%
+
+    loadNextPage();
     if(typeof observer !== 'undefined') observer.observe(sentinel);
     return;
   }
@@ -843,6 +835,43 @@ function loadBigPreview(file) {
   noSel.textContent = "Preview not available for this file type";
   noSel.classList.remove("hidden");
   document.getElementById("downloadPdfBtn").classList.add("hidden");
+}
+
+function loadNextPage() {
+    if (viewerState.isLoading || viewerState.isFinished) return;
+    viewerState.isLoading = true;
+
+    const pageIndex = viewerState.nextPageToLoad;
+    const img = document.createElement("img");
+    
+    // 🚨 THE FIX: Removed 'transition-all duration-100' so layout updates instantly!
+    img.className = "pdf-page-img shadow-md mb-2 h-auto bg-white";
+    img.style.maxWidth = "none"; 
+    img.style.width = `${pdfZoomState.scale * 100}%`;
+    img.alt = `Page ${pageIndex + 1}`;
+    
+    const url = `/coreapi/render-page/?path=${encodeURIComponent(viewerState.path)}&page=${pageIndex}&zoom=1.5`;
+
+    img.onload = () => {
+        viewerState.isLoading = false;
+        viewerState.nextPageToLoad++;
+        pageCountDisplay.textContent = `Pages loaded: ${viewerState.nextPageToLoad}`;
+        
+        if (isSentinelVisible()) {
+            loadNextPage();
+        }
+    };
+
+    img.onerror = () => {
+        viewerState.isFinished = true;
+        viewerState.isLoading = false;
+        img.remove(); 
+        scrollSentinel.classList.add("hidden"); 
+        observer.unobserve(scrollSentinel); 
+    };
+
+    img.src = url;
+    scrollContainer.insertBefore(img, scrollSentinel);
 }
 /* =========================
    FILE INFO
@@ -1392,52 +1421,6 @@ function loadBigPreview(file) {
     }
 }
 
-// --- 2. LOAD NEXT PAGE LOGIC ---
-function loadNextPage() {
-    if (viewerState.isLoading || viewerState.isFinished) return;
-    
-    viewerState.isLoading = true;
-
-    // specific page index to load
-    const pageIndex = viewerState.nextPageToLoad;
-    
-    // Create the image element placeholder
-    const img = createPageImage(pageIndex);
-    
-    // Construct Backend URL
-    // Note: We use the 'render-page' view we created earlier
-    const url = `/coreapi/render-page/?path=${encodeURIComponent(viewerState.path)}&page=${pageIndex}&zoom=${viewerState.zoom}`;
-
-    img.onload = () => {
-        viewerState.isLoading = false;
-        viewerState.nextPageToLoad++; // Prepare for next page
-        
-        // Update "Page X" display based on what is currently loaded
-        pageCountDisplay.textContent = `Pages loaded: ${viewerState.nextPageToLoad}`;
-        
-        // If the Sentinel is still visible (big screen, small PDF), load another one immediately
-        // This prevents getting stuck with only 1 page on a large monitor
-        if (isSentinelVisible()) {
-            loadNextPage();
-        }
-    };
-
-    img.onerror = () => {
-        // ERROR usually means 404 Not Found -> End of Document
-        console.log("End of document reached or error.");
-        viewerState.isFinished = true;
-        viewerState.isLoading = false;
-        img.remove(); // Remove the broken image
-        scrollSentinel.classList.add("hidden"); // Hide the spinner
-        observer.unobserve(scrollSentinel); // Stop watching
-    };
-
-    img.src = url;
-    
-    // Insert before the spinner
-    scrollContainer.insertBefore(img, scrollSentinel);
-}
-
 // --- 3. HELPER: CREATE IMAGE ELEMENT ---
 function createPageImage(index, isSingle = false) {
     const img = document.createElement("img");
@@ -1469,41 +1452,158 @@ function isSentinelVisible() {
     return (rect.top <= containerRect.bottom);
 }
 
-// --- 5. ZOOM CONTROLS ---
-// Since we have many images, we update CSS transform for all of them
-function updateZoom() {
-    const images = document.querySelectorAll('.pdf-page-img');
-    images.forEach(img => {
-        // We use CSS width % to handle zoom cleanly in a flex column
-        // Base is 100% (fit width). 
-        // Note: Real PDF viewers re-render at higher resolution on zoom. 
-        // For simple CSS zoom:
-        img.style.width = `${100 * viewerState.zoom}%`;
-        img.style.maxWidth = "none"; // Allow it to overflow container if zoomed in
+/* ==========================================
+   PDF PINCH, SCROLL & DOUBLE-TAP ZOOM LOGIC (WITH ORIGIN TRACKING)
+========================================== */
+let pdfZoomState = {
+    scale: 1.0,
+    initialPinchDist: 0,
+    initialScale: 1.0,
+    min: 0.5, 
+    max: 4.0  
+};
+
+// The Magic Function: It accepts X/Y coordinates to know WHERE to zoom
+function applyPdfZoom(originX, originY) {
+    if (!scrollContainer) return;
+    
+    const rect = scrollContainer.getBoundingClientRect();
+    
+    // 1. Identify the focal point (Default to center of screen if using +/- buttons)
+    const clientX = originX !== undefined ? originX : rect.left + rect.width / 2;
+    const clientY = originY !== undefined ? originY : rect.top + rect.height / 2;
+
+    const viewX = clientX - rect.left;
+    const viewY = clientY - rect.top;
+
+    // 2. Calculate where we are looking AS A PERCENTAGE of the total scrollable area
+    const oldScrollWidth = scrollContainer.scrollWidth;
+    const oldScrollHeight = scrollContainer.scrollHeight;
+    
+    const pctX = (scrollContainer.scrollLeft + viewX) / oldScrollWidth;
+    const pctY = (scrollContainer.scrollTop + viewY) / oldScrollHeight;
+
+    // 3. Apply CSS Alignment (Prevents the left side from clipping)
+    if (pdfZoomState.scale > 1.0) {
+        scrollContainer.classList.remove('items-center');
+        scrollContainer.classList.add('items-start');
+    } else {
+        scrollContainer.classList.remove('items-start');
+        scrollContainer.classList.add('items-center');
+    }
+
+    // 4. Apply the Scale to the images instantly
+    const pages = scrollContainer.querySelectorAll('.pdf-page-img');
+    pages.forEach(img => {
+        img.style.width = `${pdfZoomState.scale * 100}%`;
     });
     
-    // Also re-render future pages at higher quality? 
-    // For now, let's stick to CSS scaling for instant feedback.
-    // If you want higher quality, we'd need to clear list and re-fetch with &zoom=X parameter.
-    
-    zoomLevelDisplay.textContent = `${Math.round(viewerState.zoom * 100)}%`;
+    updateZoomDisplayUI();
+
+    // 5. 🚨 THE FIX: Force immediate layout reflow, then apply scrollbars
+    // By asking for scrollWidth immediately after setting image width, it forces the browser to calculate instantly.
+    const newScrollWidth = scrollContainer.scrollWidth;
+    const newScrollHeight = scrollContainer.scrollHeight;
+
+    scrollContainer.scrollLeft = (newScrollWidth * pctX) - viewX;
+    scrollContainer.scrollTop = (newScrollHeight * pctY) - viewY;
 }
 
+function updateZoomDisplayUI() {
+    if(zoomLevelDisplay) {
+        zoomLevelDisplay.textContent = `${Math.round(pdfZoomState.scale * 100)}%`;
+    }
+}
+
+// 1. Button Controls (Defaults to center screen)
 document.getElementById("pdfZoomIn").onclick = () => {
-    if (viewerState.zoom < 2.0) {
-        viewerState.zoom += 0.25;
-        updateZoom();
+    if (pdfZoomState.scale < pdfZoomState.max) {
+        pdfZoomState.scale += 0.25;
+        applyPdfZoom(); 
     }
 };
 
 document.getElementById("pdfZoomOut").onclick = () => {
-    if (viewerState.zoom > 0.5) {
-        viewerState.zoom -= 0.25;
-        updateZoom();
+    if (pdfZoomState.scale > pdfZoomState.min) {
+        pdfZoomState.scale -= 0.25;
+        applyPdfZoom();
     }
 };
 
+// Event Listeners for Scroll Container
+if (scrollContainer) {
+    let pdfLastTap = 0; // Tracks double-taps
 
+    // 2. Desktop: Double-Click to Zoom at Cursor
+    scrollContainer.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        pdfZoomState.scale = (pdfZoomState.scale === 1.0) ? 2.5 : 1.0;
+        applyPdfZoom(e.clientX, e.clientY); // Pass Mouse Coordinates!
+    });
+
+    // 3. Desktop: Ctrl + Scroll Wheel at Cursor
+    scrollContainer.addEventListener('wheel', (e) => {
+        if (e.ctrlKey) {
+            e.preventDefault(); 
+            const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
+            pdfZoomState.scale = Math.min(Math.max(pdfZoomState.min, pdfZoomState.scale + zoomDelta), pdfZoomState.max);
+            applyPdfZoom(e.clientX, e.clientY); // Pass Mouse Coordinates!
+        }
+    }, { passive: false });
+
+    // 4. Tablet: Pinch & Double-Tap
+    scrollContainer.addEventListener('touchstart', (e) => {
+        // --- Double Tap Detection ---
+        if (e.touches.length === 1) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - pdfLastTap;
+            
+            if (tapLength < 300 && tapLength > 0) {
+                e.preventDefault(); 
+                pdfZoomState.scale = (pdfZoomState.scale === 1.0) ? 2.5 : 1.0;
+                applyPdfZoom(e.touches[0].clientX, e.touches[0].clientY); // Pass Finger Coordinates!
+                pdfLastTap = 0; 
+            } else {
+                pdfLastTap = currentTime;
+            }
+        }
+
+        // --- Pinch Detection ---
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            pdfZoomState.initialPinchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            pdfZoomState.initialScale = pdfZoomState.scale;
+        }
+    }, { passive: false });
+
+    // 5. Tablet: Track Pinch Movement
+    scrollContainer.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && pdfZoomState.initialPinchDist > 0) {
+            e.preventDefault();
+            const currentDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const scaleFactor = currentDist / pdfZoomState.initialPinchDist;
+            pdfZoomState.scale = Math.min(Math.max(pdfZoomState.min, pdfZoomState.initialScale * scaleFactor), pdfZoomState.max);
+            
+            // Find center point between two fingers
+            const pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            
+            applyPdfZoom(pinchCenterX, pinchCenterY); // Zoom precisely into the pinch!
+        }
+    }, { passive: false });
+
+    scrollContainer.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+            pdfZoomState.initialPinchDist = 0;
+        }
+    });
+}
 /* ==========================================
    UPDATED: FULLSCREEN MODAL WITH ZOOM
    ========================================== */
@@ -1531,11 +1631,19 @@ let modalState = {
 };
 
 /* --- OPEN MODAL BUTTON --- */
-/* --- OPEN MODAL BUTTON --- */
 document.getElementById("openFullBtn").onclick = () => {
     if (!currentFile) return alert("Select a file first");
 
-    // 1. Show Modal
+    const ext = currentFile.name.split(".").pop().toLowerCase();
+    const url = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
+
+    // If PDF, open in a new tab!
+    if (ext === 'pdf') {
+        window.open(url, '_blank');
+        return; 
+    }
+
+    // --- IMAGE MODAL LOGIC ---
     const fullscreenModal = document.getElementById("fullscreenModal");
     const modalTitle = document.getElementById("modalTitle");
     
@@ -1543,72 +1651,42 @@ document.getElementById("openFullBtn").onclick = () => {
     fullscreenModal.setAttribute("aria-hidden", "false");
     modalTitle.textContent = currentFile.name;
 
-    // 2. GET ELEMENTS
     const modalFrame = document.getElementById("modalFrame");
     const imageZoomWrapper = document.getElementById("imageZoomWrapper");
     const modalPdfContainer = document.getElementById("modalPdfContainer");
     const modalImage = document.getElementById("modalImage");
 
-    // 3. RESET ALL (Hide & Remove Flex)
-    // We explicitly remove 'flex' and set display 'none' to prevent overlapping
     [modalFrame, imageZoomWrapper, modalPdfContainer].forEach(el => {
         el.classList.add("hidden");
-        el.classList.remove("flex"); // Critical Fix
-        el.style.display = "none";   // Double safety
+        el.classList.remove("flex"); 
+        el.style.display = "none";   
     });
     
-    modalPdfContainer.innerHTML = ""; // Clear old PDF pages
+    modalPdfContainer.innerHTML = ""; 
     
-    // Reset Zoom State
     currentModalZoom = 1.0;
     if(typeof updateModalZoomUI === "function") updateModalZoomUI();
 
     modalState.path = currentFile.path;
-    const ext = currentFile.name.split(".").pop().toLowerCase();
 
-    // 4. CASE A: PDF
-    if (ext === 'pdf') {
-        modalState.mode = 'pdf';
-        
-        // Show PDF Container
-        modalPdfContainer.classList.remove("hidden");
-        modalPdfContainer.classList.add("flex"); // Restore Flex layout
-        modalPdfContainer.style.display = "flex";
-        
-        initPdfModal();
-    } 
-    // 5. CASE B: IMAGE
-    else if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
+    if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
         modalState.mode = 'image';
         
-        // Show Image Wrapper
         imageZoomWrapper.classList.remove("hidden");
-        imageZoomWrapper.classList.add("flex"); // Restore Flex layout
+        imageZoomWrapper.classList.add("flex"); 
         imageZoomWrapper.style.display = "flex";
         
         modalImage.classList.remove("hidden");
-        
-        // Load High-Res
-        modalImage.src = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
-        
-        // Reset Style
+        modalImage.src = url + `&t=${new Date().getTime()}`;
         modalImage.style.transform = "scale(1)";
         modalImage.style.maxWidth = "100%";
         modalImage.style.maxHeight = "100%";
         modalImage.style.margin = "0";
-    }
-    // 6. CASE C: OTHER
-    else {
-        // Fallback for non-previewable files
+    } else {
         modalPdfContainer.classList.remove("hidden");
         modalPdfContainer.classList.add("flex");
         modalPdfContainer.style.display = "flex";
-        
-        modalPdfContainer.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-2">
-                <i class="fas fa-file-alt text-4xl"></i>
-                <span>Preview not available for this file type</span>
-            </div>`;
+        modalPdfContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500 gap-2"><i class="fas fa-file-alt text-4xl"></i><span>Preview not available</span></div>`;
     }
 };
 /* --- ZOOM LOGIC --- */

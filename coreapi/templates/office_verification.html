@@ -9,18 +9,18 @@
         --sidebar-w: 280px;
         --actions-w: 300px;
         --header-h: 60px;
-        --brand-blue: #004a8f;       
-        --brand-accent: #0066cc;     
-        --bg-app: #f0f2f5;           
+        --brand-blue: #004a8f;
+        --brand-accent: #0066cc;
+        --bg-app: #f0f2f5;
         --bg-white: #ffffff;
-        --text-dark: #1f2937;        
-        --text-grey: #6b7280;        
-        --border-color: #d1d5db;     
+        --text-dark: #1f2937;
+        --text-grey: #6b7280;
+        --border-color: #d1d5db;
         --success: #059669;
         --danger: #dc2626;
         --warning: #d97706;
         --font-stack: 'Roboto', 'Segoe UI', sans-serif;
-        --shadow-card: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     /* --- GLOBAL RESET --- */
@@ -28,8 +28,9 @@
         font-family: var(--font-stack);
         background-color: var(--bg-app);
         color: var(--text-dark);
-        margin: 0; padding: 0;
-        font-size: 14px; 
+        margin: 0;
+        padding: 0;
+        font-size: 14px;
     }
 
     /* --- LAYOUT GRID --- */
@@ -44,34 +45,84 @@
     /* --- RESPONSIVE --- */
     @media (max-width: 1024px) {
         .office-workspace {
-            grid-template-columns: 1fr; 
+            grid-template-columns: 1fr;
             grid-template-rows: auto 1fr auto;
-            height: auto; min-height: 100vh; overflow-y: auto;
+            height: auto;
+            min-height: 100vh;
+            overflow-y: auto;
         }
-        .col-files, .col-actions { height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
-        .col-analysis { padding: 15px; overflow: visible; }
-        .data-row { grid-template-columns: 1fr auto; gap: 8px; }
-        .field-label { grid-column: 1 / -1; margin-bottom: 4px; }
+
+        .col-files,
+        .col-actions {
+            height: auto;
+            border-right: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .col-analysis {
+            padding: 15px;
+            overflow: visible;
+        }
+
+        .data-row {
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+        }
+
+        .field-label {
+            grid-column: 1 / -1;
+            margin-bottom: 4px;
+        }
     }
 
     /* --- SIDEBARS --- */
-    .col-files, .col-actions {
+    .col-files,
+    .col-actions {
         background: var(--bg-white);
         border-right: 1px solid var(--border-color);
         border-left: 1px solid var(--border-color);
-        display: flex; flex-direction: column;
-        overflow: hidden; 
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
 
     .sidebar-header {
-        padding: 15px 20px; background: var(--brand-blue); color: white;
-        font-weight: 500; display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 20px;
+        background: var(--brand-blue);
+        color: white;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    .sidebar-header h5 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .info-group { padding: 12px 20px; border-bottom: 1px solid #f3f4f6; }
-    .info-label { font-size: 11px; font-weight: 700; color: var(--text-grey); text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .info-value { font-size: 13px; color: var(--brand-blue); font-weight: 500; word-break: break-word; }
+    .sidebar-header h5 {
+        margin: 0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-group {
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-grey);
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 13px;
+        color: var(--brand-blue);
+        font-weight: 500;
+        word-break: break-word;
+    }
 
     /* --- MAIN CONTENT --- */
     .col-analysis {
@@ -82,86 +133,264 @@
     }
 
     .page-header {
-        margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
-        background: white; padding: 15px 20px; border-radius: 8px; box-shadow: var(--shadow-card);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-card);
     }
-    .page-title h2 { margin: 0; font-size: 18px; color: var(--brand-blue); font-weight: 700; }
-    .case-id { font-size: 12px; color: var(--text-grey); margin-top: 4px; font-family: monospace; }
+
+    .page-title h2 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--brand-blue);
+        font-weight: 700;
+    }
+
+    .case-id {
+        font-size: 12px;
+        color: var(--text-grey);
+        margin-top: 4px;
+        font-family: monospace;
+    }
 
     /* --- CARDS & ROWS --- */
     .data-section {
-        background: white; border-radius: 8px; box-shadow: var(--shadow-card);
-        margin-bottom: 20px; border: 1px solid #e5e7eb; overflow: hidden;
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow-card);
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
     }
+
     .section-header {
-        background: #f9fafb; padding: 12px 20px; border-bottom: 1px solid #e5e7eb;
-        color: var(--brand-blue); font-weight: 700; font-size: 13px; text-transform: uppercase;
-        display: flex; align-items: center; gap: 8px;
+        background: #f9fafb;
+        padding: 12px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        color: var(--brand-blue);
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    .section-header::before { content: ''; display: block; width: 4px; height: 14px; background: var(--brand-accent); border-radius: 2px; }
+
+    .section-header::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 14px;
+        background: var(--brand-accent);
+        border-radius: 2px;
+    }
 
     .data-row {
-        display: grid; grid-template-columns: 250px 1fr 100px; 
-        padding: 12px 20px; border-bottom: 1px solid #f3f4f6; align-items: start; transition: background 0.1s;
+        display: grid;
+        grid-template-columns: 250px 1fr 100px;
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        align-items: start;
+        transition: background 0.1s;
     }
-    .data-row:hover { background-color: #f8fafc; }
 
-    .field-label { font-size: 12px; font-weight: 500; color: var(--text-grey); padding-top: 6px; }
-    .field-value { font-size: 14px; color: var(--text-dark); font-weight: 400; line-height: 1.5; padding: 4px 8px 4px 0; }
+    .data-row:hover {
+        background-color: #f8fafc;
+    }
+
+    .field-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-grey);
+        padding-top: 6px;
+    }
+
+    .field-value {
+        font-size: 14px;
+        color: var(--text-dark);
+        font-weight: 400;
+        line-height: 1.5;
+        padding: 4px 8px 4px 0;
+    }
 
     /* --- CONTROLS --- */
-    .action-group { display: flex; gap: 8px; justify-content: flex-end; }
-    
-    .btn-edit {
-        background: white; border: 1px solid #e5e7eb; color: var(--text-grey);
-        padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    .action-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
     }
-    .btn-edit:hover { border-color: var(--brand-accent); color: var(--brand-accent); }
-    .btn-edit.active { background: var(--brand-accent); color: white; border-color: var(--brand-accent); }
+
+    .btn-edit {
+        background: white;
+        border: 1px solid #e5e7eb;
+        color: var(--text-grey);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        border-color: var(--brand-accent);
+        color: var(--brand-accent);
+    }
+
+    .btn-edit.active {
+        background: var(--brand-accent);
+        color: white;
+        border-color: var(--brand-accent);
+    }
 
     .edit-input {
-        width: 100%; padding: 6px 10px; font-size: 13px; border: 1px solid var(--border-color);
-        border-radius: 4px; margin-top: 5px; outline: none; transition: border 0.2s;
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 13px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        margin-top: 5px;
+        outline: none;
+        transition: border 0.2s;
     }
-    .edit-input:focus { border-color: var(--brand-accent); box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1); }
+
+    .edit-input:focus {
+        border-color: var(--brand-accent);
+        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+    }
 
     /* --- DOC TABLE --- */
-    .doc-table-wrapper { margin-top: 10px; border: 1px solid #e5e7eb; border-radius: 4px; background: #f9fafb; padding: 10px; }
-    .doc-row-entry { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 8px; }
+    .doc-table-wrapper {
+        margin-top: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        background: #f9fafb;
+        padding: 10px;
+    }
+
+    .doc-row-entry {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
     .btn-add-doc {
-        background: white; border: 1px dashed var(--brand-accent); color: var(--brand-accent);
-        width: 100%; padding: 8px; font-weight: 500; font-size: 12px; cursor: pointer; border-radius: 4px;
+        background: white;
+        border: 1px dashed var(--brand-accent);
+        color: var(--brand-accent);
+        width: 100%;
+        padding: 8px;
+        font-weight: 500;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 4px;
     }
 
     /* --- UTILS --- */
-    .hidden { display: none !important; }
-    .search-box { width: 90%; margin: 10px auto; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; display: block; font-size: 13px;}
-    .log-item { padding: 10px 15px; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
-    .log-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; background: #fee2e2; color: #991b1b; font-weight: bold; font-size: 10px; margin-top: 2px; }
-    .btn-primary { background: var(--brand-blue); color: white; border: none; padding: 12px; width: 100%; font-weight: 500; font-size: 14px; cursor: pointer; transition: background 0.2s; }
-    /* --- SURVEY TABLE STYLES --- */
-    .survey-row { 
-        display: grid; 
-        grid-template-columns: 2fr 1.5fr 0.5fr 0.5fr auto; 
-        gap: 8px; 
-        align-items: center; 
-        margin-bottom: 8px; 
-        padding: 8px; 
-        background: #fff; 
-        border: 1px solid #e5e7eb; 
-        border-radius: 4px; 
+    .hidden {
+        display: none !important;
     }
-    .survey-row input[type="text"] { width: 100%; box-sizing: border-box; }
-    .chk-label { font-size: 10px; font-weight: bold; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .badge-dry { background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid #bbf7d0; }
-    .badge-wet { background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid #bfdbfe; }
-        /* --- CHECKBOX GRID STYLES --- */
+
+    .search-box {
+        width: 90%;
+        margin: 10px auto;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        display: block;
+        font-size: 13px;
+    }
+
+    .log-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 12px;
+    }
+
+    .log-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #fee2e2;
+        color: #991b1b;
+        font-weight: bold;
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+    .btn-primary {
+        background: var(--brand-blue);
+        color: white;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        font-weight: 500;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    /* --- SURVEY TABLE STYLES --- */
+    .survey-row {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 0.5fr 0.5fr auto;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 8px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+    }
+
+    .survey-row input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .chk-label {
+        font-size: 10px;
+        font-weight: bold;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .badge-dry {
+        background: #dcfce7;
+        color: #166534;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-wet {
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        border: 1px solid #bfdbfe;
+    }
+
+    /* --- CHECKBOX GRID STYLES --- */
     .checkbox-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 Columns */
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 Columns */
         gap: 8px;
         margin-top: 5px;
     }
+
     .checkbox-label {
         display: flex;
         align-items: center;
@@ -171,46 +400,132 @@
         border-radius: 4px;
         transition: background 0.1s;
     }
-    .checkbox-label:hover { background: #f3f4f6; }
-    .checkbox-label input { margin-right: 8px; accent-color: var(--brand-accent); }
+
+    .checkbox-label:hover {
+        background: #f3f4f6;
+    }
+
+    .checkbox-label input {
+        margin-right: 8px;
+        accent-color: var(--brand-accent);
+    }
 
     /* View Mode (Disabled) Style */
-    .checkbox-label.disabled { cursor: default; color: #374151; }
-    .checkbox-label.disabled input:checked { accent-color: #059669; } /* Green for confirmed items */
+    .checkbox-label.disabled {
+        cursor: default;
+        color: #374151;
+    }
+
+    .checkbox-label.disabled input:checked {
+        accent-color: #059669;
+    }
+
+    /* Green for confirmed items */
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="office-workspace">
-    
+
     <aside class="col-files">
         <div class="sidebar-header">
             <a href="{% url 'coreapi:office' %}">Back</a>
             <h5>Case Search</h5>
             <i class="fas fa-search"></i>
         </div>
-        
-        <div style="padding: 15px; border-bottom: 1px solid var(--border-color);">
-            <label style="font-size: 12px; font-weight: 700; color: var(--text-grey); display: block; margin-bottom: 5px;">ENTER FILE NUMBER</label>
-            <input type="text" id="searchInput" class="search-box" style="width: 100%; margin: 0;" placeholder="e.g. 1011672">
-            <button onclick="performSearch()" class="btn-primary" style="margin-top: 10px; border-radius: 4px;">SEARCH</button>
+
+        <div style="padding: 15px; border-bottom: 1px solid var(--border-color); background: #f9fafb;">
+            <h6 style="margin-top: 0; margin-bottom: 10px; font-size: 13px; color: var(--brand-blue);">Case Finder</h6>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px;">
+                <div>
+                    <label style="font-size: 10px; font-weight: bold; color: var(--text-grey);">BANK</label>
+                    <select id="bank_select" class="search-box" style="width: 100%; padding: 4px;">
+                        <option value="1000">HDFC</option>
+                        <option value="2000">Muthoot</option>
+                        <option value="3000">Bajaj</option>
+                        <option value="4000">DCB</option>
+                        <option value="5000">PNBHFL</option>
+                        <option value="6000">SBI</option>
+                        <option value="7000">CSB</option>
+                        <option value="8000">Chola</option>
+                        <option value="9000">SIB</option>
+                        <option value="10000">CHOLA SME</option>
+                        <option value="11000">ICICI</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 10px; font-weight: bold; color: var(--text-grey);">DISTRICT</label>
+                    <select id="district_select" class="search-box" style="width: 100%; padding: 4px;">
+                        <option value="01">TVM</option>
+                        <option value="02">KLM</option>
+                        <option value="03">PTA</option>
+                        <option value="04">ALP</option>
+                        <option value="05">KTM</option>
+                        <option value="06">IDK</option>
+                        <option value="07">EKM</option>
+                        <option value="08">TSR</option>
+                        <option value="09">PKD</option>
+                        <option value="10">MLP</option>
+                        <option value="11">KKD</option>
+                        <option value="12">WYD</option>
+                        <option value="13">KNR</option>
+                        <option value="14">KSD</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 10px; font-weight: bold; color: var(--text-grey);">YEAR</label>
+                    <select id="year_select" class="search-box" style="width: 100%; padding: 4px;">
+                        <option value="25">2025</option>
+                        <option value="26" selected>2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <label
+                style="font-size: 11px; font-weight: bold; color: var(--text-grey); display: block; margin-bottom: 5px;">ENTER
+                NUMBER OR NAME</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="searchInput" class="search-box" style="width: 100%; margin: 0;"
+                    placeholder="e.g. 23 or Mahesh">
+                <button onclick="performSearch()" class="btn-primary"
+                    style="margin: 0; padding: 0 15px; border-radius: 4px; width: auto;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
         </div>
 
         <div id="metaContainer" class="hidden" style="flex: 1; overflow-y: auto;">
-            <div class="sidebar-header" style="background: #f3f4f6; color: var(--text-dark); border-bottom: 1px solid var(--border-color);">
+            <div class="sidebar-header"
+                style="background: #f3f4f6; color: var(--text-dark); border-bottom: 1px solid var(--border-color);">
                 <h5 style="font-size: 12px;">Case Details</h5>
             </div>
-            <div class="info-group"><span class="info-label">User</span><div class="info-value" id="meta_user">--</div></div>
-            <div class="info-group"><span class="info-label">File No</span><div class="info-value" id="meta_file_no">--</div></div>
-            <div class="info-group"><span class="info-label">Applicant</span><div class="info-value" id="meta_applicant">--</div></div>
-            <div class="info-group"><span class="info-label">Target Folder</span><div class="info-value" id="meta_folder" style="font-size:11px; color:#6b7280;">--</div></div>
-            <div class="info-group"><span class="info-label">Created</span><div class="info-value" id="meta_created">--</div></div>
-            <div class="info-group"><span class="info-label">PDF</span><div class="info-value" id="meta_pdf">--</div></div>
-            <div class="info-group"><span class="info-label">Score</span><div class="info-value" id="meta_score" style="color:var(--success); font-weight:700;">0%</div></div>
+            <div class="info-group"><span class="info-label">User</span>
+                <div class="info-value" id="meta_user">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">File No</span>
+                <div class="info-value" id="meta_file_no">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">Applicant</span>
+                <div class="info-value" id="meta_applicant">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">Target Folder</span>
+                <div class="info-value" id="meta_folder" style="font-size:11px; color:#6b7280;">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">Created</span>
+                <div class="info-value" id="meta_created">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">PDF</span>
+                <div class="info-value" id="meta_pdf">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">Score</span>
+                <div class="info-value" id="meta_score" style="color:var(--success); font-weight:700;">0%</div>
+            </div>
         </div>
 
         <div style="margin-top: auto; padding: 20px; border-top: 1px solid var(--border-color);">
-            <a href="{% url 'coreapi:logout_api' %}" onclick="return confirmLogout()" style="display: flex; align-items: center; gap: 10px; color: var(--danger); text-decoration: none; font-weight: 500;">
+            <a href="{% url 'coreapi:logout_api' %}" onclick="return confirmLogout()"
+                style="display: flex; align-items: center; gap: 10px; color: var(--danger); text-decoration: none; font-weight: 500;">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -218,10 +533,13 @@
 
     <main class="col-analysis" id="mainScrollArea">
         <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
-            
+
             <div class="page-title">
-                <h2 style="margin: 0; font-size: 18px; color: var(--brand-blue); font-weight: 700;">Verification Report</h2>
-                <div class="case-id" id="activeCaseDisplay" style="font-size: 12px; color: var(--text-grey); margin-top: 4px; font-family: monospace;">Waiting for input...</div>
+                <h2 style="margin: 0; font-size: 18px; color: var(--brand-blue); font-weight: 700;">Verification Report
+                </h2>
+                <div class="case-id" id="activeCaseDisplay"
+                    style="font-size: 12px; color: var(--text-grey); margin-top: 4px; font-family: monospace;">Waiting
+                    for input...</div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -243,10 +561,12 @@
     <aside class="col-actions">
         <div class="sidebar-header">
             <h5>Correction Log</h5>
-            <span id="logCount" class="hidden" style="background: white; color: var(--brand-blue); padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">0</span>
+            <span id="logCount" class="hidden"
+                style="background: white; color: var(--brand-blue); padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">0</span>
         </div>
         <div id="logContainer" style="flex: 1; overflow-y: auto;">
-            <div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">
+            <div id="emptyLog"
+                style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">
                 No corrections pending.
             </div>
         </div>
@@ -261,21 +581,21 @@
 
 <script>
     let autoSaveTimer;
-    const DOC_OPTIONS = [ "Agreement",
-    "Encumbrance",
-    "Building Permit",
-    "Declaration",
-    "Location Sketch",
-    "Development Permit",
-    "Title Deed",
-    "Survey Sketch",
-    "Building Certificate",
-    "LTR",
-    "Building Tax receipt",
-    "Approved plan",
-    "Possession",
-    "Engineers plan",
-    "Other Document"];
+    const DOC_OPTIONS = ["Agreement",
+        "Encumbrance",
+        "Building Permit",
+        "Declaration",
+        "Location Sketch",
+        "Development Permit",
+        "Title Deed",
+        "Survey Sketch",
+        "Building Certificate",
+        "LTR",
+        "Building Tax receipt",
+        "Approved plan",
+        "Possession",
+        "Engineers plan",
+        "Other Document"];
     let currentFileNo = null;
     let modifiedFields = new Set();
     const scrollArea = document.getElementById('mainScrollArea');
@@ -283,12 +603,12 @@
     // --- 1. INITIALIZATION ---
     document.addEventListener("DOMContentLoaded", () => {
         const lastFile = localStorage.getItem("vadrida_last_file");
-        if(lastFile) {
+        if (lastFile) {
             document.getElementById('searchInput').value = lastFile;
             performSearch(true);
         }
         scrollArea.addEventListener('scroll', () => {
-            if(currentFileNo) localStorage.setItem(`scroll_${currentFileNo}`, scrollArea.scrollTop);
+            if (currentFileNo) localStorage.setItem(`scroll_${currentFileNo}`, scrollArea.scrollTop);
         });
     });
 
@@ -296,8 +616,8 @@
     function triggerAutoSave() {
         clearTimeout(autoSaveTimer);
         const btn = document.getElementById('btn-save');
-        if(btn) btn.innerText = "Saving..."; // Visual feedback
-        
+        if (btn) btn.innerText = "Saving..."; // Visual feedback
+
         autoSaveTimer = setTimeout(() => {
             saveData(true); // Quiet Mode
         }, 1000);
@@ -321,36 +641,62 @@
         return v ? v[2] : null;
     }
 
-    // --- 3. SEARCH ---
+    // --- 3. SEARCH (WITH CONCATENATION LOGIC) ---
     function performSearch(isRestore = false) {
-        const val = document.getElementById('searchInput').value.trim();
-        if(!val) return;
+        let val = document.getElementById('searchInput').value.trim();
+        if (!val) return;
 
-        if(!isRestore) {
+        // --- THE MAGIC: Concatenation Logic ---
+        // If the user typed only digits, we assume they are typing the sequence number
+        if (/^\d+$/.test(val)) {
+            const rawBank = document.getElementById('bank_select').value;
+            const dist = document.getElementById('district_select').value;
+            const year = document.getElementById('year_select').value;
+
+            // Convert Bank 1000 -> "01"
+            const bankShortCode = String(Math.floor(parseInt(rawBank) / 1000)).padStart(2, '0');
+
+            // Pad the user input to 4 digits (e.g., "1" -> "0001", "23" -> "0023")
+            const paddedSeq = String(val).padStart(4, '0');
+
+            // Build the final 10-digit ID
+            // e.g., "01" + "26" + "01" + "0001" = "0126010001"
+            const fullFileNo = `${bankShortCode}${year}${dist}${paddedSeq}`;
+
+            // Use the constructed ID for the search
+            val = fullFileNo;
+            console.log("Searching for constructed ID:", fullFileNo);
+        }
+
+        if (!isRestore) {
             document.getElementById('loadingSpinner').classList.remove('hidden');
             document.getElementById('metaContainer').classList.add('hidden');
         }
 
+        // Call your existing endpoint with the constructed file number
         fetch(`/coreapi/api/get-report-data/?file_no=${val}`)
             .then(r => r.json())
             .then(resp => {
                 document.getElementById('loadingSpinner').classList.add('hidden');
-                if(resp.found) {
+                if (resp.found) {
                     currentFileNo = resp.real_file_no || val;
                     localStorage.setItem("vadrida_last_file", currentFileNo);
-                    
+
                     document.getElementById('activeCaseDisplay').innerText = `CASE ID: ${currentFileNo}`;
                     populateMeta(resp.meta);
                     renderGrid(resp.data);
-                    
+
                     restoreDrafts(currentFileNo);
                     restoreScroll(currentFileNo);
                 } else {
-                    if(!isRestore) alert("Record Not Found");
+                    if (!isRestore) alert(`Record Not Found for ID: ${val}`);
                     document.getElementById('activeCaseDisplay').innerText = "Record Not Found";
                 }
             })
-            .catch(e => console.error(e));
+            .catch(e => {
+                console.error(e);
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            });
     }
 
     function populateMeta(meta) {
@@ -366,36 +712,36 @@
 
     function restoreScroll(fileNo) {
         const pos = localStorage.getItem(`scroll_${fileNo}`);
-        if(pos) setTimeout(() => scrollArea.scrollTop = parseInt(pos), 100);
+        if (pos) setTimeout(() => scrollArea.scrollTop = parseInt(pos), 100);
     }
 
     const CHECKLIST_OPTIONS = [
-    "Agreement", "Encumbrance", "Building Permit", "Declaration", 
-    "Location Sketch", "Development Permit", "Title Deed", "Survey Sketch", 
-    "Building Certificate", "LTR", "Building Tax receipt", "Approved plan", 
-    "Possession", "Engineers plan"
+        "Agreement", "Encumbrance", "Building Permit", "Declaration",
+        "Location Sketch", "Development Permit", "Title Deed", "Survey Sketch",
+        "Building Certificate", "LTR", "Building Tax receipt", "Approved plan",
+        "Possession", "Engineers plan"
     ];
 
     // --- 4. RENDER GRID (UPDATED FOR CHECKBOXES) ---
     function renderGrid(data) {
         const container = document.getElementById('formContent');
         container.innerHTML = "";
-        
+
         const sections = ['Valuers_Checklist', 'Ownership_Analysis', 'Survey', 'Boundary_analysis_property_identification', 'Demarcation', 'Access', 'Purchase_resale', 'Building_analysis', 'land_inspection_details', 'Sketch'];
 
         sections.forEach(sec => {
             const sData = data[sec];
-            if(!sData) return;
+            if (!sData) return;
 
             // Filter Empty Fields
-            const rows = Object.entries(sData).filter(([k,v]) => {
-                if(v === null || v === undefined || v === "" || v === "---" || v === "Not Provided") return false;
-                if(Array.isArray(v) && v.length === 0) return false;
-                if(typeof v === 'object' && Object.keys(v).length === 0) return false;
+            const rows = Object.entries(sData).filter(([k, v]) => {
+                if (v === null || v === undefined || v === "" || v === "---" || v === "Not Provided") return false;
+                if (Array.isArray(v) && v.length === 0) return false;
+                if (typeof v === 'object' && Object.keys(v).length === 0) return false;
                 return true;
             });
 
-            if(rows.length === 0) return;
+            if (rows.length === 0) return;
 
             const card = document.createElement('div');
             card.className = "data-section";
@@ -404,9 +750,9 @@
             rows.forEach(([key, val]) => {
                 const uid = `${sec}_${key}`;
                 const path = `${sec}.${key}`;
-                
+
                 const isDoc = (key === "documents_received");
-                const isSurvey = (key === "Surveydocs" || key === "docs"); 
+                const isSurvey = (key === "Surveydocs" || key === "docs");
 
                 const rowDiv = document.createElement('div');
                 rowDiv.className = "data-row";
@@ -415,84 +761,47 @@
                 let contentHtml = "";
 
                 // ----------------------------------------------------
-                // TYPE 1: CHECKBOX LIST (Documents Received)
+                // TYPE 1: DYNAMIC DOCUMENT TABLE (Documents Received)
                 // ----------------------------------------------------
                 if (isDoc) {
                     let currentDocs = [];
-                    // Parse Data
+                    // Handle arrays, parsed JSON, or legacy simple strings
                     if (Array.isArray(val)) currentDocs = val;
                     else if (typeof val === 'string') {
-                        try { currentDocs = JSON.parse(val); } catch(e) { 
-                            // Handle simple string case
-                            currentDocs = [val]; 
-                        }
+                        try { currentDocs = JSON.parse(val); }
+                        catch (e) { currentDocs = [{ name: val }]; }
                     }
 
-                    // Helper to generate checkboxes
-                    const generateCheckboxes = (isEditable) => {
-                        return CHECKLIST_OPTIONS.map(opt => {
-                            const isChecked = currentDocs.includes(opt);
-                            // In View mode, only show Checked items (Cleaner) 
-                            // OR show all disabled. Let's show all disabled as requested.
-                            const disabledAttr = isEditable ? `onchange="serializeCheckboxes('${uid}')"` : 'disabled';
-                            const classAttr = isEditable ? '' : 'disabled';
-                            
-                            return `
-                            <label class="checkbox-label ${classAttr}">
-                                <input type="checkbox" value="${opt}" ${isChecked ? 'checked' : ''} ${disabledAttr}> 
-                                ${opt}
-                            </label>`;
-                        }).join("");
-                    };
+                    // A. VIEW HTML (Read Only List)
+                    let viewHtml = currentDocs.map(item => {
+                        let docName = typeof item === 'string' ? item : (item.name || 'Doc');
+                        let docNum = item.num ? `<span style="color:#64748b; font-size:11px; margin-left:8px;">Ref: ${item.num}</span>` : '';
+                        let docDate = item.date ? `<span style="color:#64748b; font-size:11px; margin-left:8px;">Date: ${item.date}</span>` : '';
+                        return `<div style="padding: 5px 0; border-bottom: 1px dashed #eee; font-size: 13px; font-weight: 500;">
+                                    <i class="fas fa-file-alt" style="color:var(--brand-accent); margin-right:5px;"></i> ${docName} ${docNum} ${docDate}
+                                </div>`;
+                    }).join("");
 
-                    // A. VIEW HTML (Read Only)
+                    // B. EDITOR HTML (Dynamic Table Container)
                     contentHtml = `
-                        <div class="field-value" id="view_${uid}">
-                            <div class="checkbox-grid" style="pointer-events:none;">
-                                ${generateCheckboxes(false)}
-                            </div>
-                        </div>
+                        <div class="field-value" id="view_${uid}">${viewHtml || "No Documents"}</div>
                         
-                        <div id="editor_${uid}" class="hidden">
-                            <div class="checkbox-grid" id="chk_container_${uid}">
-                                ${generateCheckboxes(true)}
-                            </div>
+                        <div id="editor_${uid}" class="hidden doc-table-wrapper">
+                            <div id="doc_body_${uid}"></div>
+                            <button class="btn-add-doc" onclick="addDocRow('${uid}')">+ Add Document</button>
                             <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(currentDocs)}'>
                         </div>
                     `;
 
-                // ----------------------------------------------------
-                // TYPE 2: SURVEY DOCUMENTS (Complex Table)
-                // ----------------------------------------------------
-                } else if (isSurvey) {
-                    // (Keep existing Survey Logic...)
-                    let surveyArr = [];
-                    if(Array.isArray(val)) surveyArr = val;
-                    else if(typeof val === 'string') { try { surveyArr = JSON.parse(val); } catch(e){ surveyArr = []; } }
-
-                    let viewHtml = surveyArr.map(item => {
-                        const dry = item.check_dry ? `<span class="badge-dry">DRY</span>` : '';
-                        const wet = item.check_wet ? `<span class="badge-wet">WET</span>` : '';
-                        return `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed #eee;">
-                            <div><div style="font-weight:600; font-size:13px;">${item.name || 'Doc'}</div><div style="font-size:11px; color:#64748b;">Re-Sy: ${item.re_sy_subdiv_no || '--'}</div></div>
-                            <div style="display:flex; gap:5px;">${dry} ${wet}</div>
-                        </div>`;
-                    }).join("");
-                    
-                    contentHtml = `
-                        <div class="field-value" id="view_${uid}">${viewHtml || "No Docs"}</div>
-                        <div id="editor_${uid}" class="hidden doc-table-wrapper">
-                            <div id="survey_body_${uid}"></div>
-                            <button class="btn-add-doc" onclick="addSurveyRow('${uid}')">+ Add Survey Doc</button>
-                            <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(surveyArr)}'>
-                        </div>
-                    `;
-                    setTimeout(() => { if(document.getElementById(`survey_body_${uid}`)) surveyArr.forEach(d => addSurveyRow(uid, d)); }, 0);
-
-                // ----------------------------------------------------
-                // TYPE 3: STANDARD TEXT (With Array/JSON Cleaning)
-                // ----------------------------------------------------
+                    // C. Populate existing rows into the editor
+                    setTimeout(() => {
+                        if (document.getElementById(`doc_body_${uid}`)) {
+                            currentDocs.forEach(d => addDocRow(uid, d));
+                        }
+                    }, 0);
+                    // ----------------------------------------------------
+                    // TYPE 3: STANDARD TEXT (With Array/JSON Cleaning)
+                    // ----------------------------------------------------
                 } else {
                     let displayVal = val;
                     let editVal = val;
@@ -505,11 +814,11 @@
                                 displayVal = parsed.join(", ");
                                 editVal = displayVal;
                             }
-                        } catch(e) {}
+                        } catch (e) { }
                     } else if (Array.isArray(val)) {
                         displayVal = val.join(", ");
                         editVal = displayVal;
-                    } else if(typeof val === 'object') {
+                    } else if (typeof val === 'object') {
                         displayVal = JSON.stringify(val);
                         editVal = displayVal;
                     }
@@ -533,7 +842,7 @@
             });
             container.appendChild(card);
         });
-        
+
         resetLogs();
     }
 
@@ -541,16 +850,16 @@
     function serializeCheckboxes(uid) {
         const container = document.getElementById(`chk_container_${uid}`);
         const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-        
+
         const selected = [];
         checkboxes.forEach(chk => {
-            if(chk.checked) selected.push(chk.value);
+            if (chk.checked) selected.push(chk.value);
         });
-        
+
         // Update Hidden Input with JSON String
         const jsonStr = JSON.stringify(selected);
         document.getElementById(`input_${uid}`).value = jsonStr;
-        
+
         // Log & Save
         const label = document.getElementById(`input_${uid}`).getAttribute('data-label');
         logChange(uid, label);
@@ -597,7 +906,7 @@
             const dry = inputs[2].checked;
             const wet = inputs[3].checked;
 
-            if(name || resy) {
+            if (name || resy) {
                 result.push({
                     "name": name,
                     "re_sy_subdiv_no": resy,
@@ -609,7 +918,7 @@
 
         // Store as JSON string in the hidden input
         document.getElementById(`input_${id}`).value = JSON.stringify(result);
-        
+
         // Log changes
         logChange(id, "Survey Docs");
     }
@@ -620,12 +929,12 @@
         const editor = document.getElementById(`editor_${id}`);
         const input = document.getElementById(`input_${id}`);
 
-        if(editor.classList.contains("hidden")) {
+        if (editor.classList.contains("hidden")) {
             editor.classList.remove("hidden");
             btn.classList.add("active");
             btn.innerText = "Cancel";
-            
-            if(!isDoc) {
+
+            if (!isDoc) {
                 input.focus();
                 input.oninput = () => {
                     logChange(id, label);
@@ -639,27 +948,27 @@
             btn.classList.remove("active");
             btn.innerText = "Edit";
             removeLog(id);
-            removeDraft(currentFileNo, id); 
+            removeDraft(currentFileNo, id);
         }
     }
 
     // --- 6. DOCUMENT LOGIC ---
-    function addDocRow(id, data=null) {
+    function addDocRow(id, data = null) {
         const container = document.getElementById(`doc_body_${id}`);
         const div = document.createElement('div');
         div.className = "doc-row-entry";
 
         // Logic for Manual Add (empty) vs Data Load (filled)
-        let docName="", docNum="", docDate="", isCustom=false;
+        let docName = "", docNum = "", docDate = "", isCustom = false;
         if (typeof data === 'string') {
             docName = data;
-            if(docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
+            if (docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
         } else if (data && typeof data === 'object') {
             docName = data.name || ""; docNum = data.num || ""; docDate = data.date || "";
-            if(docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
+            if (docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
         }
 
-        let opts = `<option value="" disabled ${!docName?'selected':''}>Select...</option>`;
+        let opts = `<option value="" disabled ${!docName ? 'selected' : ''}>Select...</option>`;
         DOC_OPTIONS.forEach(o => {
             const isSelected = (isCustom && o === "Other Document") || (o === docName);
             opts += `<option value="${o}" ${isSelected ? 'selected' : ''}>${o}</option>`;
@@ -667,92 +976,103 @@
 
         div.innerHTML = `
             <div>
-                <select class="edit-input" style="margin:0" onchange="toggleOtherInput(this, '${id}')">${opts}</select>
-                <input type="text" class="edit-input ${isCustom ? '' : 'hidden'}" 
+                <select class="edit-input doc-select" style="margin:0" onchange="toggleOtherInput(this, '${id}')">${opts}</select>
+                <input type="text" class="edit-input doc-custom-input ${isCustom ? '' : 'hidden'}" 
                        style="margin-top:5px; border-color:#2563eb;" 
                        placeholder="Type Name..." 
                        value="${isCustom ? docName : ''}" 
                        oninput="serializeDocs('${id}'); triggerAutoSave()">
             </div>
-            <input type="text" class="edit-input" style="margin:0" placeholder="Ref No" value="${docNum}" oninput="serializeDocs('${id}'); triggerAutoSave()">
-            <input type="text" class="edit-input" style="margin:0" placeholder="Date" value="${docDate}" oninput="serializeDocs('${id}'); triggerAutoSave()">
+            <input type="text" class="edit-input doc-ref-input" style="margin:0" placeholder="Ref No" value="${docNum}" oninput="serializeDocs('${id}'); triggerAutoSave()">
+            <input type="text" class="edit-input doc-date-input" style="margin:0" placeholder="Date" value="${docDate}" oninput="serializeDocs('${id}'); triggerAutoSave()">
             <i class="fas fa-trash" style="color:var(--danger); cursor:pointer; margin-top:8px;" onclick="this.parentElement.remove(); serializeDocs('${id}'); triggerAutoSave()"></i>
         `;
         container.appendChild(div);
-        
-        if(!data) serializeDocs(id);
+
+        if (!data) serializeDocs(id);
     }
 
     function serializeDocs(id) {
         const rows = document.querySelectorAll(`#doc_body_${id} .doc-row-entry`);
         const docs = [];
-        rows.forEach(r => {
-            const firstCol = r.children[0]; 
-            const select = firstCol.querySelector('select');
-            const customInput = firstCol.querySelector('input');
-            const numInput = r.children[1]; 
-            const dateInput = r.children[2]; 
 
-            let finalName = select.value;
-            if (select.value === "Other Document") finalName = customInput.value;
+        rows.forEach(row => {
+            // Safely target elements by class instead of structural index
+            const select = row.querySelector('.doc-select');
+            const customInput = row.querySelector('.doc-custom-input');
+            const numInput = row.querySelector('.doc-ref-input');
+            const dateInput = row.querySelector('.doc-date-input');
 
-            if(finalName) {
-                docs.push({ name: finalName, num: numInput.value, date: dateInput.value });
+            let finalName = select ? select.value : "";
+            if (finalName === "Other Document" && customInput) {
+                finalName = customInput.value.trim();
+            }
+
+            // Save if there is ANY data in the row to prevent dropping keystrokes
+            if (finalName || (numInput && numInput.value) || (dateInput && dateInput.value)) {
+                docs.push({
+                    name: finalName,
+                    num: numInput ? numInput.value.trim() : "",
+                    date: dateInput ? dateInput.value.trim() : ""
+                });
             }
         });
 
-        const jsonStr = JSON.stringify(docs); // Store result
+        const jsonStr = JSON.stringify(docs);
         document.getElementById(`input_${id}`).value = jsonStr;
-        
+
         logChange(id, "Documents");
-        saveDraft(currentFileNo, id, jsonStr); // FIX: Save Draft on change
+        saveDraft(currentFileNo, id, jsonStr);
     }
 
     // --- 7. STORAGE & SAVE ---
     function saveDraft(fileNo, id, val) {
-        if(!fileNo) return;
+        if (!fileNo) return;
         let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
         drafts[id] = val;
         localStorage.setItem(`draft_${fileNo}`, JSON.stringify(drafts));
     }
 
     function removeDraft(fileNo, id) {
-        if(!fileNo) return;
+        if (!fileNo) return;
         let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
         delete drafts[id];
         localStorage.setItem(`draft_${fileNo}`, JSON.stringify(drafts));
     }
 
     function restoreDrafts(fileNo) {
-    let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
-    Object.keys(drafts).forEach(id => {
-    const input = document.getElementById(`input_${id}`);
-    if(input) {
-            const label = input.getAttribute('data-label');
-            const isDoc = (label === "documents_received");
-            const isSurvey = (label === "Surveydocs" || label === "docs"); // Add this
+        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
+        Object.keys(drafts).forEach(id => {
+            const input = document.getElementById(`input_${id}`);
+            if (input) {
+                const label = input.getAttribute('data-label');
+                const isDoc = (label === "documents_received");
+                const isSurvey = (label === "Surveydocs" || label === "docs"); // Add this
 
-            // Open the editor
-            toggleEdit(id, label, (isDoc || isSurvey));
+                // Open the editor
+                toggleEdit(id, label, (isDoc || isSurvey));
 
-            // Set the hidden value
-            input.value = drafts[id];
+                // Set the hidden value
+                input.value = drafts[id];
 
-            // Rebuild UI based on saved JSON
-            if(isDoc) {
-                document.getElementById(`doc_body_${id}`).innerHTML = "";
-                try { JSON.parse(drafts[id]).forEach(d => addDocRow(id, d)); } catch(e){}
-            } 
-            else if (isSurvey) {
-                // REBUILD SURVEY ROWS
-                const surveyBody = document.getElementById(`survey_body_${id}`);
-                if(surveyBody) {
-                    surveyBody.innerHTML = "";
-                    try { JSON.parse(drafts[id]).forEach(d => addSurveyRow(id, d)); } catch(e){}
+                // Rebuild UI based on saved JSON
+                if (isDoc) {
+                    const docBody = document.getElementById(`doc_body_${id}`);
+                    if (docBody) {
+                        docBody.innerHTML = "";
+                        try { JSON.parse(drafts[id]).forEach(d => addDocRow(id, d)); } catch (e) { }
+                    }
+                }
+                else if (isSurvey) {
+                    // REBUILD SURVEY ROWS
+                    const surveyBody = document.getElementById(`survey_body_${id}`);
+                    if (surveyBody) {
+                        surveyBody.innerHTML = "";
+                        try { JSON.parse(drafts[id]).forEach(d => addSurveyRow(id, d)); } catch (e) { }
+                    }
                 }
             }
-        }
-    });
+        });
     }
 
     function resetLogs() {
@@ -764,8 +1084,8 @@
     function logChange(id, label) {
         modifiedFields.add(id);
         const box = document.getElementById('logContainer');
-        if(box.querySelector('#emptyLog')) box.innerHTML = "";
-        if(!document.getElementById(`log_${id}`)) {
+        if (box.querySelector('#emptyLog')) box.innerHTML = "";
+        if (!document.getElementById(`log_${id}`)) {
             box.innerHTML += `<div id="log_${id}" class="log-item"><strong>${label}</strong><br><span class="log-badge">Draft Saved</span></div>`;
         }
         document.getElementById('logCount').innerText = modifiedFields.size;
@@ -775,19 +1095,19 @@
     function removeLog(id) {
         modifiedFields.delete(id);
         const el = document.getElementById(`log_${id}`);
-        if(el) el.remove();
+        if (el) el.remove();
         document.getElementById('logCount').innerText = modifiedFields.size;
-        if(modifiedFields.size === 0) {
+        if (modifiedFields.size === 0) {
             document.getElementById('logCount').classList.add('hidden');
             document.getElementById('logContainer').innerHTML = '<div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">No corrections pending.</div>';
         }
     }
 
     function saveData(isAuto = false) {
-        if(modifiedFields.size === 0) return;
-        
+        if (modifiedFields.size === 0) return;
+
         const btn = document.getElementById('btn-save');
-        if(!isAuto) btn.innerText = "Saving...";
+        if (!isAuto) btn.innerText = "Saving...";
 
         const corrections = {};
         modifiedFields.forEach(id => {
@@ -800,23 +1120,23 @@
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
             body: JSON.stringify({ file_no: currentFileNo, corrections: corrections })
         })
-        .then(r => r.json())
-        .then(d => {
-            if(d.success) {
-                btn.innerText = "Saved ✓";
-                setTimeout(() => btn.innerText = "SAVE CHANGES", 2000);
-                if(!isAuto) {
-                    // Manual save = Clean up drafts
-                    localStorage.removeItem(`draft_${currentFileNo}`);
-                    performSearch(); 
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    btn.innerText = "Saved ✓";
+                    setTimeout(() => btn.innerText = "SAVE CHANGES", 2000);
+                    if (!isAuto) {
+                        // Manual save = Clean up drafts
+                        localStorage.removeItem(`draft_${currentFileNo}`);
+                        performSearch();
+                    }
+                } else {
+                    console.error("Save Error:", d.error);
+                    btn.innerText = "Retry Save";
                 }
-            } else {
-                console.error("Save Error:", d.error);
-                btn.innerText = "Retry Save";
-            }
-        });
+            });
     }
-    
+
     function confirmLogout() { return confirm("Logout?"); }
 </script>
 {% endblock %}

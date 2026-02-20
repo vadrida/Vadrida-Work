@@ -42,6 +42,7 @@ import sys
 import asyncio
 from .models import ClientFolder
 from django.db import transaction
+from django.core.files.storage import FileSystemStorage
 
 @csrf_protect
 def refresh_files(request):
@@ -305,11 +306,22 @@ def create_folder_api(request):
             unique_id = f"{bank_code}{year}{dist_code}{seq_str}"
             applicant_clean = meta.get('applicant', 'XXX')
             
-            folder_name = f"{unique_id}_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
+            # --- DETERMINE WHICH EXTRA STRING TO USE ---
+            local_body = meta.get('local_body', '')
+            muthoot_branch = meta.get('muthoot_branch', '')
+            
+            extra_str = ""
+            if local_body:
+                extra_str = f"_{local_body}"
+            elif muthoot_branch:
+                extra_str = f"_{muthoot_branch}"
+                
+            # --- BUILD FOLDER NAME ---
+            folder_name = f"{unique_id}_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}{extra_str}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
             # ---------------------------------------------------------
             # 🔧 PATH FIX: Force Root to 'G:\My Drive'
             # ---------------------------------------------------------
-            #  'settings.DOCUMENTS_ROOT' is 'G:\My Drive\2025_2026'
+            #  'settings.DOCUMENTS_ROOT' is 'G:\My Drive\2026_2027'
             # So we go one level up to get 'G:\My Drive'
             
             base_drive_root = os.path.dirname(settings.DOCUMENTS_ROOT) 
@@ -331,8 +343,6 @@ def create_folder_api(request):
 
             # 5. Create Folders
             os.makedirs(full_path, exist_ok=True)
-            for sub in ['Photos', 'Documents', 'Reports']:
-                os.makedirs(os.path.join(full_path, sub), exist_ok=True)
 
             # 6. Save to DB
             ClientFolder.objects.create(
@@ -354,8 +364,7 @@ def create_folder_api(request):
     except Exception as e:
         print(f"Error: {e}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-    
-# In coreapi/views.py
+        
 
 @require_GET
 def get_next_sequence_api(request):
@@ -395,6 +404,50 @@ def check_duplicate_api(request):
     ).exists()
     
     return JsonResponse({'exists': exists})
+
+@require_POST
+def upload_site_photos_api(request):
+    """
+    Uploads multiple images to a 'P' subfolder inside the target directory.
+    """
+    if request.FILES:
+        try:
+            # 1. Get the current working folder path from the frontend
+            target_folder_rel = request.POST.get('current_folder', '')
+            
+            if not target_folder_rel:
+                return JsonResponse({'success': False, 'error': 'No folder selected'})
+
+            # 2. Construct absolute path: G:\My Drive\...\CurrentFolder\p
+            # We assume settings.DOCUMENTS_ROOT is your base storage path
+            base_path = settings.DOCUMENTS_ROOT 
+            target_folder_abs = os.path.join(base_path, target_folder_rel, 'P')
+
+            # 3. Create 'p' folder if it doesn't exist
+            if not os.path.exists(target_folder_abs):
+                os.makedirs(target_folder_abs, exist_ok=True)
+
+            saved_files = []
+            fs = FileSystemStorage(location=target_folder_abs)
+
+            # 4. Loop through uploaded files and save them
+            files = request.FILES.getlist('site_photos')
+            for f in files:
+                # Save file (handles duplicate names automatically)
+                filename = fs.save(f.name, f)
+                
+                # Store relative path for the database/frontend
+                # Format: CurrentFolder/p/filename.jpg
+                rel_path = os.path.join(target_folder_rel, 'P', filename).replace('\\', '/')
+                saved_files.append(rel_path)
+
+            return JsonResponse({'success': True, 'saved_paths': saved_files})
+
+        except Exception as e:
+            print(f"Upload Error: {e}")
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'No files provided'})
 
 def office_dashboard(request):
     """
@@ -585,33 +638,32 @@ def get_folder_contents_api(request):
         return JsonResponse({"folders": [], "files": [], "has_next": False})
 
     # --- METADATA (Page 1 Only) ---
+    # --- METADATA & DRAFT FETCHING (Page 1 Only) ---
     if page == 1:
         if rel_path:
             current_folder_name = os.path.basename(abs_path)
+            # 1. Parse the folder name to get the exact file number
             auto_fill_data = parse_folder_metadata(current_folder_name)
-        
+            file_no = auto_fill_data.get('file_no')
+            
+            # 2. Search Database by File Number (NOT by folder path)
+            if file_no:
+                # Fetch the most recently updated draft for this file number
+                draft = SiteVisitReport.objects.filter(office_file_no=file_no).order_by('-updated_at').first()
+                
+                if draft and draft.form_data:
+                    saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
+                    sketches = ReportSketch.objects.filter(report=draft)
+                    if 'images' not in saved_draft: 
+                        saved_draft['images'] = {}
+                    for sketch in sketches:
+                        if sketch.image: 
+                            saved_draft['images'][sketch.source_key] = sketch.image.url
+                            
+        # Fetch Case Folder Status
         folder_name = os.path.basename(abs_path)
-        has_hash = "#" in folder_name
-        is_case_folder = re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name)
-        
-        if has_hash or is_case_folder:
+        if "#" in folder_name or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name):
             folder_info = get_case_folder_info(abs_path)
-            user_id = request.session.get("user_id")
-            if user_id:
-                try:
-                    draft = SiteVisitReport.objects.filter(
-                        user_id=user_id, target_folder=rel_path
-                    ).order_by('-updated_at').first()
-                    if draft and draft.form_data:
-                        saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
-                        # if 'vectors' in saved_draft: del saved_draft['vectors']
-                        sketches = ReportSketch.objects.filter(report=draft)
-                        if 'images' not in saved_draft: saved_draft['images'] = {}
-                        for sketch in sketches:
-                            if sketch.image: saved_draft['images'][sketch.source_key] = sketch.image.url
-                except Exception as e:
-                    print(f"Draft fetch error: {e}")
-
     # --- SCANNING & SORTING ---
     all_folders = []
     all_files = []
@@ -727,8 +779,8 @@ def get_folder_contents_api(request):
 
 def parse_folder_metadata(folder_name):
     """
-    Bank-Specific Parsing Logic for Auto-Fill.
-    Detects the pattern based on the starting ID of the folder string.
+    Unified Parsing Logic for Auto-Fill based on the NEW universal pattern:
+    {ID}_#{NAME}#_{PRODUCT}_{LOC}_{DATE}_{SITE}_{OFF}_{REF}
     """
     print(f"DEBUG: Analyzing Folder -> {folder_name}")
 
@@ -738,15 +790,29 @@ def parse_folder_metadata(folder_name):
         'product': 'notselected'
     }
     
-    # --- PRODUCT CODE MAPPING (Common for all banks) ---
+    # --- UPDATED PRODUCT CODE MAPPING ---
+    # Left side: 4-letter code from folder name
+    # Right side: The exact value="" from the feedback.html dropdown
     product_map = {
-        'RESL': 'resale', 'RESA': 'resale',
-        'LAPL': 'lap', 'BLLP': 'lap', 'SBLM': 'lap', 'CCOL': 'lap', 'LAP': 'lap',
-        'PRCS': '1st purchase', 'PUCH': '1st purchase', 'LAND': '1st purchase', 'PURC': '1st purchase', 'PUR': '1st purchase',
-        'CONS': 'construction', 'CONST': 'construction',
-        'PDPD': 'pd', 'PD': 'pd',
-        'TOUP': 'topup', 'TOP': 'topup',
+        'PRCS': '1st purchase',
+        'CONS': 'construction',
+        'TOPU': 'topup',
+        'PDPD': 'pd',
+        'RESL': 'resale',
         'RENO': 'renovation',
+        'TAKE': 'takeover',
+        'LAPL': 'lap',
+        'EXTE': 'extension',
+        'NPAN': 'npa',
+        
+        # (Optional) Keeping some old legacy codes just in case 
+        # someone clicks an older folder created before the update
+        'TOUP': 'topup', 'TOP': 'topup',
+        'RESA': 'resale',
+        'BLLP': 'lap', 'SBLM': 'lap', 'CCOL': 'lap', 'LAP': 'lap',
+        'PUCH': '1st purchase', 'LAND': '1st purchase', 'PURC': '1st purchase',
+        'CONST': 'construction',
+        'PD': 'pd',
         'TAKO': 'takeover', 'HLBG': 'takeover', 'BT': 'takeover',
         'NPA': 'npa'
     }
@@ -759,135 +825,29 @@ def parse_folder_metadata(folder_name):
             return product_map.get(match.group(1).upper(), 'notselected')
         return 'notselected'
 
-    # =========================================================================
-    # BANK SPECIFIC STRATEGIES
-    # =========================================================================
+    # 1. Extract File No:
+    file_match = re.match(r'^(\d+)', folder_name)
+    if file_match: 
+        metadata['file_no'] = file_match.group(1)
 
-    # 1. HDFC (1000...) & 9. SIB (9000...)
-    # Pattern: ID_#NAME#_Loc_Date_..._PRODUCT
-    # Ex: 1011398_#SWAPNA_S_R#_TVM_02.12.2025_118XXX_117VMJ_704656665_RESL
-    if folder_name.startswith("10") or folder_name.startswith("90") or folder_name.startswith("10") or "#" in folder_name:
-        # File No: Start digits
-        file_match = re.match(r'^(\d+)', folder_name)
-        if file_match: metadata['file_no'] = file_match.group(1)
-
-        # Name: Inside # hashes #
-        name_match = re.search(r'#([^#]+)#', folder_name)
-        if name_match: 
-            metadata['applicant_name'] = name_match.group(1).replace('_', ' ').strip()
-        
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 2. Muthoot (2000...)
-    # Pattern: ID_Code_Code_Loc_PRODUCT_Loc_Code_Code_Date_NAME
-    # Ex: 2427_999OTR_114JAY_KOT_LAPL_KOLLAM_S0147_HKAY92150408_24.01.2026_Anandhumon Shaji
-    if folder_name.startswith("2"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0] # First part is ID
-            metadata['applicant_name'] = parts[-1].strip() # Last part is Name
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 3. Bajaj (3000...)
-    # Pattern: ID_Loc_Date_Code_Code_LongCode_PRODUCT_NAME
-    # Ex: 3120_TSR_08.05.2025_104FMY_107SRJ_SME000015744679_LAPL_Angel Wilson
-    if folder_name.startswith("3"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0]
-            metadata['applicant_name'] = parts[-1].strip()
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 4. DCB (4000...)
-    # Pattern: ID_Loc_Name_Date_Code_Code_LongCode_PRODUCT_Name2
-    # Ex: 40144_KOT_Anil_29.01.2026_999OTR_114JAY_APPL01685793_PDPD_SAJIMON C S
-    # Note: Name appears twice sometimes, usually the last one is full name
-    if folder_name.startswith("4"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0]
-            metadata['applicant_name'] = parts[-1].strip() # Prefer last part
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 5. PNBHFL (5000...)
-    # Pattern: ID_Loc_Date_Loc_PAN_Code_LongCode_PRODUCT_NAME
-    # Ex: 50382_KOT_02.02.2026_Kottayam_PAN_114JAY_NHL.KTYM.0126.1473599_LAPL_SNEHA SIBY
-    if folder_name.startswith("5"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0]
-            metadata['applicant_name'] = parts[-1].strip()
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 6. SBI (6000...)
-    # Pattern: ID_Loc_Code_Date_Code_Code_NA_PRODUCT_NAME
-    # Ex: 6097_ALP_RASMECCALA_26.07.2025_109NNU_103VIS_N.A_CONS_PRASEEJA
-    if folder_name.startswith("6"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0]
-            metadata['applicant_name'] = parts[-1].strip()
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 7. CSB (7000...)
-    # Pattern: ID_Loc_Date_Code_Code_PRODUCT_NAME
-    # Ex: 7113_EKM_28.05.2025_109NNU_107SRJ_LAPL_Pathrose
-    if folder_name.startswith("7"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0]
-            metadata['applicant_name'] = parts[-1].strip()
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # 8. Chola (8000...)
-    # Pattern 1: ID_Loc_Date_Loc_Code_ID_PRODUCT_NAME
-    # Pattern 2: ID_Loc_Date_Loc_Code_LongCode_PRODUCT_NAME
-    # Ex: 864_EKM_02.09.2025_COCHIN _`_109NNU_864_LAPL_REENA and UNNIMAYA
-    # Ex: 8065_KOL_21.05.2025_Thiruvalla_106JOJ_HL05NUR000036070_NPA_SHIMOJ PALAKKOOL POLAPPADY
-    if folder_name.startswith("8"):
-        parts = folder_name.split('_')
-        if len(parts) > 1:
-            metadata['file_no'] = parts[0]
-            metadata['applicant_name'] = parts[-1].strip()
-        metadata['product'] = find_product(folder_name)
-        return metadata
-
-    # =========================================================================
-    # FALLBACK STRATEGY (If none of the above match strictly)
-    # =========================================================================
+    # 2. Extract Applicant Name:
+    name_match = re.search(r'#([^#]+)#', folder_name)
+    if name_match: 
+        metadata['applicant_name'] = name_match.group(1).replace('_', ' ').strip()
     
-    # Try generic underscore splitting
-    if '_' in folder_name:
+    # 3. Extract Product
+    metadata['product'] = find_product(folder_name)
+
+    # 4. Fallback for older folders
+    if not metadata['file_no'] and '_' in folder_name:
         parts = folder_name.split('_')
-        # Assume first part is ID if digits
         if parts[0].isdigit():
             metadata['file_no'] = parts[0]
-        
-        # Assume last part is Name if not product code
-        possible_name = parts[-1].strip()
-        # Clean file extensions
-        possible_name = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', possible_name)
-        
-        # Determine product
-        found_product = find_product(folder_name)
-        if found_product != 'notselected':
-            metadata['product'] = found_product
-            # If the last part was the product code, take the 2nd to last part as name
-            if possible_name.upper() in product_map:
-                if len(parts) > 2:
-                    metadata['applicant_name'] = parts[-2].strip()
-            else:
-                metadata['applicant_name'] = possible_name
-        else:
-             metadata['applicant_name'] = possible_name
+        if not metadata['applicant_name']:
+            possible_name = parts[-1].strip()
+            metadata['applicant_name'] = re.sub(r'\.[a-zA-Z0-9]{3,}$', '', possible_name)
 
+    print(f"DEBUG: Auto-fill extracted -> {metadata}")
     return metadata
 
 def update_user_activity(user_id):
@@ -923,10 +883,10 @@ def auto_save_api(request):
         # 🛑 LOGIC UPDATE 1: COMPLETION THRESHOLD (< 10%)
         # ---------------------------------------------------------
         # If less than 10%, we acknowledge the request but DO NOT save to DB.
-        if score < 10:
+        if score < 20:
             return JsonResponse({
                 'success': True, 
-                'message': 'Skipped: Completion under 10%',
+                'message': 'Skipped: Completion under 20%',
                 'saved': False
             })
 
@@ -1852,3 +1812,66 @@ def assetlinks(request):
       }
     }]
     return JsonResponse(data, safe=False)
+
+@require_GET
+def db_case_search_api(request):
+    raw_bank = request.GET.get('bank', '')    # e.g. "1000"
+    year_id = request.GET.get('year', '')     # e.g. "26"
+    dist_id = request.GET.get('dist', '')     # e.g. "02"
+    user_input = request.GET.get('q', '').strip() # e.g. "1"
+
+    # 1. Convert Bank ID to 2-digit Short Code (1000 -> 01)
+    bank_short_code = ""
+    if raw_bank.isdigit():
+        bank_short_code = str(int(raw_bank) // 1000).zfill(2)
+
+    filters = Q()
+
+    if user_input:
+        if user_input.isdigit():
+            # --- NUMBER SEARCH (Exact ID Match) ---
+            padded_seq = user_input.zfill(4) # "1" -> "0001"
+            full_target_id = f"{bank_short_code}{year_id}{dist_id}{padded_seq}"
+            
+            # Since the ID contains all the info, we ONLY search this column.
+            # This prevents any DB column mismatches.
+            filters = Q(unique_file_no=full_target_id)
+            
+            # Fallback: Just in case they type the full "0126020001" manually
+            if len(user_input) > 4:
+                filters = Q(unique_file_no=user_input)
+
+        else:
+            # --- NAME SEARCH (Filtered by Dropdowns) ---
+            # Search for the name, but restrict it to the chosen dropdowns
+            filters = Q(applicant_name__icontains=user_input)
+            if year_id:
+                filters &= Q(year=year_id)
+            if dist_id:
+                filters &= Q(district_code=dist_id)
+            
+            # Check both possible ways you might have saved the bank in the DB
+            if raw_bank:
+                filters &= (Q(bank_code=raw_bank) | Q(bank_code=bank_short_code))
+
+    # Fetch from Database
+    db_results = ClientFolder.objects.filter(filters).order_by('-created_at')[:20]
+
+    folders = []
+    for case in db_results:
+        # Get relative path for the file explorer UI
+        rel_path = os.path.relpath(case.full_folder_path, settings.DOCUMENTS_ROOT).replace('\\', '/')
+        
+        # Fetch the status dot color
+        stats = get_case_folder_info(case.full_folder_path)
+        
+        folders.append({
+            "name": os.path.basename(case.full_folder_path),
+            "path": rel_path,
+            "type": "folder",
+            "has_chat": True,
+            "status_color": stats['status_color'] if stats else 'gray'
+        })
+
+    return JsonResponse({"folders": folders})
+

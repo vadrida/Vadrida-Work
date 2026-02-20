@@ -17,22 +17,36 @@
         --text-main: #202124;
     }
 
-    body { background-color: #525659; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    *, *:before, *:after { box-sizing: border-box; }
+    body {
+        background-color: #525659;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    *,
+    *:before,
+    *:after {
+        box-sizing: border-box;
+    }
 
     .paper-container {
-        margin-top: 50px; display: flex; flex-direction: column; align-items: center; gap: 30px; margin-bottom: 100px;
+        margin-top: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 100px;
     }
 
     /* PDF Page Simulation A4 */
     .pdf-sheet {
-        width: 210mm; 
-        min-height: 297mm; 
-        background: white; 
-        padding: 15mm; 
-        box-shadow: 0 0 10px rgba(0,0,0,0.5); 
-        font-size: 9.5pt; /* Increased slightly for readability */
-        position: relative; 
+        width: 210mm;
+        min-height: 297mm;
+        background: white;
+        padding: 15mm;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        font-size: 9.5pt;
+        /* Increased slightly for readability */
+        position: relative;
         box-sizing: border-box;
         overflow: hidden;
         color: var(--text-main);
@@ -40,109 +54,137 @@
 
     /* --- LOGO STYLING --- */
     .header-logo {
-        position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;
+        position: absolute;
+        top: 10mm;
+        right: 15mm;
+        width: 25mm;
+        height: auto;
+        object-fit: contain;
     }
 
-    input[type="checkbox"], input[type="radio"] {
+    input[type="checkbox"],
+    input[type="radio"] {
         accent-color: var(--primary-teal) !important;
         cursor: pointer;
         width: 13px;
         height: 13px;
-        -webkit-print-color-adjust: exact; 
+        -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
     /* Typography & Layout */
-    h1 { 
-        margin: 10px 0 20px 0; 
-        font-size: 18pt; 
-        text-transform: uppercase; 
-        text-align: center; 
-        color: var(--primary-teal); 
+    h1 {
+        margin: 10px 0 20px 0;
+        font-size: 18pt;
+        text-transform: uppercase;
+        text-align: center;
+        color: var(--primary-teal);
         letter-spacing: 1px;
     }
 
-    .section-title { 
-        background: var(--header-gray); 
-        padding: 6px 12px; 
-        font-weight: bold; 
-        border-left: 4px solid var(--primary-teal); /* Modern left-accent */
+    .section-title {
+        background: var(--header-gray);
+        padding: 6px 12px;
+        font-weight: bold;
+        border-left: 4px solid var(--primary-teal);
+        /* Modern left-accent */
         border-top: 1px solid var(--border-muted);
         border-right: 1px solid var(--border-muted);
         border-bottom: 1px solid var(--border-muted);
-        margin-top: 18px; 
-        margin-bottom: 8px; 
+        margin-top: 18px;
+        margin-bottom: 8px;
         font-size: 10.5pt;
         color: var(--primary-teal);
         text-transform: uppercase;
     }
 
-    label { font-weight: bold; color: #444; font-size: 8.5pt; margin-right: 5px; white-space: nowrap; }
+    label {
+        font-weight: bold;
+        color: #444;
+        font-size: 8.5pt;
+        margin-right: 5px;
+        white-space: nowrap;
+    }
 
     /* --- ENHANCED FIELD BOX --- */
-    .field-box { 
-        border: 1px solid var(--border-muted); /* Solid border for better definition */
+    .field-box {
+        border: 1px solid var(--border-muted);
+        /* Solid border for better definition */
         border-radius: 3px;
-        min-height: 20px; 
-        line-height: 1.5; 
-        background: var(--soft-bg); /* Soft tint for inputs */
-        color: #000; 
-        flex-grow: 1; 
+        min-height: 20px;
+        line-height: 1.5;
+        background: var(--soft-bg);
+        /* Soft tint for inputs */
+        color: #000;
+        flex-grow: 1;
         padding: 3px 6px;
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
         word-break: break-word;
-        display: block; 
-        width: 100%; 
+        display: block;
+        width: 100%;
         overflow: visible;
     }
 
-    [contenteditable="true"]:focus { 
-        background-color: #fff; 
-        outline: none; 
-        border: 1px solid var(--primary-teal); 
+    [contenteditable="true"]:focus {
+        background-color: #fff;
+        outline: none;
+        border: 1px solid var(--primary-teal);
         box-shadow: 0 0 4px rgba(7, 94, 84, 0.2);
     }
-    
-    [contenteditable="true"]:hover { background-color: #f0f7f6; cursor: text; }
+
+    [contenteditable="true"]:hover {
+        background-color: #f0f7f6;
+        cursor: text;
+    }
 
     /* --- TABLE STYLES --- */
-    .report-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 12px; }
-    
-    .report-table th, .report-table td { 
-        border: 1px solid var(--border-muted); 
-        padding: 6px; 
-        text-align: center; 
-        vertical-align: middle; 
-        overflow-wrap: break-word; 
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-bottom: 12px;
     }
-    
-    .report-table th { 
-        background: var(--header-gray); 
-        font-weight: bold; 
+
+    .report-table th,
+    .report-table td {
+        border: 1px solid var(--border-muted);
+        padding: 6px;
+        text-align: center;
+        vertical-align: middle;
+        overflow-wrap: break-word;
+    }
+
+    .report-table th {
+        background: var(--header-gray);
+        font-weight: bold;
         color: #333;
         font-size: 8.5pt;
     }
 
-    .report-table .field-box { 
-        border: 1px solid var(--border-muted); /* Match main boxes */
-        background: var(--soft-bg);            /* Match darker background */
-        width: 100%; 
-        min-height: 22px; 
+    .report-table .field-box {
+        border: 1px solid var(--border-muted);
+        /* Match main boxes */
+        background: var(--soft-bg);
+        /* Match darker background */
+        width: 100%;
+        min-height: 22px;
         text-align: center;
         padding: 2px 4px;
         border-radius: 2px;
-        box-shadow: inset 0 1px 1px rgba(0,0,0,0.03);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
     }
 
     .report-table td {
-        padding: 4px; /* Reduced padding to fit the new boxed inputs */
+        padding: 4px;
+        /* Reduced padding to fit the new boxed inputs */
     }
+
     .header-input {
         border: 1px solid var(--border-muted) !important;
         background: var(--soft-bg) !important;
-        width: 100%; 
+        width: 100%;
         min-height: 22px;
         font-weight: bold;
         text-align: center;
@@ -151,97 +193,137 @@
         border-radius: 2px;
         color: var(--primary-teal);
     }
-    .report-table .field-box:focus, 
+
+    .report-table .field-box:focus,
     .header-input:focus {
         background-color: #ffffff !important;
         border-color: var(--primary-teal) !important;
         outline: none;
     }
-   /* --- ARRAY / GRID ALIGNMENT --- */
-    .checkbox-group { 
+
+    /* --- ARRAY / GRID ALIGNMENT --- */
+    .checkbox-group {
         display: grid;
         /* This creates a 3-column grid. Adjust '1fr 1fr 1fr' to '1fr 1fr' for 2 columns */
-        grid-template-columns: 1fr 1fr 1fr; 
-        gap: 8px 15px; 
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px 15px;
         flex-grow: 1;
         width: 100%;
         padding: 5px 10px;
-        background: var(--soft-bg); /* Matches the input tint */
+        background: var(--soft-bg);
+        /* Matches the input tint */
         border: 1px solid var(--border-muted);
         border-radius: 4px;
     }
 
-    .checkbox-item { 
-        display: flex; 
-        align-items: center; 
-        gap: 6px; 
-        font-size: 8.5pt; 
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 8.5pt;
         cursor: pointer;
-        white-space: nowrap; /* Prevents text from breaking mid-item */
+        white-space: nowrap;
+        /* Prevents text from breaking mid-item */
     }
 
     /* Adjust the main row to ensure the label and grid align well */
-    .row { 
-        display: flex; 
-        gap: 10px; 
-        margin-bottom: 10px; 
-        align-items: flex-start; /* Aligns label to top of the grid */
+    .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: flex-start;
+        /* Aligns label to top of the grid */
     }
-    .checkbox-item:hover { background: #f1f3f4; }
+
+    .checkbox-item:hover {
+        background: #f1f3f4;
+    }
 
     /* Footer border strengthening */
     .pdf-footer {
-        position: absolute; bottom: 15mm; left: 15mm; 
-        width: calc(100% - 30mm); 
+        position: absolute;
+        bottom: 15mm;
+        left: 15mm;
+        width: calc(100% - 30mm);
         border-top: 2px solid var(--primary-teal);
-        padding-top: 8px; font-size: 9pt; display: flex; justify-content: space-between;
+        padding-top: 8px;
+        font-size: 9pt;
+        display: flex;
+        justify-content: space-between;
     }
+
     /* Update these in your <style> block */
-.pdf-checkbox {
-    display: inline-block; 
-    width: 12px; 
-    height: 12px;
-    border: 1px solid #333; 
-    background: transparent;
-    margin-right: 5px; 
-    vertical-align: middle; 
-    position: relative;
-}
+    .pdf-checkbox {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 1px solid #333;
+        background: transparent;
+        margin-right: 5px;
+        vertical-align: middle;
+        position: relative;
+    }
 
-.pdf-checkbox.checked { 
-    /* This fills the box with your primary teal color */
-    background-color: var(--primary-teal) !important; 
-    border-color: var(--primary-teal) !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-}
+    .pdf-checkbox.checked {
+        /* This fills the box with your primary teal color */
+        background-color: var(--primary-teal) !important;
+        border-color: var(--primary-teal) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 
-/* For Radios, we can make it a solid circle */
-.pdf-radio {
-    display: inline-block; 
-    width: 12px; 
-    height: 12px;
-    border: 1px solid #333; 
-    border-radius: 50%; 
-    background: transparent;
-    margin-right: 5px; 
-    vertical-align: middle;
-}
+    /* For Radios, we can make it a solid circle */
+    .pdf-radio {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 1px solid #333;
+        border-radius: 50%;
+        background: transparent;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
 
-.pdf-radio.checked {
-    background-color: var(--primary-teal) !important;
-    border-color: var(--primary-teal) !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-}
+    .pdf-radio.checked {
+        background-color: var(--primary-teal) !important;
+        border-color: var(--primary-teal) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 
     /* Print Specifics to ensure background colors persist */
     @media print {
-        .pdf-sheet { box-shadow: none; padding: 0; }
-        .section-title, .field-box, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .pdf-sheet {
+            box-shadow: none;
+            padding: 0;
+        }
+
+        .section-title,
+        .field-box,
+        th {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
     }
-    
-    .hidden-row { display: none !important; }
+
+    .hidden-row {
+        display: none !important;
+    }
+
+    /* Soft yellow highlight with a smooth transition */
+    .highlight-yellow {
+        background-color: #fef08a !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Optional: Add a little padding when row divs get highlighted so it looks like a nice box */
+    .row.highlight-yellow {
+        padding: 8px;
+        border-radius: 6px;
+        margin-left: -8px;
+        /* Offsets padding to keep text aligned */
+        margin-right: -8px;
+    }
 </style>
 {% endblock %}
 
@@ -257,69 +339,113 @@
     </div>
 
     <div class="pdf-sheet">
-        <img 
-            src="{% static 'images/VADRIDA LOGO.png' %}" 
-            alt="Logo" 
-            class="header-logo" 
-            style="position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;"
-        >
+        <img src="{% static 'images/VADRIDA LOGO.png' %}" alt="Logo" class="header-logo"
+            style="position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;">
         <h1>Site Inspection Report</h1>
-        
+
         <div class="section-title">1. General Information</div>
         <div class="row">
             <div style="width: 50%;">
-                <div class="row"><label>1.Office File No:</label><div class="field-box" contenteditable="true" data-path="Valuers_Checklist.Office_file_no"></div></div>
-                <div class="row"><label>3. Inspection Date:</label><div class="field-box" contenteditable="true" data-path="Valuers_Checklist.inspection_date"></div></div>
+                <div class="row"><label>1.Office File No:</label>
+                    <div class="field-box" contenteditable="true" data-path="Valuers_Checklist.Office_file_no"></div>
+                </div>
+                <div class="row"><label>3. Inspection Date:</label>
+                    <div class="field-box" contenteditable="true" data-path="Valuers_Checklist.inspection_date"></div>
+                </div>
             </div>
             <div style="width: 50%;">
-                <div class="row"><label>2. Applicant Name:</label><div class="field-box" contenteditable="true" data-path="Valuers_Checklist.applicant_name"></div></div>
-                <div class="row"><label>4. Person Met at site:</label><div class="field-box" contenteditable="true" data-path="Valuers_Checklist.person_met"></div></div>
+                <div class="row"><label>2. Applicant Name:</label>
+                    <div class="field-box" contenteditable="true" data-path="Valuers_Checklist.applicant_name"></div>
+                </div>
+                <div class="row"><label>4. Person Met at site:</label>
+                    <div class="field-box" contenteditable="true" data-path="Valuers_Checklist.person_met"></div>
+                </div>
             </div>
         </div>
 
         <div class="row" style="align-items: flex-start; margin-top: 10px;">
             <label>5. Product:</label>
             <div class="checkbox-group">
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="1st Purchase"> 1st Purchase</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="construction"> Construction</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="topup"> Topup</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="pd"> PD</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="resale"> Resale</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="renovation"> Renovation</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="lap"> LAP</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="takeover"> Takeover</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="extension"> Extension</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product" value="npa"> NPA</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="1st Purchase"> 1st Purchase</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="construction"> Construction</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="topup"> Topup</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="pd"> PD</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="resale"> Resale</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="renovation"> Renovation</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="lap"> LAP</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="takeover"> Takeover</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="extension"> Extension</label>
+                <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
+                        value="npa"> NPA</label>
             </div>
         </div>
 
         <div class="row" style="align-items: flex-start; margin-top: 10px;">
             <label>6. Documents Received:</label>
             <div class="checkbox-group">
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Agreement"> Agreement</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Encumbrance"> Encumbrance</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Building Permit"> Building Permit</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Declaration"> Declaration</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Location Sketch"> Location Sketch</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Development Permit"> Development Permit</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Title Deed"> Title Deed</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Survey Sketch"> Survey Sketch</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Building Certificate"> Building Certificate</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="LTR"> LTR</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Building Tax receipt"> Building Tax receipt</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Approved plan"> Approved plan</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Possession"> Possession</label>
-                <label class="checkbox-item"><input type="checkbox" data-bind-array="Valuers_Checklist.documents_received" value="Engineers plan"> Engineers plan</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Agreement"> Agreement</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Encumbrance"> Encumbrance</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Building Permit"> Building
+                    Permit</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Declaration"> Declaration</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Location Sketch"> Location
+                    Sketch</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Development Permit"> Development
+                    Permit</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Title Deed"> Title Deed</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Survey Sketch"> Survey
+                    Sketch</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Building Certificate"> Building
+                    Certificate</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="LTR"> LTR</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Building Tax receipt"> Building
+                    Tax receipt</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Approved plan"> Approved
+                    plan</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Possession"> Possession</label>
+                <label class="checkbox-item"><input type="checkbox"
+                        data-bind-array="Valuers_Checklist.documents_received" value="Engineers plan"> Engineers
+                    plan</label>
             </div>
         </div>
 
         <div class="section-title">I. Ownership Analysis</div>
-        <div class="row"><label>Owner(s) Name:</label><div class="field-box" contenteditable="true" data-path="Ownership_Analysis.owners_name"></div></div>
-        <div class="checkbox-group">
-            <label class="checkbox-item"><input type="radio" name="doc_verification" data-bind-radio="Ownership_Analysis.document_verification" value="same in all documents"> Same in all documents</label>
-            <label class="checkbox-item"><input type="radio" name="doc_verification" data-bind-radio="Ownership_Analysis.document_verification" value="discrepancy noted"> Discrepancy noted</label>
+        <div class="row"><label>Owner(s) Name:</label>
+            <div class="field-box" contenteditable="true" data-path="Ownership_Analysis.owners_name"></div>
         </div>
-        <div class="row-stacked"><label>Notes on discrepancy</label><div class="field-box" contenteditable="true" data-path="Ownership_Analysis.Ownership_Analysis_notes"></div></div>
+        <div class="checkbox-group">
+            <label class="checkbox-item"><input type="radio" name="doc_verification"
+                    data-bind-radio="Ownership_Analysis.document_verification" value="same in all documents"> Same in
+                all documents</label>
+            <label class="checkbox-item"><input type="radio" name="doc_verification"
+                    data-bind-radio="Ownership_Analysis.document_verification" value="discrepancy noted"> Discrepancy
+                noted</label>
+        </div>
+        <div class="row-stacked"><label>Notes on discrepancy</label>
+            <div class="field-box" contenteditable="true" data-path="Ownership_Analysis.Ownership_Analysis_notes"></div>
+        </div>
         <div class="img-wrapper" id="wrap_Ownership_Analysis_Ownership_Analysis_notes"></div>
 
         <div class="section-title">II. Survey Number & Land Extent</div>
@@ -369,109 +495,178 @@
         </table>
         <div class="row" style="margin-top: 10px;">
             <label>Total LTR Extent:</label>
-            <div class="field-box" contenteditable="true" data-path="Survey.total_ltr_extent" style="width: 150px; flex-grow: 0;"></div>
-            
+            <div class="field-box" contenteditable="true" data-path="Survey.total_ltr_extent"
+                style="width: 150px; flex-grow: 0;"></div>
+
             <label style="margin-left: 20px;">Total Deed Extent:</label>
-            <div class="field-box" contenteditable="true" data-path="Survey.total_deed_extent" style="width: 150px; flex-grow: 0;"></div>
+            <div class="field-box" contenteditable="true" data-path="Survey.total_deed_extent"
+                style="width: 150px; flex-grow: 0;"></div>
         </div>
 
         <div class="row" style="margin-top: 10px; background: #fff3e0; padding: 5px; border: 1px solid #ffe0b2;">
             <div style="width: 50%;">
                 <label>Are 3 sides Paddy land?</label>
                 <div class="checkbox-group">
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.paddy_land_check" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.paddy_land_check" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.paddy_land_check"
+                            value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.paddy_land_check"
+                            value="No"> No</label>
                 </div>
             </div>
             <div style="width: 50%;">
                 <label>Trees/Buildings before 2008?</label>
                 <div class="checkbox-group">
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.trees_2008_check" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.trees_2008_check" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.trees_2008_check"
+                            value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="Survey.trees_2008_check"
+                            value="No"> No</label>
                 </div>
             </div>
         </div>
-        <div class="row-stacked" style="margin-top:5px;"><label>Deviations in Survey no, land extend, land Classification ... etc. if any.</label><div class="field-box" contenteditable="true" data-path="Survey.survey_notes"></div></div>
+        <div class="row-stacked" style="margin-top:5px;"><label>Deviations in Survey no, land extend, land
+                Classification ... etc. if any.</label>
+            <div class="field-box" contenteditable="true" data-path="Survey.survey_notes"></div>
+        </div>
         <div class="img-wrapper" id="wrap_Survey_survey_notes"></div>
 
         <div class="section-title">III. Boundary Analysis</div>
-            <table class="report-table">
-                <thead>
-                    <tr>
-                        <th style="width: 12%;">Direction</th>
-                        
-                        <th style="width: 24%;">
-                            <div class="header-input-wrapper">
-                                <div class="field-box header-input" contenteditable="true" data-path="Boundary_analysis_property_identification.ref_doc_1_name"></div>
-                            </div>
-                        </th>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th style="width: 12%;">Direction</th>
 
-                        <th style="width: 24%;">
-                            <div class="header-input-wrapper">
-                                <div class="field-box header-input" contenteditable="true" data-path="Boundary_analysis_property_identification.ref_doc_2_name"></div>
-                            </div>
-                        </th>
+                    <th style="width: 24%;">
+                        <div class="header-input-wrapper">
+                            <div class="field-box header-input" contenteditable="true"
+                                data-path="Boundary_analysis_property_identification.ref_doc_1_name"></div>
+                        </div>
+                    </th>
 
-                        <th style="width: 20%;">Translation Reason</th>
-                        
-                        <th>Site</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>East</strong></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_doc1"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_doc2"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_translation"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.east_site"></div></td>
-                    </tr>
-                    <tr>
-                        <td><strong>North</strong></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_doc1"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_doc2"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_translation"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.north_site"></div></td>
-                    </tr>
-                    <tr>
-                        <td><strong>West</strong></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_doc1"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_doc2"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_translation"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.west_site"></div></td>
-                    </tr>
-                    
-                    <tr>
-                        <td><strong>South</strong></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_doc1"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_doc2"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_translation"></div></td>
-                        <td><div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.south_site"></div></td>
-                    </tr>
-                    
-                </tbody>
-            </table>
+                    <th style="width: 24%;">
+                        <div class="header-input-wrapper">
+                            <div class="field-box header-input" contenteditable="true"
+                                data-path="Boundary_analysis_property_identification.ref_doc_2_name"></div>
+                        </div>
+                    </th>
 
-<div class="row-stacked">
-    <label>Deviations in boundary if any ?</label>
-    <div class="field-box" contenteditable="true" data-path="Boundary_analysis_property_identification.Boundary_property_notes"></div>
-</div>
-<div class="img-wrapper" id="wrap_Boundary_analysis_property_identification_Boundary_property_notes"></div>
-<br><br><br><br><br><br><br><br><br><br>
+                    <th style="width: 20%;">Translation Reason</th>
+
+                    <th>Site</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>East</strong></td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.east_doc1"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.east_doc2"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.east_translation"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.east_site"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>North</strong></td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.north_doc1"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.north_doc2"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.north_translation"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.north_site"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>West</strong></td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.west_doc1"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.west_doc2"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.west_translation"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.west_site"></div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><strong>South</strong></td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.south_doc1"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.south_doc2"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.south_translation"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true"
+                            data-path="Boundary_analysis_property_identification.south_site"></div>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <div class="row-stacked">
+            <label>Deviations in boundary if any ?</label>
+            <div class="field-box" contenteditable="true"
+                data-path="Boundary_analysis_property_identification.Boundary_property_notes"></div>
+        </div>
+        <div class="img-wrapper" id="wrap_Boundary_analysis_property_identification_Boundary_property_notes"></div>
+        <br><br><br><br><br><br><br><br><br><br>
         <div class="section-title">IV. Demarcations</div>
         <table class="report-table">
             <tr>
                 <td style="width: 50px;"><strong>North</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="no demarcation"> No Demarcation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="gi sheet fence"> GI Sheet Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="Foundation"> Foundation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="barbed wire"> Barbed Wire</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="steel pegs"> Steel Pegs</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="compound wall"> Compound Wall</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="bio fence"> Bio Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="survey stone"> Survey Stone</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north" value="wooden pegs"> Wooden Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="gi sheet fence"> GI Sheet Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="Foundation"> Foundation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="barbed wire"> Barbed Wire</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="steel pegs"> Steel Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="compound wall"> Compound Wall</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="bio fence"> Bio Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="survey stone"> Survey Stone</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="wooden pegs"> Wooden Pegs</label>
                     </div>
                 </td>
             </tr>
@@ -479,15 +674,24 @@
                 <td><strong>East</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="no demarcation"> No Demarcation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="gi sheet fence"> GI Sheet Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="Foundation"> Foundation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="barbed wire"> Barbed Wire</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="steel pegs"> Steel Pegs</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="compound wall"> Compound Wall</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="bio fence"> Bio Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="survey stone"> Survey Stone</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east" value="wooden pegs"> Wooden Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="gi sheet fence"> GI Sheet Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="Foundation"> Foundation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="barbed wire"> Barbed Wire</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="steel pegs"> Steel Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="compound wall"> Compound Wall</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="bio fence"> Bio Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="survey stone"> Survey Stone</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
+                                value="wooden pegs"> Wooden Pegs</label>
                     </div>
                 </td>
             </tr>
@@ -495,15 +699,24 @@
                 <td><strong>South</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="no demarcation"> No Demarcation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="gi sheet fence"> GI Sheet Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="Foundation"> Foundation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="barbed wire"> Barbed Wire</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="steel pegs"> Steel Pegs</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="compound wall"> Compound Wall</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="bio fence"> Bio Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="survey stone"> Survey Stone</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south" value="wooden pegs"> Wooden Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="gi sheet fence"> GI Sheet Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="Foundation"> Foundation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="barbed wire"> Barbed Wire</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="steel pegs"> Steel Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="compound wall"> Compound Wall</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="bio fence"> Bio Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="survey stone"> Survey Stone</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
+                                value="wooden pegs"> Wooden Pegs</label>
                     </div>
                 </td>
             </tr>
@@ -511,28 +724,45 @@
                 <td><strong>West</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="no demarcation"> No Demarcation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="gi sheet fence"> GI Sheet Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="Foundation"> Foundation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="barbed wire"> Barbed Wire</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="steel pegs"> Steel Pegs</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="compound wall"> Compound Wall</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="bio fence"> Bio Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="survey stone"> Survey Stone</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west" value="wooden pegs"> Wooden Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="gi sheet fence"> GI Sheet Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="Foundation"> Foundation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="barbed wire"> Barbed Wire</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="steel pegs"> Steel Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="compound wall"> Compound Wall</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="bio fence"> Bio Fence</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="survey stone"> Survey Stone</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
+                                value="wooden pegs"> Wooden Pegs</label>
                     </div>
                 </td>
             </tr>
         </table>
-        <div class="row-stacked"><label>Notes if any</label><div class="field-box" contenteditable="true" data-path="Demarcation.demarcation_notes"></div></div>
+        <div class="row-stacked"><label>Notes if any</label>
+            <div class="field-box" contenteditable="true" data-path="Demarcation.demarcation_notes"></div>
+        </div>
         <div class="img-wrapper" id="wrap_Demarcation_demarcation_notes"></div>
 
-        <div class="row-stacked"><label>Encroachment of Subject building to neighbouring property?</label><div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_subject_to_neighbour"></div></div>
+        <div class="row-stacked"><label>Encroachment of Subject building to neighbouring property?</label>
+            <div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_subject_to_neighbour">
+            </div>
+        </div>
         <div class="img-wrapper" id="wrap_Demarcation_enroachment_subject_to_neighbour"></div>
 
-        <div class="row-stacked"><label>Encroachment of Neighbour's building to subject property?</label><div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_neighbour_to_subject"></div></div>
+        <div class="row-stacked"><label>Encroachment of Neighbour's building to subject property?</label>
+            <div class="field-box" contenteditable="true" data-path="Demarcation.enroachment_neighbour_to_subject">
+            </div>
+        </div>
         <div class="img-wrapper" id="wrap_Demarcation_enroachment_neighbour_to_subject"></div>
-    </div> 
+    </div>
 
     <div class="pdf-sheet">
         <div class="section-title">V. Access Nature/Right of Access</div>
@@ -541,14 +771,26 @@
                 <td style="width: 80px;"><strong>1.Type of access as per Title Deed</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="footway"> Footway</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="panchayat rd"> Panchayat Rd</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="corporation rd"> Corporation Rd</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="national highway"> National Highway</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="private way"> Private Way</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="municipal rd"> Muncipal Rd</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="pwd road"> PWD Road</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_titledeed" value="land locked"> Land Locked</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="footway"> Footway</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="panchayat rd"> Panchayat
+                            Rd</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="corporation rd"> Corporation
+                            Rd</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="national highway"> National
+                            Highway</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="private way"> Private Way</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="municipal rd"> Muncipal
+                            Rd</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="pwd road"> PWD Road</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_titledeed" value="land locked"> Land Locked</label>
                     </div>
                 </td>
             </tr>
@@ -556,14 +798,26 @@
                 <td><strong>2.Type of access as per site visit</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="footway"> Footway</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="panchayat rd"> Panchayat Rd</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="corporation rd"> Corporation Rd</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="national highway"> National Highway</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="private way"> Private Way</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="municipal rd"> Muncipal Rd</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="pwd road"> PWD Road</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.typeofaccess_sitevisit" value="land locked"> Land Locked</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="footway"> Footway</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="panchayat rd"> Panchayat
+                            Rd</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="corporation rd"> Corporation
+                            Rd</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="national highway"> National
+                            Highway</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="private way"> Private Way</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="municipal rd"> Muncipal
+                            Rd</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="pwd road"> PWD Road</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.typeofaccess_sitevisit" value="land locked"> Land Locked</label>
                     </div>
                 </td>
             </tr>
@@ -571,10 +825,14 @@
                 <td><strong>3.If private way, No of users..?</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user" value="self use"> Self Use</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user" value="self & 1 user"> Self & 1 User</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user" value="self & 2 user"> Self & 2 User</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user" value="self + family"> Self + Family</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user"
+                                value="self use"> Self Use</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user"
+                                value="self & 1 user"> Self & 1 User</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user"
+                                value="self & 2 user"> Self & 2 User</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user"
+                                value="self + family"> Self + Family</label>
                     </div>
                 </td>
             </tr>
@@ -582,14 +840,26 @@
                 <td><strong>4.Demarcation of Private road</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="no demarcation"> No Demarcation</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="gi sheet fence"> GI Sheet Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="barbed wire"> Barbed Wire</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="steel pegs"> Steel Pegs</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="compound wall"> Compound Wall</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="bio fence"> Bio Fence</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="survey stone"> Survey Stone</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_rd_demarcation" value="wooden pegs"> Wooden Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="no demarcation"> No
+                            Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="gi sheet fence"> GI Sheet
+                            Fence</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="barbed wire"> Barbed Wire</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="steel pegs"> Steel Pegs</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="compound wall"> Compound
+                            Wall</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="bio fence"> Bio Fence</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="survey stone"> Survey
+                            Stone</label>
+                        <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="wooden pegs"> Wooden Pegs</label>
                     </div>
                 </td>
             </tr>
@@ -605,22 +875,31 @@
                 <td><strong>6.Vehicular Access</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access" value="pedestrian"> Pedestrian</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access" value="2-wheeler"> 2-Wheeler</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access" value="3-wheeler"> 3-Wheeler</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access" value="4-wheeler"> 4-Wheeler</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access"
+                                value="pedestrian"> Pedestrian</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access"
+                                value="2-wheeler"> 2-Wheeler</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access"
+                                value="3-wheeler"> 3-Wheeler</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access"
+                                value="4-wheeler"> 4-Wheeler</label>
                     </div>
                 </td>
             </tr>
-             <tr>
+            <tr>
                 <td><strong>9.Material of Road</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material" value="mud road"> Mud Road</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material" value="gravel road"> Gravel Road</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material" value="concrete road"> Concrete Road</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material" value="paving tile rd"> paving Tile Rd.</label>
-                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material" value="tar road"> Tar Road</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material"
+                                value="mud road"> Mud Road</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material"
+                                value="gravel road"> Gravel Road</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material"
+                                value="concrete road"> Concrete Road</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material"
+                                value="paving tile rd"> paving Tile Rd.</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material"
+                                value="tar road"> Tar Road</label>
                     </div>
                 </td>
             </tr>
@@ -636,89 +915,116 @@
                 <td width="100px"><strong>8.Weather the Internal Rd has connectivity to Main Access?</strong></td>
                 <td>
                     <div class="checkbox-group">
-                        <div class="field-box" contenteditable="true" data-path="Access.internal_to_main_connectivity"></div>
+                        <div class="field-box" contenteditable="true" data-path="Access.internal_to_main_connectivity">
+                        </div>
                     </div>
                 </td>
             </tr>
-           
+
         </table>
-        <div class="row-stacked"><label>Notes on Discrepancy if any...</label><div class="field-box" contenteditable="true" data-path="Access.access_notes"></div></div>
+        <div class="row-stacked"><label>Notes on Discrepancy if any...</label>
+            <div class="field-box" contenteditable="true" data-path="Access.access_notes"></div>
+        </div>
         <div class="img-wrapper" id="wrap_Access_access_notes"></div>
-<br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br>
         <div class="section-title">VI. For Purchase and Resale cases</div>
         <div class="row">
-            <label>1.Buyer name</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_name"></div>
+            <label>1.Buyer name</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_name"></div>
         </div>
         <div class="row">
-            <label>2.Seller name</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.seller_name"></div>
-            <label>3.Relation b/w Buyer and Seller, if any</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_seller_relation"></div>
+            <label>2.Seller name</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.seller_name"></div>
+            <label>3.Relation b/w Buyer and Seller, if any</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_seller_relation"></div>
         </div>
         <div class="row">
-            <label>4.Since how long the property is up for sale..? (months)</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.property_sale_duration"></div>
+            <label>4.Since how long the property is up for sale..? (months)</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.property_sale_duration"></div>
         </div>
         <div class="row">
-            <label>5.Brokers/OLX/99acers involved or how transaction happened..?</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.transaction_method"></div>
+            <label>5.Brokers/OLX/99acers involved or how transaction happened..?</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.transaction_method"></div>
         </div>
         <div class="row">
-            <label>6.Land extend proposed for purchase..?</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_land_extent"></div>
+            <label>6.Land extend proposed for purchase..?</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_land_extent"></div>
         </div>
         <div class="row">
-            <label>7.Price Asked</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.price_asked"></div>
-            <label>8.Deal Breaker Value</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.deal_breaker_value"></div>
+            <label>7.Price Asked</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.price_asked"></div>
+            <label>8.Deal Breaker Value</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.deal_breaker_value"></div>
         </div>
         <div class="row-stacked">
-            <label>Notes</label><div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_resale_notes"></div>
+            <label>Notes</label>
+            <div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_resale_notes"></div>
         </div>
         <div class="img-wrapper" id="wrap_Purchase_resale_purchase_resale_notes"></div>
 
         <div class="section-title">VII. Building Analysis</div>
-            <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>Floor No</th>
-                        <th>Builtup Area (Mesured at Site)</th>
-                        <th>No of Rooms</th>
-                        <th>No of Kitchen</th>
-                        <th>No of Bathrooms</th>
-                        <th>Usage (Res/Comm/Ind)</th>
-                        <th>Occupancy (Owner/Rented/Vacant/Applicant)</th>
-                    </tr>
-                </thead>
-                <tbody id="building_dynamic_body">
-                    </tbody>
-            </table>
-            <div class="row" style="margin-top: 10px;">
-                <label>Building No:</label>
-                <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Building_no"></div>
-                
-                <label>Ward No:</label>
-                <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Ward"></div>
-            </div>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Floor No</th>
+                    <th>Builtup Area (Mesured at Site)</th>
+                    <th>No of Rooms</th>
+                    <th>No of Kitchen</th>
+                    <th>No of Bathrooms</th>
+                    <th>Usage (Res/Comm/Ind)</th>
+                    <th>Occupancy (Owner/Rented/Vacant/Applicant)</th>
+                </tr>
+            </thead>
+            <tbody id="building_dynamic_body">
+            </tbody>
+        </table>
+        <div class="row" style="margin-top: 10px;">
+            <label>Building No:</label>
+            <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Building_no"></div>
 
-            <div class="row">
-                <label>If Rented - Amount:</label>
-                <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
-                
-                <label>Duration:</label>
-                <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_duration"></div>
-            </div>
-        <div class="row-stacked"><label>Notes(Discrepancy respect to BUA, occupancy, alignment, orientation etc...)</label><div class="field-box" contenteditable="true" data-path="Building_analysis.building_analysis_notes"></div></div>
+            <label>Ward No:</label>
+            <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Ward"></div>
+        </div>
+
+        <div class="row">
+            <label>If Rented - Amount:</label>
+            <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
+
+            <label>Duration:</label>
+            <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_duration"></div>
+        </div>
+        <div class="row-stacked"><label>Notes(Discrepancy respect to BUA, occupancy, alignment, orientation
+                etc...)</label>
+            <div class="field-box" contenteditable="true" data-path="Building_analysis.building_analysis_notes"></div>
+        </div>
         <div class="img-wrapper" id="wrap_Building_analysis_building_analysis_notes"></div>
 
         <table class="report-table">
             <tr>
                 <th>Roof Type</th>
-                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type" value="RCC"> RCC</label></td>
-                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type" value="Tiled"> Tiled</label></td>
-                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type" value="Sheet"> Sheet</label></td>
-                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type" value="Other"> Other</label></td>
+                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type"
+                            value="RCC"> RCC</label></td>
+                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type"
+                            value="Tiled"> Tiled</label></td>
+                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type"
+                            value="Sheet"> Sheet</label></td>
+                <td><label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.roof_type"
+                            value="Other"> Other</label></td>
             </tr>
             <tr>
                 <th>Roof Percentage</th>
-                <td><div class="field-box" contenteditable="true" data-path="Building_analysis.RCC_Percentage"></div></td>
-                <td><div class="field-box" contenteditable="true" data-path="Building_analysis.Tiled_Percentage"></div></td>
-                <td><div class="field-box" contenteditable="true" data-path="Building_analysis.Sheet_Percentage"></div></td>
-                <td><div class="field-box" contenteditable="true" data-path="Building_analysis.Other_Percentage"></div></td>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="Building_analysis.RCC_Percentage"></div>
+                </td>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="Building_analysis.Tiled_Percentage"></div>
+                </td>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="Building_analysis.Sheet_Percentage"></div>
+                </td>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="Building_analysis.Other_Percentage"></div>
+                </td>
             </tr>
         </table>
 
@@ -732,176 +1038,260 @@
                     <th colspan="2">Rear Yard</th>
                 </tr>
                 <tr>
-                    <th>Min</th><th>Max</th>
-                    <th>Min</th><th>Max</th>
-                    <th>Min</th><th>Max</th>
-                    <th>Min</th><th>Max</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Min</th>
+                    <th>Max</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.setback"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.front_yard_min"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.front_yard_max"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.side1_yard_min"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.side1_yard_max"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.side2_yard_min"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.side2_yard_max"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.rear_yard_min"></div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="Building_analysis.rear_yard_max"></div></td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.setback"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.front_yard_min">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.front_yard_max">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.side1_yard_min">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.side1_yard_max">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.side2_yard_min">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.side2_yard_max">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.rear_yard_min"></div>
+                    </td>
+                    <td>
+                        <div class="field-box" contenteditable="true" data-path="Building_analysis.rear_yard_max"></div>
+                    </td>
                 </tr>
             </tbody>
         </table>
 
-       <div class="table-container" style="margin-top: 15px;">
+        <div class="table-container" style="margin-top: 15px;">
             <table class="report-table" id="timelineTable" style="table-layout: fixed; width: 100%;">
                 <tbody>
-                     <tr id="row_year">
-                        <td style="width: 150px; background: #f0f0f0; font-weight: bold;">Year</td>
-                        </tr>
+                    <tr id="row_year">
+                        <td style="width: 150px; background: #f0f0f0; font-weight: bold;">Year of construction</td>
+                    </tr>
                     <tr id="row_percent">
                         <td style="width: 150px; background: #f0f0f0; font-weight: bold;">% Area</td>
-                        </tr>
+                    </tr>
                 </tbody>
             </table>
         </div>
-        
+
         <div class="row-stacked">
-            <label>Notes on number of carparks, wardrobes, kitchen cabinets, flooring material, interior decorations or any other amenities...</label>
+            <label>Notes on number of carparks, wardrobes, kitchen cabinets, flooring material, interior decorations or
+                any other amenities...</label>
             <div class="field-box" contenteditable="true" data-path="Building_analysis.amenities_notes"></div>
         </div>
         <div class="img-wrapper" id="wrap_Building_analysis_amenities_notes"></div>
 
         <div class="section-title">IX. Land Inspection Details</div>
 
-            <table class="report-table" style="margin-bottom: 10px;">
-                <tr>
-                    <th>Nearest City</th><td><div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_city"></div></td>
-                    <th>Nearest Highway</th><td><div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_Highway"></div></td>
-                </tr>
-                <tr>
-                    <th>Nearest School</th><td><div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_school"></div></td>
-                    <th>Nearest Railway</th><td><div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_railway"></div></td>
-                </tr>
-                <tr>
-                    <th>Nearest Bus Stop</th><td><div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_busstop"></div></td>
-                    <th>Nearest Hospital</th><td><div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_hospital"></div></td>
-                </tr>
-            </table>
+        <table class="report-table" style="margin-bottom: 10px;">
+            <tr>
+                <th>Nearest City</th>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_city">
+                    </div>
+                </td>
+                <th>Nearest Highway</th>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_Highway">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Nearest School</th>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_school">
+                    </div>
+                </td>
+                <th>Nearest Railway</th>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_railway">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Nearest Bus Stop</th>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_busstop">
+                    </div>
+                </td>
+                <th>Nearest Hospital</th>
+                <td>
+                    <div class="field-box" contenteditable="true" data-path="land_inspection_details.nearest_hospital">
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-            <table class="report-table" style="margin-top: 5px;">
+        <table class="report-table" style="margin-top: 5px;">
             <tr>
                 <th>CRZ</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.crz" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.crz" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.crz"
+                            value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.crz"
+                            value="No"> No</label>
                 </td>
                 <th>Crematoriums</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.crematoriums" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.crematoriums" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.crematoriums" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.crematoriums" value="No"> No</label>
                 </td>
             </tr>
             <tr>
                 <th>Stigma</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.stigma" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.stigma" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.stigma"
+                            value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.stigma"
+                            value="No"> No</label>
                 </td>
                 <th>Slums</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.slums" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.slums" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.slums"
+                            value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.slums"
+                            value="No"> No</label>
                 </td>
             </tr>
             <tr>
                 <th>Communial Area</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.communial_area" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.communial_area" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.communial_area" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.communial_area" value="No"> No</label>
                 </td>
                 <th>Factory Abutting</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.factory_abutting" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.factory_abutting" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.factory_abutting" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.factory_abutting" value="No"> No</label>
                 </td>
             </tr>
             <tr>
                 <th>Defence Area</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.defence_area" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.defence_area" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.defence_area" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.defence_area" value="No"> No</label>
                 </td>
                 <th>Heritage Property</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.heritage_property" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.heritage_property" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.heritage_property" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.heritage_property" value="No"> No</label>
                 </td>
             </tr>
             <tr>
                 <th>Rubber Plantation</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.rubber_plantations" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.rubber_plantations" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.rubber_plantations" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.rubber_plantations" value="No"> No</label>
                 </td>
                 <th>Coconut Thope</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.coconut_thope" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.coconut_thope" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.coconut_thope" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.coconut_thope" value="No"> No</label>
                 </td>
             </tr>
             <tr>
                 <th>Buffer Zone</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.buffer_zone" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.buffer_zone" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.buffer_zone" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.buffer_zone" value="No"> No</label>
                 </td>
                 <th>Telecom Tower</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.telecommunication_tower" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.telecommunication_tower" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.telecommunication_tower" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.telecommunication_tower" value="No"> No</label>
                 </td>
             </tr>
             <tr>
                 <th>High Tension Wire</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.high_tension_wire_electrical_line" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.high_tension_wire_electrical_line" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.high_tension_wire_electrical_line" value="Yes">
+                        Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.high_tension_wire_electrical_line" value="No">
+                        No</label>
                 </td>
                 <th>Religious Struct</th>
                 <td>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.STCM_in_property" value="Yes"> Yes</label>
-                    <label class="checkbox-item"><input type="checkbox" data-bind-radio="land_inspection_details.STCM_in_property" value="No"> No</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.STCM_in_property" value="Yes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox"
+                            data-bind-radio="land_inspection_details.STCM_in_property" value="No"> No</label>
                 </td>
             </tr>
         </table>
 
-            <div class="row" style="margin-top: 10px;">
-                <label>Railway Line Passing?</label> 
-                <input type="checkbox" data-bind-radio="land_inspection_details.railway_pass" value="Yes"> Yes 
-                <input type="checkbox" data-bind-radio="land_inspection_details.railway_pass" value="No"> No
-                <label style="margin-left: 15px;">Distance:</label>
-                <div class="field-box" contenteditable="true" data-path="land_inspection_details.railway_distance"></div>
-            </div>
+        <div class="row" style="margin-top: 10px;">
+            <label>Railway Line Passing?</label>
+            <input type="checkbox" data-bind-radio="land_inspection_details.railway_pass" value="Yes"> Yes
+            <input type="checkbox" data-bind-radio="land_inspection_details.railway_pass" value="No"> No
+            <label style="margin-left: 15px;">Distance:</label>
+            <div class="field-box" contenteditable="true" data-path="land_inspection_details.railway_distance"></div>
+        </div>
 
-            <div class="row" style="margin-top: 10px;">
-                <label>Encroachment (Subject to Prop):</label> 
-                <input type="checkbox" data-bind-radio="land_inspection_details.enroachment_subject_to_prop" value="Yes"> Yes 
-                <input type="checkbox" data-bind-radio="land_inspection_details.enroachment_subject_to_prop" value="No"> No
-            </div>
-            <div class="row">
-                <label>Intrusion (Other to Subject):</label> 
-                <input type="checkbox" data-bind-radio="land_inspection_details.intrusion_other_to_subject" value="Yes"> Yes 
-                <input type="checkbox" data-bind-radio="land_inspection_details.intrusion_other_to_subject" value="No"> No
-            </div>
+        <div class="row" style="margin-top: 10px;">
+            <label>Encroachment (Subject to Prop):</label>
+            <input type="checkbox" data-bind-radio="land_inspection_details.enroachment_subject_to_prop" value="Yes">
+            Yes
+            <input type="checkbox" data-bind-radio="land_inspection_details.enroachment_subject_to_prop" value="No"> No
+        </div>
+        <div class="row">
+            <label>Intrusion (Other to Subject):</label>
+            <input type="checkbox" data-bind-radio="land_inspection_details.intrusion_other_to_subject" value="Yes"> Yes
+            <input type="checkbox" data-bind-radio="land_inspection_details.intrusion_other_to_subject" value="No"> No
+        </div>
 
-            
 
-            <div class="row-stacked" style="margin-top: 10px;">
-                <label>Inspection Notes:</label>
-                <div class="field-box" contenteditable="true" data-path="land_inspection_details.inspection_notes"></div>
-            </div>
-            <div class="img-wrapper" id="wrap_land_inspection_details_inspection_notes"></div>
+
+        <div class="row-stacked" style="margin-top: 10px;">
+            <label>Inspection Notes:</label>
+            <div class="field-box" contenteditable="true" data-path="land_inspection_details.inspection_notes"></div>
+        </div>
+        <div class="img-wrapper" id="wrap_land_inspection_details_inspection_notes"></div>
 
         <div class="section-title">VIII. Landmark & Layout(Hand Sketch)</div>
         <label>Landmark:</label>
@@ -910,28 +1300,34 @@
 
         <p style="margin-top: 10px; font-weight: bold; color: #777;">Hand Sketch:</p>
 
-        <div class="img-wrapper" id="wrap_Sketch_main_layout" style="position: relative; min-height: 300px; display: block;">
-            
-            <div class="compass-container" style="position: absolute; top: 10px; right: 10px; z-index: 10; width: 50px;">
-                <img src="{% static 'images/compass-icon.png' %}" alt="compass" style="width: 100%; height: auto; display: block;">
+        <div class="img-wrapper" id="wrap_Sketch_main_layout"
+            style="position: relative; min-height: 300px; display: block;">
+
+            <div class="compass-container"
+                style="position: absolute; top: 10px; right: 10px; z-index: 10; width: 50px;">
+                <img src="{% static 'images/compass-icon.png' %}" alt="compass"
+                    style="width: 100%; height: auto; display: block;">
             </div>
 
-            <div id="sketch_content_area" style="width: 100%; height: 100%; min-height: 280px; display: flex; justify-content: center; align-items: center;">
+            <div id="sketch_content_area"
+                style="width: 100%; height: 100%; min-height: 280px; display: flex; justify-content: center; align-items: center;">
                 <span id="no_sketch_text" style="color:#ccc;">(No sketch provided)</span>
             </div>
         </div>
-        
+
         <div class="row-stacked" style="margin-top: 10px;">
-            <label>Overall Remarks (Comments on land extend, sold value, sold date etc... comparing with the subject property)</label>
+            <label>Overall Remarks (Comments on land extend, sold value, sold date etc... comparing with the subject
+                property)</label>
             <div class="field-box" contenteditable="true" data-path="Building_analysis.extra_remarks"></div>
         </div>
         <div class="img-wrapper" id="wrap_Building_analysis_extra_remarks"></div>
-        <div class="row" style="margin-top: 10px; border: 1px solid #000; padding: 5px;">
-                <label style="font-size: 11pt;">Recommented Land Value:</label>
-                <div class="field-box" contenteditable="true" data-path="land_inspection_details.land_value" style="font-weight: bold; font-size: 11pt;"></div>
+        <div class="row highlight-yellow" style="margin-top: 10px; border: 1px solid #000; padding: 5px;">
+            <label style="font-size: 11pt; color: #000;">Recommented Land Value:</label>
+            <div class="field-box" contenteditable="true" data-path="land_inspection_details.land_value"
+                style="font-weight: bold; font-size: 11pt; background-color: transparent; border-color: #666;"></div>
         </div>
-        
-     
+
+
         <div class="row-stacked" style="margin-top: 10px;">
             <label>Notes on Land Value references received</label>
             <div class="field-box" contenteditable="true" data-path="Building_analysis.val_references"></div>
@@ -939,38 +1335,39 @@
         <div class="img-wrapper" id="wrap_Building_analysis_val_references"></div>
         <div class="report-section">
             <h4>IX. Property Location</h4>
-            
+
             <div style="border: 2px solid #333; border-radius: 4px; overflow: hidden; margin-top: 10px;">
-                <img id="static_map_view" 
-                    style="width: 100%; height: auto; display: block;" 
-                    alt="Map Preview"
-                    crossorigin="anonymous"> 
+                <img id="static_map_view" style="width: 100%; height: auto; display: block;" alt="Map Preview"
+                    crossorigin="anonymous">
             </div>
-                
+
             <div style="margin-top: 5px; font-size: 12px; color: #666;">
                 <strong>GPS Coordinates:</strong> <span id="display_lat_lng">Not Selected</span>
             </div>
         </div>
-        
+
         <br><br><br><br><br><br>
         <div class="pdf-footer">
             <div class="footer-section">
                 <div class="footer-item">File No: <span id="ft_file_no">Loading...</span></div>
                 <div class="footer-item">Applicant: <span id="ft_applicant">Loading...</span></div>
             </div>
-            
+
             <div class="footer-section" style="text-align: right;">
                 <div class="footer-item">Date: <span id="ft_date">Loading...</span></div>
-                <div class="footer-item">TAT Status: <span id="ft_tat" style="font-weight: bold;">Loading...</span></div>
+                <div class="footer-item">TAT Status: <span id="ft_tat" style="font-weight: bold;">Loading...</span>
+                </div>
             </div>
         </div>
     </div>
-    
 
-    <div class="floating-save" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 60px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2);">
-    
-        <button id="saveFinal" class="btn-save" style="background-color: #075e54; color: #ffffff; padding: 15px 35px; border: none; border-radius: 50px; font-size: 14pt; font-weight: bold; font-family: 'Times New Roman', Times, serif; box-shadow: 0 8px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;">
-            <i class="fas fa-file-pdf" style="font-size: 1.2em;"></i> 
+
+    <div class="floating-save"
+        style="position: fixed; bottom: 30px; right: 30px; z-index: 1000; background: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 60px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2);">
+
+        <button id="saveFinal" class="btn-save"
+            style="background-color: #075e54; color: #ffffff; padding: 15px 35px; border: none; border-radius: 50px; font-size: 14pt; font-weight: bold; font-family: 'Times New Roman', Times, serif; box-shadow: 0 8px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;">
+            <i class="fas fa-file-pdf" style="font-size: 1.2em;"></i>
             Save Final PDF
         </button>
 
@@ -979,7 +1376,7 @@
 </div>
 
 <script>
-    const reportId = "{{ report_id }}"; 
+    const reportId = "{{ report_id }}";
     let reportData = {};
 
     const TAT_LIMIT = 10; // Change this to 3 or 5 based on your requirement
@@ -990,9 +1387,9 @@
             .then(r => r.json())
             .then(data => {
                 reportData = data;
-                
+
                 // Render the form fields
-                renderPage(); 
+                renderPage();
                 renderStaticMap();
 
                 // 2. Fetch Folder Info (Download Date) from Server
@@ -1044,20 +1441,20 @@
 
                 // 6. Build URL
                 const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=19&size=600x300&maptype=hybrid&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
-                
+
                 console.log("✅ Map URL generated successfully.");
 
                 // 7. Show Image
                 imgElement.src = mapUrl;
                 imgElement.classList.remove("hidden");
                 imgElement.style.display = "block"; // Force display
-                
+
                 // 8. Update Text
-                if(textElement) {
+                if (textElement) {
                     textElement.innerText = `${lat}, ${lng}`;
                     textElement.style.color = "black";
                 }
-                
+
             } catch (e) {
                 console.error("❌ Map Logic Error:", e);
             }
@@ -1065,7 +1462,7 @@
             console.warn("⚠️ Coordinates missing or invalid. Hiding map.");
             // Hide map if no data
             imgElement.style.display = 'none';
-            if(textElement) {
+            if (textElement) {
                 textElement.innerText = "Location not tagged";
                 textElement.style.color = "red";
             }
@@ -1090,84 +1487,84 @@
                 populateFooterDetails(null); // Fallback
             });
     }
-// Inside pdfedit.html script
-function populateFooterDetails(dateOverride = null) {
-    // 1. Basic Fields
-    const fileNo = getNested(reportData, "Valuers_Checklist.Office_file_no") || "N/A";
-    const applicant = getNested(reportData, "Valuers_Checklist.applicant_name") || "N/A";
-    
-    // 2. Current Date
-    const today = new Date();
-    const dStr = String(today.getDate()).padStart(2, '0');
-    const mStr = String(today.getMonth() + 1).padStart(2, '0');
-    const yStr = today.getFullYear();
-    const todayFormatted = `${dStr}/${mStr}/${yStr}`;
+    // Inside pdfedit.html script
+    function populateFooterDetails(dateOverride = null) {
+        // 1. Basic Fields
+        const fileNo = getNested(reportData, "Valuers_Checklist.Office_file_no") || "N/A";
+        const applicant = getNested(reportData, "Valuers_Checklist.applicant_name") || "N/A";
 
-    // 3. TAT Calculation
-    let tatText = "T + 0"; // Default fallback
-    let tatColor = "#333"; 
+        // 2. Current Date
+        const today = new Date();
+        const dStr = String(today.getDate()).padStart(2, '0');
+        const mStr = String(today.getMonth() + 1).padStart(2, '0');
+        const yStr = today.getFullYear();
+        const todayFormatted = `${dStr}/${mStr}/${yStr}`;
 
-    // ✅ PRIORITY: Use argument if passed, otherwise use saved report data
-    const savedDate = dateOverride || reportData.meta_download_date; 
+        // 3. TAT Calculation
+        let tatText = "T + 0"; // Default fallback
+        let tatColor = "#333";
 
-    if (savedDate) {
-        try {
-            console.log("Calculating TAT for date:", savedDate);
+        // ✅ PRIORITY: Use argument if passed, otherwise use saved report data
+        const savedDate = dateOverride || reportData.meta_download_date;
 
-            // Robust Parsing: Handles "01.02.2024", "01/02/2024", "01-02-2024"
-            const parts = savedDate.split(/[\.\-\/]/); 
-            
-            if (parts.length === 3) {
-                const day = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10) - 1; // JS Month is 0-11
-                const year = parseInt(parts[2], 10);
-                
-                const startDate = new Date(year, month, day);
-                
-                // Calculate Days Difference
-                const msPerDay = 1000 * 60 * 60 * 24;
-                
-                // Normalize 'Today' to midnight to avoid hour mismatches
-                const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                const startMid = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-                
-                const diffTime = todayMid - startMid;
-                const diffDays = Math.floor(diffTime / msPerDay);
-                
-                // ✅ SET TEXT: Simply "T + Number", no matter how big
-                tatText = `T + ${diffDays}`;
+        if (savedDate) {
+            try {
+                console.log("Calculating TAT for date:", savedDate);
 
-                // Color Logic (Optional: Keep colors, just remove text)
-                // You can change '3' to whatever your limit is
-                if (diffDays > 3) {
-                    tatColor = "#d32f2f"; // Red for anything > 3
+                // Robust Parsing: Handles "01.02.2024", "01/02/2024", "01-02-2024"
+                const parts = savedDate.split(/[\.\-\/]/);
+
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1; // JS Month is 0-11
+                    const year = parseInt(parts[2], 10);
+
+                    const startDate = new Date(year, month, day);
+
+                    // Calculate Days Difference
+                    const msPerDay = 1000 * 60 * 60 * 24;
+
+                    // Normalize 'Today' to midnight to avoid hour mismatches
+                    const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const startMid = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+
+                    const diffTime = todayMid - startMid;
+                    const diffDays = Math.floor(diffTime / msPerDay);
+
+                    // ✅ SET TEXT: Simply "T + Number", no matter how big
+                    tatText = `T + ${diffDays}`;
+
+                    // Color Logic (Optional: Keep colors, just remove text)
+                    // You can change '3' to whatever your limit is
+                    if (diffDays > 3) {
+                        tatColor = "#d32f2f"; // Red for anything > 3
+                    } else {
+                        tatColor = "#2e7d32"; // Green for 0-3
+                    }
                 } else {
-                    tatColor = "#2e7d32"; // Green for 0-3
+                    console.warn("Invalid Date Format received:", savedDate);
                 }
-            } else {
-                console.warn("Invalid Date Format received:", savedDate);
+            } catch (e) {
+                console.error("TAT Calculation error:", e);
             }
-        } catch (e) {
-            console.error("TAT Calculation error:", e);
+        }
+
+        // 4. Update HTML
+        document.getElementById("ft_file_no").textContent = fileNo;
+        document.getElementById("ft_applicant").textContent = applicant;
+        document.getElementById("ft_date").textContent = todayFormatted;
+
+        const tatSpan = document.getElementById("ft_tat");
+        if (tatSpan) {
+            tatSpan.textContent = tatText;
+            tatSpan.style.color = tatColor;
         }
     }
-
-    // 4. Update HTML
-    document.getElementById("ft_file_no").textContent = fileNo;
-    document.getElementById("ft_applicant").textContent = applicant;
-    document.getElementById("ft_date").textContent = todayFormatted;
-    
-    const tatSpan = document.getElementById("ft_tat");
-    if(tatSpan) {
-        tatSpan.textContent = tatText;
-        tatSpan.style.color = tatColor;
-    }
-}
     // --- 2. Render Data to HTML ---
     function renderPage() {
         // A. Fill Text Fields
         renderBuildingTableDynamic();
-        
+
         document.querySelectorAll('[data-path]').forEach(el => {
             const path = el.getAttribute('data-path');
             const val = getNested(reportData, path);
@@ -1180,7 +1577,7 @@ function populateFooterDetails(dateOverride = null) {
             const val = el.value;
             const arr = getNested(reportData, path);
             if (Array.isArray(arr) && arr.includes(val)) el.checked = true;
-            el.onchange = function() { updateArray(path, val, this.checked); };
+            el.onchange = function () { updateArray(path, val, this.checked); };
         });
 
         // C. Handle Booleans
@@ -1188,35 +1585,38 @@ function populateFooterDetails(dateOverride = null) {
             const path = el.getAttribute('data-bind-bool');
             const val = getNested(reportData, path);
             if (val === true || val === "true") el.checked = true;
-            el.onchange = function() { setNested(reportData, path, this.checked); };
+            el.onchange = function () { setNested(reportData, path, this.checked); };
         });
-        
+
         // D. Handle Radios
         document.querySelectorAll('input[data-bind-radio]').forEach(el => {
-             const path = el.getAttribute('data-bind-radio');
-             const dbValue = getNested(reportData, path);
-             if(dbValue && dbValue.toString().toLowerCase() === el.value.toLowerCase()) el.checked = true;
-             el.onchange = function() {
-                 if(this.checked) {
-                     document.querySelectorAll(`input[data-bind-radio="${path}"]`).forEach(other => {
-                         if(other !== this) other.checked = false;
-                     });
-                     setNested(reportData, path, this.value);
-                 } else { setNested(reportData, path, ""); }
-             }
+            const path = el.getAttribute('data-bind-radio');
+            const dbValue = getNested(reportData, path);
+            if (dbValue && dbValue.toString().toLowerCase() === el.value.toLowerCase()) el.checked = true;
+            el.onchange = function () {
+                if (this.checked) {
+                    document.querySelectorAll(`input[data-bind-radio="${path}"]`).forEach(other => {
+                        if (other !== this) other.checked = false;
+                    });
+                    setNested(reportData, path, this.value);
+                } else { setNested(reportData, path, ""); }
+
+                // Trigger highlight when user clicks
+                applyYellowHighlights();
+            }
         });
 
         // E. Render Images
         const images = reportData.images || {};
         for (const [key, b64] of Object.entries(images)) {
-            if (!b64) continue; 
+            if (!b64) continue;
             const safeKey = key.replace(/\./g, '_');
             const wrapper = document.getElementById('wrap_' + safeKey);
-            
+
             if (wrapper) {
                 // Targeted Update: Find the specific content area
                 const contentArea = wrapper.querySelector('#sketch_content_area');
-                
+
                 if (contentArea) {
                     // Only replace the content inside the area (keeps the compass div safe)
                     contentArea.innerHTML = `<img src="${b64}" id="img_${safeKey}" 
@@ -1232,13 +1632,13 @@ function populateFooterDetails(dateOverride = null) {
         // --- F. FIXED DYNAMIC TABLE LOGIC ---
         const surveyDocs = getNested(reportData, "Survey.docs") || [];
         const surveyBody = document.getElementById("survey_dynamic_body");
-        
-        if(surveyBody) {
-            surveyBody.innerHTML = ""; 
+
+        if (surveyBody) {
+            surveyBody.innerHTML = "";
             surveyDocs.forEach((doc, index) => {
                 const tr = document.createElement("tr");
                 const basePath = `Survey.docs.${index}`;
-                
+
                 // 1. Format Land Classification (Combine separate keys into one string)
                 const landClassText = formatLandData(doc);
 
@@ -1262,115 +1662,116 @@ function populateFooterDetails(dateOverride = null) {
         }
         renderTimelineFromData();
         applyConditionalVisibility();
+        applyYellowHighlights();
     }
     function applyConditionalVisibility() {
-    // --- 1. SMART FIELD VISIBILITY ---
-    document.querySelectorAll('.field-box[contenteditable="true"]').forEach(box => {
-        const parentRow = box.closest('.row, .row-stacked');
-        const panchayatVal = getNested(reportData, "Survey.grama_panchayat");
-        const panchayatRow = document.getElementById("row_panchayat_name");
-        if (panchayatRow) {
-            if (!panchayatVal || panchayatVal.toString().trim() === "") {
-                panchayatRow.classList.add('hidden-row');
-            } else {
-                panchayatRow.classList.remove('hidden-row');
-            }
-        }
-        
-        // Reset defaults (in case of re-run)
-        box.style.display = 'block'; 
-        if (parentRow) parentRow.classList.remove('hidden-row');
-
-        // Check if Text is Empty
-        if (!box.innerText.trim()) {
-            // STEP A: Hide the empty box so it doesn't take up space
-            box.style.display = 'none';
-
-            // STEP B: Should we keep the Label visible? 
-            let keepLabel = false;
-
-            // 1. Check if there is an Image associated with this field
-            const path = box.getAttribute('data-path');
-            if (path) {
-                const safeKey = path.replace(/\./g, '_');
-                const imgWrap = document.getElementById('wrap_' + safeKey);
-                // If image exists, we MUST keep the label
-                if (imgWrap && imgWrap.querySelector('img')) {
-                    keepLabel = true; 
+        // --- 1. SMART FIELD VISIBILITY ---
+        document.querySelectorAll('.field-box[contenteditable="true"]').forEach(box => {
+            const parentRow = box.closest('.row, .row-stacked');
+            const panchayatVal = getNested(reportData, "Survey.grama_panchayat");
+            const panchayatRow = document.getElementById("row_panchayat_name");
+            if (panchayatRow) {
+                if (!panchayatVal || panchayatVal.toString().trim() === "") {
+                    panchayatRow.classList.add('hidden-row');
+                } else {
+                    panchayatRow.classList.remove('hidden-row');
                 }
             }
 
-            // 2. Check if there are other inputs (Checkboxes/Radios) in the same row
-            if (parentRow) {
-                const hasOptions = parentRow.querySelector('input[type="checkbox"], input[type="radio"]');
-                const siblings = parentRow.querySelectorAll('.field-box');
-                let siblingHasData = false;
-                // Check if neighbor text boxes have data
-                siblings.forEach(sib => { 
-                    if (sib !== box && sib.innerText.trim()) siblingHasData = true; 
-                });
+            // Reset defaults (in case of re-run)
+            box.style.display = 'block';
+            if (parentRow) parentRow.classList.remove('hidden-row');
 
-                if (hasOptions || siblingHasData) keepLabel = true;
+            // Check if Text is Empty
+            if (!box.innerText.trim()) {
+                // STEP A: Hide the empty box so it doesn't take up space
+                box.style.display = 'none';
+
+                // STEP B: Should we keep the Label visible? 
+                let keepLabel = false;
+
+                // 1. Check if there is an Image associated with this field
+                const path = box.getAttribute('data-path');
+                if (path) {
+                    const safeKey = path.replace(/\./g, '_');
+                    const imgWrap = document.getElementById('wrap_' + safeKey);
+                    // If image exists, we MUST keep the label
+                    if (imgWrap && imgWrap.querySelector('img')) {
+                        keepLabel = true;
+                    }
+                }
+
+                // 2. Check if there are other inputs (Checkboxes/Radios) in the same row
+                if (parentRow) {
+                    const hasOptions = parentRow.querySelector('input[type="checkbox"], input[type="radio"]');
+                    const siblings = parentRow.querySelectorAll('.field-box');
+                    let siblingHasData = false;
+                    // Check if neighbor text boxes have data
+                    siblings.forEach(sib => {
+                        if (sib !== box && sib.innerText.trim()) siblingHasData = true;
+                    });
+
+                    if (hasOptions || siblingHasData) keepLabel = true;
+                }
+
+                // STEP C: If no Image and no other data, hide the whole row (Label)
+                if (!keepLabel && parentRow) {
+                    parentRow.classList.add('hidden-row');
+                }
             }
+        });
 
-            // STEP C: If no Image and no other data, hide the whole row (Label)
-            if (!keepLabel && parentRow) {
-                parentRow.classList.add('hidden-row');
+        // --- 2. SPECIFIC LOGIC: RAILWAY DISTANCE ---
+        const railCheck = getNested(reportData, "land_inspection_details.railway_pass");
+        const railDistBox = document.querySelector('[data-path="land_inspection_details.railway_distance"]');
+        if (railDistBox && railCheck !== "Yes") {
+            railDistBox.style.visibility = 'hidden';
+            if (railDistBox.previousElementSibling && railDistBox.previousElementSibling.tagName === 'LABEL') {
+                railDistBox.previousElementSibling.style.visibility = 'hidden';
             }
         }
-    });
 
-    // --- 2. SPECIFIC LOGIC: RAILWAY DISTANCE ---
-    const railCheck = getNested(reportData, "land_inspection_details.railway_pass");
-    const railDistBox = document.querySelector('[data-path="land_inspection_details.railway_distance"]');
-    if (railDistBox && railCheck !== "Yes") {
-        railDistBox.style.visibility = 'hidden';
-        if(railDistBox.previousElementSibling && railDistBox.previousElementSibling.tagName === 'LABEL') {
-            railDistBox.previousElementSibling.style.visibility = 'hidden';
+        // --- 3. SPECIFIC LOGIC: WET LAND / TREES ---
+        const paddy = getNested(reportData, "Survey.paddy_land_check");
+        const trees = getNested(reportData, "Survey.trees_2008_check");
+        if (!paddy && !trees) {
+            const paddyInput = document.querySelector('input[data-bind-radio="Survey.paddy_land_check"]');
+            if (paddyInput) {
+                const container = paddyInput.closest('.row');
+                if (container) container.classList.add('hidden-row');
+            }
         }
+
+        // --- 4. SPECIFIC LOGIC: SURVEY TOTALS ---
+        const ltrTotal = getNested(reportData, "Survey.total_ltr_extent");
+        const deedTotal = getNested(reportData, "Survey.total_deed_extent");
+        if (!ltrTotal && !deedTotal) {
+            const totalBox = document.querySelector('[data-path="Survey.total_ltr_extent"]');
+            if (totalBox) {
+                totalBox.closest('.row').classList.add('hidden-row');
+            }
+        }
+
+        // --- 5. HIDE EMPTY IMAGE WRAPPERS ---
+        document.querySelectorAll('.img-wrapper').forEach(wrap => {
+            if (!wrap.querySelector('img')) {
+                wrap.classList.add('hidden-row');
+            }
+        });
     }
-
-    // --- 3. SPECIFIC LOGIC: WET LAND / TREES ---
-    const paddy = getNested(reportData, "Survey.paddy_land_check");
-    const trees = getNested(reportData, "Survey.trees_2008_check");
-    if (!paddy && !trees) {
-        const paddyInput = document.querySelector('input[data-bind-radio="Survey.paddy_land_check"]');
-        if (paddyInput) {
-            const container = paddyInput.closest('.row'); 
-            if (container) container.classList.add('hidden-row');
-        }
-    }
-
-    // --- 4. SPECIFIC LOGIC: SURVEY TOTALS ---
-    const ltrTotal = getNested(reportData, "Survey.total_ltr_extent");
-    const deedTotal = getNested(reportData, "Survey.total_deed_extent");
-    if (!ltrTotal && !deedTotal) {
-        const totalBox = document.querySelector('[data-path="Survey.total_ltr_extent"]');
-        if(totalBox) {
-            totalBox.closest('.row').classList.add('hidden-row');
-        }
-    }
-
-    // --- 5. HIDE EMPTY IMAGE WRAPPERS ---
-    document.querySelectorAll('.img-wrapper').forEach(wrap => {
-        if (!wrap.querySelector('img')) {
-            wrap.classList.add('hidden-row');
-        }
-    });
-}
-   // --- NEW HELPER FUNCTION TO FORMAT LAND DATA ---
+    // --- NEW HELPER FUNCTION TO FORMAT LAND DATA ---
     function formatLandData(doc) {
         // If the single string already exists (legacy data), use it
         if (doc.land_classification) return doc.land_classification;
 
         // Otherwise, construct it from the fragmented keys
         const types = [
-            { key: 'dry',          label: 'Dry' },
-            { key: 'wet',          label: 'Wet' },
-            { key: 'sthirapunja',  label: 'Sthirapunja' },   // Updated Key
+            { key: 'dry', label: 'Dry' },
+            { key: 'wet', label: 'Wet' },
+            { key: 'sthirapunja', label: 'Sthirapunja' },   // Updated Key
             { key: 'asthirapunja', label: 'Asthirapunja' },  // Updated Key
-            { key: 'thottam',      label: 'Thottam' },
-            { key: 'others',       label: 'Others' }
+            { key: 'thottam', label: 'Thottam' },
+            { key: 'others', label: 'Others' }
         ];
 
         let parts = [];
@@ -1416,167 +1817,167 @@ function populateFooterDetails(dateOverride = null) {
         });
     };
 
-  // ✅ Make this function ASYNC
-    async function performDirectSave() { 
+    // ✅ Make this function ASYNC
+    async function performDirectSave() {
         const btn = document.getElementById('saveFinal');
         const originalText = btn.innerHTML;
-        
+
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Images...';
         btn.disabled = true;
 
         // ✅ ADD AWAIT HERE
-        const htmlSnapshot = await getPageSnapshot(); 
-        
+        const htmlSnapshot = await getPageSnapshot();
+
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving PDF...';
 
         const payload = {
             report_id: reportId,
-            target_folder: reportData.target_folder || "", 
+            target_folder: reportData.target_folder || "",
             html_content: htmlSnapshot,
-            ...reportData 
+            ...reportData
         };
         fetch('/coreapi/api/finalize-pdf/', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
             body: JSON.stringify(payload)
         })
-        .then(r => r.json())
-        .then(res => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            
-            if(res.success) {
-                // --- SUCCESS: Display what the SERVER created ---
-                // 1. Get full path from response
-                const fullPath = res.file_path; 
-                
-                // 2. Extract just the filename (e.g. "Report_123_site_report_3.pdf")
-                // Works for both Windows (\) and Linux (/) separators
-                const fileName = fullPath.replace(/^.*[\\\/]/, '');
+            .then(r => r.json())
+            .then(res => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
 
-                Swal.fire({
-                    title: 'Saved Successfully!',
-                    html: `
+                if (res.success) {
+                    // --- SUCCESS: Display what the SERVER created ---
+                    // 1. Get full path from response
+                    const fullPath = res.file_path;
+
+                    // 2. Extract just the filename (e.g. "Report_123_site_report_3.pdf")
+                    // Works for both Windows (\) and Linux (/) separators
+                    const fileName = fullPath.replace(/^.*[\\\/]/, '');
+
+                    Swal.fire({
+                        title: 'Saved Successfully!',
+                        html: `
                         <div style="text-align:left; background:#f9f9f9; padding:10px; border-radius:5px;">
                             <strong>Filename:</strong> ${fileName}<br>
                             <span style="font-size:11px; color:#888; word-break:break-all;">${fullPath}</span>
                         </div>
                     `,
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'Do a New Site Report',
-                    cancelButtonText: 'Go to Dashboard',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#7066e0',
-                    reverseButtons: true,
-                    timer: 30000,
-                    timerProgressBar: true
-                }).then((result) => {
-                    if (result.isConfirmed) window.location.href = "{% url 'coreapi:feedback' %}"; 
-                    else if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.timer) {
-                        window.location.href = "{% url 'coreapi:dashboard' %}"; 
-                    }
-                });
-            } else {
-                Swal.fire('Error', res.error, 'error');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire('Network Error', 'Could not save PDF', 'error');
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        });
-    }
- async function getPageSnapshot() {
-    const originalContainer = document.querySelector('.paper-container');
-    const clone = originalContainer.cloneNode(true);
-
-    // 1. CLEANUP UI
-    const garbage = clone.querySelectorAll('.nav-left, .floating-save, button, .crop-btn, .btn-save, .back-link');
-    garbage.forEach(el => el.remove());
-
-    // -------------------------------------------------------------
-    // ✅ NEW: CONVERT ALL IMAGES TO BASE64 (EMBEDDED DATA)
-    // -------------------------------------------------------------
-    const images = clone.querySelectorAll('img');
-    const imagePromises = Array.from(images).map(async (img) => {
-        try {
-            // If it's already Base64 (sketches often are), skip fetching
-            if (img.src.startsWith('data:')) return;
-
-            // Fetch the image data using the browser's connection
-            const response = await fetch(img.src);
-            const blob = await response.blob();
-            
-            // Convert Blob to Base64 String
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    img.src = reader.result; // Swap URL for Data String
-                    resolve();
-                };
-                reader.readAsDataURL(blob);
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonText: 'Do a New Site Report',
+                        cancelButtonText: 'Go to Dashboard',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#7066e0',
+                        reverseButtons: true,
+                        timer: 30000,
+                        timerProgressBar: true
+                    }).then((result) => {
+                        if (result.isConfirmed) window.location.href = "{% url 'coreapi:feedback' %}";
+                        else if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.timer) {
+                            window.location.href = "{% url 'coreapi:dashboard' %}";
+                        }
+                    });
+                } else {
+                    Swal.fire('Error', res.error, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Network Error', 'Could not save PDF', 'error');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             });
-        } catch (e) {
-            console.warn("Could not embed image:", img.src, e);
-        }
-    });
+    }
+    async function getPageSnapshot() {
+        const originalContainer = document.querySelector('.paper-container');
+        const clone = originalContainer.cloneNode(true);
 
-    // Wait for all images to convert before continuing
-    await Promise.all(imagePromises);
-    // -------------------------------------------------------------
+        // 1. CLEANUP UI
+        const garbage = clone.querySelectorAll('.nav-left, .floating-save, button, .crop-btn, .btn-save, .back-link');
+        garbage.forEach(el => el.remove());
 
-    // 2. BAKE INPUTS (Your existing Checkbox/Radio logic)
-    const inputs = clone.querySelectorAll('input');
-    inputs.forEach(input => {
-        const type = input.type;
-        const isChecked = input.hasAttribute('checked') || input.checked;
-        
-        const span = document.createElement('span');
-        
-        if (type === 'checkbox') {
-            span.className = 'pdf-checkbox';
-            if (isChecked) {span.classList.add('checked'); }
-        } else if (type === 'radio') {
-            span.className = 'pdf-radio';
-            if (isChecked) { span.classList.add('checked'); }
-        } else {
-            span.className = 'pdf-text-val';
-            span.innerText = input.value;
-            span.style.borderBottom = "1px solid #000";
-            span.style.display = "inline-block";
-            span.style.minWidth = "20px";
-        }
-        input.replaceWith(span);
-    });
+        // -------------------------------------------------------------
+        // ✅ NEW: CONVERT ALL IMAGES TO BASE64 (EMBEDDED DATA)
+        // -------------------------------------------------------------
+        const images = clone.querySelectorAll('img');
+        const imagePromises = Array.from(images).map(async (img) => {
+            try {
+                // If it's already Base64 (sketches often are), skip fetching
+                if (img.src.startsWith('data:')) return;
 
-    // 3. HANDLE TEXTAREAS & CONTENTEDITABLE
-    clone.querySelectorAll('textarea').forEach(t => {
-        const div = document.createElement('div');
-        div.innerText = t.value;
-        div.className = 'field-box';
-        t.replaceWith(div);
-    });
-    
-    clone.querySelectorAll('[contenteditable]').forEach(e => {
-        e.removeAttribute('contenteditable'); 
-    });
+                // Fetch the image data using the browser's connection
+                const response = await fetch(img.src);
+                const blob = await response.blob();
 
-    // 4. CAPTURE STYLES
-    let styles = "";
-    document.querySelectorAll('link[rel="stylesheet"]').forEach(link => { 
-        // We still grab FontAwesome, but images are now embedded!
-        if (link.href.startsWith('/')) {
-            link.href = window.location.origin + link.getAttribute('href');
-        }
-        styles += link.outerHTML; 
-    });
-    document.querySelectorAll('style').forEach(style => { styles += style.outerHTML; });
+                // Convert Blob to Base64 String
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        img.src = reader.result; // Swap URL for Data String
+                        resolve();
+                    };
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                console.warn("Could not embed image:", img.src, e);
+            }
+        });
 
-    // 5. FINAL PDF TEMPLATE
-    // (Keep your existing styles for "print-scale", "pdf-sheet", etc.)
-    return `
+        // Wait for all images to convert before continuing
+        await Promise.all(imagePromises);
+        // -------------------------------------------------------------
+
+        // 2. BAKE INPUTS (Your existing Checkbox/Radio logic)
+        const inputs = clone.querySelectorAll('input');
+        inputs.forEach(input => {
+            const type = input.type;
+            const isChecked = input.hasAttribute('checked') || input.checked;
+
+            const span = document.createElement('span');
+
+            if (type === 'checkbox') {
+                span.className = 'pdf-checkbox';
+                if (isChecked) { span.classList.add('checked'); }
+            } else if (type === 'radio') {
+                span.className = 'pdf-radio';
+                if (isChecked) { span.classList.add('checked'); }
+            } else {
+                span.className = 'pdf-text-val';
+                span.innerText = input.value;
+                span.style.borderBottom = "1px solid #000";
+                span.style.display = "inline-block";
+                span.style.minWidth = "20px";
+            }
+            input.replaceWith(span);
+        });
+
+        // 3. HANDLE TEXTAREAS & CONTENTEDITABLE
+        clone.querySelectorAll('textarea').forEach(t => {
+            const div = document.createElement('div');
+            div.innerText = t.value;
+            div.className = 'field-box';
+            t.replaceWith(div);
+        });
+
+        clone.querySelectorAll('[contenteditable]').forEach(e => {
+            e.removeAttribute('contenteditable');
+        });
+
+        // 4. CAPTURE STYLES
+        let styles = "";
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            // We still grab FontAwesome, but images are now embedded!
+            if (link.href.startsWith('/')) {
+                link.href = window.location.origin + link.getAttribute('href');
+            }
+            styles += link.outerHTML;
+        });
+        document.querySelectorAll('style').forEach(style => { styles += style.outerHTML; });
+
+        // 5. FINAL PDF TEMPLATE
+        // (Keep your existing styles for "print-scale", "pdf-sheet", etc.)
+        return `
         <!DOCTYPE html>
         <html>
         <head>
@@ -1735,14 +2136,14 @@ function populateFooterDetails(dateOverride = null) {
         </body>
         </html>
     `;
-}
+    }
     function getNested(obj, path) {
-        if(!path) return undefined;
+        if (!path) return undefined;
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
     }
 
     function setNested(obj, path, value) {
-        if(!path) return;
+        if (!path) return;
         const keys = path.split('.');
         let current = obj;
         for (let i = 0; i < keys.length - 1; i++) {
@@ -1755,7 +2156,7 @@ function populateFooterDetails(dateOverride = null) {
     function updateArray(path, value, checked) {
         let arr = getNested(reportData, path);
         if (!Array.isArray(arr)) arr = [];
-        if (checked) { if(!arr.includes(value)) arr.push(value); } 
+        if (checked) { if (!arr.includes(value)) arr.push(value); }
         else { arr = arr.filter(item => item !== value); }
         setNested(reportData, path, arr);
     }
@@ -1770,7 +2171,7 @@ function populateFooterDetails(dateOverride = null) {
         while (rowPercent.children.length > 1) { rowPercent.removeChild(rowPercent.lastChild); }
         while (rowYear.children.length > 1) { rowYear.removeChild(rowYear.lastChild); }
 
-        if (!dataStr) return; 
+        if (!dataStr) return;
 
         const parts = dataStr.split(',');
         parts.forEach(part => {
@@ -1795,9 +2196,9 @@ function populateFooterDetails(dateOverride = null) {
         tbody.innerHTML = "";
 
         const floorConfig = [
-            { label: "BF-2",      key: "BF_2" },
-            { label: "BF-1",      key: "BF_1" },
-            { label: "GF",        key: "GF" },
+            { label: "BF-2", key: "BF_2" },
+            { label: "BF-1", key: "BF_1" },
+            { label: "GF", key: "GF" },
             { label: "1st Floor", key: "first_flr" },
             { label: "2nd Floor", key: "second_flr" },
             { label: "3rd Floor", key: "third_flr" },
@@ -1808,7 +2209,7 @@ function populateFooterDetails(dateOverride = null) {
         floorConfig.forEach(floor => {
             const k = floor.key;
             const builtUp = getNested(reportData, `Building_analysis.${k}_Builtup_area`);
-            if (k !== 'GF' && !builtUp) return; 
+            if (k !== 'GF' && !builtUp) return;
 
             const valBuiltUp = builtUp || "";
             const valRooms = getNested(reportData, `Building_analysis.${k}_Rooms_no`) || "";
@@ -1821,7 +2222,7 @@ function populateFooterDetails(dateOverride = null) {
                 const isChecked = Array.isArray(arr) && arr.includes(val) ? 'checked' : '';
                 return `<label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.${k}_Usage" value="${val}" ${isChecked}> ${label}</label>`;
             };
-            
+
             const makeOccCheck = (arr, val, label) => {
                 const isChecked = Array.isArray(arr) && arr.includes(val) ? 'checked' : '';
                 return `<label class="checkbox-item"><input type="checkbox" data-bind-array="Building_analysis.${k}_Occupancy" value="${val}" ${isChecked}> ${label}</label>`;
@@ -1857,7 +2258,7 @@ function populateFooterDetails(dateOverride = null) {
         apartments.forEach((apt, idx) => {
             const basePath = `Building_analysis.apartments.${idx}`;
             const label = apt.label || `Apartment ${idx + 1}`;
-            
+
             // Helpers for apartments
             const makeAptCheck = (arr, val, lbl) => {
                 const isChecked = Array.isArray(arr) && arr.includes(val) ? 'checked' : '';
@@ -1895,11 +2296,51 @@ function populateFooterDetails(dateOverride = null) {
             tbody.appendChild(tr);
         });
         tbody.querySelectorAll('input[data-bind-array]').forEach(el => {
-            el.onchange = function() { 
+            el.onchange = function () {
                 const path = this.getAttribute('data-bind-array');
-                updateArray(path, this.value, this.checked); 
+                updateArray(path, this.value, this.checked);
             };
         });
     }
+    // Function to evaluate all "Yes" checkboxes and apply/remove the yellow highlight
+    function applyYellowHighlights() {
+        // Find all "Yes" checkboxes bound to land_inspection_details
+        const yesInputs = document.querySelectorAll('input[data-bind-radio^="land_inspection_details"][value="Yes"]');
+
+        yesInputs.forEach(yesInput => {
+            const td = yesInput.closest('td');
+            const rowDiv = yesInput.closest('.row');
+
+            // SCENARIO A: It is inside the Table
+            if (td) {
+                const th = td.previousElementSibling; // Grab the Header cell next to it
+                if (yesInput.checked) {
+                    td.classList.add('highlight-yellow');
+                    if (th && th.tagName === 'TH') th.classList.add('highlight-yellow');
+                } else {
+                    td.classList.remove('highlight-yellow');
+                    if (th && th.tagName === 'TH') th.classList.remove('highlight-yellow');
+                }
+            }
+            // SCENARIO B: It is inside a Div Row
+            else if (rowDiv) {
+                if (yesInput.checked) {
+                    rowDiv.classList.add('highlight-yellow');
+                } else {
+                    rowDiv.classList.remove('highlight-yellow');
+                }
+            }
+        });
+    }
+
+    // 1. Listen for any clicks/changes on the radio checkboxes
+    document.addEventListener('change', function (e) {
+        if (e.target.matches('input[data-bind-radio]')) {
+            applyYellowHighlights();
+        }
+    });
+
+    // 2. Run once immediately on page load (in case a saved draft already has "Yes" selected)
+    document.addEventListener('DOMContentLoaded', applyYellowHighlights);
 </script>
 {% endblock %}
