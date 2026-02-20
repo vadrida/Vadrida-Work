@@ -3282,26 +3282,35 @@
     }
     async function openSketchPad(path) {
         activeSketchPath = path;
-
-        // 1. Reset and Load
-        // We clear current memory and then pull from formState
         elements = [];
-        if (formState.vectors && formState.vectors[path]) {
+        
+        // 1. Try to load editable vectors first
+        if (formState.vectors && formState.vectors[path] && formState.vectors[path].length > 0) {
             console.log("📝 Loading existing vectors for:", path);
-            // Create a deep copy to avoid reference bugs
-            elements = JSON.parse(JSON.stringify(formState.vectors[path]));
+            let vecs = formState.vectors[path];
+            if (typeof vecs === 'string') vecs = JSON.parse(vecs);
+            elements = JSON.parse(JSON.stringify(vecs));
+        } 
+        // 2. FALLBACK: Load flattened image or uploaded photo onto the canvas!
+        else if (formState.images && formState.images[path]) {
+            console.log("🖼️ Loading image fallback into canvas for:", path);
+            const imgSrc = formState.images[path];
+            
+            // Add it as the first element in our drawing array
+            elements.push({
+                type: 'image',
+                src: imgSrc,
+                x: 0,
+                y: 0,
+                w: 800, // Default width, will auto-adjust on render
+                h: 600
+            });
         }
 
-        // 2. UI Visibility
         sketchModal.classList.remove('hidden');
-
-        // 3. CRITICAL: Trigger Canvas Prep
-        // We must resize and clear history so the user starts fresh
         resizeCanvas();
         undoStack = [];
         redoStack = [];
-
-        // 4. Force immediate render of loaded elements
         renderScene();
     }
 
@@ -3640,6 +3649,27 @@
                 ctx.fillStyle = el.color;
                 ctx.fillText(el.text || "", el.x, el.y);
             }
+            // --- NEW: Draw Image Element ---
+            else if (el.type === 'image') {
+                // Text needs standard blending
+                ctx.globalCompositeOperation = 'source-over';
+                
+                if (!el.imgObj) {
+                    // Hydrate the image object dynamically
+                    el.imgObj = new Image();
+                    el.imgObj.src = el.src;
+                    el.imgObj.onload = () => {
+                        // Auto-scale it to fit nicely on the first load
+                        if (el.w === 800 && el.imgObj.width > 0) {
+                            el.w = el.imgObj.width > canvas.width ? canvas.width - 40 : el.imgObj.width;
+                            el.h = (el.w / el.imgObj.width) * el.imgObj.height;
+                        }
+                        renderScene(); // Re-render once image finishes loading
+                    };
+                } else if (el.imgObj.complete) {
+                    ctx.drawImage(el.imgObj, el.x, el.y, el.w, el.h);
+                }
+            }
 
             // Reset for next loop iteration
             // This is important because 'destination-out' is sticky
@@ -3698,8 +3728,8 @@
     function getBounds(el) {
         if (!el) return null;
 
-        // 1. RECT / TRIANGLE
-        if (el.type === 'rect' || el.type === 'triangle') {
+        // 1. RECT / TRIANGLE / IMAGE
+        if (el.type === 'rect' || el.type === 'triangle' || el.type === 'image') {
             return { x: el.x, y: el.y, w: el.w, h: el.h };
         }
 

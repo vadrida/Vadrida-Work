@@ -11,24 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 import mimetypes
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-_ig@9s8_3u#jib24eap(oydc$olvq)=)#4pb@9%u^=2)y8!6*$'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = False
 # ALLOWED_HOSTS=["*"]
-
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -37,9 +25,6 @@ ALLOWED_HOSTS = [
     'vadrida.com',
     'test.vadrida.com'
 ]
-
-
-
 CSRF_TRUSTED_ORIGINS = [
     "http://192.168.29.118:8000",
     'https://www.vadrida.com',
@@ -47,8 +32,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.trycloudflare.com',
     'https://test.vadrida.com'
 ]
-
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -66,7 +49,6 @@ INSTALLED_APPS = [
     "channels",
     "pwa",
 ]
-
 # PWA CONFIGURATION
 PWA_APP_NAME = 'Vadrida'
 PWA_APP_DESCRIPTION = "Vadrida Property Valuations"
@@ -75,7 +57,6 @@ PWA_BACKGROUND_COLOR = '#ffffff'   # White background
 PWA_DISPLAY = 'standalone'         # Hides browser UI
 PWA_SCOPE = '/'
 PWA_START_URL = '/'
-
 # Define the Icons (We will add these files in Step 4)
 PWA_APP_ICONS = [
     {
@@ -91,7 +72,6 @@ PWA_APP_ICONS = [
 ]
 # Location where the manifest.json will be stored
 PWA_APP_DIR = 'ltr'
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -107,19 +87,15 @@ MIDDLEWARE+= [
     'core.middleware.ActiveUserMiddleware'
 ]
 ROOT_URLCONF = 'vadrida.urls'
-
 BASE_DIR=Path(__file__).resolve().parent.parent
-
 ALLOWED_FILE_EXTENSIONS = [
     '.pdf', '.doc', '.docx', 
     '.xls', '.xlsx', '.csv',
     '.jpg', '.jpeg', '.png', '.gif', '.bmp',
     '.txt', '.zip'
 ]
-
 # Maximum file size (in bytes) - 50MB default
 MAX_FILE_SIZE = 50 * 1024 * 1024
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -135,23 +111,17 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'vadrida.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -166,53 +136,39 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Asia/Kolkata'
-
 USE_I18N = True
-
 USE_TZ = False
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS=[BASE_DIR/'static']
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL='noreply@vadrida.com'
 ADMINS=[('Admin','admin@vadrida.com')]
 CRISPY_TEMPLATE_PACK='bootstrap5'
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
-
-
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
-
 SESSION_COOKIE_SECURE = False      # Only HTTP
 CSRF_COOKIE_SECURE = False         #  HTTP
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 604800  # 7 days
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Currently set to 7 days (in seconds). 
+# Change to 2592000 if you want it to last for 30 days.
+SESSION_COOKIE_AGE = 604800
 SESSION_ENGINE = 'django.contrib.sessions.backends.db' 
 SESSION_SAVE_EVERY_REQUEST = True
 CACHES = {
@@ -224,45 +180,30 @@ CACHES = {
         }
     }
 }
-
-
-
 FULL_DATA_ROOT = os.path.join(BASE_DIR, "data")
 # Folder to save generated PDFs in project
 GENERATED_PDFS_ROOT = os.path.join(BASE_DIR , "generated_pdfs")
 # Ensure directories exist
 os.makedirs(GENERATED_PDFS_ROOT, exist_ok=True)
-
-
 DOCUMENTS_ROOT = r"G:\My Drive\2026_2027"
-
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
-
 ASGI_APPLICATION = "vadrida.asgi.application"
-
-# Add this to your settings.py (replace the MEDIA section)
-
 # MEDIA FILES CONFIGURATION
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"  # Changed from chat_uploads
-
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 os.makedirs(os.path.join(MEDIA_ROOT, 'feedback_sketches'), exist_ok=True)
 os.makedirs(os.path.join(MEDIA_ROOT, 'feedback_pdfs'), exist_ok=True)
 os.makedirs(os.path.join(MEDIA_ROOT, 'chat_uploads'), exist_ok=True)  # Keep for chat
-
 LOGIN_URL = '/coreapi/login/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 mimetypes.add_type("text/css", ".css", True)
 mimetypes.add_type("text/javascript", ".js", True)
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
