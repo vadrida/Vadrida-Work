@@ -36,7 +36,7 @@
         justify-content: center;
         flex-shrink: 0;
         /* Keep handle size fixed */
-        z-index: 50;
+        z-index: 20;
         transition: background 0.2s;
     }
 
@@ -443,7 +443,8 @@
                                 style="font-size: 10px; color: green; margin-left: 8px; font-weight: bold;"></span>
                         </div>
 
-                        <button type="button" id="toggleFormFullscreenBtn" class="control-btn" title="Toggle Fullscreen"
+                        <button type="button" id="toggleFormFullscreenBtn" onclick="toggleFormFullscreen()"
+                            class="control-btn" title="Toggle Fullscreen"
                             style="background: transparent; position:sticky; border: none; color: #374151; font-size: 1.1rem; cursor: pointer; padding: 5px;">
                             <i class="fas fa-expand"></i>
                         </button>
@@ -3283,19 +3284,19 @@
     async function openSketchPad(path) {
         activeSketchPath = path;
         elements = [];
-        
+
         // 1. Try to load editable vectors first
         if (formState.vectors && formState.vectors[path] && formState.vectors[path].length > 0) {
             console.log("📝 Loading existing vectors for:", path);
             let vecs = formState.vectors[path];
             if (typeof vecs === 'string') vecs = JSON.parse(vecs);
             elements = JSON.parse(JSON.stringify(vecs));
-        } 
+        }
         // 2. FALLBACK: Load flattened image or uploaded photo onto the canvas!
         else if (formState.images && formState.images[path]) {
             console.log("🖼️ Loading image fallback into canvas for:", path);
             const imgSrc = formState.images[path];
-            
+
             // Add it as the first element in our drawing array
             elements.push({
                 type: 'image',
@@ -3653,7 +3654,7 @@
             else if (el.type === 'image') {
                 // Text needs standard blending
                 ctx.globalCompositeOperation = 'source-over';
-                
+
                 if (!el.imgObj) {
                     // Hydrate the image object dynamically
                     el.imgObj = new Image();
@@ -6509,43 +6510,6 @@
             });
         }
 
-        // ============================================================
-        // SCROLL MEMORY & FULLSCREEN LOGIC
-        // ============================================================
-        const fsBtn = document.getElementById('toggleFormFullscreenBtn');
-        const rightCol = document.getElementById('rightColumnContainer');
-        const icon = fsBtn ? fsBtn.querySelector('i') : null;
-
-        // Restore Fullscreen Mode
-        const wasFullscreen = localStorage.getItem('vadrida_form_fullscreen') === 'true';
-        if (wasFullscreen && rightCol && icon) {
-            rightCol.classList.add('fullscreen-active');
-            icon.className = 'fas fa-compress';
-            icon.style.color = '#ef4444';
-            document.body.style.overflow = 'hidden';
-        }
-
-        // Attach Click Listener
-        if (fsBtn && rightCol) {
-            fsBtn.onclick = () => {
-                const currentScroll = rightCol.scrollTop;
-                rightCol.classList.toggle('fullscreen-active');
-                const isNowFullscreen = rightCol.classList.contains('fullscreen-active');
-                rightCol.scrollTop = currentScroll;
-
-                if (isNowFullscreen) {
-                    icon.className = 'fas fa-compress';
-                    icon.style.color = '#ef4444';
-                    document.body.style.overflow = 'hidden';
-                    localStorage.setItem('vadrida_form_fullscreen', 'true');
-                } else {
-                    icon.className = 'fas fa-expand';
-                    icon.style.color = '#374151';
-                    document.body.style.overflow = '';
-                    localStorage.setItem('vadrida_form_fullscreen', 'false');
-                }
-            };
-        }
 
         // Date restriction
         const dateInput = document.querySelector('input[data-path="Valuers_Checklist.inspection_date"]');
@@ -7243,4 +7207,61 @@
 <script
     src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=places&v=weekly"
     async defer></script>
+<script>
+    /* ==========================================
+       BULLETPROOF FULLSCREEN TOGGLE
+       ========================================== */
+    function toggleFormFullscreen() {
+        const rightCol = document.getElementById('rightColumnContainer');
+        const btn = document.getElementById('toggleFormFullscreenBtn');
+        const icon = btn ? btn.querySelector('i') : null;
+
+        if (!rightCol) return;
+
+        // 1. Capture current scroll position so it doesn't jump
+        const currentScroll = rightCol.scrollTop;
+
+        // 2. Toggle the CSS class
+        rightCol.classList.toggle('fullscreen-active');
+        const isNowFullscreen = rightCol.classList.contains('fullscreen-active');
+
+        // 3. Restore scroll position
+        rightCol.scrollTop = currentScroll;
+
+        // 4. Update UI and Memory
+        if (isNowFullscreen) {
+            if (icon) {
+                icon.className = 'fas fa-compress';
+                icon.style.color = '#ef4444'; // Red icon when active
+            }
+            document.body.style.overflow = 'hidden'; // Stop background scrolling
+            localStorage.setItem('vadrida_form_fullscreen', 'true');
+        } else {
+            if (icon) {
+                icon.className = 'fas fa-expand';
+                icon.style.color = '#374151'; // Standard gray icon
+            }
+            document.body.style.overflow = ''; // Restore background scrolling
+            localStorage.setItem('vadrida_form_fullscreen', 'false');
+        }
+    }
+
+    // Immediately restore fullscreen state on page load
+    (function restoreFullscreenState() {
+        const wasFullscreen = localStorage.getItem('vadrida_form_fullscreen') === 'true';
+        if (wasFullscreen) {
+            window.addEventListener('DOMContentLoaded', () => {
+                const rightCol = document.getElementById('rightColumnContainer');
+                const icon = document.querySelector('#toggleFormFullscreenBtn i');
+
+                if (rightCol) rightCol.classList.add('fullscreen-active');
+                if (icon) {
+                    icon.className = 'fas fa-compress';
+                    icon.style.color = '#ef4444';
+                }
+                document.body.style.overflow = 'hidden';
+            });
+        }
+    })();
+</script>
 {% endblock %}
