@@ -7,6 +7,15 @@ urlpatterns = [
     # Authentication APIs
     path("login/api/", views.login_api, name="login_api"),
     path("logout/api/", views.logout_api, name="logout_api"),
+    
+    # admin
+    path('dev-center/', views.developer_dashboard, name='dev_dashboard'),
+    path('api/dev-logs/', views.fetch_live_logs_api, name='fetch_live_logs'),
+    path('api/dev-execute/', views.execute_command_api, name='dev_execute'),
+    path('api/dev-health/', views.server_health_api, name='dev_health'),
+    path('api/dev-restart/', views.restart_server_api, name='dev_restart'),
+    path('api/dev-error/', views.get_latest_error_api, name='dev_error'),
+    path('api/dev-clear-sessions/', views.clear_stale_sessions_api, name='dev_clear_sessions'),
 
     # Folder/File APIs
     path("api/folders/", views.search_folders_api, name="get_folders_api"),

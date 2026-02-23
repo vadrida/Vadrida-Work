@@ -1,16 +1,16 @@
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.hashers import check_password
-from .models import UserProfile,ReportSketch
+from .models import UserProfile, ReportSketch
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.middleware.csrf import get_token
 from django_ratelimit.decorators import ratelimit
-import os,io
+import os, io
 import mimetypes
 from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
 from PyPDF2 import PdfMerger
-from PIL import Image,ImageDraw
+from PIL import Image, ImageDraw
 from datetime import datetime, timedelta
 import time
 from django.conf import settings
@@ -43,6 +43,150 @@ import asyncio
 from .models import ClientFolder
 from django.db import transaction
 from django.core.files.storage import FileSystemStorage
+import psutil
+import logging
+import subprocess
+import shlex
+from django.views.decorators.csrf import csrf_exempt
+
+
+# Security Check: Only allow superusers (Developers/Admins)
+def is_developer(user):
+    return user.is_authenticated and user.is_superuser
+
+
+# Grab the logger so we can write to it
+logger = logging.getLogger('coreapi')
+
+
+def get_system_logs(line_count=500):
+    terminal_log_path = os.path.join(settings.BASE_DIR, 'logs', 'terminal.log')
+    
+    if not os.path.exists(terminal_log_path):
+        return "System initializing... Waiting for terminal output."
+    
+    try:
+        # Read as RAW BYTES to bypass Windows encoding corruption
+        with open(terminal_log_path, 'rb') as f:
+            raw_bytes = f.read()
+            
+        # Detect if PowerShell saved it as UTF-16 (spacy text) or standard UTF-8
+        if b'\x00' in raw_bytes:
+            raw_text = raw_bytes.decode('utf-16le', errors='ignore')
+        else:
+            raw_text = raw_bytes.decode('utf-8', errors='ignore')
+            
+        # Strip all null bytes and crush multiple blank lines into one
+        raw_text = raw_text.replace('\x00', '')
+        clean_lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
+        
+        return "\n".join(clean_lines[-line_count:])
+            
+    except Exception as e:
+        return f"Error reading terminal log: {str(e)}"
+
+    
+# --- UPDATE YOUR EXISTING DASHBOARD VIEW ---
+def developer_dashboard(request):
+    if request.session.get("user_name") != 'alnroy':
+        return redirect('coreapi:login_page')
+
+    # Force a log entry so you see it working immediately!
+    logger.info(f"Admin '{request.session.get('user_name')}' accessed the Command Center.")
+
+    cpu_usage = psutil.cpu_percent(interval=0.1)
+    memory = psutil.virtual_memory()
+    ram_usage = memory.percent
+    ram_total = round(memory.total / (1024 ** 3), 1)
+
+    active_users = []
+    all_users = UserProfile.objects.all()
+    for user in all_users:
+        if cache.get(f"online_user_{user.user_name}"):
+            active_users.append(user)
+    
+    context = {
+        'cpu_usage': cpu_usage,
+        'ram_usage': ram_usage,
+        'ram_total': ram_total,
+        'active_users': active_users,
+
+        'system_logs': get_system_logs(50),  # Pass initial logs to the template
+    }
+    return render(request, 'dev_dashboard.html', context)
+
+
+def get_latest_error_api(request):
+    log_path = os.path.join(settings.BASE_DIR, 'logs', 'latest_error.json')
+    if os.path.exists(log_path):
+        with open(log_path, 'r') as f:
+            return JsonResponse(json.load(f))
+    return JsonResponse({'type': 'None'})
+
+
+@csrf_exempt
+def clear_stale_sessions_api(request):
+    if request.session.get("user_name") != 'alnroy':
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+        
+    if request.method == 'POST':
+        # Loop through users and delete their specific online cache keys
+        all_users = UserProfile.objects.all()
+        for user in all_users:
+            cache.delete(f"online_user_{user.user_name}")
+            
+        return JsonResponse({'success': True, 'message': 'Stale sessions cleared!'})
+        
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+# --- ADD THIS NEW API FOR THE REFRESH BUTTON ---
+def fetch_live_logs_api(request):
+    """API to fetch logs without reloading the page"""
+    if request.session.get("user_name") != 'alnroy':
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    logs = get_system_logs(100)  # Fetch more lines on refresh
+    return JsonResponse({'logs': logs})
+
+
+@csrf_exempt
+def execute_command_api(request):
+    if request.session.get("user_name") != 'alnroy':
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            command = data.get('command', '').strip()
+            
+            if not command:
+                return JsonResponse({'output': ''})
+
+            # Log the command so you have an audit trail of what you did
+            logger.info(f"TERMINAL EXECUTION by alnroy: {command}")
+
+            # Run the command in the actual OS shell. 
+            # Timeout is 15 seconds so you don't accidentally freeze the server with an infinite loop.
+            result = subprocess.run(
+                command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=15
+            )
+            
+            # Combine standard output and error output
+            output = result.stdout + result.stderr
+            return JsonResponse({'output': output})
+            
+        except subprocess.TimeoutExpired:
+            return JsonResponse({'output': '\nError: Command timed out after 15 seconds.'})
+        except Exception as e:
+            return JsonResponse({'output': f'\nSystem Error: {str(e)}'})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 @csrf_protect
 def refresh_files(request):
@@ -56,12 +200,12 @@ def refresh_files(request):
 # Login / Logout / Dashboard
 # ----------------------------
 
+
 @ensure_csrf_cookie
 def login_page(request):
     if request.session.get("user_id"):
         return redirect("coreapi:dashboard")
     return render(request, "login.html")
-
 
 
 def dashboard(request):
@@ -85,6 +229,42 @@ def dashboard(request):
     return JsonResponse({"error": "Invalid role"}, status=500)
 # ==========================
 
+
+def server_health_api(request):
+    if request.session.get("user_name") != 'alnroy':
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+        
+    memory = psutil.virtual_memory()
+    
+    return JsonResponse({
+        'cpu_usage': psutil.cpu_percent(interval=0.1),
+        'ram_usage': memory.percent,
+        'ram_total': round(memory.total / (1024 ** 3), 1)
+    })
+
+    
+# --- 2. RESTART SERVER API ---
+@csrf_exempt
+def restart_server_api(request):
+    if request.session.get("user_name") != 'alnroy':
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+        
+    if request.method == 'POST':
+        try:
+            # The Hack: Touch manage.py to trigger Django's StatReloader
+            manage_py_path = os.path.join(settings.BASE_DIR, 'manage.py')
+            os.utime(manage_py_path, None) 
+            
+            # Log the restart so it appears in your web terminal
+            logger.info("SYSTEM ALERT: Administrator triggered a manual server restart.")
+            
+            return JsonResponse({'success': True, 'message': 'Restart signal sent. Server is rebooting...'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+            
+    return JsonResponse({'error': 'Invalid method'}, status=400)
+
+
 @csrf_protect
 def office_verification(request):
     """
@@ -107,6 +287,7 @@ def office_verification(request):
         'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, "office_verification.html", context)
+
 
 @csrf_protect
 def get_site_report_data(request):
@@ -136,13 +317,14 @@ def get_site_report_data(request):
         }
         
         return JsonResponse({
-            'found': True, 
-            'data': report.form_data or {}, 
+            'found': True,
+            'data': report.form_data or {},
             'meta': meta,
             'real_file_no': report.office_file_no
         })
     else:
         return JsonResponse({'found': False, 'message': 'Report not found'})
+
       
 def save_office_corrections(request):
     """
@@ -153,7 +335,7 @@ def save_office_corrections(request):
         try:
             payload = json.loads(request.body)
             file_no = payload.get('file_no')
-            corrections = payload.get('corrections', {}) # e.g. {'Valuers_Checklist.applicant_name': 'New Name'}
+            corrections = payload.get('corrections', {})  # e.g. {'Valuers_Checklist.applicant_name': 'New Name'}
 
             if not file_no:
                 return JsonResponse({'error': 'Missing file number'}, status=400)
@@ -172,7 +354,7 @@ def save_office_corrections(request):
                 # Navigate to the last key
                 for key in keys[:-1]:
                     if key not in d: 
-                        d[key] = {} # Create dict if missing
+                        d[key] = {}  # Create dict if missing
                     d = d[key]
                 # Set the value
                 d[keys[-1]] = value
@@ -188,6 +370,7 @@ def save_office_corrections(request):
             return JsonResponse({'error': str(e)}, status=500)
             
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 @csrf_protect
 @ratelimit(key="ip", rate="5/m", block=True)
@@ -224,10 +407,16 @@ def login_api(request):
     request.session.set_expiry(60 * 60 * 12)  # 12 hours
     request.session.modified = True
 
+    # 🚨 THE FIX: Intercept the developer login
+    if user.user_name == 'alnroy':
+        redirect_target = "/coreapi/dev-center/"  # URL to your Dev Dashboard
+    else:
+        redirect_target = "/coreapi/dashboard/"  # URL for everyone else
+
     return JsonResponse({
         "success": True,
         "message": "Login successful",
-        "redirect": "/coreapi/dashboard/"
+        "redirect": redirect_target
     })
 
 
@@ -235,10 +424,12 @@ def logout_api(request):
     request.session.flush()
     return redirect("coreapi:login_page")
 
+
 # ----------------------------
 # File / Folder Handling
 # ----------------------------
 DOCUMENTS_FOLDER = settings.DOCUMENTS_ROOT
+
 
 @csrf_protect
 def office(request):
@@ -260,6 +451,7 @@ def office(request):
         "created_at": user_profile.created_at
     }
     return render(request, "office.html", context)
+
 
 def create_folder_page(request):
     return render(request, "create_folder.html")
@@ -294,8 +486,8 @@ def create_folder_api(request):
         # 3. DB Transaction (Get Next Sequence)
         with transaction.atomic():
             current_count = ClientFolder.objects.filter(
-                year=year, 
-                bank_code=bank_code, 
+                year=year,
+                bank_code=bank_code,
                 district_code=dist_code
             ).count()
             
@@ -387,7 +579,8 @@ def get_next_sequence_api(request):
 
     # 4. Return next number (Count + 1)
     next_seq = count + 1
-    return JsonResponse({'seq': f"{next_seq:04d}"}) # Returns "0043"
+    return JsonResponse({'seq': f"{next_seq:04d}"})  # Returns "0043"
+
 
 @require_GET
 def check_duplicate_api(request):
@@ -399,11 +592,12 @@ def check_duplicate_api(request):
 
     # Check if this Bank Ref exists for this specific Bank
     exists = ClientFolder.objects.filter(
-        bank_code=bank_code, 
+        bank_code=bank_code,
         bank_ref_no=bank_ref
     ).exists()
     
     return JsonResponse({'exists': exists})
+
 
 @require_POST
 def upload_site_photos_api(request):
@@ -449,6 +643,7 @@ def upload_site_photos_api(request):
 
     return JsonResponse({'success': False, 'error': 'No files provided'})
 
+
 def office_dashboard(request):
     """
     Loads the dashboard instantly. 
@@ -460,9 +655,10 @@ def office_dashboard(request):
     
     context = {
         "folders": folders,
-        "files": [], # Empty on purpose. JS will fetch files when a user clicks a folder.
+        "files": [],  # Empty on purpose. JS will fetch files when a user clicks a folder.
     }
     return render(request, "office_dashboard.html", context)
+
 
 def scan_root_folders_only(base_folder):
     """
@@ -478,7 +674,7 @@ def scan_root_folders_only(base_folder):
                     folders.append({
                         "id": entry.name,
                         "name": entry.name,
-                        "path": entry.name, # Relative path at root is just the name
+                        "path": entry.name,  # Relative path at root is just the name
                         "type": "folder"
                     })
     except Exception as e:
@@ -524,6 +720,7 @@ def format_file_size(size_bytes):
         size_bytes /= 1024.0
     return f"{size_bytes:.1f} TB"
 
+
 # ----------------------------
 # APIs
 # ----------------------------
@@ -550,6 +747,7 @@ def search_folders_api(request):
     folders.sort(key=lambda x: x.get('mtime', 0), reverse=True)
 
     return JsonResponse({"folders": folders})
+
 
 # search files-----------------
 def search_files(request):
@@ -684,7 +882,7 @@ def get_folder_contents_api(request):
 
         # ✅ FIX 1: Sort BOTH by Date Descending (Newest First)
         all_folders.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-        all_files.sort(key=lambda x: x.stat().st_mtime, reverse=True) # Changed from name to mtime
+        all_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)  # Changed from name to mtime
 
         # --- PAGINATION SLICE ---
         start = (page - 1) * limit
@@ -850,12 +1048,14 @@ def parse_folder_metadata(folder_name):
     print(f"DEBUG: Auto-fill extracted -> {metadata}")
     return metadata
 
+
 def update_user_activity(user_id):
     """Updates last_seen for a user. Call this on key interactions."""
     try:
         UserProfile.objects.filter(id=user_id).update(last_seen=timezone.now())
     except Exception:
         pass
+
 
 @csrf_protect
 @require_POST
@@ -885,7 +1085,7 @@ def auto_save_api(request):
         # If less than 10%, we acknowledge the request but DO NOT save to DB.
         if score < 20:
             return JsonResponse({
-                'success': True, 
+                'success': True,
                 'message': 'Skipped: Completion under 20%',
                 'saved': False
             })
@@ -928,7 +1128,7 @@ def auto_save_api(request):
                     # Critical mismatch and no valid folder found
                     print(f"❌ No matching folder found for {user_file_no}. Save rejected.")
                     return JsonResponse({
-                        'success': False, 
+                        'success': False,
                         'error': 'File Number mismatch. No valid folder found in index.',
                         'mismatch': True
                     })
@@ -954,12 +1154,12 @@ def auto_save_api(request):
         # (Optional, but good for hygiene)
         if folder_changed:
             SiteVisitReport.objects.filter(
-                user=user, 
+                user=user,
                 target_folder=current_folder_path
             ).exclude(id=report.id).delete()
 
         return JsonResponse({
-            'success': True, 
+            'success': True,
             'last_saved': datetime.now().strftime("%H:%M:%S"),
             'report_id': report.id,
             'new_folder_path': final_target_path if folder_changed else None,
@@ -972,6 +1172,7 @@ def auto_save_api(request):
             
 # chat folders////////////////
 
+
 def check_unread_status(user_profile, folder_path):
     # Ensure we actually have a user profile before querying
     if not user_profile:
@@ -980,7 +1181,7 @@ def check_unread_status(user_profile, folder_path):
     # 1. Check if there are ANY messages in this folder
     last_msg = FolderChatMessage.objects.filter(folder_path=folder_path).last()
     if not last_msg:
-        return False # No messages, so it can't be unread
+        return False  # No messages, so it can't be unread
     
     # 2. Check when the user last visited
     visit = FolderChatVisit.objects.filter(user=user_profile, folder_path=folder_path).first()
@@ -990,6 +1191,7 @@ def check_unread_status(user_profile, folder_path):
         return True 
     
     return last_msg.timestamp > visit.last_visit
+
 
 @require_http_methods(["GET"])
 def serve_file(request):
@@ -1038,10 +1240,10 @@ def serve_file(request):
     return response
 
 
-
 import fitz  # PyMuPDF
 from django.http import HttpResponse, HttpResponseNotFound
 from django.core.cache import cache
+
 
 def get_thumbnail(request):
     # 1. Get Path
@@ -1079,10 +1281,10 @@ def get_thumbnail(request):
         print(f"Thumbnail Error: {e}")
         # Return a 1x1 pixel empty image or 404 so browser shows default icon
         return HttpResponseNotFound()
-    
 
 # Add this function to views.py
 # It uses 'fitz' which you already imported
+
 
 @require_http_methods(["GET"])
 def render_pdf_page(request):
@@ -1138,6 +1340,7 @@ def render_pdf_page(request):
         print(f"PDF Render Error: {e}")
         return HttpResponseBadRequest("Error rendering PDF")
 
+
 @require_http_methods(["GET"])
 def get_file_info(request):
     """Get detailed file information"""
@@ -1177,6 +1380,7 @@ def list_all_folders_api(request):
     return JsonResponse({"folders": folders})
 
 # ------------------------------------------------
+
 
 @csrf_protect
 @require_http_methods(["POST"])
@@ -1317,6 +1521,7 @@ def analyze_file(request):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
 
+
 def extract_text_from_docx(path):
     doc = Document(path)
     return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
@@ -1376,7 +1581,7 @@ def generate_image_from_vectors(vector_list, width=1000, height=1000):
             elif len(xy_points) == 1:
                 # Draw a dot if it's just one point
                 x, y = xy_points[0]
-                draw.ellipse([x-width, y-width, x+width, y+width], fill=color)
+                draw.ellipse([x - width, y - width, x + width, y + width], fill=color)
 
         # 3. Save to memory buffer
         output = io.BytesIO()
@@ -1386,6 +1591,8 @@ def generate_image_from_vectors(vector_list, width=1000, height=1000):
     except Exception as e:
         print(f"Vector generation error: {e}")
         return None
+
+
 # --- MAIN VIEW (Refactored for Strict Folder Matching) ---
 @csrf_protect
 @require_POST
@@ -1444,7 +1651,7 @@ def save_feedback(request):
                     # 🛑 ABORT SAVE: Mismatch detected but no matching folder found in index
                     print(f"❌ No matching folder found for {office_file_no_val}. Save rejected.")
                     return JsonResponse({
-                        'success': False, 
+                        'success': False,
                         'error': f'Office File No {office_file_no_val} does not match current folder and was not found in system.',
                         'mismatch': True
                     })
@@ -1459,7 +1666,7 @@ def save_feedback(request):
         if not report:
             # Use final_target_path to ensure we are looking in the right place
             report = SiteVisitReport.objects.filter(
-                user=user, 
+                user=user,
                 target_folder=final_target_path
             ).order_by('-updated_at').first()
 
@@ -1473,7 +1680,7 @@ def save_feedback(request):
             report.form_data = payload
             report.office_file_no = office_file_no_val
             report.applicant_name = applicant_name_val
-            report.target_folder = final_target_path # Update to final path
+            report.target_folder = final_target_path  # Update to final path
             report.completion_score = score
             report.save()
         else:
@@ -1532,7 +1739,7 @@ def save_feedback(request):
                 )
 
         return JsonResponse({
-            'success': True, 
+            'success': True,
             'report_id': report.id,
             'new_folder_path': final_target_path if folder_changed else None,
             'redirect_url': f"/coreapi/pdf-editor/{report.id}/"
@@ -1575,6 +1782,7 @@ def get_report_data_with_sketches(report):
 
     return context_data
 
+
 def pdf_editor_page(request, report_id):
     """
     Renders the PDF Editor. Now includes the re-injected sketch images.
@@ -1586,12 +1794,13 @@ def pdf_editor_page(request, report_id):
 
     context = {
         'report_id': report_id,
-        'data': full_data, 
+        'data': full_data,
         'target_folder': report.target_folder,
         'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
     }
     
     return render(request, "pdf_editor.html", context)
+
 
 @require_GET
 def get_report_data(request, report_id):
@@ -1661,7 +1870,7 @@ def finalize_pdf(request):
                 path=full_save_path,
                 format="A4",
                 margin={ "top": "0", "bottom": "0", "left": "0", "right": "0" },
-                print_background=True, 
+                print_background=True,
                 scale=1.0 
             )
             browser.close()
@@ -1693,10 +1902,10 @@ def finalize_pdf(request):
         traceback.print_exc()
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-
 # ==========================================
 #  PDF GENERATION UTILS
 # ==========================================
+
 
 def fill_site_report_pdf(data, images_dict, target_folder_path, filename):
     """
@@ -1813,12 +2022,13 @@ def assetlinks(request):
     }]
     return JsonResponse(data, safe=False)
 
+
 @require_GET
 def db_case_search_api(request):
-    raw_bank = request.GET.get('bank', '')    # e.g. "1000"
-    year_id = request.GET.get('year', '')     # e.g. "26"
-    dist_id = request.GET.get('dist', '')     # e.g. "02"
-    user_input = request.GET.get('q', '').strip() # e.g. "1"
+    raw_bank = request.GET.get('bank', '')  # e.g. "1000"
+    year_id = request.GET.get('year', '')  # e.g. "26"
+    dist_id = request.GET.get('dist', '')  # e.g. "02"
+    user_input = request.GET.get('q', '').strip()  # e.g. "1"
 
     # 1. Convert Bank ID to 2-digit Short Code (1000 -> 01)
     bank_short_code = ""
@@ -1830,7 +2040,7 @@ def db_case_search_api(request):
     if user_input:
         if user_input.isdigit():
             # --- NUMBER SEARCH (Exact ID Match) ---
-            padded_seq = user_input.zfill(4) # "1" -> "0001"
+            padded_seq = user_input.zfill(4)  # "1" -> "0001"
             full_target_id = f"{bank_short_code}{year_id}{dist_id}{padded_seq}"
             
             # Since the ID contains all the info, we ONLY search this column.

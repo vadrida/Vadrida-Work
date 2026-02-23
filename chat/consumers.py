@@ -6,8 +6,17 @@ import hashlib
 from urllib.parse import unquote
 from .models import ChatMessage, FolderChatMessage, FolderChatVisit
 from coreapi.models import UserProfile
+import asyncio
+import os
+from django.conf import settings
+import subprocess
+import logging
+import psutil
+logger = logging.getLogger('coreapi')
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         self.room_group_name = "global_chat"
         self.user = await self.get_user_from_session()
@@ -65,7 +74,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             attached_type=att_type, attached_path=path, attached_label=label
         )
 
+
 class FolderChatConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         # 1. Get Path & Create Group
         query_string = self.scope['query_string'].decode('utf-8')
@@ -102,7 +113,7 @@ class FolderChatConsumer(AsyncWebsocketConsumer):
                 'message': message,
                 'user': user_name,
                 'user_id': user_id,
-                'time': timezone.now().strftime('%d-%m-%Y %I:%M %p') # System time
+                'time': timezone.now().strftime('%d-%m-%Y %I:%M %p')  # System time
             }
         )
 
@@ -123,8 +134,10 @@ class FolderChatConsumer(AsyncWebsocketConsumer):
         )
         return user.user_name
 
+
 # --- FIXED PRESENCE CONSUMER ---
 class PresenceConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         self.group_name = "presence_global"
         
@@ -177,7 +190,7 @@ class PresenceConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def update_user_page(self, user, page):
         user.current_page = page
-        user.last_seen = timezone.now() # Update seen time on page change
+        user.last_seen = timezone.now()  # Update seen time on page change
         user.save()
 
     @database_sync_to_async
@@ -193,13 +206,13 @@ class PresenceConsumer(AsyncWebsocketConsumer):
             is_active = False
             if u.last_seen:
                 diff = (now - u.last_seen).total_seconds()
-                if diff < 120: # 2 minutes timeout
+                if diff < 120:  # 2 minutes timeout
                     is_active = True
 
             data.append({
                 "id": u.id,
                 "user_name": u.user_name,
-                "is_online": is_active, # Computed Value
+                "is_online": is_active,  # Computed Value
                 "current_page": u.current_page,
                 "last_seen": u.last_seen.strftime("%H:%M") if u.last_seen else "-"
             })
@@ -220,3 +233,136 @@ class PresenceConsumer(AsyncWebsocketConsumer):
             "type": "team_update",
             "members": event["team_data"]
         }))
+
+        
+class TerminalConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+        session = self.scope.get("session", {})
+        if session.get("user_name") != 'alnroy':
+            await self.close()
+            return
+
+        await self.accept()
+        self.process = None
+        
+        # Start BOTH background tasks: The log tailer AND the health monitor
+        self.tail_task = asyncio.create_task(self.tail_logs())
+        self.health_task = asyncio.create_task(self.stream_health())  # <--- NEW
+
+    async def disconnect(self, close_code):
+        logger.info(f"WEB TERMINAL DISCONNECTED. Close Code: {close_code}")
+        
+        # Cancel both background tasks
+        if hasattr(self, 'tail_task'): self.tail_task.cancel()
+        if hasattr(self, 'health_task'): self.health_task.cancel()  # <--- NEW
+        
+        if self.process:
+            try:
+                self.process.terminate()
+            except:
+                pass
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        action = data.get('action')
+
+        if action == 'interrupt':
+            if self.process:
+                self.process.terminate()
+                await self.send(json.dumps({'type': 'output', 'text': '^C\n[Process Terminated]\n'}))
+                self.process = None
+            return
+
+        if action == 'command':
+            cmd = data.get('command', '').strip()
+            if not cmd: return
+            
+            # --- FIX 2: Echo command to your physical server terminal ---
+            logger.info(f"WEB TERMINAL COMMAND EXECUTED: {cmd}")
+            
+            await self.send(json.dumps({'type': 'output', 'text': f'\nroot@vadrida:~# {cmd}\n'}))
+
+            # --- FIX 1: Bypass the Windows Asyncio limitation ---
+            try:
+                # Use standard Popen, but hide the pop-up windows on the server machine
+                self.process = subprocess.Popen(
+                    cmd,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    stdin=subprocess.PIPE,
+                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+                )
+                
+                loop = asyncio.get_running_loop()
+
+                async def stream_output():
+                    while self.process:
+                        # Read the output line-by-line in a background executor thread
+                        line = await loop.run_in_executor(None, self.process.stdout.readline)
+                        if not line:
+                            break
+                        
+                        # Windows command prompt uses cp1252 encoding natively
+                        text = line.decode('cp1252', errors='ignore').replace('\r\n', '\n')
+                        await self.send(json.dumps({'type': 'output', 'text': text}))
+                        
+                    if self.process:
+                        self.process.wait()
+                        self.process = None
+
+                # Start the streaming thread
+                asyncio.create_task(stream_output())
+
+            except Exception as e:
+                await self.send(json.dumps({'type': 'output', 'text': f'System Error: {str(e)}\n'}))
+
+    async def tail_logs(self):
+        """Watches the terminal.log file and pushes updates via WebSocket"""
+        log_path = os.path.join(settings.BASE_DIR, 'logs', 'terminal.log')
+        last_size = 0
+        
+        while True:
+            try:
+                if os.path.exists(log_path):
+                    current_size = os.path.getsize(log_path)
+                    
+                    if current_size < last_size:
+                        last_size = 0 
+                        
+                    if current_size > last_size:
+                        with open(log_path, 'rb') as f:
+                            f.seek(last_size)
+                            new_bytes = f.read()
+                            last_size = current_size
+                            
+                            text = new_bytes.decode('utf-8', errors='ignore').replace('\x00', '')
+                            text = text.replace('\r\n', '\n').replace('\r', '')
+                            
+                            if text.strip():
+                                await self.send(json.dumps({'type': 'log', 'text': text}))
+            except Exception:
+                pass
+            
+            await asyncio.sleep(0.5)
+
+    async def stream_health(self):
+        """Pushes CPU and RAM stats down the WebSocket every 3 seconds"""
+        psutil.cpu_percent()  # Initialize CPU tracker
+        
+        while True:
+            try:
+                cpu = psutil.cpu_percent()
+                ram = psutil.virtual_memory().percent
+                
+                # Send the health data package
+                await self.send(json.dumps({
+                    'type': 'health',
+                    'cpu': cpu,
+                    'ram': ram
+                }))
+            except Exception:
+                pass
+                
+            await asyncio.sleep(3)

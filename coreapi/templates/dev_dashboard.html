@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Developer Command Center{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Dark Theme specific to Dev Dashboard */
+    .dev-bg {
+        background-color: #0f172a;
+        min-height: calc(100vh - 70px);
+        color: #f8fafc;
+        padding: 20px;
+    }
+
+    .dev-card {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    }
+
+    .dev-header {
+        border-bottom: 1px solid #334155;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Responsive Grid */
+    .dev-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        /* Mobile: 1 column */
+        gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+        .dev-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        /* Tablet: 2 columns */
+    }
+
+    @media (min-width: 1280px) {
+        .dev-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        /* Desktop: 3 columns */
+    }
+
+    /* Spans 2 columns on desktop for wide elements like Logs */
+    .col-span-full {
+        grid-column: 1 / -1;
+    }
+
+    @media (min-width: 1280px) {
+        .col-span-2 {
+            grid-column: span 2 / span 2;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dev-bg">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff;"><i class="fas fa-terminal text-blue-500 mr-2"></i>
+            Command Center</h1>
+        <span
+            style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">SUPERADMIN
+            ONLY</span>
+    </div>
+
+    <div class="dev-grid">
+
+        <div class="dev-card">
+            <div class="dev-header">
+                <span><i class="fas fa-server mr-2"></i> Server Health</span>
+                <span id="serverStatusBadge" style="color: #4ade80;">Online</span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                    <span>CPU Usage</span>
+                    <span id="cpuText">{{ cpu_usage }}%</span>
+                </div>
+                <div style="width: 100%; background: #334155; height: 8px; border-radius: 4px;">
+                    <div id="cpuBar"
+                        style="width: {{ cpu_usage }}%; background: #3b82f6; height: 100%; border-radius: 4px; transition: width 0.5s ease, background 0.3s ease;">
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                    <span>RAM Usage (<span id="ramTotalText">{{ ram_total }}</span> GB Total)</span>
+                    <span id="ramText">{{ ram_usage }}%</span>
+                </div>
+                <div style="width: 100%; background: #334155; height: 8px; border-radius: 4px;">
+                    <div id="ramBar"
+                        style="width: {{ ram_usage }}%; background: #8b5cf6; height: 100%; border-radius: 4px; transition: width 0.5s ease;">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="triggerServerRestart()" id="restartBtn"
+                style="width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
+                <i class="fas fa-power-off mr-2"></i> Restart Daphne Server
+            </button>
+        </div>
+
+        <div class="dev-card">
+            <div class="dev-header">
+                <span><i class="fas fa-users mr-2"></i> Active Users (Redis)</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span
+                        style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem;">Live</span>
+                    <button onclick="clearStaleSessions()" id="sweepBtn"
+                        style="background: transparent; border: none; color: #94a3b8; cursor: pointer; transition: color 0.2s;"
+                        title="Sweep Stale Sessions">
+                        <i class="fas fa-broom"></i>
+                    </button>
+                </div>
+            </div>
+            <div style="color: #94a3b8; font-size: 0.9rem; display: flex; flex-direction: column; gap: 12px;">
+
+                {% for u in active_users %}
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div
+                            style="width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80;">
+                        </div>
+
+                        <span>
+                            {{ u.user_name }}
+                            {% if u.user_name == request.session.user_name %}
+                            <span
+                                style="color: #3b82f6; font-size: 0.75rem; font-weight: bold; margin-left: 5px;">(You)</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <span
+                        style="font-size: 0.7rem; background: #334155; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+                        {{ u.role }}</span>
+                </div>
+                {% empty %}
+                <div style="text-align: center; color: #475569; padding: 10px 0; font-size: 0.8rem;">
+                    No other users currently online.
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+        <div class="dev-card">
+            <div class="dev-header">
+                <span><i class="fas fa-database mr-2"></i> Quick Links</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="/admin/" target="_blank"
+                    style="display: block; padding: 10px; background: #334155; color: white; text-decoration: none; border-radius: 6px; text-align: center;">
+                    Open Django Admin <i class="fas fa-external-link-alt ml-1"></i>
+                </a>
+                <a href="/admin/auth/user/" target="_blank"
+                    style="display: block; padding: 10px; background: #334155; color: white; text-decoration: none; border-radius: 6px; text-align: center;">
+                    Manage Users <i class="fas fa-external-link-alt ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="dev-card col-span-2">
+            <div class="dev-header">
+                <span><i class="fas fa-terminal mr-2"></i> Interactive Terminal & Logs</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="wsStatus"
+                        style="color: #facc15; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+                        <span class="status-dot status-yellow"></span> Connecting...
+                    </span>
+                    <button onclick="terminal.textContent=''"
+                        style="background: transparent; border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
+                        <i class="fas fa-eraser"></i> Clear Screen
+                    </button>
+                </div>
+            </div>
+
+            <div
+                style="background: #000; border-radius: 6px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); display: flex; flex-direction: column; height: 500px; overflow: hidden;">
+
+                <div id="terminalWindow"
+                    style="flex: 1; color: #4ade80; padding: 15px; font-family: monospace; font-size: 0.85rem; overflow-y: auto; white-space: pre-wrap; line-height: 1.2;">
+                    {{ system_logs }}</div>
+
+                <div
+                    style="display: flex; align-items: center; border-top: 1px solid #333; padding: 10px 15px; background: #0a0a0a;">
+                    <span
+                        style="color: #ef4444; font-family: monospace; font-weight: bold; margin-right: 10px;">root@vadrida:~#</span>
+                    <input type="text" id="commandInput"
+                        placeholder="Type a command... (Use ↑/↓ for history. Press Ctrl+C to stop running command)"
+                        style="flex: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.9rem; outline: none;"
+                        autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="dev-card col-span-2" style="border-left: 4px solid #ef4444;">
+            <div class="dev-header">
+                <span><i class="fas fa-bug mr-2" style="color: #ef4444;"></i> Latest Unhandled Exception</span>
+                <button onclick="fetchLatestError()"
+                    style="background: transparent; border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
+                    <i class="fas fa-sync-alt"></i> Check Errors
+                </button>
+            </div>
+
+            <div id="errorBoardEmpty"
+                style="color: #4ade80; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 6px;">
+                <i class="fas fa-check-circle text-2xl mb-2"></i><br>
+                Zero crashes detected. Server is running perfectly.
+            </div>
+
+            <div id="errorBoardContent"
+                style="display: none; background: #1a0b0b; border: 1px solid #451a1a; border-radius: 6px; padding: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span id="errorType"
+                        style="color: #ef4444; font-family: monospace; font-size: 1.1rem; font-weight: bold;"></span>
+                    <span id="errorTime" style="color: #94a3b8; font-size: 0.8rem;"></span>
+                </div>
+
+                <div id="errorMessage"
+                    style="color: #fca5a5; font-size: 0.9rem; margin-bottom: 15px; font-family: monospace;"></div>
+
+                <div
+                    style="background: #000; padding: 10px; border-radius: 4px; border-left: 3px solid #facc15; margin-bottom: 15px;">
+                    <div
+                        style="color: #facc15; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
+                        AI Suggested Fix:</div>
+                    <div id="errorSolution" style="color: #cbd5e1; font-size: 0.9rem;"></div>
+                </div>
+
+                <div style="color: #64748b; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px;">RAW TRACEBACK:
+                </div>
+                <div id="errorTraceback"
+                    style="background: #000; color: #ef4444; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; overflow-y: auto; max-height: 200px; white-space: pre-wrap;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const terminal = document.getElementById('terminalWindow');
+    const cmdInput = document.getElementById('commandInput');
+    const wsStatus = document.getElementById('wsStatus');
+
+    // Command History Logic
+    const cmdHistory = [];
+    let historyIndex = -1;
+
+    // WebSocket Setup
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const termSocket = new WebSocket(`${protocol}://${window.location.host}/ws/terminal/`);
+
+    termSocket.onopen = function () {
+        wsStatus.innerHTML = '<span class="status-dot status-green"></span> Live';
+        wsStatus.style.color = '#4ade80';
+        terminal.scrollTop = terminal.scrollHeight;
+    };
+
+    termSocket.onclose = function () {
+        wsStatus.innerHTML = '<span class="status-dot status-red"></span> Disconnected';
+        wsStatus.style.color = '#ef4444';
+        terminal.textContent += '\n\n[WebSocket Connection Lost. Refresh page to reconnect.]';
+    };
+    termSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+
+        // --- HANDLE HEALTH UPDATES ---
+        if (data.type === 'health') {
+            document.getElementById('cpuText').innerText = data.cpu + '%';
+            document.getElementById('cpuBar').style.width = data.cpu + '%';
+            document.getElementById('cpuBar').style.background = data.cpu > 85 ? '#ef4444' : '#3b82f6';
+
+            document.getElementById('ramText').innerText = data.ram + '%';
+            document.getElementById('ramBar').style.width = data.ram + '%';
+            return; // Stop here so we don't print health stats to the black terminal
+        }
+
+        // --- HANDLE TERMINAL TEXT LOGS ---
+        if (data.text) {
+            // Smart Scroll: Check if user is already at the bottom
+            const isAtBottom = terminal.scrollHeight - terminal.scrollTop <= terminal.clientHeight + 50;
+
+            terminal.textContent += data.text;
+
+            if (isAtBottom) {
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+    };
+
+    // Input Key Listeners (Enter, Up, Down, Ctrl+C)
+    cmdInput.addEventListener('keydown', function (e) {
+        // 1. EXECUTE COMMAND (ENTER)
+        if (e.key === 'Enter') {
+            const cmd = this.value.trim();
+            if (!cmd) return;
+
+            // Save to history
+            cmdHistory.push(cmd);
+            historyIndex = cmdHistory.length;
+
+            // Send via WebSocket
+            termSocket.send(JSON.stringify({ action: 'command', command: cmd }));
+            this.value = '';
+        }
+
+        // 2. HISTORY UP (Arrow Up)
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault(); // Stop cursor from jumping to start
+            if (historyIndex > 0) {
+                historyIndex--;
+                this.value = cmdHistory[historyIndex];
+            }
+        }
+
+        // 3. HISTORY DOWN (Arrow Down)
+        else if (e.key === 'ArrowDown') {
+            if (historyIndex < cmdHistory.length - 1) {
+                historyIndex++;
+                this.value = cmdHistory[historyIndex];
+            } else {
+                historyIndex = cmdHistory.length;
+                this.value = ''; // Blank input
+            }
+        }
+
+        // 4. INTERRUPT PROCESS (Ctrl + C)
+        else if (e.ctrlKey && e.key === 'c') {
+            e.preventDefault();
+            termSocket.send(JSON.stringify({ action: 'interrupt' }));
+            this.value = ''; // Clear input box
+        }
+    });
+
+    // --- RESTART SERVER LOGIC ---
+    function triggerServerRestart() {
+        if (!confirm("Are you sure you want to restart the server? Active users may experience a brief interruption.")) return;
+
+        const btn = document.getElementById('restartBtn');
+        const badge = document.getElementById('serverStatusBadge');
+        const originalText = btn.innerHTML;
+
+        // Update UI to show restarting state
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Rebooting...';
+        btn.style.background = '#b91c1c';
+        btn.disabled = true;
+
+        badge.innerText = 'Restarting';
+        badge.style.color = '#facc15'; // Yellow
+
+        fetch('/coreapi/api/dev-restart/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(res => res.json())
+            .then(data => {
+                // Echo the restart command to your web terminal
+                if (terminal) {
+                    terminal.textContent += `\n\nroot@vadrida:~# systemctl restart daphne\n[SYSTEM] ${data.message}\n`;
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+
+                // Wait 5 seconds for Django to reload, then reset the button UI
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#ef4444';
+                    btn.disabled = false;
+
+                    badge.innerText = 'Online';
+                    badge.style.color = '#4ade80'; // Green
+                }, 5000);
+            })
+            .catch(e => {
+                alert("Error triggering restart.");
+                btn.innerHTML = originalText;
+                btn.style.background = '#ef4444';
+                btn.disabled = false;
+            });
+    }
+    function fetchLatestError() {
+        fetch('/coreapi/api/dev-error/')
+            .then(res => res.json())
+            .then(data => {
+                if (data.type === 'None') {
+                    document.getElementById('errorBoardEmpty').style.display = 'block';
+                    document.getElementById('errorBoardContent').style.display = 'none';
+                } else {
+                    document.getElementById('errorBoardEmpty').style.display = 'none';
+                    document.getElementById('errorBoardContent').style.display = 'block';
+
+                    document.getElementById('errorType').innerText = data.type + " at " + data.path;
+                    document.getElementById('errorTime').innerText = data.timestamp;
+                    document.getElementById('errorMessage').innerText = data.message;
+                    document.getElementById('errorSolution').innerText = data.solution;
+                    document.getElementById('errorTraceback').innerText = data.traceback;
+                }
+            });
+    }
+
+    // Load errors on page load
+    fetchLatestError();
+    function clearStaleSessions() {
+        const btn = document.getElementById('sweepBtn');
+        btn.style.color = '#4ade80'; // Flash green
+        fetch('/coreapi/api/dev-clear-sessions/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(res => res.json())
+            .then(data => {
+                setTimeout(() => { btn.style.color = '#94a3b8'; }, 1000);
+                // The screen will automatically update as users reconnect via WebSocket!
+            });
+    }
+</script>
+{% endblock %}

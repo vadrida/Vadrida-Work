@@ -33,6 +33,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://test.vadrida.com'
 ]
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +82,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'coreapi.middleware.RedisActiveUserMiddleware',
+    'coreapi.middleware.SmartExceptionMiddleware',
 ]
 MIDDLEWARE+= [ 
     'coreapi.middleware.LoginRequiredMiddleware',
@@ -204,9 +207,30 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 mimetypes.add_type("text/css", ".css", True)
 mimetypes.add_type("text/javascript", ".js", True)
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} [{name}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'vadrida.log'),
+            'formatter': 'verbose',
+        },
+    },
+    # 🚨 THE FIX: Use the root logger (empty string) to catch EVERYTHING
+    'root': {
+        'handlers': ['file'],
+        'level': 'INFO',
+    },
 }
 load_dotenv()
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
