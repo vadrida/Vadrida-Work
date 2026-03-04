@@ -500,7 +500,7 @@
 
                         <div class="form-group">
                             <label class="form-label">6. Documents Received</label>
-                            <div class="checkbox-grid">
+                            <div class="checkbox-grid" id="docs_received_grid">
                                 <label class="checkbox-label"><input type="checkbox"
                                         data-array="Valuers_Checklist.documents_received" value="Agreement">
                                     Agreement</label>
@@ -893,6 +893,9 @@
                                                     data-array="Demarcation.north" value="no demarcation"> No
                                                 demarcation</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Demarcation.north" value="Partial demarcation"> Partial
+                                                Demarcation</label>
+                                            <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Demarcation.north" value="gi sheet fence"> GI sheet
                                                 fence</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
@@ -924,6 +927,9 @@
                                                     data-array="Demarcation.east" value="no demarcation"> No
                                                 demarcation</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Demarcation.north" value="Partial demarcation"> Partial
+                                                Demarcation</label>
+                                            <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Demarcation.east" value="gi sheet fence"> GI sheet
                                                 fence</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
@@ -952,6 +958,9 @@
                                             <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Demarcation.south" value="no demarcation"> No
                                                 demarcation</label>
+                                            <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Demarcation.north" value="Partial demarcation"> Partial
+                                                Demarcation</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Demarcation.south" value="gi sheet fence"> GI sheet
                                                 fence</label>
@@ -983,6 +992,9 @@
                                             <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Demarcation.west" value="no demarcation"> No
                                                 demarcation</label>
+                                            <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Demarcation.north" value="Partial demarcation"> Partial
+                                                Demarcation</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Demarcation.west" value="gi sheet fence"> GI sheet
                                                 fence</label>
@@ -2479,6 +2491,36 @@
         updateCompletionStats();
     }
 
+    function sanitizeFormState() {
+        // 1. Clean "Documents Received"
+        if (formState.Valuers_Checklist) {
+            let docs = formState.Valuers_Checklist.documents_received;
+
+            // If it's a string, parse it
+            if (typeof docs === 'string') {
+                try { docs = JSON.parse(docs); }
+                catch (e) { docs = []; }
+            }
+
+            // Convert complex objects [{"name": "Agreement"}] back to flat text ["Agreement"]
+            if (Array.isArray(docs)) {
+                formState.Valuers_Checklist.documents_received = docs.map(item =>
+                    (typeof item === 'object' && item !== null) ? item.name : item
+                );
+            } else {
+                formState.Valuers_Checklist.documents_received = [];
+            }
+        }
+
+        // 2. Clean "Survey Docs"
+        if (formState.Survey) {
+            let sDocs = formState.Survey.docs;
+            if (typeof sDocs === 'string') {
+                try { formState.Survey.docs = JSON.parse(sDocs); }
+                catch (e) { formState.Survey.docs = []; }
+            }
+        }
+    }
     /* =========================
        4. FILE EXPLORER LOGIC (SMART RESTORE)
     ========================= */
@@ -2584,7 +2626,14 @@
                     formState = getEmptyState();
 
                     // 1. Check Server DB
-                    const serverDraft = data.saved_draft || {};
+                    let serverDraft = data.saved_draft || {};
+
+                    // THE FIX: If Django sent the JSON as a raw text string, parse it!
+                    if (typeof serverDraft === 'string') {
+                        try { serverDraft = JSON.parse(serverDraft); }
+                        catch (e) { console.error("Failed to parse DB JSON:", e); serverDraft = {}; }
+                    }
+
                     const hasServerData = Object.keys(serverDraft).length > 0;
 
                     // 2. Check Local Browser Memory (Using Dynamic Key!)
@@ -2600,20 +2649,15 @@
                     // INSTANT LOAD FOR NEW FILES
                     // ==========================================
                     if (!hasServerData && !hasLocalData) {
-                        // Hide loader instantly! No delays!
                         if (overlay) {
                             overlay.classList.add("hidden");
                             overlay.style.display = "none";
                         }
-
-                        // Inject Auto-Fill
                         if (data.auto_fill) {
                             updateNestedState(formState, 'Valuers_Checklist.Office_file_no', data.auto_fill.file_no);
                             updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
                             updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
                         }
-
-                        // Paint screen immediately
                         syncStateToUI();
                     }
                     // ==========================================
@@ -2621,17 +2665,29 @@
                     // ==========================================
                     else {
                         if (txt) txt.innerText = "Populating Form...";
-                        await forcePaint(); // Give browser a split second to render the text
+                        await forcePaint();
 
                         if (hasServerData) {
-                            // DB is Boss. Erase local storage so they don't clash.
-                            formState = { ...formState, ...serverDraft };
+                            formState = getEmptyState();
+                            const deepMerge = (target, source) => {
+                                for (const key in source) {
+                                    if (source[key] instanceof Object && !Array.isArray(source[key])) {
+                                        if (!target[key]) target[key] = {};
+                                        deepMerge(target[key], source[key]);
+                                    } else {
+                                        target[key] = source[key];
+                                    }
+                                }
+                            };
+                            deepMerge(formState, serverDraft);
                             localStorage.removeItem(newDraftKey);
                         }
                         else if (hasLocalData) {
-                            // DB empty, load <20% local draft
                             formState = { ...formState, ...localData };
                         }
+
+                        // --- THE FIX: CLEAN THE DATA BEFORE BUILDING THE UI ---
+                        sanitizeFormState();
 
                         // Aggressive Auto-Fill to enforce ID accuracy
                         if (data.auto_fill) {
@@ -4535,24 +4591,53 @@
     }
 
     /* =========================
-       UI SYNC (UPDATED: Clears Sketches Too)
+       UI SYNC (PYTHON-STRING PROOF)
     ========================= */
     function syncStateToUI() {
+        // --- AUTO-SPAWN CUSTOM DOCUMENT CHECKBOXES ---
+        const docsGrid = document.getElementById('docs_received_grid');
+        let savedDocs = getNestedValue(formState, 'Valuers_Checklist.documents_received');
+
+        // THE FIX: Clean Python single quotes before parsing
+        if (typeof savedDocs === 'string') {
+            try {
+                const cleanStr = savedDocs.replace(/'/g, '"');
+                savedDocs = JSON.parse(cleanStr);
+            } catch (e) { savedDocs = []; }
+        }
+
+        if (Array.isArray(savedDocs) && docsGrid) {
+            savedDocs.forEach(item => {
+                const docName = (typeof item === 'object' && item !== null) ? item.name : item;
+
+                if (docName) {
+                    const cleanName = String(docName).trim();
+                    const existingBox = document.querySelector(`input[data-array="Valuers_Checklist.documents_received"][value="${cleanName}"]`);
+
+                    if (!existingBox) {
+                        const newLabel = document.createElement('label');
+                        newLabel.className = 'checkbox-label';
+                        newLabel.style.color = '#2563eb';
+                        newLabel.style.fontWeight = 'bold';
+                        newLabel.innerHTML = `<input type="checkbox" data-array="Valuers_Checklist.documents_received" value="${cleanName}"> ${cleanName}`;
+                        docsGrid.appendChild(newLabel);
+                    }
+                }
+            });
+        }
+
         // 1. Handle Text Inputs, Textareas, Selects, and RADIO BUTTONS
         document.querySelectorAll('[data-path]').forEach(el => {
             const val = getNestedValue(formState, el.getAttribute('data-path'));
 
-            // Radio Buttons
             if (el.type === 'radio') {
                 const savedValStr = (val !== undefined && val !== null) ? String(val).trim() : "";
                 const inputValStr = String(el.value).trim();
                 el.checked = (savedValStr === inputValStr);
             }
-            // Checkboxes (Boolean)
             else if (el.type === 'checkbox' && !el.hasAttribute('data-array')) {
-                el.checked = (val === true || val === "true" || val === el.value);
+                el.checked = (val === true || val === "true" || String(val).trim() === String(el.value).trim());
             }
-            // Standard Inputs
             else {
                 el.value = (val !== undefined && val !== null) ? val : "";
             }
@@ -4560,34 +4645,40 @@
 
         // 2. Handle Arrays (Multiple Select Checkboxes)
         document.querySelectorAll('[data-array]').forEach(el => {
-            const arr = getNestedValue(formState, el.getAttribute('data-array'));
-            if (Array.isArray(arr) && arr.includes(el.value)) {
-                el.checked = true;
-            } else {
-                el.checked = false;
+            const path = el.getAttribute('data-array');
+            let arr = getNestedValue(formState, path);
+
+            // THE FIX: Clean Python single quotes here too
+            if (typeof arr === 'string') {
+                try {
+                    const cleanArrStr = arr.replace(/'/g, '"');
+                    arr = JSON.parse(cleanArrStr);
+                } catch (e) { arr = []; }
             }
+
+            // CRITICAL: Uncheck everything first
+            el.checked = false;
+
+            if (Array.isArray(arr) && arr.length > 0) {
+                el.checked = arr.some(item => {
+                    const itemName = (typeof item === 'object' && item !== null) ? item.name : item;
+                    // THE FIX: Trim both sides to ensure "LTR " matches "LTR"
+                    return String(itemName).trim() === String(el.value).trim();
+                });
+            }
+
             toggleEncroachmentFields();
             toggleOwnershipNotes();
             toggleRailwayDistance();
         });
 
-        // ✅ 3. NEW: Clear Sketch Thumbnails
-        // This finds ALL images with IDs starting with "img_preview_"
+        // 3. Clear Sketch Thumbnails
         document.querySelectorAll('img[id^="img_preview_"]').forEach(img => {
-            // Construct the original data path from the ID (reverse safeId logic)
-            // e.g., img_preview_Sketch_main_layout -> Sketch.main_layout
             const safeId = img.id.replace('img_preview_', '');
-            // We can't easily reverse "_" to "." perfectly if keys have underscores, 
-            // so we check the `formState.images` object directly using the ID or fuzzy match.
-
             let hasImage = false;
 
-            // Check exact match in formState.images
-            // We need to iterate the images dictionary because the key format differs slightly
             if (formState.images) {
-                // Look for any key that turns into this safeId
                 const match = Object.keys(formState.images).find(key => key.replace(/\./g, '_') === safeId);
-
                 if (match && formState.images[match]) {
                     img.src = formState.images[match];
                     img.classList.remove('hidden');
@@ -4596,22 +4687,15 @@
                 }
             }
 
-            // If no image found in state, HIDE IT
             if (!hasImage) {
                 img.src = "";
                 img.classList.add('hidden');
                 img.style.display = 'none';
             }
         });
-        splitRentDurationToUI();
-        // updatePanchayatList();   // 1. Load the list based on saved District
-        togglePanchayatField();  // 2. Show/Hide box based on saved Local Body
 
-        // 3. Restore the specific Panchayat selected (after list is re-generated)
-        // const savedPanchayat = getNestedValue(formState, 'Survey.grama_panchayat');
-        // if(savedPanchayat) {
-        //     document.getElementById('panchayatSelect').value = savedPanchayat;
-        // }
+        splitRentDurationToUI();
+        togglePanchayatField();
         updateCompletionStats();
         checkFileNumberForUpload();
     }
@@ -4743,7 +4827,13 @@
         bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
 
         const availableDocs = formState.Valuers_Checklist.documents_received || [];
-        const surveyDocs = formState.Survey.docs || [];
+
+        // THE FIX: Parse stringified survey data before rendering
+        let surveyDocs = formState.Survey.docs || [];
+        if (typeof surveyDocs === 'string') {
+            try { surveyDocs = JSON.parse(surveyDocs); } catch (e) { surveyDocs = []; }
+            formState.Survey.docs = surveyDocs; // Save it back cleanly
+        }
 
         const landTypes = [
             { id: 'dry', label: 'Dry Land' },
@@ -4876,27 +4966,31 @@
     }
 
     function updateAllDocumentDropdowns() {
-        // Always read from the source of truth: formState
-        const docs = formState.Valuers_Checklist.documents_received || [];
+        let docs = formState.Valuers_Checklist?.documents_received || [];
+
+        if (typeof docs === 'string') {
+            try {
+                const cleanDocsStr = docs.replace(/'/g, '"');
+                docs = JSON.parse(cleanDocsStr);
+            } catch (e) { docs = []; }
+        }
+        if (!Array.isArray(docs)) docs = [];
+
+        const docNames = docs.map(d => (typeof d === 'object' && d !== null) ? d.name : d);
 
         document.querySelectorAll('.dynamic-doc-dropdown').forEach(select => {
-            // 1. Capture the current value (in case user just typed it before save)
-            // BUT prioritize formState if we are loading.
             const path = select.getAttribute('data-path');
             const savedValue = getNestedValue(formState, path);
 
-            // 2. Rebuild Options
             select.innerHTML = '<option value="">Select Document</option>';
-            docs.forEach(docName => {
+            docNames.forEach(docName => {
                 const opt = document.createElement('option');
                 opt.value = docName;
                 opt.textContent = docName;
                 select.appendChild(opt);
             });
 
-            // 3. Restore Value
-            // If we have a saved value in state, use it.
-            if (savedValue && docs.includes(savedValue)) {
+            if (savedValue && docNames.includes(savedValue)) {
                 select.value = savedValue;
             }
         });
@@ -7263,5 +7357,25 @@
             });
         }
     })();
+
+
+
+    // Attach Live Listener
+    document.addEventListener('input', (e) => {
+        const el = e.target;
+
+        // THE FIX: Only trigger for INPUT and TEXTAREA. Ignores dropdowns completely.
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            if (el.type !== 'hidden' && el.id !== 'searchInput' && el.id !== 'caseSearchInput') {
+                const val = el.value.trim();
+
+                if (val === "") {
+                    el.classList.remove('field-valid');
+                } else {
+                    el.classList.add('field-valid');
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}

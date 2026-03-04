@@ -30,6 +30,7 @@ urlpatterns = [
 
     # File serving
     path('serve-file/', views.serve_file, name='serve_file'),
+    path('api/save-verification/', views.save_verification_data, name='save_verification_data'),
 
     # Pages
     path("login/", views.login_page, name="login_page"),

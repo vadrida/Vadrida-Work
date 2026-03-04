@@ -3,6 +3,7 @@
 {% block title %}Verification Portal{% endblock %}
 
 {% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     /* --- THEME VARIABLES --- */
     :root {
@@ -247,6 +248,7 @@
         border-color: var(--brand-accent);
     }
 
+    /* --- Base Input Styling --- */
     .edit-input {
         width: 100%;
         padding: 6px 10px;
@@ -255,12 +257,29 @@
         border-radius: 4px;
         margin-top: 5px;
         outline: none;
-        transition: border 0.2s;
+        background-color: #ffffff;
+        /* Default background */
+
+        /* Transition: Animates border, background, and shadow for a premium feel */
+        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .edit-input:focus {
+    /* --- Hover Effect --- */
+    .edit-input:hover {
         border-color: var(--brand-accent);
-        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+        background-color: #b5ffc456;
+        color: #000000;
+        box-shadow: 0 0 0 3px rgba(74, 124, 173, 0.15);
+        /* Subtle light blue-grey tint */
+    }
+
+    /* --- Focus Effect (When clicking/typing) --- */
+    .edit-input:focus {
+        background-color: #ffffff;
+        /* Returns to solid white for clear reading */
+        border-color: var(--brand-accent);
+        /* Soft glow using the brand color with transparency */
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
     }
 
     /* --- DOC TABLE --- */
@@ -419,8 +438,6 @@
     .checkbox-label.disabled input:checked {
         accent-color: #059669;
     }
-
-    /* Green for confirmed items */
 </style>
 {% endblock %}
 
@@ -509,6 +526,14 @@
             <div class="info-group"><span class="info-label">Applicant</span>
                 <div class="info-value" id="meta_applicant">--</div>
             </div>
+
+            <div class="info-group"><span class="info-label">Product</span>
+                <div class="info-value" id="meta_product">--</div>
+            </div>
+            <div class="info-group"><span class="info-label">Person Met</span>
+                <div class="info-value" id="meta_person_met">--</div>
+            </div>
+
             <div class="info-group"><span class="info-label">Target Folder</span>
                 <div class="info-value" id="meta_folder" style="font-size:11px; color:#6b7280;">--</div>
             </div>
@@ -522,7 +547,6 @@
                 <div class="info-value" id="meta_score" style="color:var(--success); font-weight:700;">0%</div>
             </div>
         </div>
-
         <div style="margin-top: auto; padding: 20px; border-top: 1px solid var(--border-color);">
             <a href="{% url 'coreapi:logout_api' %}" onclick="return confirmLogout()"
                 style="display: flex; align-items: center; gap: 10px; color: var(--danger); text-decoration: none; font-weight: 500;">
@@ -560,112 +584,80 @@
 
     <aside class="col-actions">
         <div class="sidebar-header">
-            <h5>Correction Log</h5>
-            <span id="logCount" class="hidden"
-                style="background: white; color: var(--brand-blue); padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">0</span>
+            <h5>Consistency Check</h5>
+            <span id="mismatchCount" class="hidden"
+                style="background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold;">0</span>
         </div>
-        <div id="logContainer" style="flex: 1; overflow-y: auto;">
-            <div id="emptyLog"
+
+        <div style="padding: 10px; background: #fef2f2; border-bottom: 1px solid #fecaca; text-align: center;">
+            <button onclick="runComparison()" class="btn-edit"
+                style="width: 100%; border-color: #dc2626; color: #dc2626; font-weight: bold; background: white;">
+                <i class="fas fa-sync-alt mr-2"></i> RUN COMPARISON
+            </button>
+        </div>
+
+        <div id="comparisonContainer" style="flex: 1; overflow-y: auto;">
+            <div id="emptyComparison"
                 style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">
-                No corrections pending.
+                Click Run Comparison to validate consistency across documents.
             </div>
         </div>
+
         <div style="padding: 20px; background: #f9fafb; border-top: 1px solid var(--border-color);">
             <button onclick="saveData()" class="btn-primary" id="btn-save" style="background: var(--success);">
-                <i class="fas fa-save" style="margin-right: 8px;"></i> SAVE CHANGES
+                <i class="fas fa-save" style="margin-right: 8px;"></i> SAVE ALL DATA
             </button>
         </div>
     </aside>
 
 </div>
-
 <script>
     let autoSaveTimer;
-    const DOC_OPTIONS = ["Agreement",
-        "Encumbrance",
-        "Building Permit",
-        "Declaration",
-        "Location Sketch",
-        "Development Permit",
-        "Title Deed",
-        "Survey Sketch",
-        "Building Certificate",
-        "LTR",
-        "Building Tax receipt",
-        "Approved plan",
-        "Possession",
-        "Engineers plan",
-        "Other Document"];
+    const DOC_OPTIONS = [
+        "Agreement", "Encumbrance", "Building Permit", "Declaration",
+        "Location Sketch", "Development Permit", "Title Deed", "Survey Sketch",
+        "Building Certificate", "Land Tax Receipt", "Building Tax receipt", "Approved plan",
+        "Possession", "Engineers plan", "Other Document"
+    ];
     let currentFileNo = null;
     let modifiedFields = new Set();
     const scrollArea = document.getElementById('mainScrollArea');
 
-    // --- 1. INITIALIZATION ---
+    // --- 1. STATE MANAGEMENT ---
+    function getVerificationEmptyState() {
+        return {
+            report_id: null, inspection_date: "",
+            documents_received: [], document_details: {}, raw_site_data: {}
+        };
+    }
+    let verificationState = getVerificationEmptyState();
+
+    // --- 2. INITIALIZATION ---
     document.addEventListener("DOMContentLoaded", () => {
-        const lastFile = localStorage.getItem("vadrida_last_file");
-        if (lastFile) {
-            document.getElementById('searchInput').value = lastFile;
-            performSearch(true);
-        }
-        scrollArea.addEventListener('scroll', () => {
-            if (currentFileNo) localStorage.setItem(`scroll_${currentFileNo}`, scrollArea.scrollTop);
+        const lastInput = localStorage.getItem("vadrida_last_input");
+        if (lastInput) { document.getElementById('searchInput').value = lastInput; performSearch(true); }
+        scrollArea.addEventListener('scroll', () => { if (currentFileNo) localStorage.setItem(`scroll_${currentFileNo}`, scrollArea.scrollTop); });
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); performSearch(); }
         });
     });
 
-    // --- 2. HELPERS ---
-    function triggerAutoSave() {
-        clearTimeout(autoSaveTimer);
-        const btn = document.getElementById('btn-save');
-        if (btn) btn.innerText = "Saving..."; // Visual feedback
-
-        autoSaveTimer = setTimeout(() => {
-            saveData(true); // Quiet Mode
-        }, 1000);
-    }
-
-    function toggleOtherInput(selectElement, id) {
-        const customInput = selectElement.nextElementSibling;
-        if (selectElement.value === "Other Document") {
-            customInput.classList.remove('hidden');
-            customInput.focus();
-        } else {
-            customInput.classList.add('hidden');
-            customInput.value = "";
-        }
-        serializeDocs(id);
-        triggerAutoSave();
-    }
-
     function getCookie(name) {
-        let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-        return v ? v[2] : null;
+        let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)'); return v ? v[2] : null;
     }
 
-    // --- 3. SEARCH (WITH CONCATENATION LOGIC) ---
+    // --- 3. SEARCH ENGINE ---
     function performSearch(isRestore = false) {
         let val = document.getElementById('searchInput').value.trim();
+        let rawInput = val;
         if (!val) return;
 
-        // --- THE MAGIC: Concatenation Logic ---
-        // If the user typed only digits, we assume they are typing the sequence number
-        if (/^\d+$/.test(val)) {
+        if (/^\d+$/.test(val) && val.length <= 5) {
             const rawBank = document.getElementById('bank_select').value;
             const dist = document.getElementById('district_select').value;
             const year = document.getElementById('year_select').value;
-
-            // Convert Bank 1000 -> "01"
             const bankShortCode = String(Math.floor(parseInt(rawBank) / 1000)).padStart(2, '0');
-
-            // Pad the user input to 4 digits (e.g., "1" -> "0001", "23" -> "0023")
-            const paddedSeq = String(val).padStart(4, '0');
-
-            // Build the final 10-digit ID
-            // e.g., "01" + "26" + "01" + "0001" = "0126010001"
-            const fullFileNo = `${bankShortCode}${year}${dist}${paddedSeq}`;
-
-            // Use the constructed ID for the search
-            val = fullFileNo;
-            console.log("Searching for constructed ID:", fullFileNo);
+            val = `${bankShortCode}${year}${dist}${String(val).padStart(4, '0')}`;
         }
 
         if (!isRestore) {
@@ -673,7 +665,6 @@
             document.getElementById('metaContainer').classList.add('hidden');
         }
 
-        // Call your existing endpoint with the constructed file number
         fetch(`/coreapi/api/get-report-data/?file_no=${val}`)
             .then(r => r.json())
             .then(resp => {
@@ -681,29 +672,34 @@
                 if (resp.found) {
                     currentFileNo = resp.real_file_no || val;
                     localStorage.setItem("vadrida_last_file", currentFileNo);
-
+                    localStorage.setItem("vadrida_last_input", rawInput);
                     document.getElementById('activeCaseDisplay').innerText = `CASE ID: ${currentFileNo}`;
-                    populateMeta(resp.meta);
-                    renderGrid(resp.data);
 
-                    restoreDrafts(currentFileNo);
+                    verificationState = getVerificationEmptyState();
+                    verificationState.report_id = resp.data?.report_id || null;
+                    verificationState.inspection_date = resp.data?.Valuers_Checklist?.inspection_date || "";
+
+                    let docs = resp.data?.Valuers_Checklist?.documents_received || "[]";
+                    if (typeof docs === 'string') { try { docs = JSON.parse(docs.replace(/'/g, '"')); } catch (e) { docs = []; } }
+
+                    verificationState.documents_received = docs;
+                    verificationState.document_details = resp.data?.Verification_Database || {};
+                    verificationState.raw_site_data = resp.data || {};
+
+                    populateMeta(resp.meta, resp.data);
+                    renderVerificationUI();
                     restoreScroll(currentFileNo);
-                } else {
-                    if (!isRestore) alert(`Record Not Found for ID: ${val}`);
-                    document.getElementById('activeCaseDisplay').innerText = "Record Not Found";
                 }
-            })
-            .catch(e => {
-                console.error(e);
-                document.getElementById('loadingSpinner').classList.add('hidden');
-            });
+            }).catch(e => console.error("Search Error:", e));
     }
 
-    function populateMeta(meta) {
+    function populateMeta(meta, data) {
         document.getElementById('metaContainer').classList.remove('hidden');
         document.getElementById('meta_user').innerText = meta.user || "--";
         document.getElementById('meta_file_no').innerText = meta.office_file_no || "--";
         document.getElementById('meta_applicant').innerText = meta.applicant_name || "--";
+        document.getElementById('meta_product').innerText = data?.Valuers_Checklist?.product || "--";
+        document.getElementById('meta_person_met').innerText = data?.Valuers_Checklist?.person_met || "--";
         document.getElementById('meta_folder').innerText = meta.target_folder || "--";
         document.getElementById('meta_created').innerText = meta.created_at || "--";
         document.getElementById('meta_pdf').innerText = meta.generated_pdf_name || "Pending";
@@ -715,428 +711,1489 @@
         if (pos) setTimeout(() => scrollArea.scrollTop = parseInt(pos), 100);
     }
 
-    const CHECKLIST_OPTIONS = [
-        "Agreement", "Encumbrance", "Building Permit", "Declaration",
-        "Location Sketch", "Development Permit", "Title Deed", "Survey Sketch",
-        "Building Certificate", "LTR", "Building Tax receipt", "Approved plan",
-        "Possession", "Engineers plan"
-    ];
-
-    // --- 4. RENDER GRID (UPDATED FOR CHECKBOXES) ---
-    function renderGrid(data) {
+    // --- 4. TOP UI RENDERING ---
+    function renderVerificationUI() {
         const container = document.getElementById('formContent');
         container.innerHTML = "";
 
-        const sections = ['Valuers_Checklist', 'Ownership_Analysis', 'Survey', 'Boundary_analysis_property_identification', 'Demarcation', 'Access', 'Purchase_resale', 'Building_analysis', 'land_inspection_details', 'Sketch'];
+        const topCard = document.createElement('div');
+        topCard.className = "data-section";
 
-        sections.forEach(sec => {
-            const sData = data[sec];
-            if (!sData) return;
+        let docsViewHtml = (verificationState.documents_received || []).map(item => {
+            let name = typeof item === 'object' ? item.name : item;
+            let num = (typeof item === 'object' && item.num) ? `<span style="color:#64748b; font-size:11px; margin-left:8px;">Ref: ${item.num}</span>` : '';
+            let date = (typeof item === 'object' && item.date) ? `<span style="color:#64748b; font-size:11px; margin-left:8px;">Date: ${item.date}</span>` : '';
+            return `<div style="padding:5px 0; border-bottom:1px dashed #eee; font-size:13px; font-weight:500;"><i class="fas fa-file-alt" style="color:var(--brand-accent); margin-right:5px;"></i> ${name} ${num} ${date}</div>`;
+        }).join("");
 
-            // Filter Empty Fields
-            const rows = Object.entries(sData).filter(([k, v]) => {
-                if (v === null || v === undefined || v === "" || v === "---" || v === "Not Provided") return false;
-                if (Array.isArray(v) && v.length === 0) return false;
-                if (typeof v === 'object' && Object.keys(v).length === 0) return false;
-                return true;
+        topCard.innerHTML = `
+        <div class="section-header">General Information</div>
+        <div class="data-row"><div class="field-label">Inspection Date</div><div class="field-value"><input type="date" class="edit-input" style="width:200px; margin:0; border-color:var(--brand-accent);" value="${verificationState.inspection_date}" oninput="verificationState.inspection_date = this.value; triggerAutoSave();"></div></div>
+        <div class="data-row" style="grid-template-columns: 250px 1fr 100px;">
+            <div class="field-label">Documents Received</div>
+            <div><div class="field-value" id="view_docs_received">${docsViewHtml || 'No Documents Received'}</div><div id="editor_docs_received" class="hidden doc-table-wrapper"><div id="doc_body_docs_received"></div><button class="btn-add-doc" onclick="addDocRow('docs_received')">+ Add Document</button><input type="hidden" id="input_docs_received"></div></div>
+            <div class="action-group"><button class="btn-edit" id="btn_docs_received" onclick="toggleEdit('docs_received', 'Docs', true)">Edit</button></div>
+        </div>
+    `;
+        container.appendChild(topCard);
+
+        const docBody = document.getElementById('doc_body_docs_received');
+        if (docBody) {
+            (verificationState.documents_received || []).forEach(doc => {
+                let docObj = typeof doc === 'object' ? doc : { name: doc, num: '', date: '' };
+                addDocRow('docs_received', docObj, true);
             });
+        }
 
-            if (rows.length === 0) return;
+        const formCard = document.createElement('div');
+        formCard.className = "data-section";
+        formCard.innerHTML = `
+        <div class="section-header" style="background:#eef2ff; color:#3730a3; border-bottom:2px solid #c7d2fe;"><i class="fas fa-file-contract mr-2"></i> Document Data Entry</div>
+        <div style="padding: 20px; background: #f8fafc; border-bottom: 1px solid #e5e7eb;">
+            <label style="font-size:12px; font-weight:bold; color:var(--text-grey); display:block; margin-bottom:8px;">SELECT DOCUMENT TO VERIFY</label>
+            <select id="master_doc_selector" class="edit-input" style="width: 100%; max-width: 400px; border-color:var(--brand-blue); font-weight:bold;" onchange="loadDynamicDocForm(this.value)"></select>
+        </div>
+        <div id="dynamic_form_container" style="padding: 20px; display:none;"></div>
+    `;
+        container.appendChild(formCard);
 
-            const card = document.createElement('div');
-            card.className = "data-section";
-            card.innerHTML = `<div class="section-header">${sec.replace(/_/g, ' ')}</div>`;
+        // --- NEW: GLOBAL DIAGRAMS BLOCK ---
+        const diagramCard = document.createElement('div');
+        diagramCard.className = "data-section";
+        diagramCard.style.marginTop = "30px";
+        diagramCard.innerHTML = `
+        <div class="section-header" style="background:#f0fdf4; color:#065f46; border-bottom:2px solid #bbf7d0;">
+            <i class="fas fa-project-diagram mr-2"></i> Global Diagrams Overview
+        </div>
+        <div id="global_diagrams_container" style="padding: 30px 20px; background: #f8fafc;">
+            <div style="text-align:center; color:#6b7280; font-style:italic;">No diagrams available yet.</div>
+        </div>
+    `;
+        container.appendChild(diagramCard);
 
-            rows.forEach(([key, val]) => {
-                const uid = `${sec}_${key}`;
-                const path = `${sec}.${key}`;
+        updateDocumentDropdown();
 
-                const isDoc = (key === "documents_received");
-                const isSurvey = (key === "Surveydocs" || key === "docs");
+        const savedDoc = localStorage.getItem(`active_doc_${currentFileNo}`);
+        if (savedDoc) {
+            const selector = document.getElementById('master_doc_selector');
+            if (selector && Array.from(selector.options).some(o => o.value === savedDoc)) {
+                selector.value = savedDoc; loadDynamicDocForm(savedDoc);
+            }
+        }
 
-                const rowDiv = document.createElement('div');
-                rowDiv.className = "data-row";
-                rowDiv.id = `row_${uid}`;
-
-                let contentHtml = "";
-
-                // ----------------------------------------------------
-                // TYPE 1: DYNAMIC DOCUMENT TABLE (Documents Received)
-                // ----------------------------------------------------
-                if (isDoc) {
-                    let currentDocs = [];
-                    // Handle arrays, parsed JSON, or legacy simple strings
-                    if (Array.isArray(val)) currentDocs = val;
-                    else if (typeof val === 'string') {
-                        try { currentDocs = JSON.parse(val); }
-                        catch (e) { currentDocs = [{ name: val }]; }
-                    }
-
-                    // A. VIEW HTML (Read Only List)
-                    let viewHtml = currentDocs.map(item => {
-                        let docName = typeof item === 'string' ? item : (item.name || 'Doc');
-                        let docNum = item.num ? `<span style="color:#64748b; font-size:11px; margin-left:8px;">Ref: ${item.num}</span>` : '';
-                        let docDate = item.date ? `<span style="color:#64748b; font-size:11px; margin-left:8px;">Date: ${item.date}</span>` : '';
-                        return `<div style="padding: 5px 0; border-bottom: 1px dashed #eee; font-size: 13px; font-weight: 500;">
-                                    <i class="fas fa-file-alt" style="color:var(--brand-accent); margin-right:5px;"></i> ${docName} ${docNum} ${docDate}
-                                </div>`;
-                    }).join("");
-
-                    // B. EDITOR HTML (Dynamic Table Container)
-                    contentHtml = `
-                        <div class="field-value" id="view_${uid}">${viewHtml || "No Documents"}</div>
-                        
-                        <div id="editor_${uid}" class="hidden doc-table-wrapper">
-                            <div id="doc_body_${uid}"></div>
-                            <button class="btn-add-doc" onclick="addDocRow('${uid}')">+ Add Document</button>
-                            <input type="hidden" id="input_${uid}" data-path="${path}" data-label="${key}" value='${JSON.stringify(currentDocs)}'>
-                        </div>
-                    `;
-
-                    // C. Populate existing rows into the editor
-                    setTimeout(() => {
-                        if (document.getElementById(`doc_body_${uid}`)) {
-                            currentDocs.forEach(d => addDocRow(uid, d));
-                        }
-                    }, 0);
-                    // ----------------------------------------------------
-                    // TYPE 3: STANDARD TEXT (With Array/JSON Cleaning)
-                    // ----------------------------------------------------
-                } else {
-                    let displayVal = val;
-                    let editVal = val;
-
-                    // Clean up ["Array Strings"]
-                    if (typeof val === 'string' && val.trim().startsWith('[') && val.trim().endsWith(']')) {
-                        try {
-                            const parsed = JSON.parse(val);
-                            if (Array.isArray(parsed)) {
-                                displayVal = parsed.join(", ");
-                                editVal = displayVal;
-                            }
-                        } catch (e) { }
-                    } else if (Array.isArray(val)) {
-                        displayVal = val.join(", ");
-                        editVal = displayVal;
-                    } else if (typeof val === 'object') {
-                        displayVal = JSON.stringify(val);
-                        editVal = displayVal;
-                    }
-
-                    contentHtml = `
-                        <div class="field-value">${displayVal}</div>
-                        <div id="editor_${uid}" class="hidden" style="margin-top:8px;">
-                            <input type="text" id="input_${uid}" data-path="${path}" data-label="${key}" class="edit-input" placeholder="Enter value..." value="${editVal}">
-                        </div>
-                    `;
-                }
-
-                rowDiv.innerHTML = `
-                    <div class="field-label">${key.replace(/_/g, ' ')}</div>
-                    <div>${contentHtml}</div>
-                    <div class="action-group">
-                        <button class="btn-edit" id="btn_${uid}" onclick="toggleEdit('${uid}', '${key}', ${isDoc || isSurvey})">Edit</button>
-                    </div>
-                `;
-                card.appendChild(rowDiv);
-            });
-            container.appendChild(card);
-        });
-
-        resetLogs();
+        // Render the initial diagrams view
+        setTimeout(updateGlobalDiagramsView, 300);
     }
 
-    // --- NEW HELPER FOR CHECKBOXES ---
-    function serializeCheckboxes(uid) {
-        const container = document.getElementById(`chk_container_${uid}`);
-        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+    function updateDocumentDropdown(selectedId = "") {
+        const selector = document.getElementById('master_doc_selector');
+        if (!selector) return;
 
-        const selected = [];
-        checkboxes.forEach(chk => {
-            if (chk.checked) selected.push(chk.value);
+        let html = '<option value="">-- Choose a Document --</option>';
+        let currentActiveStillExists = false;
+        const currentActiveDoc = localStorage.getItem(`active_doc_${currentFileNo}`);
+
+        (verificationState.documents_received || []).forEach(doc => {
+            let id = `${typeof doc === 'object' ? doc.name : doc}${(typeof doc === 'object' && doc.num) ? ' (Doc No: ' + doc.num + ')' : ''}`;
+
+            // Check if the currently viewed document is still in the active list
+            if (id === currentActiveDoc) currentActiveStillExists = true;
+
+            html += `<option value="${id}" ${selectedId === id ? 'selected' : ''}>${id}</option>`;
         });
 
-        // Update Hidden Input with JSON String
-        const jsonStr = JSON.stringify(selected);
-        document.getElementById(`input_${uid}`).value = jsonStr;
+        selector.innerHTML = html;
 
-        // Log & Save
-        const label = document.getElementById(`input_${uid}`).getAttribute('data-label');
-        logChange(uid, label);
+        // If the user deleted/renamed the document they were currently editing, clear the screen
+        if (currentActiveDoc && !currentActiveStillExists) {
+            localStorage.removeItem(`active_doc_${currentFileNo}`);
+            loadDynamicDocForm("");
+        }
+    }
+    function showUndoToast(message, undoCallback) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: true,
+            confirmButtonText: '<i class="fas fa-undo" style="margin-right:5px;"></i> UNDO',
+            confirmButtonColor: '#d97706', // Warning/Orange color
+            showCloseButton: true,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        Toast.fire({
+            icon: 'warning',
+            title: message
+        }).then((result) => {
+            if (result.isConfirmed) {
+                undoCallback(); // If they click Undo, execute the restore function
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-end',
+                    icon: 'success',
+                    title: 'Restored successfully!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+    }
+
+    function loadDynamicDocForm(docId) {
+        const container = document.getElementById('dynamic_form_container');
+        if (!container || !docId) { if (container) container.style.display = 'none'; return; }
+
+        localStorage.setItem(`active_doc_${currentFileNo}`, docId);
+        container.style.display = 'block';
+
+        // ROUTE TO CORRECT FORM COMPONENT
+        if (docId.toLowerCase().includes('title deed')) {
+            renderTitleDeedForm(container, docId);
+        } else if (docId.toLowerCase().includes('location sketch')) {
+            renderLocationSketchForm(container, docId);
+        } else {
+            container.innerHTML = `
+        <div style="text-align:center; padding:50px; background:white; border:1px solid #e5e7eb; border-radius:8px; box-shadow:var(--shadow-card);">
+            <i class="fas fa-tools fa-3x" style="color:#cbd5e1; margin-bottom:15px;"></i>
+            <div style="color:#6b7280; font-size:15px;">Form template for <b style="color:var(--brand-blue);">${docId}</b> is coming soon.</div>
+        </div>`;
+        }
+    }
+
+
+    function triggerSaveForDoc(docId, safeId) {
+        const main = localStorage.getItem(`active_doc_${currentFileNo}`);
+        if (docId === main) {
+            if (docId.toLowerCase().includes('title deed')) serializeTitleDeed(docId, safeId);
+            else if (docId.toLowerCase().includes('location sketch')) serializeLocationSketch(docId, safeId);
+        } else {
+            serializePartialSchedule(main, docId, safeId);
+        }
+    }
+
+    function serializeLocationSketch(docId, safeId) {
+        const schedules_list = extractSchedulesFromDOM(safeId);
+        let grandTotalAres = 0;
+
+        // 1. Lock the typed data into the Master State (excluding Executant, SRO, Local Body)
+        verificationState.document_details[docId] = {
+            owner: document.getElementById(`td_owner_${safeId}`)?.value.trim() || "",
+            district: document.getElementById(`td_dist_${safeId}`)?.value.trim() || "",
+            taluk: document.getElementById(`td_taluk_${safeId}`)?.value.trim() || "",
+            village: document.getElementById(`td_vill_${safeId}`)?.value.trim() || "",
+            schedules_list: schedules_list,
+            sub_schedules: verificationState.document_details[docId]?.sub_schedules || []
+        };
+
+        // 2. LIVE DOM UPDATES (Diagrams, Areas, and Boundaries)
+        schedules_list.forEach((sch, schIdx) => {
+            let tAres = sch.surveys.reduce((sum, sv) => sum + (parseFloat(sv.ares) || 0), 0);
+            let totalCents = (tAres * 100 / 40.47);
+            grandTotalAres += tAres;
+
+            sch.total_ares = parseFloat(tAres.toFixed(4));
+            sch.total_cents = totalCents.toFixed(3);
+
+            let headingText = sch.scedule_no ? `BOUNDARIES (SCHEDULE: ${sch.scedule_no})` : `BOUNDARIES`;
+            if (document.getElementById(`boundary_heading_${safeId}_${schIdx}`)) {
+                document.getElementById(`boundary_heading_${safeId}_${schIdx}`).innerText = headingText;
+            }
+
+            if (document.getElementById(`vis_n_${safeId}_${schIdx}`)) document.getElementById(`vis_n_${safeId}_${schIdx}`).innerText = sch.boundary_north || '-';
+            if (document.getElementById(`vis_e_${safeId}_${schIdx}`)) document.getElementById(`vis_e_${safeId}_${schIdx}`).innerText = sch.boundary_east || '-';
+            if (document.getElementById(`vis_s_${safeId}_${schIdx}`)) document.getElementById(`vis_s_${safeId}_${schIdx}`).innerText = sch.boundary_south || '-';
+            if (document.getElementById(`vis_w_${safeId}_${schIdx}`)) document.getElementById(`vis_w_${safeId}_${schIdx}`).innerText = sch.boundary_west || '-';
+
+            const diagWrap = document.getElementById(`diagram_history_wrapper_${safeId}_${schIdx}`);
+            if (diagWrap) {
+                diagWrap.innerHTML = renderDiagramHistory(docId, schIdx);
+            }
+
+            if (document.getElementById(`total_cents_display_${safeId}_${schIdx}`)) {
+                document.getElementById(`total_cents_display_${safeId}_${schIdx}`).innerText = `Schedule Area: ${parseFloat(tAres.toFixed(4))} Ares (${totalCents.toFixed(3)} Cts)`;
+            }
+        });
+
+        if (document.getElementById(`total_cents_display_${safeId}`)) {
+            document.getElementById(`total_cents_display_${safeId}`).innerText = `Document Total: ${parseFloat(grandTotalAres.toFixed(4))} Ares (${(grandTotalAres * 100 / 40.47).toFixed(3)} Cts)`;
+        }
+
         triggerAutoSave();
     }
 
-    // --- NEW HELPER FUNCTIONS FOR SURVEY DOCS ---
+    function renderLocationSketchForm(container, docId) {
+        const d = verificationState.document_details[docId] || {};
+        const site = verificationState.raw_site_data || {};
+        const safeId = docId.replace(/[^a-zA-Z0-9]/g, '_');
+        const saveAction = `triggerSaveForDoc('${docId}', '${safeId}')`;
 
-    function addSurveyRow(id, data = null) {
-        const container = document.getElementById(`survey_body_${id}`);
-        const div = document.createElement('div');
-        div.className = "survey-row";
-
-        const name = data ? (data.name || "") : "";
-        const resy = data ? (data.re_sy_subdiv_no || "") : "";
-        const isDry = data ? (data.check_dry === true) : false;
-        const isWet = data ? (data.check_wet === true) : false;
-
-        div.innerHTML = `
-            <input type="text" class="edit-input" style="margin:0" placeholder="Doc Name (LTR...)" value="${name}" oninput="serializeSurvey('${id}'); triggerAutoSave()">
-            <input type="text" class="edit-input" style="margin:0" placeholder="123/4-2" value="${resy}" oninput="serializeSurvey('${id}'); triggerAutoSave()">
-            
-            <label class="chk-label">
-                <input type="checkbox" ${isDry ? 'checked' : ''} onchange="serializeSurvey('${id}'); triggerAutoSave()">
-            </label>
-            
-            <label class="chk-label">
-                <input type="checkbox" ${isWet ? 'checked' : ''} onchange="serializeSurvey('${id}'); triggerAutoSave()">
-            </label>
-
-            <i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="this.parentElement.remove(); serializeSurvey('${id}'); triggerAutoSave()"></i>
-        `;
-        container.appendChild(div);
-    }
-
-    function serializeSurvey(id) {
-        const rows = document.querySelectorAll(`#survey_body_${id} .survey-row`);
-        const result = [];
-
-        rows.forEach(row => {
-            const inputs = row.querySelectorAll('input');
-            const name = inputs[0].value.trim();
-            const resy = inputs[1].value.trim();
-            const dry = inputs[2].checked;
-            const wet = inputs[3].checked;
-
-            if (name || resy) {
-                result.push({
-                    "name": name,
-                    "re_sy_subdiv_no": resy,
-                    "check_dry": dry,
-                    "check_wet": wet
-                });
-            }
-        });
-
-        // Store as JSON string in the hidden input
-        document.getElementById(`input_${id}`).value = JSON.stringify(result);
-
-        // Log changes
-        logChange(id, "Survey Docs");
-    }
-
-    // --- 5. INTERACTION & EDITING ---
-    function toggleEdit(id, label, isDoc) {
-        const btn = document.getElementById(`btn_${id}`);
-        const editor = document.getElementById(`editor_${id}`);
-        const input = document.getElementById(`input_${id}`);
-
-        if (editor.classList.contains("hidden")) {
-            editor.classList.remove("hidden");
-            btn.classList.add("active");
-            btn.innerText = "Cancel";
-
-            if (!isDoc) {
-                input.focus();
-                input.oninput = () => {
-                    logChange(id, label);
-                    saveDraft(currentFileNo, id, input.value); // FIX: Save Draft on input
-                    triggerAutoSave();
+        // --- 1. SMART INHERITANCE LOGIC (Find Previous Doc or Fallback to Site) ---
+        let pId = ""; let pData = null;
+        const mainId = localStorage.getItem(`active_doc_${currentFileNo}`);
+        if (mainId && mainId !== docId) {
+            const subs = verificationState.document_details[mainId]?.sub_schedules || [];
+            const idx = subs.indexOf(docId);
+            if (idx === 0) { pId = mainId; pData = verificationState.document_details[mainId]; }
+            else if (idx > 0) { pId = subs[idx - 1]; pData = verificationState.document_details[pId]; }
+        } else {
+            // If it's a main document, check if any other document has been filled out first
+            const allDocs = Object.keys(verificationState.document_details);
+            for (let key of allDocs) {
+                if (key !== docId && verificationState.document_details[key].owner) {
+                    pId = key; pData = verificationState.document_details[key]; break;
                 }
             }
-            logChange(id, label);
-        } else {
-            editor.classList.add("hidden");
-            btn.classList.remove("active");
-            btn.innerText = "Edit";
-            removeLog(id);
-            removeDraft(currentFileNo, id);
         }
+
+        const sOwner = site.Ownership_Analysis?.owners_name || "";
+        const sDist = site.Survey?.district || "";
+        const sTaluk = site.Survey?.taluk || "";
+        const sVill = site.Survey?.village || "";
+        const sLbType = (site.Survey?.local_body_type || "").toUpperCase();
+
+        let rOwner = sOwner, rDist = sDist, rTaluk = sTaluk, rVill = sVill, rLbType = sLbType;
+        let refLabel = "Site Ref";
+        let refType = false;
+
+        if (pData) {
+            rOwner = pData.owner || sOwner;
+            rDist = pData.district || sDist;
+            rTaluk = pData.taluk || sTaluk;
+            rVill = pData.village || sVill;
+            rLbType = pData.local_body_type || sLbType;
+            refLabel = `Ref: ${pId}`;
+            refType = 'parent';
+        }
+
+        const initVal = (sVal, refVal) => (sVal !== undefined && sVal !== null && sVal !== "") ? sVal : (refVal || "");
+
+        // 2. Local Body Type Mapping
+        let mappedLbType = "GRAMA PANCHAYAT";
+        if (rLbType.includes("MUNICIPAL CORPORATION")) mappedLbType = "MUNICIPAL CORPORATION";
+        else if (rLbType.includes("CORPORATION")) mappedLbType = "CORPORATION";
+        else if (rLbType.includes("MUNICIPAL")) mappedLbType = "MUNICIPALITY";
+        else if (rLbType.includes("PANCHAYAT")) mappedLbType = "GRAMA PANCHAYAT";
+
+        const currentLbType = initVal(d.local_body_type, mappedLbType);
+        const lbOptions = ["GRAMA PANCHAYAT", "MUNICIPALITY", "CORPORATION", "MUNICIPAL CORPORATION"];
+        const lbTypeHtml = lbOptions.map(opt => `<option value="${opt}" ${currentLbType === opt ? 'selected' : ''}>${opt}</option>`).join('');
+
+        // Theming for the reference box based on where the data came from
+        let boxBg = refType ? '#eef2ff' : '#fffbeb';
+        let boxBorder = refType ? '#6366f1' : '#d97706';
+        let boxTitle = refType ? '#4338ca' : '#92400e';
+        let boxText = refType ? '#3730a3' : '#b45309';
+
+        container.innerHTML = `
+        <div style="border: 2px solid #10b981; border-top: 6px solid #059669; border-radius: 8px; padding: 20px; background: white; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);">
+            <div style="font-size:16px; font-weight:bold; color:#065f46; margin-bottom:15px; border-bottom:2px solid #10b981; padding-bottom:5px;">
+                <i class="fas fa-map-marked-alt mr-2"></i> Verifying: ${docId}
+            </div>
+            
+            <div class="data-section" style="padding:15px; margin-bottom:20px; border-color:#a7f3d0;">
+                ${generateFieldRowHTML("OWNER NAME", rOwner, `td_owner_${safeId}`, initVal(d.owner, rOwner), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("DISTRICT", rDist, `td_dist_${safeId}`, initVal(d.district, rDist), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("TALUK", rTaluk, `td_taluk_${safeId}`, initVal(d.taluk, rTaluk), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("VILLAGE", rVill, `td_vill_${safeId}`, initVal(d.village, rVill), saveAction, "", refType, "", refLabel)}
+                
+                
+            </div>
+
+            <div id="all_schedules_container_${safeId}">
+                ${getAllSchedulesHTML(docId, safeId, null, "", "location_sketch")}
+            </div>
+            
+            <div id="sub_schedules_container_${safeId}"></div>
+            
+            <div style="margin-top: 20px; border: 2px dashed #10b981; padding: 20px; border-radius: 8px; text-align: center; background:#ecfdf5;">
+                <div id="add_sch_wrapper_${safeId}">
+                    <button type="button" onclick="toggleScheduleDropdown('${docId}', '${safeId}')" class="btn-edit" style="background:white; border-color:#10b981; color:#059669; font-weight:bold;">+ Add Another Document</button>
+                </div>
+                <div id="sel_sch_wrapper_${safeId}" class="hidden" style="display:flex; gap:10px; justify-content:center;">
+                    <select id="sel_sch_${safeId}" class="edit-input" style="width:250px; border-color:#10b981;"></select>
+                    <button type="button" class="btn-primary" style="background:#059669; width:auto; padding:6px 15px;" onclick="addSchedule('${docId}', '${safeId}')">Add</button>
+                </div>
+            </div>
+        </div>
+    `;
+        if (Object.keys(d).length === 0) triggerSaveForDoc(docId, safeId);
+        renderAllSubSchedules(docId, safeId);
+    }
+    function generateFieldRowHTML(label, siteVal, inputId, currentVal, onInputExtra, labelId = "", refType = false, extraClass = "", customRefLabel = "") {
+        let refText = customRefLabel || 'Site Ref';
+        let bgTheme = '#fffbeb'; let borderTheme = '#d97706'; let textTheme = '#92400e'; let valTheme = '#b45309';
+
+        if (refType === true || refType === 'parent') {
+            refText = customRefLabel || 'Parent Ref';
+            bgTheme = '#eef2ff'; borderTheme = '#6366f1'; textTheme = '#4338ca'; valTheme = '#3730a3';
+        } else if (refType === 'prev') {
+            refText = customRefLabel || 'Prev Block';
+            bgTheme = '#f0fdf4'; borderTheme = '#10b981'; textTheme = '#047857'; valTheme = '#059669';
+        }
+
+        return `
+    <div class="data-row" style="grid-template-columns: 1fr 1fr; gap: 15px; border-bottom: 1px solid #f3f4f6; padding: 12px 0;">
+        <div>
+            <label ${labelId ? `id="${labelId}"` : ""} style="font-size:11px; font-weight:bold; color:#6b7280; display:block; margin-bottom:4px;">${label}</label>
+            <input type="text" id="${inputId}" class="edit-input ${extraClass}" style="margin:0;" value="${currentVal}" oninput="${onInputExtra}">
+        </div>
+        <div style="background: ${bgTheme}; border-left: 3px solid ${borderTheme}; padding: 6px 10px; border-radius: 4px; min-height: 38px;">
+            <div style="font-size:9px; color:${textTheme}; font-weight:700; text-transform:uppercase; margin-bottom:2px;">${refText}</div>
+            <div style="font-size:12px; color:${valTheme}; font-weight:500;">${siteVal || 'N/A'}</div>
+        </div>
+    </div>`;
+    }
+    // --- 5. SURVEY & CASCADING INHERITANCE ---
+    function getAllSchedulesHTML(docId, safeId, pData = null, parentName = "", docType = "title_deed") {
+        const d = verificationState.document_details[docId] || {};
+        const site = verificationState.raw_site_data || {};
+        const baseName = docId ? docId.split(' (')[0].trim().toLowerCase() : "";
+        const siteDocs = (site.Survey && site.Survey.docs) ? site.Survey.docs : [];
+        let siteMatch = siteDocs.find(sd => sd.name && sd.name.toString().trim().toLowerCase() === baseName) || siteDocs.find(sd => sd.name === "Land Tax Receipt" || sd.name === "LTR") || {};
+
+        let siteLcArr = [];
+        if (siteMatch.check_dry) siteLcArr.push("Dry Land");
+        if (siteMatch.check_wet) siteLcArr.push("Wet Land");
+        let siteLcStr = siteLcArr.join(', ') || site.Survey?.land_classification || site.Survey?.type_of_property || "";
+
+        // --- 1. GLOBAL SITE DATA FALLBACKS ---
+        const sN = site.Boundary_analysis_property_identification?.north_site || "";
+        const sE = site.Boundary_analysis_property_identification?.east_site || "";
+        const sS = site.Boundary_analysis_property_identification?.south_site || "";
+        const sW = site.Boundary_analysis_property_identification?.west_site || "";
+        const sLC = siteLcStr;
+
+        const sBlock = siteMatch.re_sy_block_no || site.Survey?.re_sy_block_no || site.Survey?.sy_block_no || "";
+        const sResy = siteMatch.re_sy_no || site.Survey?.re_sy_no || "";
+        const sResySub = siteMatch.re_sy_subdiv_no || site.Survey?.re_sy_subdiv_no || "";
+        const sDesy = siteMatch.desom || site.Survey?.desom || "";
+        const sSy = siteMatch.sy_no || site.Survey?.sy_no || "";
+        const sSySub = siteMatch.sy_subdiv_no || site.Survey?.sy_subdiv_no || "";
+        const sExtent = siteMatch.land_extent || site.Survey?.land_extent || "";
+
+        const isParent = pData !== null && Object.keys(pData).length > 0;
+        let schedules = d.schedules_list || [];
+
+        if (schedules.length === 0) {
+            if (d.surveys && d.surveys.length > 0) {
+                schedules = [{ scedule_no: d.scedule_no || "", surveys: d.surveys, boundary_north: d.boundary_north || "", boundary_east: d.boundary_east || "", boundary_south: d.boundary_south || "", boundary_west: d.boundary_west || "", land_classification: d.land_classification || "" }];
+            } else if (isParent && pData.schedules_list && pData.schedules_list.length > 0) {
+                schedules = JSON.parse(JSON.stringify(pData.schedules_list));
+            } else {
+                schedules = [{
+                    scedule_no: siteMatch.scedule_no || "",
+                    boundary_north: sN, boundary_east: sE, boundary_south: sS, boundary_west: sW, land_classification: sLC,
+                    surveys: [{ survey_types: ["resurvey"], block_no: sBlock, resurvey_no: sResy, re_sub_div: sResySub, desham_sy: sDesy, survey_no: sSy, sy_sub_div: sSySub, desham_old: sDesy, old_survey_no: "", old_sy_sub_div: "", ares: sExtent }]
+                }];
+            }
+            if (!verificationState.document_details[docId]) verificationState.document_details[docId] = {};
+            verificationState.document_details[docId].schedules_list = schedules;
+        }
+
+        const saveAction = `triggerSaveForDoc('${docId}', '${safeId}')`;
+
+        // Core pre-filler logic: If typed value is empty, use reference.
+        const initVal = (sVal, refVal) => (sVal !== undefined && sVal !== null && sVal !== "") ? sVal : (refVal === "N/A" ? "" : refVal);
+        let totalDocAres = 0;
+
+        let schedulesHtml = schedules.map((sch, schIdx) => {
+            let r_sch = isParent ? (pData.schedules_list && pData.schedules_list[schIdx] ? pData.schedules_list[schIdx].scedule_no : "N/A") : (siteMatch.scedule_no || "N/A");
+            let parentRefName = isParent ? `Ref: ${parentName}` : 'Site Ref';
+
+            // --- WATERFALL LOGIC FOR BOUNDARIES (Parent -> Site -> N/A) ---
+            let rN, rE, rS, rW, rLC, refTypeFlagSch, refLabelSch;
+
+            if (isParent && pData.schedules_list && pData.schedules_list[schIdx]) {
+                // INHERIT FROM PARENT DOCUMENT (with Site fallback if parent is empty)
+                const prevSch = pData.schedules_list[schIdx];
+                rN = prevSch.boundary_north || sN || "N/A";
+                rE = prevSch.boundary_east || sE || "N/A";
+                rS = prevSch.boundary_south || sS || "N/A";
+                rW = prevSch.boundary_west || sW || "N/A";
+                rLC = prevSch.land_classification || sLC || "N/A";
+                refTypeFlagSch = 'parent';
+                refLabelSch = `Ref: ${parentName}`;
+            } else if (schIdx > 0) {
+                // INHERIT FROM PREVIOUS SCHEDULE IN SAME DOC
+                const prevSch = schedules[schIdx - 1];
+                rN = prevSch.boundary_north || sN || "N/A";
+                rE = prevSch.boundary_east || sE || "N/A";
+                rS = prevSch.boundary_south || sS || "N/A";
+                rW = prevSch.boundary_west || sW || "N/A";
+                rLC = prevSch.land_classification || sLC || "N/A";
+                refTypeFlagSch = 'prev';
+                refLabelSch = 'Prev Schedule';
+            } else {
+                // MAIN DOC, SCHEDULE 1 -> PULL PURE SITE DATA
+                rN = sN || "N/A";
+                rE = sE || "N/A";
+                rS = sS || "N/A";
+                rW = sW || "N/A";
+                rLC = sLC || "N/A";
+                refTypeFlagSch = false;
+                refLabelSch = 'Site Ref';
+            }
+
+            let effSchNum = initVal(sch.scedule_no, r_sch);
+            let effN = initVal(sch.boundary_north, rN);
+            let effE = initVal(sch.boundary_east, rE);
+            let effS = initVal(sch.boundary_south, rS);
+            let effW = initVal(sch.boundary_west, rW);
+            let effLC = initVal(sch.land_classification, rLC);
+
+            let blocksHtml = sch.surveys.map((sv, idx) => {
+                const types = sv.survey_types || ["resurvey"];
+                let rB = "N/A", rR = "N/A", rRSub = "N/A", rDSy = "N/A", rS = "N/A", rSSub = "N/A", rDOld = "N/A", rO = "N/A", rOSub = "N/A", rA = "N/A";
+                let refTypeFlag = false; let refLabel = 'Site Ref';
+
+                // --- WATERFALL LOGIC FOR SURVEYS (Parent -> Site -> N/A) ---
+                if (isParent && pData.schedules_list && pData.schedules_list[schIdx] && pData.schedules_list[schIdx].surveys[idx]) {
+                    const prev = pData.schedules_list[schIdx].surveys[idx];
+                    rB = prev.block_no || sBlock || "N/A";
+                    rR = prev.resurvey_no || sResy || "N/A";
+                    rRSub = prev.re_sub_div || prev.sub_div || sResySub || "N/A";
+                    rDSy = prev.desham_sy || prev.desham || sDesy || "N/A";
+                    rS = prev.survey_no || sSy || "N/A";
+                    rSSub = prev.sy_sub_div || prev.sub_div || sSySub || "N/A";
+                    rDOld = prev.desham_old || prev.desham || sDesy || "N/A";
+                    rA = prev.ares || sExtent || "N/A";
+                    refTypeFlag = 'parent'; refLabel = `Ref: ${parentName}`;
+                } else if (idx > 0) {
+                    const prev = sch.surveys[idx - 1];
+                    rB = prev.block_no || sBlock || "N/A";
+                    rR = prev.resurvey_no || sResy || "N/A";
+                    rRSub = prev.re_sub_div || prev.sub_div || sResySub || "N/A";
+                    rDSy = prev.desham_sy || prev.desham || sDesy || "N/A";
+                    rS = prev.survey_no || sSy || "N/A";
+                    rSSub = prev.sy_sub_div || prev.sub_div || sSySub || "N/A";
+                    rDOld = prev.desham_old || prev.desham || sDesy || "N/A";
+                    rA = prev.ares || sExtent || "N/A";
+                    refTypeFlag = 'prev'; refLabel = 'Prev Block';
+                } else {
+                    rB = sBlock || "N/A";
+                    rR = sResy || "N/A";
+                    rRSub = sResySub || "N/A";
+                    rDSy = sDesy || "N/A";
+                    rS = sSy || "N/A";
+                    rSSub = sSySub || "N/A";
+                    rDOld = sDesy || "N/A";
+                    rA = sExtent || "N/A";
+                    refTypeFlag = false; refLabel = 'Site Ref';
+                }
+
+                totalDocAres += (parseFloat(sv.ares) || 0);
+
+                return `
+            <div class="survey-block-item" data-idx="${idx}" style="background:white; padding:15px; border:1px solid #cbd5e1; border-radius:6px; margin-bottom:15px; position:relative;">
+                ${idx > 0 ? `<button type="button" onclick="removeSurveyBlock('${docId}', '${safeId}', ${schIdx}, ${idx})" style="position:absolute; top:15px; right:15px; color:var(--danger); border:1px solid #fca5a5; background:#fef2f2; border-radius:4px; padding:2px 6px; font-size:10px; cursor:pointer;">Remove Survey</button>` : ''}
+                <div style="margin-bottom:12px; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">
+                    <label style="font-size:11px; font-weight:bold; color:#6b7280;">SURVEY TYPE</label>
+                    <div style="display:flex; gap:15px; padding-top:5px;">
+                        <label style="font-size:12px; cursor:pointer;"><input type="checkbox" name="stype_${safeId}_${schIdx}_${idx}" value="resurvey" ${types.includes('resurvey') ? 'checked' : ''} onchange="handleCheckboxToggle('${docId}','${safeId}')"> Re-Survey</label>
+                        <label style="font-size:12px; cursor:pointer;"><input type="checkbox" name="stype_${safeId}_${schIdx}_${idx}" value="survey" ${types.includes('survey') ? 'checked' : ''} onchange="handleCheckboxToggle('${docId}','${safeId}')"> Survey</label>
+                        <label style="font-size:12px; cursor:pointer;"><input type="checkbox" name="stype_${safeId}_${schIdx}_${idx}" value="old_survey" ${types.includes('old_survey') ? 'checked' : ''} onchange="handleCheckboxToggle('${docId}','${safeId}')"> Old Survey</label>
+                    </div>
+                </div>
+                ${types.includes('resurvey') ? generateFieldRowHTML("BLOCK NUMBER", rB, `td_block_${safeId}_${schIdx}_${idx}`, initVal(sv.block_no, rB), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('resurvey') ? generateFieldRowHTML("RE-SURVEY NO", rR, `td_resy_${safeId}_${schIdx}_${idx}`, initVal(sv.resurvey_no, rR), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('resurvey') ? generateFieldRowHTML("RE-SURVEY SUB DIV NO", rRSub, `td_resysub_${safeId}_${schIdx}_${idx}`, initVal(sv.re_sub_div || sv.sub_div, rRSub), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('survey') ? generateFieldRowHTML("DESHAM (SURVEY)", rDSy, `td_dessy_${safeId}_${schIdx}_${idx}`, initVal(sv.desham_sy || sv.desham, rDSy), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('survey') ? generateFieldRowHTML("SURVEY NO", rS, `td_sy_${safeId}_${schIdx}_${idx}`, initVal(sv.survey_no, rS), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('survey') ? generateFieldRowHTML("SURVEY SUB DIV NO", rSSub, `td_sysub_${safeId}_${schIdx}_${idx}`, initVal(sv.sy_sub_div || sv.sub_div, rSSub), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('old_survey') ? generateFieldRowHTML("DESHAM (OLD SURVEY)", rDOld, `td_desold_${safeId}_${schIdx}_${idx}`, initVal(sv.desham_old || sv.desham, rDOld), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('old_survey') ? generateFieldRowHTML("OLD SURVEY NO", rO, `td_oldsy_${safeId}_${schIdx}_${idx}`, initVal(sv.old_survey_no, rO), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${types.includes('old_survey') ? generateFieldRowHTML("OLD SURVEY SUB DIV NO", rOSub, `td_oldsub_${safeId}_${schIdx}_${idx}`, initVal(sv.old_sy_sub_div || sv.sub_div, rOSub), saveAction, "", refTypeFlag, "", refLabel) : ''}
+                ${generateFieldRowHTML("EXTENT (ARES)", rA, `td_ares_${safeId}_${schIdx}_${idx}`, initVal(sv.ares, rA), `calculateTotalCents('${safeId}', ${schIdx}); ${saveAction}`, "", refTypeFlag, `ares-input-${safeId}-${schIdx}`, refLabel)}
+            </div>`;
+            }).join('');
+
+            let schAres = sch.surveys.reduce((sum, sv) => sum + (parseFloat(sv.ares) || 0), 0);
+            let boundaryTitleBase = docType === 'location_sketch' ? 'BOUNDARIES' : 'BOUNDARIES & CLASSIFICATION';
+            let boundaryHeadingText = effSchNum ? `${boundaryTitleBase} (SCHEDULE: ${effSchNum})` : boundaryTitleBase;
+
+            let landClassHtml = "";
+            if (docType === "title_deed") {
+                landClassHtml = getLandClassificationHTML(safeId, effLC, rLC, saveAction, refTypeFlagSch, refLabelSch, schIdx);
+            }
+
+            return `
+        <div class="schedule-block-wrapper" data-sch="${schIdx}" style="padding:20px; border:2px solid #cbd5e1; border-radius:8px; margin-bottom:20px; background:#f8fafc; position:relative;">
+            ${schIdx > 0 ? `<button type="button" onclick="removeScheduleBlock('${docId}', '${safeId}', ${schIdx})" style="position:absolute; top:15px; right:15px; background:white; color:var(--danger); border:1px solid #fca5a5; border-radius:4px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.05);">Remove Schedule</button>` : ''}
+            
+            <div style="background:#eef2ff; border:1px solid #c7d2fe; padding:15px; border-radius:8px; margin-bottom:20px;">
+                <label style="font-size:12px; font-weight:bold; color:#1e40af; text-transform:uppercase; display:block; margin-bottom:10px;">Schedule Setup</label>
+                ${generateFieldRowHTML("SCHEDULE NUMBER", r_sch, `td_sch_${safeId}_${schIdx}`, effSchNum, saveAction, "", isParent ? 'parent' : false, "", parentRefName)}
+            </div>
+
+            <div id="survey_blocks_wrapper_${safeId}_${schIdx}">${blocksHtml}</div>
+            <div style="text-align:center; margin-bottom:20px;"><button type="button" class="btn-edit" onclick="addSurveyBlock('${docId}', '${safeId}', ${schIdx})" style="color:var(--brand-blue); border-color:var(--brand-blue); font-weight:600;"><i class="fas fa-plus mr-1"></i> Add Survey to this Schedule</button></div>
+            
+            <div style="display:flex; justify-content:flex-end; margin-bottom:20px;"><div style="font-size:13px; font-weight:bold; color:var(--success); background:#f0fdf4; padding:8px 12px; border:2px solid #bbf7d0; border-radius:6px;"><span id="total_cents_display_${safeId}_${schIdx}">Schedule Area: ${parseFloat(schAres.toFixed(4))} Ares (${(schAres * 100 / 40.47).toFixed(3)} Cts)</span></div></div>
+
+            <div style="background:white; padding:20px; border:1px solid #e5e7eb; border-radius:8px;">
+                <label id="boundary_heading_${safeId}_${schIdx}" style="font-size:12px; font-weight:bold; color:var(--brand-blue); display:block; margin-bottom:15px; text-transform:uppercase;">${boundaryHeadingText}</label>
+                ${generateFieldRowHTML("NORTH", rN, `td_bn_${safeId}_${schIdx}`, effN, saveAction, "", refTypeFlagSch, "", refLabelSch)} 
+                ${generateFieldRowHTML("EAST", rE, `td_be_${safeId}_${schIdx}`, effE, saveAction, "", refTypeFlagSch, "", refLabelSch)} 
+                ${generateFieldRowHTML("SOUTH", rS, `td_bs_${safeId}_${schIdx}`, effS, saveAction, "", refTypeFlagSch, "", refLabelSch)} 
+                ${generateFieldRowHTML("WEST", rW, `td_bw_${safeId}_${schIdx}`, effW, saveAction, "", refTypeFlagSch, "", refLabelSch)}
+                ${landClassHtml}
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align:center;">
+                    <label style="font-size:10px; font-weight:bold; color:#94a3b8; text-transform:uppercase; margin-bottom:20px; display:block;">Diagram Inheritance</label>
+                    <div id="diagram_history_wrapper_${safeId}_${schIdx}">
+                        ${renderDiagramHistory(docId, schIdx)}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+        }).join('');
+
+        return `
+    <div id="all_schedules_wrapper_${safeId}">
+        ${schedulesHtml}
+    </div>
+    
+    <div style="display:flex; justify-content:flex-end; margin-bottom:15px;">
+        <div style="font-size:13px; font-weight:bold; color:var(--success); background:#f0fdf4; padding:10px 15px; border:2px solid #bbf7d0; border-radius:6px;">
+            <span id="total_cents_display_${safeId}">Document Total: ${parseFloat(totalDocAres.toFixed(4))} Ares (${(totalDocAres * 100 / 40.47).toFixed(3)} Cts)</span>
+        </div>
+    </div>
+
+    <div style="text-align:center; padding:15px; border:2px dashed #94a3b8; border-radius:8px; background:#f1f5f9;">
+        <button type="button" class="btn-primary" onclick="addScheduleBlock('${docId}', '${safeId}')" style="width:auto; padding:8px 20px; border-radius:6px; font-weight:bold; font-size:13px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"><i class="fas fa-folder-plus mr-2"></i> ADD ANOTHER SCHEDULE</button>
+    </div>
+    `;
     }
 
-    // --- 6. DOCUMENT LOGIC ---
-    function addDocRow(id, data = null) {
-        const container = document.getElementById(`doc_body_${id}`);
-        const div = document.createElement('div');
-        div.className = "doc-row-entry";
+    function handleCheckboxToggle(docId, safeId) {
+        // Trigger save to capture current UI state (including newly toggled checkboxes)
+        triggerSaveForDoc(docId, safeId);
+        // Refresh UI to show/hide fields based on checkboxes
+        refreshSurveySection(docId, safeId);
+        triggerAutoSave();
+    }
 
-        // Logic for Manual Add (empty) vs Data Load (filled)
-        let docName = "", docNum = "", docDate = "", isCustom = false;
-        if (typeof data === 'string') {
-            docName = data;
-            if (docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
-        } else if (data && typeof data === 'object') {
-            docName = data.name || ""; docNum = data.num || ""; docDate = data.date || "";
-            if (docName && !DOC_OPTIONS.includes(docName)) isCustom = true;
+    function refreshSurveySection(docId, safeId) {
+        const wrapper = document.getElementById(`all_schedules_container_${safeId}`);
+        if (!wrapper) return;
+        const mainId = localStorage.getItem(`active_doc_${currentFileNo}`);
+        const pDataMain = verificationState.document_details[mainId] || {};
+        const subs = pDataMain.sub_schedules || [];
+        let src = null; let parentName = "";
+        if (docId !== mainId) {
+            const idx = subs.indexOf(docId); parentName = idx === 0 ? mainId : subs[idx - 1];
+            src = verificationState.document_details[parentName] || pDataMain;
+        }
+        wrapper.innerHTML = getAllSchedulesHTML(docId, safeId, src, parentName);
+    }
+
+    function calculateTotalCents(safeId, schIdx) {
+        let tAres = 0; document.querySelectorAll(`.ares-input-${safeId}-${schIdx}`).forEach(inp => tAres += (parseFloat(inp.value) || 0));
+        const cents = (tAres * 100 / 40.47).toFixed(3); const displayAres = parseFloat(tAres.toFixed(4));
+        const d = document.getElementById(`total_cents_display_${safeId}_${schIdx}`); if (d) d.innerText = `Schedule Area: ${displayAres} Ares (${cents} Cts)`;
+        const v = document.getElementById(`vis_area_${safeId}_${schIdx}`); if (v) v.innerHTML = `${displayAres} Ares<br>(${parseFloat((tAres * 100 / 40.47).toFixed(2))} Cts)`;
+    }
+
+    function extractSchedulesFromDOM(safeId) {
+        const schedules = [];
+        const wrap = document.getElementById(`all_schedules_wrapper_${safeId}`);
+        if (!wrap) return schedules;
+
+        wrap.querySelectorAll('.schedule-block-wrapper').forEach(schNode => {
+            const schIdx = schNode.getAttribute('data-sch');
+            const surveys = [];
+            schNode.querySelectorAll('.survey-block-item').forEach(item => {
+                const idx = item.getAttribute('data-idx');
+                const types = []; item.querySelectorAll(`input[name="stype_${safeId}_${schIdx}_${idx}"]:checked`).forEach(c => types.push(c.value));
+                surveys.push({
+                    survey_types: types,
+                    block_no: document.getElementById(`td_block_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    resurvey_no: document.getElementById(`td_resy_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    re_sub_div: document.getElementById(`td_resysub_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    desham_sy: document.getElementById(`td_dessy_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    survey_no: document.getElementById(`td_sy_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    sy_sub_div: document.getElementById(`td_sysub_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    desham_old: document.getElementById(`td_desold_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    old_survey_no: document.getElementById(`td_oldsy_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    old_sy_sub_div: document.getElementById(`td_oldsub_${safeId}_${schIdx}_${idx}`)?.value.trim() || "",
+                    ares: document.getElementById(`td_ares_${safeId}_${schIdx}_${idx}`)?.value.trim() || ""
+                });
+            });
+
+            const lcCheckboxes = schNode.querySelectorAll(`input[name="lc_${safeId}_${schIdx}"]:checked`);
+            const lcArray = Array.from(lcCheckboxes).map(cb => {
+                if (cb.value === 'Others') {
+                    const otherVal = document.getElementById(`lc_other_${safeId}_${schIdx}`)?.value.trim() || "";
+                    return otherVal ? `Others: ${otherVal}` : 'Others';
+                }
+                return cb.value;
+            });
+
+            schedules.push({
+                scedule_no: document.getElementById(`td_sch_${safeId}_${schIdx}`)?.value.trim() || "",
+                surveys: surveys,
+                boundary_north: document.getElementById(`td_bn_${safeId}_${schIdx}`)?.value.trim() || "",
+                boundary_east: document.getElementById(`td_be_${safeId}_${schIdx}`)?.value.trim() || "",
+                boundary_south: document.getElementById(`td_bs_${safeId}_${schIdx}`)?.value.trim() || "",
+                boundary_west: document.getElementById(`td_bw_${safeId}_${schIdx}`)?.value.trim() || "",
+                land_classification: lcArray.join(', ')
+            });
+        });
+        return schedules;
+    }
+
+    function addScheduleBlock(docId, safeId) {
+        triggerSaveForDoc(docId, safeId);
+        const mainId = localStorage.getItem(`active_doc_${currentFileNo}`);
+        const pDataMain = verificationState.document_details[mainId] || {};
+        const subs = pDataMain.sub_schedules || [];
+
+        if (!verificationState.document_details[docId].schedules_list) verificationState.document_details[docId].schedules_list = [];
+        const schedules = verificationState.document_details[docId].schedules_list;
+
+        let newSch = { scedule_no: '', surveys: [{ survey_types: ['resurvey'] }] };
+
+        if (schedules.length > 0) {
+            // Clone exactly from the previous schedule block in the SAME document
+            newSch = JSON.parse(JSON.stringify(schedules[schedules.length - 1]));
+            newSch.scedule_no = ''; // Only clear the schedule number label, leave boundaries!
+        } else {
+            let sourceDoc = null;
+            if (docId !== mainId) {
+                const idx = subs.indexOf(docId);
+                sourceDoc = (idx === 0) ? pDataMain : (verificationState.document_details[subs[idx - 1]] || pDataMain);
+            }
+            if (sourceDoc && sourceDoc.schedules_list && sourceDoc.schedules_list.length > 0) {
+                newSch = JSON.parse(JSON.stringify(sourceDoc.schedules_list[0]));
+                newSch.scedule_no = '';
+            }
         }
 
-        let opts = `<option value="" disabled ${!docName ? 'selected' : ''}>Select...</option>`;
-        DOC_OPTIONS.forEach(o => {
-            const isSelected = (isCustom && o === "Other Document") || (o === docName);
-            opts += `<option value="${o}" ${isSelected ? 'selected' : ''}>${o}</option>`;
+        schedules.push(newSch);
+        refreshSurveySection(docId, safeId);
+        triggerSaveForDoc(docId, safeId);
+    }
+
+    function removeScheduleBlock(docId, safeId, schIdx) {
+        // Save any typing the user just did before making the backup
+        triggerSaveForDoc(docId, safeId);
+
+        const schedules = verificationState.document_details[docId].schedules_list;
+        if (!schedules || schedules.length <= schIdx) return;
+
+        // 1. BACKUP THE DATA
+        const backupSchedules = JSON.parse(JSON.stringify(schedules));
+        const deletedSchNumber = schedules[schIdx].scedule_no || (schIdx + 1);
+
+        // 2. PERFORM INSTANT DELETION
+        schedules.splice(schIdx, 1);
+        refreshSurveySection(docId, safeId);
+        triggerSaveForDoc(docId, safeId);
+
+        // 3. SHOW UNDO TOAST
+        showUndoToast(`Schedule ${deletedSchNumber} removed.`, () => {
+            // UNDO LOGIC
+            verificationState.document_details[docId].schedules_list = backupSchedules;
+            refreshSurveySection(docId, safeId);
+            triggerSaveForDoc(docId, safeId);
+        });
+    }
+
+    function addSurveyBlock(docId, safeId, schIdx) {
+        triggerSaveForDoc(docId, safeId);
+        const schedules = verificationState.document_details[docId].schedules_list;
+        const surveys = schedules[schIdx].surveys;
+        const currentCount = surveys.length;
+
+        let newBlock = { survey_types: ['resurvey'] };
+        if (currentCount > 0) {
+            // Deep clone from the immediately preceding survey block inside the same Schedule
+            newBlock = JSON.parse(JSON.stringify(surveys[currentCount - 1]));
+        }
+
+        surveys.push(newBlock);
+        refreshSurveySection(docId, safeId);
+        calculateTotalCents(safeId, schIdx);
+        triggerSaveForDoc(docId, safeId);
+    }
+    function removeSurveyBlock(docId, safeId, schIdx, idx) {
+        // Save any typing the user just did before making the backup
+        triggerSaveForDoc(docId, safeId);
+
+        const surveys = verificationState.document_details[docId].schedules_list[schIdx].surveys;
+        if (!surveys || surveys.length <= idx) return;
+
+        // 1. BACKUP THE DATA
+        const backupSurveys = JSON.parse(JSON.stringify(surveys));
+
+        // 2. PERFORM INSTANT DELETION
+        surveys.splice(idx, 1);
+        refreshSurveySection(docId, safeId);
+        calculateTotalCents(safeId, schIdx);
+        triggerSaveForDoc(docId, safeId);
+
+        // 3. SHOW UNDO TOAST
+        showUndoToast(`Survey block removed.`, () => {
+            // UNDO LOGIC
+            verificationState.document_details[docId].schedules_list[schIdx].surveys = backupSurveys;
+            refreshSurveySection(docId, safeId);
+            calculateTotalCents(safeId, schIdx);
+            triggerSaveForDoc(docId, safeId);
+        });
+    }
+
+    function serializeTitleDeed(docId, safeId) {
+        const schedules_list = extractSchedulesFromDOM(safeId);
+        let grandTotalAres = 0;
+
+        // 1. Instantly lock typed data into the master State
+        verificationState.document_details[docId] = {
+            executant: document.getElementById(`td_exec_${safeId}`)?.value.trim() || "",
+            owner: document.getElementById(`td_owner_${safeId}`)?.value.trim() || "",
+            district: document.getElementById(`td_dist_${safeId}`)?.value.trim() || "",
+            sro: document.getElementById(`td_sro_${safeId}`)?.value.trim() || "",
+            taluk: document.getElementById(`td_taluk_${safeId}`)?.value.trim() || "",
+            village: document.getElementById(`td_vill_${safeId}`)?.value.trim() || "",
+            local_body_type: document.getElementById(`td_lbtype_${safeId}`)?.value || "GRAMA PANCHAYAT",
+            grama_panchayath: document.getElementById(`td_gp_${safeId}`)?.value.trim() || "",
+            schedules_list: schedules_list,
+            sub_schedules: verificationState.document_details[docId]?.sub_schedules || []
+        };
+
+        // 2. LIVE DOM UPDATES
+        schedules_list.forEach((sch, schIdx) => {
+            let tAres = sch.surveys.reduce((sum, sv) => sum + (parseFloat(sv.ares) || 0), 0);
+            let totalCents = (tAres * 100 / 40.47);
+            grandTotalAres += tAres;
+
+            // Save areas to state so diagram can read them instantly
+            sch.total_ares = parseFloat(tAres.toFixed(4));
+            sch.total_cents = totalCents.toFixed(3);
+
+            // Update Heading Live
+            let headingText = sch.scedule_no ? `BOUNDARIES & CLASSIFICATION (SCHEDULE: ${sch.scedule_no})` : `BOUNDARIES & CLASSIFICATION`;
+            if (document.getElementById(`boundary_heading_${safeId}_${schIdx}`)) {
+                document.getElementById(`boundary_heading_${safeId}_${schIdx}`).innerText = headingText;
+            }
+
+            // REDRAW THE ENTIRE DIAGRAM HISTORY LIVE!
+            const diagWrap = document.getElementById(`diagram_history_wrapper_${safeId}_${schIdx}`);
+            if (diagWrap) {
+                diagWrap.innerHTML = renderDiagramHistory(docId, schIdx);
+            }
+
+            if (document.getElementById(`total_cents_display_${safeId}_${schIdx}`)) {
+                document.getElementById(`total_cents_display_${safeId}_${schIdx}`).innerText = `Schedule Area: ${parseFloat(tAres.toFixed(4))} Ares (${totalCents.toFixed(3)} Cts)`;
+            }
         });
 
-        div.innerHTML = `
-            <div>
-                <select class="edit-input doc-select" style="margin:0" onchange="toggleOtherInput(this, '${id}')">${opts}</select>
-                <input type="text" class="edit-input doc-custom-input ${isCustom ? '' : 'hidden'}" 
-                       style="margin-top:5px; border-color:#2563eb;" 
-                       placeholder="Type Name..." 
-                       value="${isCustom ? docName : ''}" 
-                       oninput="serializeDocs('${id}'); triggerAutoSave()">
-            </div>
-            <input type="text" class="edit-input doc-ref-input" style="margin:0" placeholder="Ref No" value="${docNum}" oninput="serializeDocs('${id}'); triggerAutoSave()">
-            <input type="text" class="edit-input doc-date-input" style="margin:0" placeholder="Date" value="${docDate}" oninput="serializeDocs('${id}'); triggerAutoSave()">
-            <i class="fas fa-trash" style="color:var(--danger); cursor:pointer; margin-top:8px;" onclick="this.parentElement.remove(); serializeDocs('${id}'); triggerAutoSave()"></i>
-        `;
-        container.appendChild(div);
+        if (document.getElementById(`total_cents_display_${safeId}`)) {
+            document.getElementById(`total_cents_display_${safeId}`).innerText = `Document Total: ${parseFloat(grandTotalAres.toFixed(4))} Ares (${(grandTotalAres * 100 / 40.47).toFixed(3)} Cts)`;
+        }
 
-        if (!data) serializeDocs(id);
+        triggerAutoSave();
+    }
+    function serializePartialSchedule(parentDocId, childDocId, cSafeId) {
+        // 1. STRICT SECURITY CHECK: Do not attempt to serialize undeveloped forms!
+        const isTitleDeed = childDocId.toLowerCase().includes('title deed');
+        const isLocSketch = childDocId.toLowerCase().includes('location sketch');
+
+        if (!isTitleDeed && !isLocSketch) {
+            // It's a "Coming Soon" doc. Just ensure it's registered in the state arrays safely, but don't parse HTML.
+            if (!verificationState.document_details[childDocId]) {
+                verificationState.document_details[childDocId] = { sub_schedules: [] };
+            }
+            triggerAutoSave();
+            return;
+        }
+
+        // 2. Normal execution for valid forms
+        const docType = isLocSketch ? "location_sketch" : "title_deed";
+        const schedules_list = extractSchedulesFromDOM(cSafeId);
+        let grandTotalAres = 0;
+
+        verificationState.document_details[childDocId] = {
+            schedules_list: schedules_list,
+            sub_schedules: verificationState.document_details[childDocId]?.sub_schedules || []
+        };
+
+        const mainId = localStorage.getItem(`active_doc_${currentFileNo}`);
+        const subs = verificationState.document_details[mainId]?.sub_schedules || [];
+        const srcDocId = subs.indexOf(childDocId) === 0 ? mainId : subs[subs.indexOf(childDocId) - 1];
+
+        schedules_list.forEach((sch, schIdx) => {
+            let tAres = sch.surveys.reduce((sum, sv) => sum + (parseFloat(sv.ares) || 0), 0);
+            let totalCents = (tAres * 100 / 40.47);
+            grandTotalAres += tAres;
+
+            sch.total_ares = parseFloat(tAres.toFixed(4));
+            sch.total_cents = totalCents.toFixed(3);
+
+            let baseText = docType === 'location_sketch' ? 'BOUNDARIES' : 'BOUNDARIES & CLASSIFICATION';
+            let headingText = sch.scedule_no ? `${baseText} (SCHEDULE: ${sch.scedule_no} - Inherited from ${srcDocId})` : `${baseText} (Inherited from ${srcDocId})`;
+            if (document.getElementById(`boundary_heading_${cSafeId}_${schIdx}`)) {
+                document.getElementById(`boundary_heading_${cSafeId}_${schIdx}`).innerText = headingText;
+            }
+
+            const diagWrap = document.getElementById(`diagram_history_wrapper_${cSafeId}_${schIdx}`);
+            if (diagWrap) {
+                diagWrap.innerHTML = renderDiagramHistory(childDocId, schIdx);
+            }
+
+            if (document.getElementById(`total_cents_display_${cSafeId}_${schIdx}`)) {
+                document.getElementById(`total_cents_display_${cSafeId}_${schIdx}`).innerText = `Schedule Area: ${parseFloat(tAres.toFixed(4))} Ares (${totalCents.toFixed(3)} Cts)`;
+            }
+        });
+
+        if (document.getElementById(`total_cents_display_${cSafeId}`)) {
+            document.getElementById(`total_cents_display_${cSafeId}`).innerText = `Document Total: ${parseFloat(grandTotalAres.toFixed(4))} Ares (${(grandTotalAres * 100 / 40.47).toFixed(3)} Cts)`;
+        }
+
+        triggerAutoSave();
+    }
+    // --- 7. CONSISTENCY COMPARATOR ---
+    function runComparison() {
+        const docs = verificationState.document_details; const ids = Object.keys(docs);
+        if (ids.length < 2) { alert("Add at least two documents to compare."); return; }
+        const wrap = document.getElementById('comparisonContainer'); const badge = document.getElementById('mismatchCount');
+        wrap.innerHTML = ""; let found = false; let errCount = 0;
+
+        const fields = [
+            { k: 'owner', l: 'Owner Name', p: 'td_owner' }, { k: 'village', l: 'Village', p: 'td_vill' },
+            { k: 'sro', l: 'SRO', p: 'td_sro' }, { k: 'grama_panchayath', l: 'Local Body', p: 'td_gp' }
+        ];
+
+        fields.forEach(f => {
+            const map = {};
+            ids.forEach(id => { const v = docs[id][f.k] || ""; if (!map[v]) map[v] = []; map[v].push(id); });
+            if (Object.keys(map).length > 1) {
+                found = true; errCount++;
+                let html = `<div style="padding:12px; border-bottom:1px solid #fee2e2; background:#fff5f5;"><div style="font-size:11px; font-weight:800; color:#b91c1c; text-transform:uppercase;"><i class="fas fa-exclamation-circle"></i> ${f.l} Mismatch</div>`;
+                Object.keys(map).forEach(v => {
+                    map[v].forEach(docId => {
+                        const targetId = `${f.p}_${docId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                        html += `<div onclick="navigateToMismatch('${docId}', '${targetId}')" style="cursor:pointer; padding:6px 10px; margin-top:5px; border:1px solid #fecaca; background:white; font-size:12px; border-radius:4px;"><strong style="color:#dc2626;">${v || '[EMPTY]'}</strong> <div style="font-size:10px; color:#6b7280;">Doc: ${docId}</div></div>`;
+                    });
+                });
+                wrap.innerHTML += html + `</div>`;
+            }
+        });
+
+        if (!found) { wrap.innerHTML = `<div style="text-align:center; padding:30px; color:var(--success);"><i class="fas fa-check-circle fa-2x"></i><p style="margin-top:10px;">Consistency Verified!</p></div>`; badge.classList.add('hidden'); }
+        else { badge.innerText = errCount; badge.classList.remove('hidden'); }
     }
 
+    function navigateToMismatch(docId, fieldId) {
+        const sel = document.getElementById('master_doc_selector');
+        if (sel.value !== docId) { sel.value = docId; loadDynamicDocForm(docId); }
+        setTimeout(() => {
+            const el = document.getElementById(fieldId);
+            if (el) {
+                el.style.backgroundColor = "#fee2e2"; el.style.borderColor = "#dc2626"; el.style.boxShadow = "0 0 0 4px rgba(220,38,38,0.2)";
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus();
+                setTimeout(() => { el.style.backgroundColor = ""; el.style.borderColor = ""; el.style.boxShadow = ""; }, 3000);
+            }
+        }, 400);
+    }
+
+    // --- 8. CORE RENDER (DIAGRAM & LAYOUT) ---
+    function renderTitleDeedForm(container, docId) {
+        const d = verificationState.document_details[docId] || {};
+        const site = verificationState.raw_site_data || {};
+        const safeId = docId.replace(/[^a-zA-Z0-9]/g, '_');
+        const saveAction = `triggerSaveForDoc('${docId}', '${safeId}')`;
+
+        // --- 1. SMART INHERITANCE LOGIC (Find Previous Doc or Fallback to Site) ---
+        let pId = ""; let pData = null;
+        const mainId = localStorage.getItem(`active_doc_${currentFileNo}`);
+        if (mainId && mainId !== docId) {
+            const subs = verificationState.document_details[mainId]?.sub_schedules || [];
+            const idx = subs.indexOf(docId);
+            if (idx === 0) { pId = mainId; pData = verificationState.document_details[mainId]; }
+            else if (idx > 0) { pId = subs[idx - 1]; pData = verificationState.document_details[pId]; }
+        } else {
+            const allDocs = Object.keys(verificationState.document_details);
+            for (let key of allDocs) {
+                if (key !== docId && verificationState.document_details[key].owner) {
+                    pId = key; pData = verificationState.document_details[key]; break;
+                }
+            }
+        }
+
+        const sOwner = site.Ownership_Analysis?.owners_name || "";
+        const sDist = site.Survey?.district || "";
+        const sTaluk = site.Survey?.taluk || "";
+        const sVill = site.Survey?.village || "";
+        const sSRO = site.Survey?.sub_district_sro || "";
+        const sGP = site.Survey?.grama_panchayat || "";
+        const sLbType = (site.Survey?.local_body_type || "").toUpperCase();
+
+        let rOwner = sOwner, rDist = sDist, rTaluk = sTaluk, rVill = sVill, rSRO = sSRO, rGP = sGP, rLbType = sLbType;
+        let refLabel = "Site Ref";
+        let refType = false;
+
+        if (pData) {
+            rOwner = pData.owner || sOwner;
+            rDist = pData.district || sDist;
+            rTaluk = pData.taluk || sTaluk;
+            rVill = pData.village || sVill;
+            rSRO = pData.sro || sSRO;
+            rGP = pData.grama_panchayath || sGP;
+            rLbType = pData.local_body_type || sLbType;
+            refLabel = `Ref: ${pId}`;
+            refType = 'parent';
+        }
+
+        const initVal = (sVal, refVal) => (sVal !== undefined && sVal !== null && sVal !== "") ? sVal : (refVal || "");
+
+        let mappedLbType = "GRAMA PANCHAYAT";
+        if (rLbType.includes("MUNICIPAL CORPORATION")) mappedLbType = "MUNICIPAL CORPORATION";
+        else if (rLbType.includes("CORPORATION")) mappedLbType = "CORPORATION";
+        else if (rLbType.includes("MUNICIPAL")) mappedLbType = "MUNICIPALITY";
+        else if (rLbType.includes("PANCHAYAT")) mappedLbType = "GRAMA PANCHAYAT";
+
+        const currentLbType = initVal(d.local_body_type, mappedLbType);
+        const lbOptions = ["GRAMA PANCHAYAT", "MUNICIPALITY", "CORPORATION", "MUNICIPAL CORPORATION"];
+        const lbTypeHtml = lbOptions.map(opt => `<option value="${opt}" ${currentLbType === opt ? 'selected' : ''}>${opt}</option>`).join('');
+
+        let boxBg = refType ? '#eef2ff' : '#fffbeb';
+        let boxBorder = refType ? '#6366f1' : '#d97706';
+        let boxTitle = refType ? '#4338ca' : '#92400e';
+        let boxText = refType ? '#3730a3' : '#b45309';
+
+        container.innerHTML = `
+        <div style="border: 2px solid var(--brand-accent); border-top: 6px solid var(--brand-blue); border-radius: 8px; padding: 20px; background: white; box-shadow: 0 4px 6px -1px rgba(0, 102, 204, 0.1);">
+            <div style="font-size:16px; font-weight:bold; color:var(--brand-blue); margin-bottom:15px; border-bottom:2px solid var(--brand-accent); padding-bottom:5px;"><i class="fas fa-file-contract mr-2"></i> Verifying: ${docId}</div>
+            
+            <div class="data-section" style="padding:15px; margin-bottom:20px;">
+                ${generateFieldRowHTML("EXECUTANT", "N/A", `td_exec_${safeId}`, d.executant || "", saveAction)}
+                ${generateFieldRowHTML("OWNER NAME", rOwner, `td_owner_${safeId}`, initVal(d.owner, rOwner), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("DISTRICT", rDist, `td_dist_${safeId}`, initVal(d.district, rDist), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("SRO", rSRO, `td_sro_${safeId}`, initVal(d.sro, rSRO), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("TALUK", rTaluk, `td_taluk_${safeId}`, initVal(d.taluk, rTaluk), saveAction, "", refType, "", refLabel)}
+                ${generateFieldRowHTML("VILLAGE", rVill, `td_vill_${safeId}`, initVal(d.village, rVill), saveAction, "", refType, "", refLabel)}
+                
+                <div class="data-row" style="grid-template-columns: 1fr 1fr; gap: 15px; border-bottom: 1px solid #f3f4f6; padding: 12px 0;">
+                    <div>
+                        <label style="font-size:11px; font-weight:bold; color:#6b7280; display:block; margin-bottom:4px;">LOCAL BODY TYPE</label>
+                        <select id="td_lbtype_${safeId}" class="edit-input" style="margin:0;" onchange="document.getElementById('lbl_gp_${safeId}').innerText = this.value + ' NAME'; ${saveAction}">
+                            ${lbTypeHtml}
+                        </select>
+                    </div>
+                    <div style="background: ${boxBg}; border-left: 3px solid ${boxBorder}; padding: 6px 10px; border-radius: 4px; min-height: 38px;">
+                        <div style="font-size:9px; color:${boxTitle}; font-weight:700; text-transform:uppercase; margin-bottom:2px;">${refLabel}</div>
+                        <div style="font-size:12px; color:${boxText}; font-weight:500;">${rLbType || 'N/A'}</div>
+                    </div>
+                </div>
+                ${generateFieldRowHTML(`${currentLbType} NAME`, rGP, `td_gp_${safeId}`, initVal(d.grama_panchayath, rGP), saveAction, `lbl_gp_${safeId}`, refType, "", refLabel)}
+            </div>
+
+            <div id="all_schedules_container_${safeId}">
+                ${getAllSchedulesHTML(docId, safeId, null, "", "title_deed")}
+            </div>
+            
+            <div id="sub_schedules_container_${safeId}"></div>
+            
+            <div style="margin-top: 20px; border: 2px dashed #94a3b8; padding: 20px; border-radius: 8px; text-align: center;"><div id="add_sch_wrapper_${safeId}"><button type="button" onclick="toggleScheduleDropdown('${docId}', '${safeId}')" class="btn-edit" style="background:white; border-color:var(--brand-accent); color:var(--brand-accent); font-weight:bold;">+ Add Another Document</button></div><div id="sel_sch_wrapper_${safeId}" class="hidden" style="display:flex; gap:10px; justify-content:center;"><select id="sel_sch_${safeId}" class="edit-input" style="width:250px;"></select><button type="button" class="btn-primary" style="width:auto; padding:6px 15px;" onclick="addSchedule('${docId}', '${safeId}')">Add</button></div></div>
+        </div>
+    `;
+        if (Object.keys(d).length === 0) triggerSaveForDoc(docId, safeId);
+        renderAllSubSchedules(docId, safeId);
+    }
+    function buildPartialScheduleHTML(pId, cId) {
+        const main = verificationState.document_details[pId] || {};
+        const cSafe = cId.replace(/[^a-zA-Z0-9]/g, '_');
+        const subs = main.sub_schedules || [];
+        const idx = subs.indexOf(cId);
+        let srcDocId = idx === 0 ? pId : subs[idx - 1];
+        let src = verificationState.document_details[srcDocId] || main;
+
+        // EXACT DYNAMIC THEMING
+        let docType = "unknown";
+        let themeColor = "#cbd5e1"; // Gray default
+        let themeBg = "#94a3b8";
+        let icon = "fa-tools";
+
+        if (cId.toLowerCase().includes('title deed')) {
+            docType = "title_deed";
+            themeColor = "var(--brand-accent)";
+            themeBg = "var(--brand-blue)";
+            icon = "fa-file-contract";
+        } else if (cId.toLowerCase().includes('location sketch')) {
+            docType = "location_sketch";
+            themeColor = "#10b981"; // Emerald
+            themeBg = "#059669";
+            icon = "fa-map-marked-alt";
+        }
+
+        let innerContentHTML = "";
+        if (docType === "title_deed" || docType === "location_sketch") {
+            innerContentHTML = getAllSchedulesHTML(cId, cSafe, src, srcDocId, docType);
+        } else {
+            // The block for any undeveloped documents
+            innerContentHTML = `
+        <div style="text-align:center; padding:50px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px;">
+            <i class="fas fa-tools fa-3x" style="color:#cbd5e1; margin-bottom:15px;"></i>
+            <div style="color:#6b7280; font-size:15px;">Form template for <b style="color:var(--brand-blue);">${cId}</b> is coming soon.</div>
+        </div>`;
+        }
+
+        return `
+    <div style="margin-top:25px; padding:20px; border:2px solid ${themeColor}; border-radius:10px; background:white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; background: #f8fafc; padding: 10px; border-radius: 6px;">
+            <div style="background:${themeBg}; color:white; display:inline-block; padding:6px 14px; border-radius:4px; font-size:13px; font-weight:bold;">
+                <i class="fas ${icon} mr-1"></i> Sub-Document: ${cId}
+            </div>
+            
+            <button type="button" onclick="removeSubDocument('${pId}', '${cId}')" style="background:#fee2e2; color:#b91c1c; border:2px solid #ef4444; border-radius:6px; padding:8px 16px; font-size:12px; font-weight:900; cursor:pointer; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); transition: all 0.2s;">
+                <i class="fas fa-trash-alt mr-2"></i> REMOVE DOCUMENT
+            </button>
+        </div>
+        
+        <div id="all_schedules_container_${cSafe}">
+            ${innerContentHTML}
+        </div>
+    </div>`;
+    }
+    function removeSubDocument(pId, cId) {
+        const parentDoc = verificationState.document_details[pId];
+        if (!parentDoc || !parentDoc.sub_schedules) return;
+
+        const idx = parentDoc.sub_schedules.indexOf(cId);
+        if (idx === -1) return;
+
+        // 1. BACKUP THE DATA
+        const backupSubs = [...parentDoc.sub_schedules];
+        const backupDocData = verificationState.document_details[cId] ? JSON.parse(JSON.stringify(verificationState.document_details[cId])) : null;
+
+        // 2. PERFORM INSTANT DELETION
+        parentDoc.sub_schedules.splice(idx, 1);
+        if (verificationState.document_details[cId]) {
+            delete verificationState.document_details[cId];
+        }
+
+        // 3. RE-RENDER UI
+        const pSafeId = pId.replace(/[^a-zA-Z0-9]/g, '_');
+        renderAllSubSchedules(pId, pSafeId);
+        refreshDropdownForDoc(pId, pSafeId);
+        triggerAutoSave();
+
+        // 4. SHOW UNDO TOAST
+        showUndoToast(`Document "${cId}" removed.`, () => {
+            // UNDO LOGIC: Put the backups right back where they were!
+            verificationState.document_details[pId].sub_schedules = backupSubs;
+            if (backupDocData) verificationState.document_details[cId] = backupDocData;
+
+            renderAllSubSchedules(pId, pSafeId);
+            refreshDropdownForDoc(pId, pSafeId);
+            triggerAutoSave();
+        });
+    }
+
+    // Small helper just to keep dropdown refreshing clean
+    function refreshDropdownForDoc(pId, pSafeId) {
+        const selWrapper = document.getElementById(`sel_sch_wrapper_${pSafeId}`);
+        if (selWrapper && !selWrapper.classList.contains('hidden')) {
+            const sel = document.getElementById(`sel_sch_${pSafeId}`);
+            let html = '<option value="">Choose Doc...</option>';
+
+            const baseType = pId.split('(')[0].trim().toLowerCase();
+
+            (verificationState.documents_received || []).forEach(doc => {
+                let id = `${typeof doc === 'object' ? doc.name : doc}${(typeof doc === 'object' && doc.num) ? ' (Doc No: ' + doc.num + ')' : ''}`;
+                const existing = (verificationState.document_details[pId] || {}).sub_schedules || [];
+
+                if (id !== pId && !existing.includes(id) && id.toLowerCase().startsWith(baseType)) {
+                    html += `<option value="${id}">${id}</option>`;
+                }
+            });
+            sel.innerHTML = html;
+        }
+    }
+    function getAreaHtmlForDiagram(docData, docId, schIdx = 0) {
+        let tAres = 0;
+        if (docData.schedules_list && docData.schedules_list[schIdx]) {
+            docData.schedules_list[schIdx].surveys.forEach(sv => tAres += (parseFloat(sv.ares) || 0));
+        } else {
+            const site = verificationState.raw_site_data || {}; const docs = (site.Survey && site.Survey.docs) ? site.Survey.docs : [];
+            const match = docs.find(sd => sd.name && sd.name.toString().trim().toLowerCase() === docId.split(' (')[0].trim().toLowerCase()) || {};
+            tAres = parseFloat(match.land_extent) || 0;
+        }
+        return `${parseFloat(tAres.toFixed(4))} Ares<br>(${(tAres * 100 / 40.47).toFixed(2)} Cts)`;
+    }
+
+    function renderDiagramHistory(docId, schIdx) {
+        const mainId = localStorage.getItem(`active_doc_${currentFileNo}`);
+        let docSequence = [mainId];
+
+        if (docId !== mainId) {
+            const pDataMain = verificationState.document_details[mainId] || {};
+            const subs = pDataMain.sub_schedules || [];
+            const idx = subs.indexOf(docId);
+            if (idx !== -1) {
+                docSequence = docSequence.concat(subs.slice(0, idx + 1));
+            }
+        }
+
+        let chain = [];
+        docSequence.forEach(dId => {
+            const dData = verificationState.document_details[dId] || {};
+            const dSchedules = dData.schedules_list || [];
+
+            if (dId === docId) {
+                for (let i = 0; i <= schIdx; i++) chain.push({ doc: dId, sIdx: i });
+            } else {
+                const numSchedules = dSchedules.length > 0 ? dSchedules.length : 1;
+                for (let i = 0; i < numSchedules; i++) chain.push({ doc: dId, sIdx: i });
+            }
+        });
+
+        let html = '<div style="display:flex; flex-wrap:nowrap; overflow-x:auto; gap:35px; padding:20px 15px; justify-content:flex-start; align-items:flex-start;">';
+
+        chain.forEach((node, i) => {
+            const d = verificationState.document_details[node.doc] || {};
+            const safeId = node.doc.replace(/[^a-zA-Z0-9]/g, '_');
+            let targetSch = (d.schedules_list && d.schedules_list[node.sIdx]) ? d.schedules_list[node.sIdx] : {};
+            const isCurrent = (node.doc === docId && node.sIdx === schIdx);
+
+            let n = targetSch.boundary_north || '-';
+            let e = targetSch.boundary_east || '-';
+            let s = targetSch.boundary_south || '-';
+            let w = targetSch.boundary_west || '-';
+            const areaHtml = getAreaHtmlForDiagram(d, node.doc, node.sIdx);
+
+            let schNumDisplay = targetSch.scedule_no ? targetSch.scedule_no : (node.sIdx + 1);
+            let docTitle = node.doc;
+
+            const opacity = isCurrent ? '1' : '0.5';
+            const borderStyle = isCurrent ? '3px solid var(--brand-accent)' : '3px dashed #94a3b8';
+            const bgStyle = isCurrent ? '#f0f9ff' : '#f1f5f9';
+            const idPrefix = isCurrent ? 'vis_' : `hist_${i}_`;
+
+            html += `
+        <div style="display: flex; flex-direction: column; align-items: center; opacity: ${opacity}; min-width: 180px; position: relative;">
+            ${i > 0 ? '<div style="position:absolute; top:45%; left:-26px; color:#cbd5e1; font-size:20px;"><i class="fas fa-chevron-right"></i></div>' : ''}
+            
+            <div style="text-align:center; margin-bottom:15px; min-height: 50px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div style="font-size:10px; font-weight:800; color:var(--brand-blue); text-transform:uppercase; max-width:170px; white-space:normal; word-break:break-word; line-height:1.2;" title="${docTitle}">${docTitle}</div>
+                <div style="font-size:11px; font-weight:800; color:var(--text-dark); background:#e2e8f0; padding:3px 10px; border-radius:12px; margin-top:5px; border: 1px solid #cbd5e1;">Sch: ${schNumDisplay}</div>
+            </div>
+            
+            <div style="display: inline-grid; grid-template-columns: 70px 110px 70px; grid-template-rows: auto 100px auto; gap: 5px; align-items: center; justify-items: center;">
+                <div style="grid-column: 2; text-align: center;"><div style="font-size:9px; font-weight:900; color:var(--brand-blue);">NORTH</div><div id="${idPrefix}n_${safeId}_${node.sIdx}" style="font-size:10px; font-weight:500; word-break:break-all; max-width:100px;">${n}</div></div>
+                <div style="grid-column: 1; grid-row: 2; text-align: right; width:100%; padding-right:8px;"><div style="font-size:9px; font-weight:900; color:var(--brand-blue);">WEST</div><div id="${idPrefix}w_${safeId}_${node.sIdx}" style="font-size:10px; font-weight:500; word-break:break-all;">${w}</div></div>
+                <div style="grid-column: 2; grid-row: 2; width: 110px; height: 100px; border: ${borderStyle}; background: ${bgStyle}; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);"><div id="${idPrefix}area_${safeId}_${node.sIdx}" style="text-align:center; font-size:10px; font-weight:800; color:${isCurrent ? 'var(--brand-accent)' : '#64748b'}; line-height:1.4;">${areaHtml}</div></div>
+                <div style="grid-column: 3; grid-row: 2; text-align: left; width:100%; padding-left:8px;"><div style="font-size:9px; font-weight:900; color:var(--brand-blue);">EAST</div><div id="${idPrefix}e_${safeId}_${node.sIdx}" style="font-size:10px; font-weight:500; word-break:break-all;">${e}</div></div>
+                <div style="grid-column: 2; grid-row: 3; text-align: center;"><div style="font-size:9px; font-weight:900; color:var(--brand-blue);">SOUTH</div><div id="${idPrefix}s_${safeId}_${node.sIdx}" style="font-size:10px; font-weight:500; word-break:break-all; max-width:100px;">${s}</div></div>
+            </div>
+        </div>`;
+        });
+
+        html += '</div>';
+        return html;
+    }
+    function toggleScheduleDropdown(pId, sId) {
+        const wrap = document.getElementById(`sel_sch_wrapper_${sId}`);
+        const btn = document.getElementById(`add_sch_wrapper_${sId}`);
+
+        if (wrap.classList.contains('hidden')) {
+            wrap.classList.remove('hidden');
+            btn.classList.add('hidden');
+
+            const sel = document.getElementById(`sel_sch_${sId}`);
+            let html = '<option value="">Choose Doc...</option>';
+
+            // Extract the base type (e.g., "title deed" or "location sketch")
+            const baseType = pId.split('(')[0].trim().toLowerCase();
+
+            (verificationState.documents_received || []).forEach(doc => {
+                let id = `${typeof doc === 'object' ? doc.name : doc}${(typeof doc === 'object' && doc.num) ? ' (Doc No: ' + doc.num + ')' : ''}`;
+                const existing = (verificationState.document_details[pId] || {}).sub_schedules || [];
+
+                // STRICT FILTER: Only show if it matches the same document type
+                if (id !== pId && !existing.includes(id) && id.toLowerCase().startsWith(baseType)) {
+                    html += `<option value="${id}">${id}</option>`;
+                }
+            });
+            sel.innerHTML = html;
+        } else {
+            wrap.classList.add('hidden');
+            btn.classList.remove('hidden');
+        }
+    }
+    function addSchedule(pId, sId) {
+        try {
+            const childId = document.getElementById(`sel_sch_${sId}`).value;
+            if (!childId) {
+                alert("Please choose a document from the list.");
+                return;
+            }
+
+            // 1. Force sync the current typed data before adding a new document
+            triggerSaveForDoc(pId, sId);
+
+            // 2. Initialize arrays safely so we don't hit undefined errors
+            if (!verificationState.document_details[pId]) verificationState.document_details[pId] = {};
+            if (!verificationState.document_details[pId].sub_schedules) verificationState.document_details[pId].sub_schedules = [];
+
+            // 3. Push the new document to the chain
+            if (!verificationState.document_details[pId].sub_schedules.includes(childId)) {
+                verificationState.document_details[pId].sub_schedules.push(childId);
+            }
+
+            // 4. Redraw the UI and close the dropdown
+            renderAllSubSchedules(pId, sId);
+            toggleScheduleDropdown(pId, sId);
+            triggerAutoSave();
+
+        } catch (e) {
+            console.error("Error adding sub-document:", e);
+        }
+    }
+
+    function renderAllSubSchedules(pId, sId) {
+        const wrap = document.getElementById(`sub_schedules_container_${sId}`);
+        if (!wrap) return;
+
+        // Grab the list of added documents safely
+        const subs = (verificationState.document_details[pId] || {}).sub_schedules || [];
+
+        // Map through them and build their HTML blocks
+        wrap.innerHTML = subs.map(childId => buildPartialScheduleHTML(pId, childId)).join('');
+
+        // Once they are on screen, instantly save them to lock in their prefilled inherited data
+        subs.forEach(childId => {
+            triggerSaveForDoc(childId, childId.replace(/[^a-zA-Z0-9]/g, '_'));
+        });
+    }
+    function updateGlobalDiagramsView() {
+        const wrap = document.getElementById('global_diagrams_container');
+        if (!wrap) return;
+
+        let html = '<div style="display:flex; flex-wrap:wrap; gap:35px; justify-content:center; align-items:flex-start;">';
+        let foundAny = false;
+
+        // 1. Get ONLY the documents that actually have data saved in the JSON
+        const allEditedDocs = Object.keys(verificationState.document_details);
+
+        // 2. Figure out which ones are Sub-Documents (by checking everyone's sub_schedules arrays)
+        const subDocSet = new Set();
+        allEditedDocs.forEach(dId => {
+            const subs = verificationState.document_details[dId].sub_schedules || [];
+            subs.forEach(s => subDocSet.add(s));
+        });
+
+        // 3. Main documents are the ones that are NOT in the Sub-Document list
+        const mainDocs = allEditedDocs.filter(dId => !subDocSet.has(dId));
+
+        // 4. Draw them logically: Main Doc -> Its Sub Docs -> Next Main Doc -> Its Sub Docs
+        mainDocs.forEach(mainId => {
+            const mainData = verificationState.document_details[mainId];
+
+            // Draw the Main Document
+            if (mainData.schedules_list && mainData.schedules_list.length > 0) {
+                html += generateDiagramsForDoc(mainId, false);
+                foundAny = true;
+            }
+
+            // Instantly draw any Sub-Documents attached to it that ALSO have data
+            const subs = mainData.sub_schedules || [];
+            subs.forEach(subId => {
+                if (verificationState.document_details[subId] && verificationState.document_details[subId].schedules_list) {
+                    html += generateDiagramsForDoc(subId, true); // true = tags it visually as a Sub-Doc
+                    foundAny = true;
+                }
+            });
+        });
+
+        html += '</div>';
+
+        if (!foundAny) {
+            wrap.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8; font-style:italic;"><i class="fas fa-layer-group fa-3x" style="opacity:0.3; margin-bottom:15px; display:block;"></i>Diagrams will appear here automatically once you open and edit a document.</div>';
+        } else {
+            wrap.innerHTML = html;
+        }
+    }
+
+    function generateDiagramsForDoc(docId, isSub = false) {
+        const d = verificationState.document_details[docId];
+        if (!d || !d.schedules_list) return '';
+
+        let out = '';
+        d.schedules_list.forEach((sch, schIdx) => {
+            // Read live data directly from the state
+            let n = sch.boundary_north || '-';
+            let e = sch.boundary_east || '-';
+            let s = sch.boundary_south || '-';
+            let w = sch.boundary_west || '-';
+
+            let tAres = sch.total_ares || 0;
+            if (!tAres && sch.surveys) {
+                tAres = sch.surveys.reduce((sum, sv) => sum + (parseFloat(sv.ares) || 0), 0);
+            }
+            let tCents = sch.total_cents || (tAres * 100 / 40.47).toFixed(3);
+            let areaHtml = `${parseFloat(tAres.toFixed(4))} Ares<br>(${parseFloat(tCents).toFixed(2)} Cts)`;
+
+            let schNumDisplay = sch.scedule_no ? sch.scedule_no : (schIdx + 1);
+
+            // Slight visual distinction for Sub-Documents vs Main Documents
+            let badgeBg = isSub ? '#fef3c7' : '#e2e8f0';
+            let badgeBorder = isSub ? '#fde68a' : '#cbd5e1';
+            let badgeText = isSub ? '#92400e' : 'var(--text-dark)';
+            let boxBorder = isSub ? '3px solid #f59e0b' : '3px solid var(--brand-accent)';
+
+            out += `
+        <div style="display: flex; flex-direction: column; align-items: center; min-width: 180px; position: relative; background:white; padding:20px 15px; border-radius:10px; border:1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.2s;">
+            
+            <div style="text-align:center; margin-bottom:20px; min-height: 50px; display:flex; flex-direction:column; justify-content:flex-start; align-items:center;">
+                <div style="font-size:11px; font-weight:800; color:var(--brand-blue); text-transform:uppercase; max-width:180px; white-space:normal; word-break:break-word; line-height:1.3; text-align:center;">${docId}</div>
+                <div style="font-size:11px; font-weight:800; color:${badgeText}; background:${badgeBg}; padding:4px 12px; border-radius:12px; margin-top:8px; border: 1px solid ${badgeBorder};">Sch: ${schNumDisplay}</div>
+            </div>
+            
+            <div style="display: inline-grid; grid-template-columns: 70px 110px 70px; grid-template-rows: auto 100px auto; gap: 5px; align-items: center; justify-items: center;">
+                <div style="grid-column: 2; text-align: center;"><div style="font-size:10px; font-weight:900; color:var(--brand-blue);">NORTH</div><div style="font-size:11px; font-weight:500; word-break:break-all; max-width:100px;">${n}</div></div>
+                <div style="grid-column: 1; grid-row: 2; text-align: right; width:100%; padding-right:8px;"><div style="font-size:10px; font-weight:900; color:var(--brand-blue);">WEST</div><div style="font-size:11px; font-weight:500; word-break:break-all;">${w}</div></div>
+                <div style="grid-column: 2; grid-row: 2; width: 110px; height: 100px; border: ${boxBorder}; background: #f8fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"><div style="text-align:center; font-size:11px; font-weight:800; color:var(--text-dark); line-height:1.4;">${areaHtml}</div></div>
+                <div style="grid-column: 3; grid-row: 2; text-align: left; width:100%; padding-left:8px;"><div style="font-size:10px; font-weight:900; color:var(--brand-blue);">EAST</div><div style="font-size:11px; font-weight:500; word-break:break-all;">${e}</div></div>
+                <div style="grid-column: 2; grid-row: 3; text-align: center;"><div style="font-size:10px; font-weight:900; color:var(--brand-blue);">SOUTH</div><div style="font-size:11px; font-weight:500; word-break:break-all; max-width:100px;">${s}</div></div>
+            </div>
+        </div>`;
+        });
+
+        return out;
+    }
+
+    // --- 10. SYSTEM UTILS ---
+    function triggerAutoSave() {
+        // Instantly update the Global Diagram Board at the bottom!
+        if (typeof updateGlobalDiagramsView === 'function') {
+            updateGlobalDiagramsView();
+        }
+
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => saveData(true), 1000);
+    }
+    function saveData(isAuto = false) {
+        if (!currentFileNo) return; const btn = document.getElementById('btn-save'); if (btn && !isAuto) btn.innerText = "Saving...";
+        const payload = { file_no: currentFileNo, inspection_date: verificationState.inspection_date, documents_received: verificationState.documents_received, verification_database: verificationState.document_details };
+        fetch('/coreapi/api/save-verification/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') }, body: JSON.stringify(payload) })
+            .then(r => r.json()).then(d => { if (btn && d.success) { btn.innerText = "Saved ✓"; setTimeout(() => btn.innerText = "SAVE ALL DATA", 2000); } });
+    }
+    function toggleEdit(id, lbl, isDoc) { const e = document.getElementById(`editor_${id}`); const v = document.getElementById(`view_${id}`); if (e && v) { e.classList.toggle('hidden'); v.classList.toggle('hidden'); } }
+    function addDocRow(id, d = null, isInitialLoad = false) {
+        const wrap = document.getElementById(`doc_body_${id}`); if (!wrap) return;
+
+        // Generate dropdown options from the existing DOC_OPTIONS array
+        let currentName = d?.name || '';
+        let optionsHtml = `<option value="">-- Select Document --</option>`;
+        let foundInOptions = false;
+
+        DOC_OPTIONS.forEach(opt => {
+            let selected = (opt === currentName) ? 'selected' : '';
+            if (opt === currentName) foundInOptions = true;
+            optionsHtml += `<option value="${opt}" ${selected}>${opt}</option>`;
+        });
+
+        // If there's an existing document name that isn't in DOC_OPTIONS, keep it so data isn't lost
+        if (currentName && !foundInOptions) {
+            optionsHtml += `<option value="${currentName}" selected>${currentName}</option>`;
+        }
+
+        const div = document.createElement('div'); div.className = "doc-row-entry";
+        div.innerHTML = `
+        <select class="edit-input doc-name" onchange="serializeDocs('${id}')">
+            ${optionsHtml}
+        </select>
+        <input type="text" class="edit-input doc-num" placeholder="No." value="${d?.num || ''}" oninput="serializeDocs('${id}')">
+        <input type="text" class="edit-input doc-date" placeholder="Date" value="${d?.date || ''}" oninput="serializeDocs('${id}')">
+        <i class="fas fa-times" style="color:var(--danger); cursor:pointer; margin-top:8px;" onclick="this.parentElement.remove(); serializeDocs('${id}')"></i>
+    `;
+        wrap.appendChild(div);
+
+        // Only serialize if a user manually clicked "+ Add Document". Skip during initial render.
+        if (!isInitialLoad) serializeDocs(id);
+    }
+    function getLandClassificationHTML(safeId, currentTypes, siteVal, saveAction, refType = false, customRefLabel = "", schIdx = 0) {
+        const types = currentTypes ? currentTypes.split(', ') : [];
+        let refText = customRefLabel || 'Site Ref';
+        let bgTheme = '#fffbeb'; let borderTheme = '#d97706'; let textTheme = '#92400e'; let valTheme = '#b45309';
+
+        if (refType === true || refType === 'parent') {
+            refText = customRefLabel || 'Parent Ref'; bgTheme = '#eef2ff'; borderTheme = '#6366f1'; textTheme = '#4338ca'; valTheme = '#3730a3';
+        }
+
+        let isOtherChecked = false; let otherValue = "";
+        types.forEach(t => {
+            if (t.startsWith('Others:')) { isOtherChecked = true; otherValue = t.replace('Others:', '').trim(); }
+            else if (t === 'Others') { isOtherChecked = true; }
+        });
+
+        const toggleScript = `const input = document.getElementById('lc_other_${safeId}_${schIdx}'); if(this.checked) { input.classList.remove('hidden'); } else { input.classList.add('hidden'); input.value=''; } ${saveAction};`.replace(/\n/g, ' ');
+
+        return `
+    <div class="data-row" style="grid-template-columns: 1fr 1fr; gap: 15px; border-bottom: 1px solid #f3f4f6; padding: 12px 0;">
+        <div>
+            <label style="font-size:11px; font-weight:bold; color:#6b7280; display:block; margin-bottom:4px;">LAND CLASSIFICATION</label>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; padding-top:5px;">
+                <label style="font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" name="lc_${safeId}_${schIdx}" value="Dry Land" ${types.includes('Dry Land') ? 'checked' : ''} onchange="${saveAction}"> <span class="badge-dry">Dry Land</span></label>
+                <label style="font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" name="lc_${safeId}_${schIdx}" value="Wet Land" ${types.includes('Wet Land') ? 'checked' : ''} onchange="${saveAction}"> <span class="badge-wet">Wet Land</span></label>
+                <label style="font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" name="lc_${safeId}_${schIdx}" value="Sthirapunja" ${types.includes('Sthirapunja') ? 'checked' : ''} onchange="${saveAction}"> <span style="background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid #fde68a;">Sthirapunja</span></label>
+                <label style="font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" name="lc_${safeId}_${schIdx}" value="Asthirapunja" ${types.includes('Asthirapunja') ? 'checked' : ''} onchange="${saveAction}"> <span style="background:#ffedd5; color:#9a3412; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid #fed7aa;">Asthirapunja</span></label>
+                <label style="font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" name="lc_${safeId}_${schIdx}" value="Thottam" ${types.includes('Thottam') ? 'checked' : ''} onchange="${saveAction}"> <span style="background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid #c7d2fe;">Thottam</span></label>
+                <label style="font-size:12px; cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" name="lc_${safeId}_${schIdx}" value="Others" ${isOtherChecked ? 'checked' : ''} onchange="${toggleScript}"> <span style="background:#f3f4f6; color:#374151; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; border:1px solid #d1d5db;">Others</span></label>
+            </div>
+            <input type="text" id="lc_other_${safeId}_${schIdx}" class="edit-input ${isOtherChecked ? '' : 'hidden'}" style="margin-top:10px; width:100%; max-width:250px;" placeholder="Specify other classification..." value="${otherValue}" oninput="${saveAction}">
+        </div>
+        <div style="background: ${bgTheme}; border-left: 3px solid ${borderTheme}; padding: 6px 10px; border-radius: 4px; min-height: 38px;">
+            <div style="font-size:9px; color:${textTheme}; font-weight:700; text-transform:uppercase; margin-bottom:2px;">${refText}</div>
+            <div style="font-size:12px; color:${valTheme}; font-weight:500;">${siteVal || 'N/A'}</div>
+        </div>
+    </div>`;
+    }
     function serializeDocs(id) {
         const rows = document.querySelectorAll(`#doc_body_${id} .doc-row-entry`);
         const docs = [];
+        const validDocIds = []; // Keep track of exactly what exists right now
 
-        rows.forEach(row => {
-            // Safely target elements by class instead of structural index
-            const select = row.querySelector('.doc-select');
-            const customInput = row.querySelector('.doc-custom-input');
-            const numInput = row.querySelector('.doc-ref-input');
-            const dateInput = row.querySelector('.doc-date-input');
+        rows.forEach(r => {
+            const n = r.querySelector('.doc-name').value;
+            const num = r.querySelector('.doc-num').value;
+            const docDate = r.querySelector('.doc-date').value;
 
-            let finalName = select ? select.value : "";
-            if (finalName === "Other Document" && customInput) {
-                finalName = customInput.value.trim();
-            }
+            if (n) {
+                docs.push({ name: n, num: num, date: docDate });
 
-            // Save if there is ANY data in the row to prevent dropping keystrokes
-            if (finalName || (numInput && numInput.value) || (dateInput && dateInput.value)) {
-                docs.push({
-                    name: finalName,
-                    num: numInput ? numInput.value.trim() : "",
-                    date: dateInput ? dateInput.value.trim() : ""
-                });
+                // Build the exact ID string used in the database
+                let docIdStr = `${n}${num ? ' (Doc No: ' + num + ')' : ''}`;
+                validDocIds.push(docIdStr);
             }
         });
 
-        const jsonStr = JSON.stringify(docs);
-        document.getElementById(`input_${id}`).value = jsonStr;
+        verificationState.documents_received = docs;
 
-        logChange(id, "Documents");
-        saveDraft(currentFileNo, id, jsonStr);
-    }
-
-    // --- 7. STORAGE & SAVE ---
-    function saveDraft(fileNo, id, val) {
-        if (!fileNo) return;
-        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
-        drafts[id] = val;
-        localStorage.setItem(`draft_${fileNo}`, JSON.stringify(drafts));
-    }
-
-    function removeDraft(fileNo, id) {
-        if (!fileNo) return;
-        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
-        delete drafts[id];
-        localStorage.setItem(`draft_${fileNo}`, JSON.stringify(drafts));
-    }
-
-    function restoreDrafts(fileNo) {
-        let drafts = JSON.parse(localStorage.getItem(`draft_${fileNo}`) || "{}");
-        Object.keys(drafts).forEach(id => {
-            const input = document.getElementById(`input_${id}`);
-            if (input) {
-                const label = input.getAttribute('data-label');
-                const isDoc = (label === "documents_received");
-                const isSurvey = (label === "Surveydocs" || label === "docs"); // Add this
-
-                // Open the editor
-                toggleEdit(id, label, (isDoc || isSurvey));
-
-                // Set the hidden value
-                input.value = drafts[id];
-
-                // Rebuild UI based on saved JSON
-                if (isDoc) {
-                    const docBody = document.getElementById(`doc_body_${id}`);
-                    if (docBody) {
-                        docBody.innerHTML = "";
-                        try { JSON.parse(drafts[id]).forEach(d => addDocRow(id, d)); } catch (e) { }
-                    }
-                }
-                else if (isSurvey) {
-                    // REBUILD SURVEY ROWS
-                    const surveyBody = document.getElementById(`survey_body_${id}`);
-                    if (surveyBody) {
-                        surveyBody.innerHTML = "";
-                        try { JSON.parse(drafts[id]).forEach(d => addSurveyRow(id, d)); } catch (e) { }
-                    }
+        // --- 🧹 GARBAGE COLLECTION SWEEP 🧹 ---
+        // Look at every single document saved in the database...
+        Object.keys(verificationState.document_details).forEach(key => {
+            // 1. If the database key is NO LONGER in the visual document list, DELETE IT!
+            if (!validDocIds.includes(key)) {
+                delete verificationState.document_details[key];
+            } else {
+                // 2. If it IS valid, check its sub_schedules and remove any deleted documents from the chain
+                if (verificationState.document_details[key].sub_schedules) {
+                    verificationState.document_details[key].sub_schedules = verificationState.document_details[key].sub_schedules.filter(subId => validDocIds.includes(subId));
                 }
             }
         });
+
+        updateDocumentDropdown();
+        triggerAutoSave();
     }
 
-    function resetLogs() {
-        modifiedFields.clear();
-        document.getElementById('logContainer').innerHTML = '<div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">No corrections pending.</div>';
-        document.getElementById('logCount').classList.add('hidden');
-    }
-
-    function logChange(id, label) {
-        modifiedFields.add(id);
-        const box = document.getElementById('logContainer');
-        if (box.querySelector('#emptyLog')) box.innerHTML = "";
-        if (!document.getElementById(`log_${id}`)) {
-            box.innerHTML += `<div id="log_${id}" class="log-item"><strong>${label}</strong><br><span class="log-badge">Draft Saved</span></div>`;
-        }
-        document.getElementById('logCount').innerText = modifiedFields.size;
-        document.getElementById('logCount').classList.remove('hidden');
-    }
-
-    function removeLog(id) {
-        modifiedFields.delete(id);
-        const el = document.getElementById(`log_${id}`);
-        if (el) el.remove();
-        document.getElementById('logCount').innerText = modifiedFields.size;
-        if (modifiedFields.size === 0) {
-            document.getElementById('logCount').classList.add('hidden');
-            document.getElementById('logContainer').innerHTML = '<div id="emptyLog" style="text-align: center; padding: 40px 20px; color: var(--text-grey); font-style: italic;">No corrections pending.</div>';
-        }
-    }
-
-    function saveData(isAuto = false) {
-        if (modifiedFields.size === 0) return;
-
-        const btn = document.getElementById('btn-save');
-        if (!isAuto) btn.innerText = "Saving...";
-
-        const corrections = {};
-        modifiedFields.forEach(id => {
-            const inp = document.getElementById(`input_${id}`);
-            corrections[inp.getAttribute('data-path')] = inp.value;
-        });
-
-        fetch('/coreapi/api/save-corrections/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-            body: JSON.stringify({ file_no: currentFileNo, corrections: corrections })
-        })
-            .then(r => r.json())
-            .then(d => {
-                if (d.success) {
-                    btn.innerText = "Saved ✓";
-                    setTimeout(() => btn.innerText = "SAVE CHANGES", 2000);
-                    if (!isAuto) {
-                        // Manual save = Clean up drafts
-                        localStorage.removeItem(`draft_${currentFileNo}`);
-                        performSearch();
-                    }
-                } else {
-                    console.error("Save Error:", d.error);
-                    btn.innerText = "Retry Save";
-                }
-            });
-    }
-
-    function confirmLogout() { return confirm("Logout?"); }
 </script>
 {% endblock %}

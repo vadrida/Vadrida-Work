@@ -237,8 +237,9 @@
                     </div>
                 </div>
 
-               <div class="form-group hidden" id="local_body_container">
-                    <label class="form-label">Local Body Type <span style="color:var(--brand-accent);">(Required for this Bank)</span></label>
+                <div class="form-group hidden" id="local_body_container">
+                    <label class="form-label">Local Body Type <span style="color:var(--brand-accent);">(Required for
+                            this Bank)</span></label>
                     <select id="local_body_select" class="form-select trigger-preview">
                         <option value="MUN">Municipal (MUN)</option>
                         <option value="COR">Corporation (COR)</option>
@@ -247,7 +248,8 @@
                 </div>
 
                 <div class="form-group hidden" id="muthoot_branch_container">
-                    <label class="form-label">Muthoot Branch <span style="color:var(--brand-accent);">(Required for Muthoot)</span></label>
+                    <label class="form-label">Muthoot Branch <span style="color:var(--brand-accent);">(Required for
+                            Muthoot)</span></label>
                     <select id="muthoot_branch_select" class="form-select trigger-preview">
                         <option value="THRISSUR" data-code="S0002" data-num="85">THRISSUR</option>
                         <option value="ALAPPUZHA" data-code="S0130" data-num="57">ALAPPUZHA</option>
@@ -384,12 +386,12 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const bankSelect = document.getElementById('bank_select');
-        
+
         bankSelect.addEventListener('change', () => {
             toggleExtraFields(); // Changed function name
             fetchNextSequence();
         });
-        
+
         document.getElementById('district_select').addEventListener('change', fetchNextSequence);
         document.getElementById('local_body_select').addEventListener('change', updatePreview);
         document.getElementById('muthoot_branch_select').addEventListener('change', updatePreview);
@@ -399,8 +401,8 @@
                 el.addEventListener('input', updatePreview);
             }
         });
-        
-        toggleExtraFields(); 
+
+        toggleExtraFields();
         fetchNextSequence();
     });
 
@@ -409,7 +411,7 @@
         const bankCode = document.getElementById('bank_select').value;
         const lbContainer = document.getElementById('local_body_container');
         const muthootContainer = document.getElementById('muthoot_branch_container');
-        
+
         // Reset both to hidden
         lbContainer.classList.add('hidden');
         muthootContainer.classList.add('hidden');
@@ -417,12 +419,12 @@
         // PNBHFL (05), Chola (08), CHOLA SME (10)
         if (["05", "08", "10"].includes(bankCode)) {
             lbContainer.classList.remove('hidden');
-        } 
+        }
         // Muthoot (02)
         else if (bankCode === "02") {
             muthootContainer.classList.remove('hidden');
         }
-        
+
         updatePreview();
     }
 
@@ -430,7 +432,7 @@
         const bankEl = document.getElementById('bank_select');
         const distEl = document.getElementById('district_select');
 
-        const shortBankCode = bankEl.value; 
+        const shortBankCode = bankEl.value;
         const distCode = distEl.value;
 
         document.getElementById('uniqueIdDisplay').innerText = "Checking DB...";
@@ -477,31 +479,37 @@
         const distName = distEl.options[distEl.selectedIndex].getAttribute('data-name');
 
         // --- CHECK EXTRA FIELDS (Local Body OR Muthoot Branch) ---
-        let extraPart = ""; // This will hold whichever one is active
+        let extraPart = "";
         let localBodyValue = "";
         let muthootBranchValue = "";
 
         if (!document.getElementById('local_body_container').classList.contains('hidden')) {
             localBodyValue = document.getElementById('local_body_select').value;
-            extraPart = `_${localBodyValue}`; // Example: "_MUN"
-        } 
+            extraPart = `_${localBodyValue}`;
+        }
         else if (!document.getElementById('muthoot_branch_container').classList.contains('hidden')) {
             const mSelect = document.getElementById('muthoot_branch_select');
             const mOption = mSelect.options[mSelect.selectedIndex];
-            
-            const mName = mOption.value; // e.g. "SHORNUR"
-            const mCode = mOption.getAttribute('data-code'); // e.g. "S0154"
-            const mNum = mOption.getAttribute('data-num'); // e.g. "180"
-            
+
+            const mName = mOption.value;
+            const mCode = mOption.getAttribute('data-code');
+            const mNum = mOption.getAttribute('data-num');
+
             muthootBranchValue = `${mName}_${mCode}_${mNum}`;
-            extraPart = `_${muthootBranchValue}`; // Example: "_SHORNUR_S0154_180"
+            extraPart = `_${muthootBranchValue}`;
         }
 
         const rawName = document.getElementById('applicant_name').value.trim();
         const cleanName = rawName.replace(/\s+/g, '_').toUpperCase() || "XXX";
         const applicant = `#${cleanName}#`;
 
-        const bankRef = document.getElementById('bank_ref').value.trim() || "XXX";
+        // --- THE FIX: LIVE SANITIZATION OF BANK REF ---
+        const bankRefInput = document.getElementById('bank_ref');
+        // If the user types a / or \, instantly swap it to a hyphen (-)
+        if (bankRefInput.value.match(/[/\\]/)) {
+            bankRefInput.value = bankRefInput.value.replace(/[/\\]/g, '-');
+        }
+        const bankRef = bankRefInput.value.trim() || "XXX";
 
         let product = document.getElementById('product_select').value;
         if (product === "OTHER") {
@@ -522,7 +530,6 @@
         const uniqueID = `${shortBankCode}${CURRENT_YEAR}${distId}${currentSequence}`;
 
         // --- 3. GENERATE FOLDER NAME ---
-        // 'extraPart' seamlessly injects whichever one is active
         const folderName = `${uniqueID}_${applicant}_${product}_${distName}${extraPart}_${dateStr}_${siteCode}_${officeCode}_${bankRef}`;
 
         const fullPath = `2026_2027 / ${shortBankCode}.${bankName} / KL${distId}.${distName} /\n${folderName}`;
@@ -539,10 +546,10 @@
             distName,
             cleanName,
             localBodyValue,
-            muthootBranchValue // Send this to backend
+            muthootBranchValue,
+            bankRef // Pass the sanitized string securely to the submit function
         };
     }
-
     // --- MAIN SUBMIT FUNCTION ---
     function submitFolderCreation() {
         const btn = document.querySelector('.btn-submit');
@@ -556,7 +563,7 @@
         }
 
         const data = updatePreview();
-        const bankRef = document.getElementById('bank_ref').value.trim();
+        const bankRef = data.bankRef; // Uses the sanitized hyphenated reference
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';

@@ -49,6 +49,10 @@ import subprocess
 import shlex
 from django.views.decorators.csrf import csrf_exempt
 
+import fitz  # PyMuPDF
+from django.http import HttpResponse, HttpResponseNotFound
+from django.core.cache import cache
+
 
 # Security Check: Only allow superusers (Developers/Admins)
 def is_developer(user):
@@ -296,7 +300,7 @@ def get_site_report_data(request):
     
     report = None
 
-    # 1. Search Logic (Same as before)
+    # 1. Search Logic for Site Report
     if raw_path := request.GET.get('path', ''):
         clean_path = unquote(raw_path).replace('\\', '/').replace('G:/My Drive/', '').strip('/')
         report = SiteVisitReport.objects.filter(target_folder__endswith=clean_path).order_by('-updated_at').first()
@@ -305,9 +309,37 @@ def get_site_report_data(request):
         report = SiteVisitReport.objects.filter(office_file_no=file_no).first()
 
     if report:
+        # Get raw site data
+        site_data = report.form_data or {}
+        
+        # --- NEW: GET VERIFICATION DATA ---
+        verification_data = {}
+        try:
+            # Try to find an existing Verification Report
+            v_report = VerificationReport.objects.get(office_file_no=report.office_file_no)
+            verification_data = v_report.verification_database
+            
+            # If the admin already edited the documents list or inspection date, 
+            # push it into the payload so the frontend gets the latest version
+            if v_report.documents_received:
+                if 'Valuers_Checklist' not in site_data:
+                    site_data['Valuers_Checklist'] = {}
+                site_data['Valuers_Checklist']['documents_received'] = v_report.documents_received
+                
+            if v_report.inspection_date:
+                if 'Valuers_Checklist' not in site_data:
+                    site_data['Valuers_Checklist'] = {}
+                site_data['Valuers_Checklist']['inspection_date'] = v_report.inspection_date
+                
+        except VerificationReport.DoesNotExist:
+            pass  # No verification done yet, which is totally fine
+
+        # Inject the verification database safely into the payload
+        site_data['Verification_Database'] = verification_data
+
         # 2. Prepare Metadata for Sidebar
         meta = {
-            "user": report.user.user_name if report.user else "Unknown",  # Get name from UserProfile
+            "user": report.user.user_name if report.user else "Unknown",
             "office_file_no": report.office_file_no,
             "applicant_name": report.applicant_name,
             "target_folder": report.target_folder,
@@ -318,7 +350,7 @@ def get_site_report_data(request):
         
         return JsonResponse({
             'found': True,
-            'data': report.form_data or {},
+            'data': site_data,
             'meta': meta,
             'real_file_no': report.office_file_no
         })
@@ -404,7 +436,7 @@ def login_api(request):
     request.session["user_name"] = user.user_name
     request.session["user_email"] = user.email
     request.session["user_role"] = user.role
-    request.session.set_expiry(60 * 60 * 12)  # 12 hours
+    request.session.set_expiry(604800)  
     request.session.modified = True
 
     # 🚨 THE FIX: Intercept the developer login
@@ -531,7 +563,7 @@ def create_folder_api(request):
             full_path = os.path.normpath(full_path)
             
             if os.path.exists(full_path):
-                 return JsonResponse({'success': False, 'error': 'System Error: Folder exists on disk but not in DB.'})
+                return JsonResponse({'success': False, 'error': 'System Error: Folder exists on disk but not in DB.'})
 
             # 5. Create Folders
             os.makedirs(full_path, exist_ok=True)
@@ -1083,7 +1115,7 @@ def auto_save_api(request):
         # 🛑 LOGIC UPDATE 1: COMPLETION THRESHOLD (< 10%)
         # ---------------------------------------------------------
         # If less than 10%, we acknowledge the request but DO NOT save to DB.
-        if score < 20:
+        if score < 5:
             return JsonResponse({
                 'success': True,
                 'message': 'Skipped: Completion under 20%',
@@ -1238,11 +1270,6 @@ def serve_file(request):
         # Otherwise, preview it
         response['Content-Disposition'] = 'inline'  
     return response
-
-
-import fitz  # PyMuPDF
-from django.http import HttpResponse, HttpResponseNotFound
-from django.core.cache import cache
 
 
 def get_thumbnail(request):
@@ -2085,3 +2112,40 @@ def db_case_search_api(request):
 
     return JsonResponse({"folders": folders})
 
+
+from .models import VerificationReport
+
+
+@csrf_exempt
+def save_verification_data(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            file_no = data.get('file_no')
+            
+            if not file_no:
+                return JsonResponse({'success': False, 'error': 'Missing File Number'})
+
+            # Get the logged-in user (assuming you store username in session)
+            user_name = request.session.get('user_name')
+            user_profile = None
+            if user_name:
+                user_profile = UserProfile.objects.filter(user_name=user_name).first()
+
+            # Create or Update the completely isolated Verification Table
+            verification_record, created = VerificationReport.objects.update_or_create(
+                office_file_no=file_no,
+                defaults={
+                    'verified_by': user_profile,
+                    'inspection_date': data.get('inspection_date', ''),
+                    'documents_received': data.get('documents_received', []),
+                    'verification_database': data.get('verification_database', {})
+                }
+            )
+
+            return JsonResponse({'success': True, 'message': 'Verification Data Saved to dedicated table!'})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+            
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})

@@ -8,12 +8,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-    /* Global Variables for easy maintenance */
     :root {
         --primary-teal: #075e54;
-        --soft-bg: #b9e0e081;
+        --heading-green: #b9e0e081;
+        /* This is your "Soft Green" */
         --border-muted: #d1d7db;
-        --header-gray: #f1f4f5;
         --text-main: #202124;
     }
 
@@ -82,15 +81,13 @@
         letter-spacing: 1px;
     }
 
+    /* Headings: Now Soft Green */
     .section-title {
-        background: var(--header-gray);
+        background: var(--heading-green) !important;
         padding: 6px 12px;
         font-weight: bold;
+        border: 1px solid var(--border-muted);
         border-left: 4px solid var(--primary-teal);
-        /* Modern left-accent */
-        border-top: 1px solid var(--border-muted);
-        border-right: 1px solid var(--border-muted);
-        border-bottom: 1px solid var(--border-muted);
         margin-top: 18px;
         margin-bottom: 8px;
         font-size: 10.5pt;
@@ -99,32 +96,25 @@
     }
 
     label {
-        font-weight: bold;
+        font-weight: 1000;
         color: #444;
         font-size: 8.5pt;
         margin-right: 5px;
         white-space: nowrap;
     }
 
-    /* --- ENHANCED FIELD BOX --- */
+    /* Inputs (Field Boxes): Now White */
     .field-box {
         border: 1px solid var(--border-muted);
-        /* Solid border for better definition */
         border-radius: 3px;
         min-height: 20px;
         line-height: 1.5;
-        background: var(--soft-bg);
-        /* Soft tint for inputs */
+        background: #ffffff;
+        /* Forced White */
         color: #000;
+        font-weight: 700;
         flex-grow: 1;
         padding: 3px 6px;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        word-break: break-word;
-        display: block;
-        width: 100%;
-        overflow: visible;
     }
 
     [contenteditable="true"]:focus {
@@ -156,8 +146,9 @@
         overflow-wrap: break-word;
     }
 
+    /* Table Headers: Now Soft Green */
     .report-table th {
-        background: var(--header-gray);
+        background: var(--heading-green) !important;
         font-weight: bold;
         color: #333;
         font-size: 8.5pt;
@@ -201,17 +192,14 @@
         outline: none;
     }
 
-    /* --- ARRAY / GRID ALIGNMENT --- */
+    /* Checkbox Groups: Now White */
     .checkbox-group {
         display: grid;
-        /* This creates a 3-column grid. Adjust '1fr 1fr 1fr' to '1fr 1fr' for 2 columns */
         grid-template-columns: 1fr 1fr 1fr;
         gap: 8px 15px;
-        flex-grow: 1;
-        width: 100%;
         padding: 5px 10px;
-        background: var(--soft-bg);
-        /* Matches the input tint */
+        background: #ffffff !important;
+        /* Forced White */
         border: 1px solid var(--border-muted);
         border-radius: 4px;
     }
@@ -363,7 +351,7 @@
             </div>
         </div>
 
-        <div class="row" style="align-items: flex-start; margin-top: 10px;">
+        <div class="coloumn" style="align-items: flex-start; margin-top: 10px;">
             <label>5. Product:</label>
             <div class="checkbox-group">
                 <label class="checkbox-item"><input type="checkbox" data-bind-radio="Valuers_Checklist.product"
@@ -389,7 +377,7 @@
             </div>
         </div>
 
-        <div class="row" style="align-items: flex-start; margin-top: 10px;">
+        <div class="coloumn" style="align-items: flex-start; margin-top: 10px;">
             <label>6. Documents Received:</label>
             <div class="checkbox-group">
                 <label class="checkbox-item"><input type="checkbox"
@@ -432,9 +420,9 @@
         </div>
 
         <div class="section-title">I. Ownership Analysis</div>
-        <div class="row"><label>Owner(s) Name:</label>
+        <div class="coloumn"><label>Owner(s) Name:</label>
             <div class="field-box" contenteditable="true" data-path="Ownership_Analysis.owners_name"></div>
-        </div>
+        </div><br>
         <div class="checkbox-group">
             <label class="checkbox-item"><input type="radio" name="doc_verification"
                     data-bind-radio="Ownership_Analysis.document_verification" value="same in all documents"> Same in
@@ -442,8 +430,8 @@
             <label class="checkbox-item"><input type="radio" name="doc_verification"
                     data-bind-radio="Ownership_Analysis.document_verification" value="discrepancy noted"> Discrepancy
                 noted</label>
-        </div>
-        <div class="row-stacked"><label>Notes on discrepancy</label>
+        </div><br>
+        <div class="row-stacked"><label>Notes on discrepancy : </label>
             <div class="field-box" contenteditable="true" data-path="Ownership_Analysis.Ownership_Analysis_notes"></div>
         </div>
         <div class="img-wrapper" id="wrap_Ownership_Analysis_Ownership_Analysis_notes"></div>
@@ -537,14 +525,14 @@
 
                     <th style="width: 24%;">
                         <div class="header-input-wrapper">
-                            <div class="field-box header-input" contenteditable="true"
+                            <div class="field-box" contenteditable="true" style="color: #000000c9;"
                                 data-path="Boundary_analysis_property_identification.ref_doc_1_name"></div>
                         </div>
                     </th>
 
                     <th style="width: 24%;">
                         <div class="header-input-wrapper">
-                            <div class="field-box header-input" contenteditable="true"
+                            <div class="field-box" contenteditable="true" style="color: #000000c9;"
                                 data-path="Boundary_analysis_property_identification.ref_doc_2_name"></div>
                         </div>
                     </th>
@@ -556,7 +544,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>East</strong></td>
+                    <td style="background-color: var(--heading-green);"><strong>East</strong></td>
                     <td>
                         <div class="field-box" contenteditable="true"
                             data-path="Boundary_analysis_property_identification.east_doc1"></div>
@@ -575,7 +563,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>North</strong></td>
+                    <td style="background-color: var(--heading-green);"><strong>North</strong></td>
                     <td>
                         <div class="field-box" contenteditable="true"
                             data-path="Boundary_analysis_property_identification.north_doc1"></div>
@@ -594,7 +582,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>West</strong></td>
+                    <td style="background-color: var(--heading-green);"><strong>West</strong></td>
                     <td>
                         <div class="field-box" contenteditable="true"
                             data-path="Boundary_analysis_property_identification.west_doc1"></div>
@@ -614,7 +602,7 @@
                 </tr>
 
                 <tr>
-                    <td><strong>South</strong></td>
+                    <td style="background-color: var(--heading-green);"><strong>South</strong></td>
                     <td>
                         <div class="field-box" contenteditable="true"
                             data-path="Boundary_analysis_property_identification.south_doc1"></div>
@@ -642,15 +630,17 @@
                 data-path="Boundary_analysis_property_identification.Boundary_property_notes"></div>
         </div>
         <div class="img-wrapper" id="wrap_Boundary_analysis_property_identification_Boundary_property_notes"></div>
-        <br><br><br><br><br><br><br><br><br><br>
+
         <div class="section-title">IV. Demarcations</div>
         <table class="report-table">
             <tr>
-                <td style="width: 50px;"><strong>North</strong></td>
+                <td style="width: 50px; background-color: var(--heading-green);"><strong>North</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
                                 value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="Partial demarcation"> Partial Demarcation</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
                                 value="gi sheet fence"> GI Sheet Fence</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
@@ -671,11 +661,13 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>East</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>East</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
                                 value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="Partial demarcation"> Partial Demarcation</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
                                 value="gi sheet fence"> GI Sheet Fence</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.east"
@@ -696,11 +688,13 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>South</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>South</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
                                 value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="Partial demarcation"> Partial Demarcation</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
                                 value="gi sheet fence"> GI Sheet Fence</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.south"
@@ -721,11 +715,13 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>West</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>West</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
                                 value="no demarcation"> No Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.north"
+                                value="Partial demarcation"> Partial Demarcation</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
                                 value="gi sheet fence"> GI Sheet Fence</label>
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Demarcation.west"
@@ -768,7 +764,8 @@
         <div class="section-title">V. Access Nature/Right of Access</div>
         <table class="report-table">
             <tr>
-                <td style="width: 80px;"><strong>1.Type of access as per Title Deed</strong></td>
+                <td style="width: 80px; background-color: var(--heading-green);"><strong>1.Type of access as per Title
+                        Deed</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox"
@@ -795,7 +792,8 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>2.Type of access as per site visit</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>2.Type of access as per site visit</strong>
+                </td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox"
@@ -822,7 +820,8 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>3.If private way, No of users..?</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>3.If private way, No of users..?</strong>
+                </td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.private_no_user"
@@ -837,7 +836,7 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>4.Demarcation of Private road</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>4.Demarcation of Private road</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox"
@@ -864,15 +863,16 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>5.Least Width of Main Access in M</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>5.Least Width of Main Access in M</strong>
+                </td>
                 <td>
-                    <div class="checkbox-group">
+                    <div>
                         <div class="field-box" contenteditable="true" data-path="Access.main_access_width"></div>
                     </div>
                 </td>
             </tr>
             <tr>
-                <td><strong>6.Vehicular Access</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>6.Vehicular Access</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.vehicular_access"
@@ -887,7 +887,7 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>9.Material of Road</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>7.Material of Road</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <label class="checkbox-item"><input type="checkbox" data-bind-array="Access.road_material"
@@ -904,7 +904,8 @@
                 </td>
             </tr>
             <tr>
-                <td><strong>7.Least Width of Internal Roads</strong></td>
+                <td style="background-color: var(--heading-green);"><strong>8.Least Width of Internal Roads</strong>
+                </td>
                 <td>
                     <div class="checkbox-group">
                         <div class="field-box" contenteditable="true" data-path="Access.internal_road_width"></div>
@@ -912,7 +913,8 @@
                 </td>
             </tr>
             <tr>
-                <td width="100px"><strong>8.Weather the Internal Rd has connectivity to Main Access?</strong></td>
+                <td width="100px" style="background-color: var(--heading-green);"><strong>9.Weather the Internal Rd has
+                        connectivity to Main Access?</strong></td>
                 <td>
                     <div class="checkbox-group">
                         <div class="field-box" contenteditable="true" data-path="Access.internal_to_main_connectivity">
@@ -979,16 +981,17 @@
             </tbody>
         </table>
         <div class="row" style="margin-top: 10px;">
-            <label>Building No:</label>
-            <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Building_no"></div>
+            <label>If Rented - Amount:</label>
+            <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
 
             <label>Ward No:</label>
             <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Ward"></div>
         </div>
 
         <div class="row">
-            <label>If Rented - Amount:</label>
-            <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
+            <label>Building No:</label>
+            <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Building_no"></div>
+
 
             <label>Duration:</label>
             <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_duration"></div>
@@ -998,6 +1001,7 @@
             <div class="field-box" contenteditable="true" data-path="Building_analysis.building_analysis_notes"></div>
         </div>
         <div class="img-wrapper" id="wrap_Building_analysis_building_analysis_notes"></div>
+        <br>
 
         <table class="report-table">
             <tr>
@@ -1646,7 +1650,7 @@
                 const docName = doc.name || "";
 
                 tr.innerHTML = `
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.name">${docName}</div></td>
+                    <td><div class="field-box" style="background-color: var(--heading-green)" contenteditable="true" data-path="${basePath}.name">${docName}</div></td>
                     <td><div class="field-box" contenteditable="true" data-path="${basePath}.scedule_no">${doc.scedule_no || ''}</div></td>
                     <td><div class="field-box" contenteditable="true" data-path="${basePath}.re_sy_block_no">${doc.re_sy_block_no || ''}</div></td>
                     <td><div class="field-box" contenteditable="true" data-path="${basePath}.re_sy_no">${doc.re_sy_no || ''}</div></td>
@@ -1897,245 +1901,76 @@
         const garbage = clone.querySelectorAll('.nav-left, .floating-save, button, .crop-btn, .btn-save, .back-link');
         garbage.forEach(el => el.remove());
 
-        // -------------------------------------------------------------
-        // ✅ NEW: CONVERT ALL IMAGES TO BASE64 (EMBEDDED DATA)
-        // -------------------------------------------------------------
+        // 2. OPTIMIZED IMAGE PROCESSING (This is where you gain speed)
         const images = clone.querySelectorAll('img');
         const imagePromises = Array.from(images).map(async (img) => {
             try {
-                // If it's already Base64 (sketches often are), skip fetching
+                // If image is already Base64 (like your sketch), skip the slow fetch
                 if (img.src.startsWith('data:')) return;
 
-                // Fetch the image data using the browser's connection
                 const response = await fetch(img.src);
                 const blob = await response.blob();
 
-                // Convert Blob to Base64 String
                 return new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        img.src = reader.result; // Swap URL for Data String
+                        img.src = reader.result;
                         resolve();
                     };
                     reader.readAsDataURL(blob);
                 });
             } catch (e) {
-                console.warn("Could not embed image:", img.src, e);
+                console.warn("Skipping slow image:", img.src);
             }
         });
 
-        // Wait for all images to convert before continuing
         await Promise.all(imagePromises);
-        // -------------------------------------------------------------
 
-        // 2. BAKE INPUTS (Your existing Checkbox/Radio logic)
+        // 3. BAKE INPUTS
         const inputs = clone.querySelectorAll('input');
         inputs.forEach(input => {
             const type = input.type;
-            const isChecked = input.hasAttribute('checked') || input.checked;
-
+            const isChecked = input.checked;
             const span = document.createElement('span');
 
-            if (type === 'checkbox') {
-                span.className = 'pdf-checkbox';
-                if (isChecked) { span.classList.add('checked'); }
-            } else if (type === 'radio') {
-                span.className = 'pdf-radio';
-                if (isChecked) { span.classList.add('checked'); }
+            if (type === 'checkbox' || type === 'radio') {
+                span.className = type === 'checkbox' ? 'pdf-checkbox' : 'pdf-radio';
+                if (isChecked) span.classList.add('checked');
             } else {
                 span.className = 'pdf-text-val';
                 span.innerText = input.value;
-                span.style.borderBottom = "1px solid #000";
-                span.style.display = "inline-block";
-                span.style.minWidth = "20px";
             }
             input.replaceWith(span);
         });
 
-        // 3. HANDLE TEXTAREAS & CONTENTEDITABLE
-        clone.querySelectorAll('textarea').forEach(t => {
-            const div = document.createElement('div');
-            div.innerText = t.value;
-            div.className = 'field-box';
-            t.replaceWith(div);
-        });
-
+        // 4. SYNC CONTENTEDITABLE
         clone.querySelectorAll('[contenteditable]').forEach(e => {
             e.removeAttribute('contenteditable');
         });
 
-        // 4. CAPTURE STYLES
-        let styles = "";
-        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-            // We still grab FontAwesome, but images are now embedded!
-            if (link.href.startsWith('/')) {
-                link.href = window.location.origin + link.getAttribute('href');
-            }
-            styles += link.outerHTML;
-        });
-        document.querySelectorAll('style').forEach(style => { styles += style.outerHTML; });
-
-        // 5. FINAL PDF TEMPLATE
-        // (Keep your existing styles for "print-scale", "pdf-sheet", etc.)
+        // 5. EMBED THE UPDATED CSS DIRECTLY
+        // We update the background colors here for the final PDF as well
         return `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            ${styles} 
-            <style>
-                @page { 
-                    size: A4;
-                    margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 30px; 
-                }
-
-                body { background-color: white; font-family: 'Times New Roman', Times, serif; }
-
-                .print-scale {
-                    transform: scale(0.80); 
-                    transform-origin: top left;
-                    width: 125%; 
-                    overflow-x: hidden; 
-                }
-                
-                .pdf-sheet {
-
-                    width: 100%; 
-
-                    min-height: 100%; 
-
-                    background: white; 
-
-                    padding: 15mm; 
-
-                    box-shadow: 0 0 10px rgba(0,0,0,0.5); 
-
-                    font-size: 9pt; 
-
-                    position: relative; 
-
-                    box-sizing: border-box;
-
-                    overflow: hidden; 
-
-                }
-
-
-                .pdf-checkbox {
-                    display: inline-block; 
-                    width: 13px; 
-                    height: 13px;
-                    border: 1px solid #333; 
-                    background: transparent !important;
-                    margin-right: 5px; 
-                    vertical-align: middle; 
-                    position: relative;
-                    text-align: center; 
-                    line-height: 13px; /* Centers the tick vertically */
-                    font-size: 11px;
-                    color: transparent;
-                }
-                .pdf-checkbox.checked { 
-                    color: #008000 !important; /* Green Tick Color */
-                    font-weight: bold; 
-                }
-
-                .pdf-radio {
-                    display: inline-block; 
-                    width: 13px; 
-                    height: 13px;
-                    border: 1px solid #333; 
-                    border-radius: 50%; 
-                    background: transparent !important;
-                    margin-right: 5px; 
-                    vertical-align: middle; 
-                    position: relative;
-                }
-                .pdf-radio.checked::after {
-                    content: ""; 
-                    display: block; 
-                    width: 7px; 
-                    height: 7px;
-                    background: #008000; /* Green Dot Color */
-                    border-radius: 50%; 
-                    margin: 2px auto; /* Centers the dot */
-                }
-                .row { 
-
-                    display: flex; gap: 10px; margin-bottom: 5px; align-items: baseline; 
-
-                }
-                
-                .report-table { 
-
-                    width: 100%; 
-
-                    border-collapse: collapse; 
-
-                    table-layout: fixed; /* STRICT COLUMN WIDTHS */
-
-                    margin-bottom: 10px;
-
-                }
-                            
-                .report-table th, .report-table td { 
-
-                    border: 1px solid #999; 
-
-                    padding: 4px; 
-
-                    text-align: center; 
-
-                    vertical-align: middle; 
-
-                    overflow-wrap: break-word; 
-
-                    word-break: break-word;
-
-                }
-
-                .report-table th { background: #f0f0f0; font-weight: bold; }
-
-                .header-logo {
-
-                    position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;
-
-                }
-               .pdf-footer {
-
-                position: absolute;
-
-                bottom: 15mm;       /* Align with page padding */
-
-                left: 15mm;         /* Align with page padding */
-
-                width: calc(100% - 30mm); /* Full width inside margins */
-
-                border-top: 2px solid #333;
-
-                padding-top: 5px;
-
-                font-size: 10pt;
-
-                font-family: 'Segoe UI', sans-serif;
-
-                display: flex;
-
-                justify-content: space-between;
-
-                z-index: 10;
-
-            }
-                .floating-save, .nav-left, button, .back-link { display: none !important; }
-            </style>
-        </head>
-        <body>
-            <div class="print-scale">
-                ${clone.innerHTML}
-            </div>
-        </body>
-        </html>
-    `;
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; background: white; }
+            .pdf-sheet { width: 210mm; min-height: 297mm; padding: 15mm; position: relative; }
+            .section-title { background: #b9e0e081 !important; color: #075e54; padding: 8px; border-left: 4px solid #075e54; text-transform: uppercase; font-weight: bold; }
+            .report-table th { background: #b9e0e081 !important; border: 1px solid #d1d7db; }
+            .field-box { background: #ffffff !important; border: 1px solid #d1d7db; padding: 4px; }
+            .checkbox-group { background: #ffffff !important; border: 1px solid #d1d7db; }
+            .pdf-checkbox { display: inline-block; width: 12px; height: 12px; border: 1px solid #333; margin-right: 5px; vertical-align: middle; }
+            .pdf-checkbox.checked { background-color: #075e54 !important; }
+            ${Array.from(document.querySelectorAll('style')).map(s => s.innerHTML).join('\n')}
+        </style>
+    </head>
+    <body>
+        <div class="print-scale">${clone.innerHTML}</div>
+    </body>
+    </html>`;
     }
     function getNested(obj, path) {
         if (!path) return undefined;

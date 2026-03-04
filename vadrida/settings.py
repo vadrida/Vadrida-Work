@@ -163,8 +163,8 @@ REST_FRAMEWORK = {
 }
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
-SESSION_COOKIE_SECURE = False      # Only HTTP
-CSRF_COOKIE_SECURE = False         #  HTTP
+SESSION_COOKIE_SECURE = True      # Only HTTP
+CSRF_COOKIE_SECURE = True         #  HTTP
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SAMESITE = "Lax"
@@ -173,7 +173,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # Change to 2592000 if you want it to last for 30 days.
 SESSION_COOKIE_AGE = 604800
 SESSION_ENGINE = 'django.contrib.sessions.backends.db' 
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_SAVE_EVERY_REQUEST = False
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

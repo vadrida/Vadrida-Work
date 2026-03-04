@@ -83,3 +83,24 @@ class ClientFolder(models.Model):
 
     def __str__(self):
         return f"{self.unique_file_no} - {self.applicant_name}"
+    
+# --- NEW MODEL FOR OFFICE VERIFICATION DATA ---
+class VerificationReport(models.Model):
+    # Link it to the original file number
+    office_file_no = models.CharField(max_length=50, unique=True, db_index=True)
+    
+    # Who verified it
+    verified_by = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # The Top Section Data
+    inspection_date = models.CharField(max_length=50, blank=True, null=True)
+    documents_received = models.JSONField(default=list, blank=True, null=True)
+    
+    # The massive, isolated dictionary containing all document forms (Title Deed, etc.)
+    verification_database = models.JSONField(default=dict, blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Verification for {self.office_file_no}"

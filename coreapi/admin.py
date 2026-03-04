@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 import json
-from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport
 
 # 1. Improved Inline for Sketches
 class ReportSketchInline(admin.TabularInline):
@@ -86,3 +86,27 @@ class ClientFolderAdmin(admin.ModelAdmin):
     
     # Make the list per page smaller for speed
     list_per_page = 50
+
+@admin.register(VerificationReport)
+class VerificationReportAdmin(admin.ModelAdmin):
+    list_display = ('office_file_no', 'verified_by', 'inspection_date', 'created_at')
+    search_fields = ('office_file_no', 'verified_by__user_name')
+    readonly_fields = ('formatted_database', 'created_at', 'updated_at')
+    
+    def formatted_database(self, obj):
+        try:
+            data = json.dumps(obj.verification_database, indent=4)
+            return format_html('<pre style="background: #eef2ff; padding: 10px; border: 1px solid #c7d2fe;">{}</pre>', data)
+        except Exception:
+            return str(obj.verification_database)
+    
+    formatted_database.short_description = "Verified Data JSON"
+
+    fieldsets = (
+        ("Verification Info", {
+            "fields": ("office_file_no", "verified_by", "inspection_date", "documents_received")
+        }),
+        ("Database Data", {
+            "fields": ("formatted_database",)
+        }),
+    )
