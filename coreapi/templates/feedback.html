@@ -92,7 +92,6 @@
         min-width: 0;
         /* Allow shrinking in flex containers */
         box-sizing: border-box;
-        /* Include padding in width calculation */
     }
 
     /* 2. Ensure labels wrap text instead of pushing layout */
@@ -284,13 +283,21 @@
         <div class="text-lg font-semibold">Analyzing — please wait...</div>
         <div class="text-sm">Processing your file...</div>
     </div>
-    <div class="sticky top-[90px] z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4 shadow-sm flex items-center">
-        <div class="text-gray-500 mr-2 text-sm">
-            <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
+    <div
+        class="sticky top-[90px] z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4 shadow-sm flex items-center justify-between">
+        <div class="flex items-center" style="overflow: hidden;">
+            <div class="text-gray-500 mr-2 text-sm whitespace-nowrap">
+                <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
+            </div>
+            <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
+                /
+            </div>
         </div>
-        <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
-            /
-        </div>
+        <button type="button" onclick="location.reload()" class="control-btn" title="Reload Page"
+            style="background: transparent; border: none; font-size: 1.1rem; color: #4b5563; cursor: pointer; padding: 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; margin-left: 10px; flex-shrink: 0;"
+            onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='transparent'">
+            <i class="fas fa-sync-alt"></i>
+        </button>
     </div>
     <div class="feedback-layout" id="mainLayout">
         <!-- LEFT COLUMN: File List + Preview -->
@@ -385,9 +392,11 @@
                             style="flex: 1; padding-right: 10px; font-family: monospace; font-weight: 600; color: #374151;">
                             Home / Root
                         </div>
-                        <button hidden id="downloadPdfBtn" class="download-btn hidden">
-                            <i class="fas fa-file-download"></i>
-                        </button>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button hidden id="downloadPdfBtn" class="download-btn hidden" title="Download">
+                                <i class="fas fa-file-download"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div id="bigViewer" class="relative h-full flex flex-col bg-gray-100" style="overflow: hidden;">
@@ -429,19 +438,15 @@
 
                     <div style="display: flex; align-items: center; gap: 15px;">
 
-                        <div id="sitePhotoUploadContainer" class="hidden" style="display: flex; align-items: center;">
-                            <input type="file" id="sitePhotoInput" multiple accept="image/*" style="display: none;"
-                                onchange="handleSitePhotoUpload(this)">
-
-                            <button type="button" onclick="document.getElementById('sitePhotoInput').click()"
-                                class="control-btn" title="Upload Site Photos to '/p' folder"
+                        <!-- <div id="sitePhotoUploadContainer" class="hidden" style="display: flex; align-items: center;">
+                            <button type="button"
+                                onclick="document.getElementById('photoUploadSection').scrollIntoView({behavior: 'smooth'})"
+                                class="control-btn" title="Go to Photos Section"
                                 style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.9rem; cursor: pointer; padding: 6px 12px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
                                 <i class="fas fa-camera"></i>
                                 <span style="font-size: 12px; font-weight: 600;">Upload Photos</span>
                             </button>
-                            <span id="uploadStatusText"
-                                style="font-size: 10px; color: green; margin-left: 8px; font-weight: bold;"></span>
-                        </div>
+                        </div> -->
 
                         <button type="button" id="toggleFormFullscreenBtn" onclick="toggleFormFullscreen()"
                             class="control-btn" title="Toggle Fullscreen"
@@ -639,45 +644,23 @@
                             <table class="analysis-table survey-table" id="surveyTable">
                                 <thead>
                                     <tr id="surveyHeader">
-                                        <th style="min-width: 150px; position: sticky; left: 0; z-index: 10;">Doc Name
-                                        </th>
+                                        <th style="min-width: 150px;">Doc Name</th>
+                                        <th style="min-width: 100px;">Serial No</th>
+                                        <th style="min-width: 120px;">Land Extent (Ares)</th>
+                                        <th style="min-width: 150px;">Land Classification</th>
+                                        <th style="width: 40px;"></th> <!-- Delete button col -->
                                     </tr>
                                 </thead>
                                 <tbody id="surveyBody">
-                                    <tr data-row-key="scedule_no">
-                                        <td>Scedule No</td>
-                                    </tr>
-                                    <tr data-row-key="re_sy_block_no">
-                                        <td>Re-Sy Block No</td>
-                                    </tr>
-                                    <tr data-row-key="re_sy_no">
-                                        <td>Re-Sy No</td>
-                                    </tr>
-                                    <tr data-row-key="re_sy_subdiv_no">
-                                        <td>Re-Sy Subdiv No</td>
-                                    </tr>
-                                    <tr data-row-key="sy_block_no">
-                                        <td>Sy Block No</td>
-                                    </tr>
-                                    <tr data-row-key="sy_no">
-                                        <td>Sy No</td>
-                                    </tr>
-                                    <tr data-row-key="sy_subdiv_no">
-                                        <td>Sy Subdiv No</td>
-                                    </tr>
-                                    <tr data-row-key="land_extent">
-                                        <td>Land Extent (Ares)</td>
-                                    </tr>
-                                    <tr data-row-key="land_classification">
-                                        <td>Land Classification</td>
-                                    </tr>
+                                    <!-- Rows rendered by JS -->
                                 </tbody>
                             </table>
                         </div>
 
                         <button type="button" class="timeline-btn add-btn" onclick="addSurveyColumn()"
-                            title="Add Column">
-                            <i class="fas fa-plus"></i>
+                            title="Add Survey Document"
+                            style="margin-top: 10px; width: 100%; display: flex; justify-content: center; gap: 8px;">
+                            <i class="fas fa-plus"></i> Add Survey Document
                         </button>
 
 
@@ -785,11 +768,17 @@
 
                                         <th style="width: 20%;">
                                             Site
-                                            <div style="margin-top: 5px;">
+                                            <div
+                                                style="margin-top: 5px; display: flex; flex-direction: column; gap: 4px;">
+                                                <button type="button" id="undoSiteCopyBtn" onclick="undoCopyAllDocs()"
+                                                    class="hidden"
+                                                    style="font-size: 10px; background: #fbbf24; color: #78350f; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; align-self: flex-start; font-weight: bold;">
+                                                    <i class="fas fa-undo"></i> Undo
+                                                </button>
                                                 <label
                                                     style="font-size: 11px; font-weight: normal; color: white; display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">
                                                     <input type="checkbox" onchange="copyAllDocsToSites(this)"
-                                                        style="width: 12px; height: 12px;">
+                                                        style="width: 12px; height: 12px;" id="copyAllDocsCheckbox">
                                                     Same as in doc (All)
                                                 </label>
                                             </div>
@@ -1154,6 +1143,9 @@
                                                         value="no demarcation"> No demarcation</label>
                                                 <label class="checkbox-label-small"><input type="checkbox"
                                                         data-array="Access.private_rd_demarcation"
+                                                        value="Partial demarcation"> Partial demarcation</label>
+                                                <label class="checkbox-label-small"><input type="checkbox"
+                                                        data-array="Access.private_rd_demarcation"
                                                         value="gi sheet fence"> GI sheet fence</label>
                                                 <label class="checkbox-label-small"><input type="checkbox"
                                                         data-array="Access.private_rd_demarcation" value="barbed wire">
@@ -1327,7 +1319,7 @@
                                             <th>No. of Kitchen</th>
                                             <th>No. of Bathrooms</th>
                                             <th>Usage (Residential/Commercial/Industrial)</th>
-                                            <th>Occupancy (Owner/Applicant/Rented/Vacant)</th>
+                                            <th>Occupancy (Owner/Applicant/Rented/Lease/Vacant)</th>
                                             <th style="width: 10px;"></th>
                                         </tr>
                                     </thead>
@@ -1343,7 +1335,9 @@
                                 </button>
                             </div>
                             <label class="form-label" style="font-size: 15px; font-weight: bolder;">Details if
-                                Rented</label> <br> <br>
+                                Rented</label> <br>
+                            <label class="form-label">Occupant Name&nbsp;&nbsp;</label>
+                            <input type="text" data-path="Building_analysis.occupant_name" class="form-input"> <br>
 
                             <label class="form-label">Rented Amount&nbsp;&nbsp;</label>
                             <input type="text" data-path="Building_analysis.rent_amt" class="form-input"> <br>
@@ -1913,21 +1907,122 @@
                                 <textarea data-path="Building_analysis.extra_remarks" class="form-textarea"
                                     rows="4"></textarea>
                             </div>
+                            <!-- Original Map Code
                             <div class="form-group mt-4">
-                                <label class="form-label font-bold" style="color: #374151;">Reference Map for
-                                    Valuation</label>
-                                <div
-                                    style="height: 500px; border: 2px solid #ccc; border-radius: 8px; overflow: hidden; background: #f9fafb;">
-
-                                    <iframe
-                                        src="https://www.google.com/maps/d/embed?mid=15OuH_GkSrkwCsOjfWzmnvMcVciD445M&ehbc=2E312F"
-                                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
-                                        referrerpolicy="no-referrer-when-downgrade">
-                                    </iframe>
-
+                                <label class="form-label font-bold" style="color: #374151;">Reference Map for Valuation</label>
+                                <div style="height: 500px; border: 2px solid #ccc; border-radius: 8px; overflow: hidden; background: #f9fafb;">
+                                    <iframe src="https://www.google.com/maps/d/embed?mid=15OuH_GkSrkwCsOjfWzmnvMcVciD445M&ehbc=2E312F" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                                 </div>
-                                <div class="text-xs text-gray-500 mt-1">* Use this map to check comparable land values
-                                    in the area.</div>
+                                <div class="text-xs text-gray-500 mt-1">* Use this map to check comparable land values in the area.</div>
+                            </div>
+                            -->
+
+                            <div class="form-group mt-4" id="photoUploadSection">
+                                <label class="form-label font-bold"
+                                    style="color: #374151; font-size: 1.25rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px;">Photos
+                                    & Directional Images</label>
+
+                                <!-- General Site Photos -->
+                                <div style="margin-bottom: 24px;">
+                                    <label class="form-label font-bold" style="color: #4b5563;">Site Photos</label>
+                                    <label for="generalPhotosInput"
+                                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 100px; border: 2px dashed #cbd5e1; border-radius: 8px; background-color: #f8fafc; cursor: pointer; margin-top: 8px; transition: all 0.2s ease;">
+                                        <i class="fas fa-image"
+                                            style="font-size: 28px; color: #94a3b8; margin-bottom: 8px;"></i>
+                                        <span style="font-size: 14px; color: #64748b; font-weight: 500;">Click or drag
+                                            to select photos</span>
+                                    </label>
+                                    <input type="file" id="generalPhotosInput" multiple accept="image/*" class="hidden"
+                                        onchange="previewGeneralPhotos(this)" style="display: none;">
+                                    <div id="generalPhotosPreview"
+                                        style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; min-height: 50px; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 8px; background: white;">
+                                        <span
+                                            class="text-gray-400 text-sm flex items-center justify-center w-full">Selected
+                                            general photos will preview here</span>
+                                    </div>
+                                </div>
+
+                                <!-- Directional Images -->
+                                <label class="form-label font-bold"
+                                    style="color: #4b5563; font-size: 1.1rem; margin-bottom: 12px; display: block;">Directional
+                                    Images</label>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <!-- North -->
+                                    <div
+                                        style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
+                                        <label class="form-label font-bold" style="margin-bottom: 8px;">North</label>
+                                        <label for="northImageInput"
+                                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                                            <i class="fas fa-camera"
+                                                style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
+                                            <span style="font-size: 12px; color: #64748b;">Add North Photo</span>
+                                        </label>
+                                        <input type="file" id="northImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'northPreview')"
+                                            style="display: none;">
+                                        <img id="northPreview"
+                                            style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
+                                    </div>
+                                    <!-- East -->
+                                    <div
+                                        style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
+                                        <label class="form-label font-bold" style="margin-bottom: 8px;">East</label>
+                                        <label for="eastImageInput"
+                                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                                            <i class="fas fa-camera"
+                                                style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
+                                            <span style="font-size: 12px; color: #64748b;">Add East Photo</span>
+                                        </label>
+                                        <input type="file" id="eastImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'eastPreview')"
+                                            style="display: none;">
+                                        <img id="eastPreview"
+                                            style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
+                                    </div>
+                                    <!-- South -->
+                                    <div
+                                        style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
+                                        <label class="form-label font-bold" style="margin-bottom: 8px;">South</label>
+                                        <label for="southImageInput"
+                                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                                            <i class="fas fa-camera"
+                                                style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
+                                            <span style="font-size: 12px; color: #64748b;">Add South Photo</span>
+                                        </label>
+                                        <input type="file" id="southImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'southPreview')"
+                                            style="display: none;">
+                                        <img id="southPreview"
+                                            style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
+                                    </div>
+                                    <!-- West -->
+                                    <div
+                                        style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
+                                        <label class="form-label font-bold" style="margin-bottom: 8px;">West</label>
+                                        <label for="westImageInput"
+                                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+                                            <i class="fas fa-camera"
+                                                style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
+                                            <span style="font-size: 12px; color: #64748b;">Add West Photo</span>
+                                        </label>
+                                        <input type="file" id="westImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'westPreview')"
+                                            style="display: none;">
+                                        <img id="westPreview"
+                                            style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 24px;">
+                                    <button type="button" id="uploadAllPhotosBtn" class="submit-btn"
+                                        style="background-color: #0284c7; width: 100%; padding: 12px; font-weight: bold; border-radius: 8px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                        onclick="handleUnifiedSitePhotoUpload()">
+                                        <i class="fas fa-cloud-upload-alt"></i> Upload All Selected Photos
+                                    </button>
+                                    <span id="unifiedUploadStatusText"
+                                        style="font-size: 13px; font-weight: bold; margin-top: 12px; display: block; text-align: center;"></span>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label" style="font-size: large;">Recommented Land Value</label>
@@ -2401,6 +2496,7 @@
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Owner" ${getChecked('Occupancy', 'Owner')}> Owner</label>
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Applicant" ${getChecked('Occupancy', 'Applicant')}> App</label>
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Rented" ${getChecked('Occupancy', 'Rented')}> Rent</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Lease" ${getChecked('Occupancy', 'Lease')}> Lease</label>
                   <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Vacant" ${getChecked('Occupancy', 'Vacant')}> Vac</label>
                 </div>
             </td>
@@ -2438,6 +2534,7 @@
                   <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Owner" ${getAptChecked('Occupancy', 'Owner')}> Owner</label>
                   <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Applicant" ${getAptChecked('Occupancy', 'Applicant')}> App</label>
                   <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Rented" ${getAptChecked('Occupancy', 'Rented')}> Rent</label>
+                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Lease" ${getAptChecked('Occupancy', 'Lease')}> Lease</label>
                   <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Vacant" ${getAptChecked('Occupancy', 'Vacant')}> Vac</label>
                 </div>
             </td>
@@ -4819,14 +4916,27 @@
     }
     function renderSurveyColumns() {
         const headerRow = document.getElementById('surveyHeader');
-        const bodyRows = document.querySelectorAll('#surveyBody tr');
-        if (!headerRow) return;
+        const tbody = document.getElementById('surveyBody');
+        if (!headerRow || !tbody) return;
 
-        // Clear existing dynamic columns
-        headerRow.querySelectorAll('.dyn-col').forEach(el => el.remove());
-        bodyRows.forEach(row => row.querySelectorAll('.dyn-cell').forEach(el => el.remove()));
+        // Reset Headers
+        headerRow.innerHTML = `
+            <th style="min-width: 150px;">Doc Name</th>
+            <th style="min-width: 100px;">Serial No</th>
+            <th style="min-width: 120px;">Land Extent (Ares)</th>
+            <th style="min-width: 250px;">Land Classification</th>
+            <th style="width: 40px;"></th> <!-- Delete col -->
+        `;
 
-        const availableDocs = formState.Valuers_Checklist.documents_received || [];
+        let rawDocs = formState.Valuers_Checklist?.documents_received || [];
+        if (typeof rawDocs === 'string') {
+            try {
+                const cleanDocsStr = rawDocs.replace(/'/g, '"');
+                rawDocs = JSON.parse(cleanDocsStr);
+            } catch (e) { rawDocs = []; }
+        }
+        if (!Array.isArray(rawDocs)) rawDocs = [];
+        const docNames = rawDocs.map(d => (typeof d === 'object' && d !== null) ? d.name : d);
 
         // THE FIX: Parse stringified survey data before rendering
         let surveyDocs = formState.Survey.docs || [];
@@ -4843,79 +4953,65 @@
             { id: 'thottam', label: 'Thottam' },
             { id: 'others', label: 'Others' }
         ];
+
+        tbody.innerHTML = ''; // Clear rows
+
         surveyDocs.forEach((docObj, index) => {
-            // 1. Render Header (Dropdown to select Doc Name)
-            const th = document.createElement('th');
-            th.className = 'dyn-col';
-            th.style.minWidth = "150px";
+            const tr = document.createElement('tr');
+
+            // 1. Doc Name
             let optionsHtml = `<option value="">Select Doc</option>`;
-            availableDocs.forEach(d => {
-                const sel = (d === docObj.name) ? "selected" : "";
-                optionsHtml += `<option value="${d}" ${sel}>${d}</option>`;
+            docNames.forEach(d => {
+                const isSelected = (d === docObj.name) ? "selected" : "";
+                optionsHtml += `<option value="${d}" ${isSelected}>${d}</option>`;
             });
-            th.innerHTML = `<select class="form-select" style="width: 100%; color:black;" onchange="updateSurveyDocName(${index}, this.value)">${optionsHtml}</select>`;
-            headerRow.appendChild(th);
 
-            // 2. Render Body Cells
-            bodyRows.forEach(row => {
-                const key = row.getAttribute('data-row-key');
-                if (key) {
-                    const td = document.createElement('td');
-                    td.className = 'dyn-cell';
-                    const val = docObj[key] || '';
+            // Handle externally filled values not in checklist
+            if (docObj.name && !docNames.includes(docObj.name)) {
+                optionsHtml += `<option value="${docObj.name}" selected>${docObj.name}</option>`;
+            }
 
-                    // --- LOGIC CHANGE STARTS HERE ---
-                    let inputHtml = '';
+            const docSelectHtml = `<select class="form-select dynamic-doc-dropdown" style="width: 100%; color:black;" onchange="updateSurveyDocName(${index}, this.value)">${optionsHtml}</select>`;
 
-                    if (key === 'land_classification') {
-                        // Start Grid
-                        inputHtml = `<table>`;
+            // 2. Schedule No
+            const scheduleInputHtml = `<input type="text" class="table-input" value="${docObj.scedule_no || ''}" oninput="updateSurveyDocData(${index}, 'scedule_no', this.value)">`;
 
-                        // Optional: Mini Headers inside the cell
-                        inputHtml += `<tr><th style="z-index:auto;">Type</th><th>Area</th></tr>`;
+            // 3. Land Extent
+            const extentInputHtml = `<input type="number" step="0.01" class="table-input" value="${docObj.land_extent || ''}" oninput="updateSurveyDocData(${index}, 'land_extent', this.value)">`;
 
-                        // Loop through 6 types
-                        landTypes.forEach(type => {
-                            // Unique Keys: e.g., 'check_dry', 'area_dry'
-                            const checkKey = `check_${type.id}`;
-                            const areaKey = `area_${type.id}`;
+            // 4. Land Classifications Grid
+            let lcHtml = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px;">`;
 
-                            // Get Values
-                            const isChecked = docObj[checkKey] ? 'checked' : '';
-                            const areaVal = docObj[areaKey] || '';
+            landTypes.forEach(type => {
+                const checkKey = `check_${type.id}`;
+                const areaKey = `area_${type.id}`;
+                const isChecked = docObj[checkKey] ? 'checked' : '';
+                const areaVal = docObj[areaKey] || '';
 
-                            // CSS Grid Row using 'display: contents' logic from CSS above
-                            inputHtml += `<tr><td style="z-index:auto">
-                                    <input type="checkbox" ${isChecked} 
-                                        onchange="updateSurveyDocData(${index}, '${checkKey}', this.checked)">
-                                    ${type.label}
-                                </td><td>
-                                    <input type="text" class="lc-area-input" 
-                                        placeholder="Area" 
-                                        value="${areaVal}" 
-                                        oninput="updateSurveyDocData(${index}, '${areaKey}', this.value)">
-                                </td>
-                            </tr>
-                        `;
-                        });
-
-                        inputHtml += `</table>`; // End Grid
-                    }
-                    else if (key === 'land_extent') {
-                        // Keep Text Input for Extent (as requested)
-                        inputHtml = `<input type="text" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
-                    }
-                    else {
-                        // Number Input for everything else (Survey No, Block No, etc.)
-                        inputHtml = `<input type="text" class="table-input" value="${val}" oninput="updateSurveyDocData(${index}, '${key}', this.value)">`;
-                    }
-                    // --- LOGIC CHANGE ENDS HERE ---
-
-                    td.innerHTML = inputHtml;
-                    row.appendChild(td);
-                }
+                lcHtml += `
+                    <div style="display: flex; align-items: center; gap: 4px; background: #f9fafb; padding: 2px; border-radius: 4px; border: 1px solid #e5e7eb;">
+                        <input type="checkbox" ${isChecked} style="width: 12px; height: 12px; margin: 0;" onchange="updateSurveyDocData(${index}, '${checkKey}', this.checked)">
+                        <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${type.label}">${type.label}</span>
+                        <input type="number" step="0.01" placeholder="Area" class="table-input" style="width: 45px; height: 20px; min-height: 20px; font-size: 10px; padding: 0 2px;" value="${areaVal}" oninput="updateSurveyDocData(${index}, '${areaKey}', this.value)">
+                    </div>
+                `;
             });
+            lcHtml += `</div>`;
+
+            // 5. Delete Button
+            const deleteBtnHtml = `<button type="button" onclick="removeSurveyRow(${index})" class="text-red-500 hover:text-red-700" title="Remove Document"><i class="fas fa-trash"></i></button>`;
+
+            tr.innerHTML = `
+                <td>${docSelectHtml}</td>
+                <td>${scheduleInputHtml}</td>
+                <td>${extentInputHtml}</td>
+                <td>${lcHtml}</td>
+                <td style="text-align: center; vertical-align: middle;">${deleteBtnHtml}</td>
+            `;
+
+            tbody.appendChild(tr);
         });
+
         calculateSurveyTotals();
         checkWetLandStatus();
     }
@@ -4959,8 +5055,18 @@
 
     function addSurveyColumn() {
         if (!formState.Survey.docs) formState.Survey.docs = [];
-        formState.Survey.docs.push({ name: "", scedule_no: "" });
+        formState.Survey.docs.push({ name: "", scedule_no: "", land_extent: "" });
         renderSurveyColumns();
+        saveLocal();
+        updateCompletionStats();
+    }
+
+    function removeSurveyRow(index) {
+        if (!formState.Survey.docs) return;
+        formState.Survey.docs.splice(index, 1);
+        renderSurveyColumns();
+        calculateSurveyTotals();
+        checkWetLandStatus();
         saveLocal();
         updateCompletionStats();
     }
@@ -4978,9 +5084,13 @@
 
         const docNames = docs.map(d => (typeof d === 'object' && d !== null) ? d.name : d);
 
-        document.querySelectorAll('.dynamic-doc-dropdown').forEach(select => {
+        // Only modify dropdowns that actually have a data-path bound (Boundary analysis, etc.)
+        document.querySelectorAll('.dynamic-doc-dropdown[data-path]').forEach(select => {
             const path = select.getAttribute('data-path');
             const savedValue = getNestedValue(formState, path);
+
+            // Keep the current selection if we're only updating options
+            const currentValue = select.value;
 
             select.innerHTML = '<option value="">Select Document</option>';
             docNames.forEach(docName => {
@@ -4992,6 +5102,8 @@
 
             if (savedValue && docNames.includes(savedValue)) {
                 select.value = savedValue;
+            } else if (currentValue && docNames.includes(currentValue)) {
+                select.value = currentValue;
             }
         });
     }
@@ -5237,11 +5349,19 @@
         // No alert needed, the UI update is feedback enough
     }
 
+    // Store previous values for Undo functionality
+    let previousSiteValues = {};
+
     function copyAllDocsToSites(checkbox) {
         const directions = ['north', 'east', 'south', 'west'];
         const prefix = "Boundary_analysis_property_identification";
+        const undoBtn = document.getElementById('undoSiteCopyBtn');
 
         if (checkbox.checked) {
+            // Store current values before overwriting
+            previousSiteValues = {};
+            let hasOverwritten = false;
+
             // --- CHECKED STATE: COPY VALUES ---
             directions.forEach(direction => {
                 const doc1Input = document.querySelector(`input[data-path="${prefix}.${direction}_doc1"]`);
@@ -5249,6 +5369,8 @@
                 const siteInput = document.querySelector(`input[data-path="${prefix}.${direction}_site"]`);
 
                 if (siteInput) {
+                    previousSiteValues[direction] = siteInput.value; // Save original value
+
                     const v1 = doc1Input ? doc1Input.value.trim() : "";
                     const v2 = doc2Input ? doc2Input.value.trim() : "";
 
@@ -5259,26 +5381,62 @@
                         combinedValue = v1 || v2;
                     }
 
-                    siteInput.value = combinedValue;
-
-                    // Trigger Auto-Save
-                    siteInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    if (siteInput.value !== combinedValue) {
+                        siteInput.value = combinedValue;
+                        hasOverwritten = true;
+                        // Trigger Auto-Save
+                        siteInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
                 }
             });
+
+            // Show Undo button only if something was actually changed/overwritten
+            if (hasOverwritten && undoBtn) {
+                undoBtn.classList.remove('hidden');
+                undoBtn.style.display = 'inline-block';
+            }
         } else {
-            // --- UNCHECKED STATE: CLEAR VALUES ---
+            // --- UNCHECKED STATE: CLEAR VALUES (Optional, keeping original logic for unchecked) ---
             directions.forEach(direction => {
                 const siteInput = document.querySelector(`input[data-path="${prefix}.${direction}_site"]`);
 
                 if (siteInput) {
-                    // Clear the value
                     siteInput.value = "";
-
-                    // Trigger Auto-Save (so the empty state is saved)
                     siteInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
             });
+            // Hide undo button since we just cleared explicitly
+            if (undoBtn) {
+                undoBtn.classList.add('hidden');
+                undoBtn.style.display = 'none';
+            }
         }
+    }
+
+    function undoCopyAllDocs() {
+        const directions = ['north', 'east', 'south', 'west'];
+        const prefix = "Boundary_analysis_property_identification";
+        const checkbox = document.getElementById('copyAllDocsCheckbox');
+        const undoBtn = document.getElementById('undoSiteCopyBtn');
+
+        // Restore previous values
+        directions.forEach(direction => {
+            const siteInput = document.querySelector(`input[data-path="${prefix}.${direction}_site"]`);
+            if (siteInput && previousSiteValues.hasOwnProperty(direction)) {
+                siteInput.value = previousSiteValues[direction];
+                siteInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+
+        // Uncheck the box, hide the undo button
+        if (checkbox) checkbox.checked = false;
+        if (undoBtn) {
+            undoBtn.classList.add('hidden');
+            undoBtn.style.display = 'none';
+        }
+
+        // Clear stored values
+        previousSiteValues = {};
     }
 
     // --- 1. CORE: Recalculate State ---
@@ -7134,35 +7292,102 @@
         }
     }
 
-    // 2. Handle the actual file upload
-    async function handleSitePhotoUpload(inputElement) {
-        const files = inputElement.files;
-        if (!files || files.length === 0) return;
+    // Image Preview Handlers
+    function previewGeneralPhotos(input) {
+        const previewContainer = document.getElementById('generalPhotosPreview');
+        previewContainer.innerHTML = '';
+        if (input.files && input.files.length > 0) {
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.height = '80px';
+                    img.style.width = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '6px';
+                    img.style.border = '1px solid #cbd5e1';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        } else {
+            previewContainer.innerHTML = '<span class="text-gray-400 text-sm flex items-center justify-center w-full">Selected general photos will preview here</span>';
+        }
+    }
 
-        // Ensure a folder is selected on the left
-        if (!currentFolder) {
-            alert("Please select a folder from the left list first.");
-            inputElement.value = ""; // Reset
+    function previewDirectionalImage(input, previewId) {
+        const previewImg = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+        }
+    }
+
+    // New unified upload logic
+    async function handleUnifiedSitePhotoUpload() {
+        const uploadBtn = document.getElementById('uploadAllPhotosBtn');
+        const statusText = document.getElementById("unifiedUploadStatusText");
+
+        let generalFiles = document.getElementById('generalPhotosInput').files;
+        let northFile = document.getElementById('northImageInput').files[0];
+        let eastFile = document.getElementById('eastImageInput').files[0];
+        let southFile = document.getElementById('southImageInput').files[0];
+        let westFile = document.getElementById('westImageInput').files[0];
+
+        if ((!generalFiles || generalFiles.length === 0) && !northFile && !eastFile && !southFile && !westFile) {
+            alert("Please select at least one photo to upload.");
             return;
         }
 
-        const statusText = document.getElementById("uploadStatusText");
-        statusText.innerText = "Uploading...";
+        if (!currentFolder) {
+            alert("Please select a folder from the left list first.");
+            return;
+        }
+
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        statusText.innerText = "Uploading photos...";
         statusText.style.color = "orange";
 
         const formData = new FormData();
         formData.append('current_folder', currentFolder);
 
-        // Append all selected files
-        for (let i = 0; i < files.length; i++) {
-            formData.append('site_photos', files[i]);
+        // General files
+        if (generalFiles && generalFiles.length > 0) {
+            for (let i = 0; i < generalFiles.length; i++) {
+                formData.append('site_photos', generalFiles[i]);
+            }
         }
+
+        // Helper to rename file
+        function appendRenamedFile(file, newName) {
+            if (file) {
+                // Keep the original extension
+                let ext = file.name.substring(file.name.lastIndexOf('.'));
+                if (!ext) ext = '.jpg';
+                let renamedFile = new File([file], newName + ext, { type: file.type });
+                formData.append('site_photos', renamedFile);
+            }
+        }
+
+        appendRenamedFile(northFile, "north image");
+        appendRenamedFile(eastFile, "east image");
+        appendRenamedFile(southFile, "south image");
+        appendRenamedFile(westFile, "west image");
 
         try {
             const response = await fetch('/coreapi/api/upload-site-photos/', {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': csrftoken // Uses your existing getCookie logic
+                    'X-CSRFToken': csrftoken
                 },
                 body: formData
             });
@@ -7175,8 +7400,6 @@
 
                 setTimeout(() => { statusText.innerText = ""; }, 3000);
 
-                // SAVE PATHS TO FORM STATE
-                // This ensures the report knows which images belong to it
                 if (!formState.site_photos) formState.site_photos = [];
 
                 result.saved_paths.forEach(path => {
@@ -7185,24 +7408,36 @@
                     }
                 });
 
-                // Trigger Auto-Save immediately to save the new image paths
                 saveLocal();
                 saveToServer();
 
+                // Clear inputs and previews
+                document.getElementById('generalPhotosInput').value = "";
+                document.getElementById('northImageInput').value = "";
+                document.getElementById('eastImageInput').value = "";
+                document.getElementById('southImageInput').value = "";
+                document.getElementById('westImageInput').value = "";
+
+                previewGeneralPhotos(document.getElementById('generalPhotosInput'));
+                document.getElementById('northPreview').style.display = 'none';
+                document.getElementById('eastPreview').style.display = 'none';
+                document.getElementById('southPreview').style.display = 'none';
+                document.getElementById('westPreview').style.display = 'none';
+
             } else {
                 alert("Upload Error: " + result.error);
-                statusText.innerText = "Error";
+                statusText.innerText = "Error: " + result.error;
                 statusText.style.color = "red";
             }
         } catch (err) {
             console.error(err);
             alert("Network Error uploading photos.");
-            statusText.innerText = "Error";
+            statusText.innerText = "Network Error";
             statusText.style.color = "red";
+        } finally {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload All Selected Photos';
         }
-
-        // Reset input so users can upload the same file again if needed
-        inputElement.value = "";
     }
     /* =========================
        DATABASE CASE FINDER

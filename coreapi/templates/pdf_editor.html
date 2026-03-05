@@ -468,13 +468,7 @@
             <thead>
                 <tr>
                     <th>Doc Name</th>
-                    <th>Scedule No</th>
-                    <th>Re-Sy Block No</th>
-                    <th>Re-Sy No</th>
-                    <th>Re-Sy Sub Div No</th>
-                    <th>Sy Block No</th>
-                    <th>Sy No</th>
-                    <th>Sy SubDiv No</th>
+                    <th>Serial No</th>
                     <th width="100px">Land Extent(Ares)</th>
                     <th width="100px">Land Classification</th>
                 </tr>
@@ -843,6 +837,9 @@
                                 data-bind-array="Access.private_rd_demarcation" value="no demarcation"> No
                             Demarcation</label>
                         <label class="checkbox-item"><input type="checkbox"
+                                data-bind-array="Access.private_rd_demarcation" value="Partial demarcation"> Partial
+                            Demarcation</label>
+                        <label class="checkbox-item"><input type="checkbox"
                                 data-bind-array="Access.private_rd_demarcation" value="gi sheet fence"> GI Sheet
                             Fence</label>
                         <label class="checkbox-item"><input type="checkbox"
@@ -974,7 +971,7 @@
                     <th>No of Kitchen</th>
                     <th>No of Bathrooms</th>
                     <th>Usage (Res/Comm/Ind)</th>
-                    <th>Occupancy (Owner/Rented/Vacant/Applicant)</th>
+                    <th>Occupancy (Owner/Rented/Vacant/Applicant/Lease)</th>
                 </tr>
             </thead>
             <tbody id="building_dynamic_body">
@@ -983,6 +980,9 @@
         <div class="row" style="margin-top: 10px;">
             <label>If Rented - Amount:</label>
             <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
+
+            <label>Occupant Name:</label>
+            <div class="field-box" contenteditable="true" data-path="Building_analysis.occupant_name"></div>
 
             <label>Ward No:</label>
             <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Ward"></div>
@@ -1650,14 +1650,8 @@
                 const docName = doc.name || "";
 
                 tr.innerHTML = `
-                    <td><div class="field-box" style="background-color: var(--heading-green)" contenteditable="true" data-path="${basePath}.name">${docName}</div></td>
+                    <td style="background-color: var(--heading-green)"><div class="field-box" contenteditable="true" data-path="${basePath}.name">${docName}</div></td>
                     <td><div class="field-box" contenteditable="true" data-path="${basePath}.scedule_no">${doc.scedule_no || ''}</div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.re_sy_block_no">${doc.re_sy_block_no || ''}</div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.re_sy_no">${doc.re_sy_no || ''}</div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.re_sy_subdiv_no">${doc.re_sy_subdiv_no || ''}</div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.sy_block_no">${doc.sy_block_no || ''}</div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.sy_no">${doc.sy_no || ''}</div></td>
-                    <td><div class="field-box" contenteditable="true" data-path="${basePath}.sy_subdiv_no">${doc.sy_subdiv_no || ''}</div></td>
                     <td><div class="field-box" contenteditable="true" data-path="${basePath}.land_extent">${doc.land_extent || ''}</div></td>
                     <td><div class="field-box" contenteditable="true" data-path="${basePath}.land_classification">${landClassText}</div></td>
                 `;
@@ -2065,7 +2059,7 @@
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${floor.label}</td>
+                <td style="background-color: var(--heading-green)">${floor.label}</td>
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Builtup_area">${valBuiltUp}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Rooms_no">${valRooms}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Kitchen_no">${valKitchen}</div></td>
@@ -2083,6 +2077,7 @@
                         ${makeOccCheck(occArr, 'Applicant', 'App')}
                         ${makeOccCheck(occArr, 'Rented', 'Rent')}
                         ${makeOccCheck(occArr, 'Vacant', 'Vac')}
+                        ${makeOccCheck(occArr, 'Lease', 'Lease')}
                     </div>
                 </td>
             `;
