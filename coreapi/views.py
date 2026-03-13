@@ -227,7 +227,7 @@ def dashboard(request):
         return redirect("coreapi:office")
     
     elif role == "IT":
-        return redirect("coreapi:office_verification")
+        return redirect("coreapi:dev_dashboard")
     
     # 3. Unknown roles get rejected
     return JsonResponse({"error": "Invalid role"}, status=500)
@@ -1189,6 +1189,13 @@ def auto_save_api(request):
                 user=user,
                 target_folder=current_folder_path
             ).exclude(id=report.id).delete()
+
+        # 🧹 DELETE CLEARED SKETCHES: If a user cleared the canvas, delete backing records so they don't resurrect on reload
+        images_data = form_payload.get('images', {})
+        vectors_data = form_payload.get('vectors', {})
+        for sketch_key in set(images_data.keys()) | set(vectors_data.keys()):
+            if not images_data.get(sketch_key) and not vectors_data.get(sketch_key):
+                ReportSketch.objects.filter(report=report, source_key=sketch_key).delete()
 
         return JsonResponse({
             'success': True,

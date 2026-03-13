@@ -1443,8 +1443,15 @@
                 }
                 const apiKey = JSON.parse(scriptTag.textContent);
 
-                // 6. Build URL
-                const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=19&size=600x300&maptype=hybrid&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
+                // 6. Build URL - Enhanced with detailed labels and better quality
+                // Style elements ensure POIs and major labels are always visible
+                const styles = [
+                    'feature:poi|element:labels|visibility:on',
+                    'feature:road|element:labels|visibility:on',
+                    'feature:transit|element:labels|visibility:on'
+                ].map(s => `&style=${s}`).join('');
+
+                const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=19&size=600x400&maptype=hybrid&markers=color:red%7Clabel:S%7C${lat},${lng}&scale=2&key=${apiKey}${styles}`;
 
                 console.log("✅ Map URL generated successfully.");
 
@@ -1455,7 +1462,7 @@
 
                 // 8. Update Text
                 if (textElement) {
-                    textElement.innerText = `${lat}, ${lng}`;
+                    textElement.innerHTML = `<i class="fas fa-map-marker-alt text-red-500 mr-1"></i> ${lat}, ${lng}`;
                     textElement.style.color = "black";
                 }
 
