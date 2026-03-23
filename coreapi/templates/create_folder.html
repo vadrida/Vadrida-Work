@@ -651,12 +651,12 @@
 
                 if (resp.success) {
                     Swal.fire({
-                        title: 'Folder Created!',
-                        text: `Unique ID: ${resp.new_id}`,
+                        title: 'Folder Created Successfully!',
+                        text: `Folder was successfully created: ${data.folderName}`,
                         icon: 'success',
-                        confirmButtonText: 'Great',
-                        confirmButtonColor: '#004a8f'
+                        confirmButtonColor: "#004a8f"
                     });
+
 
                     document.getElementById('createFolderForm').reset();
                     document.getElementById('uniqueIdDisplay').innerText = "--";

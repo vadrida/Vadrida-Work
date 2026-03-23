@@ -65,10 +65,10 @@ class ClientFolder(models.Model):
     unique_file_no = models.CharField(max_length=20, unique=True, primary_key=True)
     
     # Specifics for counting
-    year = models.CharField(max_length=4)        # e.g. "26"
-    bank_code = models.CharField(max_length=10)  # e.g. "01"
-    district_code = models.CharField(max_length=10) # e.g. "07"
-    sequence_no = models.IntegerField()          # e.g. 1, 2, 3...
+    year = models.CharField(max_length=4)        
+    bank_code = models.CharField(max_length=10)  
+    district_code = models.CharField(max_length=10) 
+    sequence_no = models.IntegerField()   
 
     # Metadata
     applicant_name = models.CharField(max_length=255)
@@ -104,3 +104,4 @@ class VerificationReport(models.Model):
 
     def __str__(self):
         return f"Verification for {self.office_file_no}"
+

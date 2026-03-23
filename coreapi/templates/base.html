@@ -72,33 +72,6 @@
         .nav-link.active::after {
             width: 100%;
         }
-        #desktopOnlyOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            color: white;
-            text-align: center;
-        }
-
-        #desktopOnlyOverlay .desktop-box {
-            background: #111;
-            padding: 24px;
-            border-radius: 12px;
-            max-width: 90%;
-        }
-
-        .mobile-blocked #desktopOnlyOverlay {
-            display: flex;
-        }
-
-        /* Disable interaction underneath */
-        .mobile-blocked body {
-            overflow: hidden;
-        }
     </style>
 <link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
@@ -114,7 +87,8 @@
             </a>
 
             <ul class="hidden md:flex gap-8 font-montserrat text-gray-800 font-medium">
-                <li>WELCOME   {{ request.session.user_name }}</li>
+                <li style="color: #FFD700; font-weight: bold;">Welcome</li>
+                <li style="font-weight: bold;">{{ request.session.user_name }}</li>
                 <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
                 <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
             </ul>
@@ -128,27 +102,21 @@
     </nav>
 
     <div id="mobileMenu"
-         class="hidden fixed top-20 left-0 w-full bg-white shadow-lg border-t border-gray-100 py-4 z-40 animate-slideDown">
+         class="hidden fixed top-20 left-0 w-full bg-white shadow-lg border-t border-gray-100 py-6 z-40 animate-slideDown">
 
         <div class="flex flex-col text-lg px-6 font-montserrat">
-            <a href="{% url 'coreapi:dashboard' %}" class="py-3 border-b border-gray-200">Home</a>
+            <div class="py-3 border-b border-gray-100 text-sm text-gray-500 font-medium">
+                Welcome {{ request.session.user_name }}
+            </div>
+            <a href="{% url 'coreapi:dashboard' %}" class="py-4 border-b border-gray-100 flex items-center gap-3">
+                <i class="fas fa-home text-royal-blue-600"></i> Home
+            </a>
+            <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </div>
 
-    <div id="desktopOnlyOverlay">
-        <div class="desktop-box">
-            <h2>Desktop Mode Required</h2>
-            <p>
-            This application is designed for desktop use only.
-            Please open this site in <strong>Desktop mode</strong>
-            or use a laptop/PC.
-            </p>
-
-            <p class="steps">
-            Chrome Mobile → ⋮ → <strong>Desktop site</strong>
-            </p>
-        </div>
-    </div>
 
     <main class="pt-28 px-4 md:px-8">
         {% block content %}{% endblock %}
@@ -166,13 +134,6 @@
             });
         }
 
-        /* 2. Mobile Desktop Mode Enforcer */
-        (function () {
-            const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) && window.innerWidth < 1024;
-            if (isMobile) {
-                document.documentElement.classList.add("mobile-blocked");
-            }
-        })();
 
         /* =========================
            3. FULLSCREEN LOGIC (Aggressive Restore)

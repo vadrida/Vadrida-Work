@@ -116,19 +116,45 @@
     @media (max-width: 768px) {
         .feedback-layout {
             flex-direction: column;
-            height: auto;
+            height: calc(100vh - 60px) !important;
+            /* Adjust based on your actual navbar height */
+            overflow: hidden !important;
         }
 
         .resizer-gutter {
-            display: none;
+            width: 100% !important;
+            height: 30px !important;
+            /* Large hit area for thumbs */
+            cursor: row-resize;
+            background: #f1f5f9;
+            border-top: 1px solid #cbd5e1;
+            border-bottom: 1px solid #cbd5e1;
+            display: flex !important;
+            touch-action: none;
+            /* Prevent browser scrolling while dragging handle */
         }
 
-        .left-column,
+        .resizer-icon {
+            transform: rotate(90deg);
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .left-column {
+            width: 100% !important;
+            height: 40vh;
+            /* Default split: 40% top, 60% bottom */
+            min-height: 100px;
+            max-height: 80vh;
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
         .right-column {
-            width: 100%;
-            max-width: 100%;
-            height: auto;
-            overflow: visible;
+            width: 100% !important;
+            flex: 1;
+            min-height: 0;
         }
 
         .duration-row {
@@ -434,7 +460,8 @@
         <div class="right-column" id="rightColumnContainer">
 
 
-            <div class="form-header" style="display: flex;border-radius: 10px; justify-content: space-between; align-items: center;">
+            <div class="form-header"
+                style="display: flex;border-radius: 10px; justify-content: space-between; align-items: center;">
                 <h3 class="section-title">Site Feedback Form</h3>
 
                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -1124,7 +1151,18 @@
                             Details</label> <br> <br>
 
                         <label class="form-label">Building No</label>
-                        <input type="text" data-path="Boundary_analysis.Building_no" class="form-input"> <br>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <input type="text" id="buildingNo1" data-path="Boundary_analysis.Building_no" class="form-input" style="flex: 1; margin: 0;">
+                            <button type="button"
+                                onclick="addBuildingNoField_fb()"
+                                style="flex-shrink: 0; padding: 6px 14px; background: #003366; color: #fff; border: none; border-radius: 5px; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap;">
+                                &#43; Add
+                            </button>
+                        </div>
+
+                        <!-- Extra Building No rows appended here -->
+                        <div id="extraBuildingNos_fb"></div>
+                        <br>
 
                         <label class="form-label">Ward no&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
                         <input type="text" data-path="Boundary_analysis.Ward" class="form-input">
@@ -1619,7 +1657,7 @@
                                         <input type="text" id="input_lng" data-path="land_inspection_details.longitude"
                                             class="table-input bg-gray-50" readonly>
                                     </div>
-                                    <button type="button" onclick="getCurrentLocation()" class="modal-btn success"
+                                    <button type="button" onclick="getCurrentLocation(this)" class="modal-btn success"
                                         style="width: auto; padding: 0 15px;">
                                         <i class="fas fa-crosshairs"></i> Use My GPS
                                     </button>
@@ -2500,7 +2538,7 @@
         if (topBanner) topBanner.textContent = path ? "/" + path : "/";
 
         try {
-            const response = await fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`);
+            const response = await fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}&recursive=${shouldShowOverlay ? '1' : '0'}`);
             const data = await response.json();
 
             localStorage.setItem('vadrida_active_folder', path);
@@ -2511,8 +2549,14 @@
             }
             await forcePaint();
 
+            // --- THE FIX: Update LEFT SIDE list with files (Recursive!) ---
+            const listContainer = document.getElementById('searchResultsList');
+            if (listContainer) {
+                listContainer.innerHTML = "";
+                appendFileList(data.folders || [], data.files || [], listContainer);
+            }
+
             currentFolderFiles = data.files || [];
-            // NOTE: Removed appendFileList call from here so it doesn't overwrite your search!
             renderThumbs(data.files || []);
             hasMoreFiles = data.has_next;
 
@@ -2559,7 +2603,9 @@
                             updateNestedState(formState, 'Valuers_Checklist.applicant_name', data.auto_fill.applicant_name);
                             updateNestedState(formState, 'Valuers_Checklist.product', data.auto_fill.product);
                         }
+
                         syncStateToUI();
+                        loadExtraBuildingNos_fb(); // Restore dynamic building nos
                     }
                     // ==========================================
                     // HEAVY LOAD FOR SAVED FILES
@@ -2614,10 +2660,11 @@
                         parseTimelineString(getNestedValue(formState, "Building_analysis.construction_year"));
 
                         syncStateToUI();
+                        loadExtraBuildingNos_fb(); // Restore dynamic building nos
                         renderAllSavedImages();
                         updateMapFromState();
 
-                        if (data.folder_info) renderFolderStats(data.folder_info);
+                        // if (data.folder_info) renderFolderStats(data.folder_info);
                         updateCompletionStats();
 
                         // Restore right column scroll if saved
@@ -2759,30 +2806,30 @@
         });
     }
 
-    function renderFolderStats(info) {
-        const statsBox = document.getElementById("folderStatsBox");
-        let colorSuffix = "grey";
-        if (info.status_color === "green") colorSuffix = "green";
-        else if (info.status_color === "yellow") colorSuffix = "yellow";
-        else if (info.status_color === "red") colorSuffix = "red";
+    // function renderFolderStats(info) {
+    //     const statsBox = document.getElementById("folderStatsBox");
+    //     let colorSuffix = "grey";
+    //     if (info.status_color === "green") colorSuffix = "green";
+    //     else if (info.status_color === "yellow") colorSuffix = "yellow";
+    //     else if (info.status_color === "red") colorSuffix = "red";
 
-        statsBox.innerHTML = `
-        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px; font-weight:bold;">
-            <span>Case Details</span>
-            <div style="display:flex; align-items:center;">
-                <span class="status-dot status-${colorSuffix}"></span>
-                <span style="font-size:10px; text-transform:uppercase; color:#666;">${info.status_label}</span>
-            </div>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-            <div style="color:#666;">Downloaded:</div><div style="text-align:right;">${info.download_date}</div>
-            <div style="color:#666;">TAT Limit:</div><div style="text-align:right; color:#2563eb;">${info.tat_date}</div>
-            <div style="color:#666;">Site Report:</div><div style="text-align:right;">${info.site_report_date}</div>
-            <div style="color:#666;">Final Report:</div><div style="text-align:right;">${info.final_report_date}</div>
-        </div>
-    `;
-        statsBox.classList.remove("hidden");
-    }
+    //     statsBox.innerHTML = `
+    //     <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px; font-weight:bold;">
+    //         <span>Case Details</span>
+    //         <div style="display:flex; align-items:center;">
+    //             <span class="status-dot status-${colorSuffix}"></span>
+    //             <span style="font-size:10px; text-transform:uppercase; color:#666;">${info.status_label}</span>
+    //         </div>
+    //     </div>
+    //     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+    //         <div style="color:#666;">Downloaded:</div><div style="text-align:right;">${info.download_date}</div>
+    //         <div style="color:#666;">TAT Limit:</div><div style="text-align:right; color:#2563eb;">${info.tat_date}</div>
+    //         <div style="color:#666;">Site Report:</div><div style="text-align:right;">${info.site_report_date}</div>
+    //         <div style="color:#666;">Final Report:</div><div style="text-align:right;">${info.final_report_date}</div>
+    //     </div>
+    // `;
+    //     statsBox.classList.remove("hidden");
+    // }
 
     function appendFileList(folders, files, targetContainer) {
         if (!targetContainer) return;
@@ -2843,16 +2890,22 @@
             li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
             const dateStr = file.mtime ? new Date(file.mtime * 1000).toLocaleDateString() : '';
 
+            // If recursive, we might have subfolders. Let's show the immediate parent if it's not the main folder.
+            const pathParts = file.path.split('/');
+            const parentName = pathParts.length > 1 ? pathParts[pathParts.length - 2] : '';
+            const isSubfolderFile = parentName && parentName !== currentFolder.split('/').pop();
+
             li.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div class="min-w-0 pr-2 flex-1">
-              <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
-              <div class="flex gap-2 mt-0.5">
-                  <div class="text-[10px] text-gray-400 uppercase tracking-wider">${file.extension || "FILE"}</div>
-                  <div class="text-[10px] text-gray-400">${dateStr}</div>
-              </div>
-            </div>
-          </div>`;
+                <div class="flex justify-between items-start">
+                    <div class="min-w-0 pr-2 flex-1">
+                        ${isSubfolderFile ? `<div class="text-[9px] font-bold text-blue-500 uppercase tracking-tighter mb-0.5"><i class="fas fa-folder-open mr-1"></i>${parentName}</div>` : ''}
+                        <div class="font-medium break-all whitespace-normal leading-snug text-sm text-gray-700">${file.name}</div>
+                        <div class="flex gap-2 mt-0.5">
+                            <div class="text-[10px] text-gray-400 uppercase tracking-wider">${file.extension ? file.extension.replace('.', '') : "FILE"}</div>
+                            <div class="text-[10px] text-gray-400">${dateStr}</div>
+                        </div>
+                    </div>
+                </div>`;
 
             li.onclick = () => {
                 document.querySelectorAll("#searchResultsList li").forEach(el => el.classList.remove("bg-blue-100"));
@@ -3058,13 +3111,13 @@
 
         input.value = ""; // Clear input
     };
-    function setFileInfo(file) {
-        fileInfoBox.innerHTML = `
-    <div class="info-row"><strong>Name:</strong> <span>${file.name}</span></div>
-    <div class="info-row"><strong>Type:</strong> ${file.extension || "Unknown"}</div>
-    <div class="info-row"><strong>Size:</strong> ${file.size || "N/A"}</div>
-  `;
-    }
+    //     function setFileInfo(file) {
+    //         fileInfoBox.innerHTML = `
+    //     <div class="info-row"><strong>Name:</strong> <span>${file.name}</span></div>
+    //     <div class="info-row"><strong>Type:</strong> ${file.extension || "Unknown"}</div>
+    //     <div class="info-row"><strong>Size:</strong> ${file.size || "N/A"}</div>
+    //   `;
+    //     }
 
     /* =========================
        6. PDF & ANALYSIS TOOLS
@@ -3837,6 +3890,12 @@
         // Show hover cursor preview globally over canvas
         const modal = document.getElementById('sketchModal');
         if (modal && !modal.classList.contains('hidden') && (currentTool === 'eraser' || currentTool === 'brush')) {
+            // 🛡️ HIDE CURSOR FOR TOUCH: Fingers don't need a preview dot
+            if (currentPointerType === 'touch') {
+                if (typeof cursorOverlay !== 'undefined') cursorOverlay.style.display = 'none';
+                return;
+            }
+
             let cursorSize = 3;
             if (currentTool === 'eraser' && eraserMode === 'rub') cursorSize = parseInt(document.getElementById('eraserSizeSlider')?.value) || 20;
             else if (currentTool === 'brush') cursorSize = parseInt(document.getElementById('strokeSize')?.value) || 3;
@@ -3860,7 +3919,10 @@
     });
 
     function updateCursorOverlay(e, size) {
-        if (!e) return;
+        if (!e || currentPointerType === 'touch') {
+            if (typeof cursorOverlay !== 'undefined') cursorOverlay.style.display = 'none';
+            return;
+        }
         let cx = e.clientX, cy = e.clientY;
         if (e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
         if (cx === undefined || cy === undefined) return;
@@ -3977,29 +4039,19 @@
         if (e.type.startsWith('touch')) {
             if (e.type === 'touchstart') e.preventDefault();
 
-            // PALM REJECTION: If a stylus/pen is being used globally, a single finger touch should just PAN, never draw!
-            // We MUST verify that THIS touch is a finger, not the Pen stylus itself firing the touch event.
-            if (penDetected && e.touches && e.touches.length === 1) {
-                const tType = e.touches[0].touchType;
+            // 🛡️ PALM REJECTION / HAND RESTING PREVENTION:
+            // 1. If more than 2 touches are detected, it's likely a palm/hand resting.
+            // 2. If the touch radius is unusually large, it's likely a palm.
+            const touch = e.touches[0];
+            const radius = touch.radiusX || touch.webkitRadiusX || 0;
 
-                let isFinger = false;
-                if (tType !== undefined) {
-                    isFinger = (tType !== 'stylus' && tType !== 'pen');
-                } else {
-                    // 🛡️ THE ULTIMATE PALM FIX: 
-                    // If the browser doesn't report touchType, we only treat this touch as a pen
-                    // if the pen is actually physically DOWN on the glass. 
-                    // If the pen is just hovering and a touch happens, it's 100% a palm/finger.
-                    isFinger = !isPenDown;
-                }
-
-                if (isFinger) {
-                    const screenPos = getPos(e);
-                    isPanning = true;
-                    lastX = screenPos.x;
-                    lastY = screenPos.y;
-                    return;
-                }
+            if (e.touches.length > 2 || radius > 25) {
+                // If palm detected, force panning instead of drawing
+                const screenPos = getPos(e);
+                isPanning = true;
+                lastX = screenPos.x;
+                lastY = screenPos.y;
+                return;
             }
         }
 
@@ -6711,9 +6763,13 @@
     if (scrollSentinel) observer.observe(scrollSentinel);
 
     // --- 2. LOAD PREVIEW ---
-    function loadBigPreview(file) {
+    async function loadBigPreview(file) {
         currentFile = file;
         let fullPath = file.path;
+        if (!file || !file.path) {
+            console.warn("Preview aborted: File path is null.");
+            return;
+        }
         if (!fullPath) {
             const folderPrefix = currentFolder ? currentFolder.replace(/\/$/, "") + "/" : "";
             fullPath = folderPrefix + file.name;
@@ -6734,11 +6790,11 @@
         if (bigImgContainer) bigImgContainer.classList.add("hidden");
         if (downloadBtn) downloadBtn.classList.remove("hidden");
 
-        const url = `/coreapi/serve-file/?path=${encodeURIComponent(fullPath)}`;
         const ext = file.name.split(".").pop().toLowerCase();
 
         // A. IMAGE LOGIC
         if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+            const url = `/coreapi/serve-file/?path=${encodeURIComponent(fullPath)}`;
             if (bigImg && bigImgContainer) {
                 bigImg.src = url;
                 bigImgContainer.classList.remove("hidden");
@@ -6754,9 +6810,41 @@
             }
             if (scrollSentinel) scrollSentinel.classList.remove("hidden");
 
+            // 1. Initialize with 999 as fallback 
+            let totalPages = 999;
+
+            try {
+                // 2. Double-encode or sanitize the path
+                const safePath = encodeURIComponent(fullPath);
+                const infoRes = await fetch(`/coreapi/get-file-info/?path=${safePath}`);
+
+                const contentType = infoRes.headers.get("content-type");
+                if (infoRes.ok && contentType && contentType.includes("application/json")) {
+                    const info = await infoRes.json();
+                    if (info.page_count) {
+                        totalPages = info.page_count;
+                    }
+                }
+            } catch (e) {
+                console.error("Could not get page count:", e);
+            }
+
             // Reset state and ZOOM
-            pdfZoomState.scale = 1.0; // <-- ADD THIS LINE
-            viewerState = { path: fullPath, nextPageToLoad: 0, isLoading: false, isFinished: false };
+            pdfZoomState.scale = 1.0;
+            viewerState = {
+                path: fullPath,
+                nextPageToLoad: 0,
+                isLoading: false,
+                isFinished: false,
+                totalPages: totalPages
+            };
+
+            // Re-observe sentinel just in case
+            if (scrollSentinel && typeof observer !== 'undefined') {
+                observer.unobserve(scrollSentinel);
+                observer.observe(scrollSentinel);
+            }
+
             loadNextPage(); // Trigger first page
         }
         // C. UNSUPPORTED
@@ -6771,6 +6859,14 @@
     // --- 3. PAGE LOADING & SCALE FIX ---
     function loadNextPage() {
         if (viewerState.isLoading || viewerState.isFinished) return;
+
+        // --- THE FIX: Stop if we reached end of document ---
+        if (viewerState.nextPageToLoad >= viewerState.totalPages) {
+            viewerState.isFinished = true;
+            if (scrollSentinel) scrollSentinel.classList.add("hidden");
+            return;
+        }
+
         viewerState.isLoading = true;
 
         const pageIndex = viewerState.nextPageToLoad;
@@ -6809,6 +6905,18 @@
         if (scrollContainer && scrollSentinel) {
             scrollContainer.insertBefore(img, scrollSentinel);
         }
+    }
+    function isSentinelVisible() {
+        const sentinel = document.getElementById("scrollSentinel");
+        if (!sentinel) return false;
+        
+        // If container is hidden, definitely not visible
+        if (scrollContainer && scrollContainer.classList.contains('hidden')) return false;
+
+        const rect = sentinel.getBoundingClientRect();
+        
+        // Be more lenient: if it's anywhere near the bottom of the screen, keep pre-loading
+        return rect.top < (window.innerHeight + 500);
     }
     /* ==========================================
    PDF PINCH, SCROLL & DOUBLE-TAP ZOOM LOGIC
@@ -7023,6 +7131,7 @@
         // CASE A: PDF
         if (ext === 'pdf') {
             modalState.mode = 'pdf';
+            modalState.totalPages = (viewerState && viewerState.path === currentFile.path) ? (viewerState.totalPages || 999) : 999;
             if (pdfContainer) {
                 pdfContainer.classList.remove("hidden");
                 pdfContainer.classList.add("flex");
@@ -7144,6 +7253,14 @@
 
     function loadNextModalPage(sentinel) {
         if (modalState.isLoading || modalState.isFinished) return;
+
+        // --- THE FIX: Stop if we reached end of document ---
+        if (modalState.nextPage >= modalState.totalPages) {
+            modalState.isFinished = true;
+            if (sentinel.parentElement) sentinel.remove();
+            return;
+        }
+
         modalState.isLoading = true;
 
         const img = document.createElement("img");
@@ -7888,10 +8005,9 @@
 
         if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
             const pos = { lat: lat, lng: lng };
-
-            // Centering map with a slight delay to ensure Google Maps engine is ready to render
             map.setCenter(pos);
             marker.setPosition(pos);
+            marker.setVisible(true);
             map.setZoom(19);
 
             const latInput = document.getElementById("input_lat");
@@ -7901,28 +8017,30 @@
 
             pendingMapUpdate = false;
         } else {
-            console.warn("🧭 Map data missing or zero:", { lat, lng });
+            console.warn("🧭 Map data missing/zero. Resetting to default.");
+            const defaultPos = { lat: 9.9312, lng: 76.2673 };
+            map.setCenter(defaultPos);
+            marker.setVisible(false); // Hide marker if no data
+            map.setZoom(12);
+            pendingMapUpdate = false;
         }
     }
 
     /* =========================
        FIXED GPS & COMPASS LOGIC
     ========================= */
-    async function getCurrentLocation() {
-        const btn = event.currentTarget;
+    async function getCurrentLocation(btn) {
+        if (!btn && typeof event !== 'undefined') btn = event.currentTarget;
         const originalContent = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Precise Lock...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> calibrating GPS...';
         btn.disabled = true;
 
-        // 1. Request Permission (iOS/Android fix)
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            try {
-                await DeviceOrientationEvent.requestPermission();
-            } catch (e) { console.error("Permission error:", e); }
+            try { await DeviceOrientationEvent.requestPermission(); } catch (e) { }
         }
 
         if (!navigator.geolocation) {
-            alert("Geolocation is not supported by this browser.");
+            alert("Geolocation not supported.");
             btn.innerHTML = originalContent;
             btn.disabled = false;
             return;
@@ -7930,19 +8048,26 @@
 
         let bestPosition = null;
         let watchId = null;
+        const startTime = Date.now();
 
-        // ⚡ USE WATCH FOR PINPOINT ACCURACY
-        // getCurrentPosition is often inaccurate. Watching for a few seconds allows the GPS to calibrate.
         watchId = navigator.geolocation.watchPosition((position) => {
             const acc = position.coords.accuracy;
-            console.log(`🛰️ GPS Signal: ${acc.toFixed(1)}m accuracy`);
+            const age = Date.now() - position.timestamp;
+
+            console.log(`🛰️ GPS: ${acc.toFixed(1)}m, age: ${age}ms`);
+
+            // IGNORE STALE CACHED DATA (> 20 seconds old)
+            if (age > 20000) return;
 
             if (!bestPosition || acc < bestPosition.coords.accuracy) {
                 bestPosition = position;
             }
 
-            // If we hit < 10 meters, that is as good as it gets, stop and use it!
-            if (acc < 10) finalize();
+            // Improve feedback on button
+            btn.innerHTML = `<i class="fas fa-satellite"></i> Accuracy: ${acc.toFixed(0)}m...`;
+
+            // If we hit < 10 meters AND it's a fresh reading, we are golden
+            if (acc < 10 && age < 5000) finalize();
         }, (err) => {
             console.warn("GPS Signal Issue:", err);
         }, {
@@ -7970,6 +8095,7 @@
                 };
 
                 marker.setPosition(pos);
+                marker.setVisible(true); // Ensure marker is visible
                 map.setCenter(pos);
                 map.setZoom(19);
 
@@ -8217,9 +8343,14 @@
 
         let isResizing = false;
 
-        // Helper: Get X coordinate from either Mouse or Touch event
-        const getX = (e) => {
-            return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        // Helper: Get coordinates from either Mouse or Touch event
+        const getCoords = (e) => {
+            if (e.type.includes('touch')) {
+                // For touchend, touches[0] is empty, use changedTouches
+                const t = e.touches[0] || e.changedTouches[0];
+                return { x: t.clientX, y: t.clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
         };
 
         // 4. START DRAGGING
@@ -8227,6 +8358,9 @@
             isResizing = true;
             document.body.classList.add('resizing');
             resizer.classList.add('active');
+
+            // Critical for mobile: prevent scrolling while starting the drag
+            if (e.type.includes('touch')) e.preventDefault();
         };
 
         // 5. RESIZE CANVAS HELPER
@@ -8240,18 +8374,33 @@
             if (e.type.includes('touch')) e.preventDefault();
 
             const containerRect = container.getBoundingClientRect();
-            const clientX = getX(e);
+            const coords = getCoords(e);
 
-            // Calculate new width relative to container left edge
-            const newWidth = clientX - containerRect.left;
+            // Check orientation: if column, we resize height. If row, we resize width.
+            const isColumn = window.getComputedStyle(container).flexDirection === 'column';
 
-            // Constraints
-            const minW = 300;
-            const maxW = containerRect.width - 640; // Keep space for right side
+            if (isColumn) {
+                // VERTICAL RESIZE (Mobile/Tab stacked)
+                const newHeight = coords.y - containerRect.top;
+                const minH = 150;
+                const maxH = containerRect.height - 200;
 
-            if (newWidth > minW && newWidth < maxW) {
-                leftSide.style.width = `${newWidth}px`;
-                leftSide.style.flexBasis = `${newWidth}px`; // Force flex update
+                if (newHeight > minH && newHeight < maxH) {
+                    leftSide.style.height = `${newHeight}px`;
+                    leftSide.style.width = '100%';
+                    leftSide.style.flexBasis = `${newHeight}px`;
+                }
+            } else {
+                // HORIZONTAL RESIZE (Desktop side-by-side)
+                const newWidth = coords.x - containerRect.left;
+                const minW = 300;
+                const maxW = containerRect.width - 640;
+
+                if (newWidth > minW && newWidth < maxW) {
+                    leftSide.style.width = `${newWidth}px`;
+                    leftSide.style.height = '100%';
+                    leftSide.style.flexBasis = `${newWidth}px`;
+                }
             }
         };
 
@@ -8684,7 +8833,7 @@
         // Detect BOTH containers (Main container and Actual Form)
         const rightCol = document.getElementById('rightColumnContainer');
         const siteForm = document.getElementById('siteFeedbackForm');
-        
+
         // Use rightColumnContainer as primary scroll anchor, or fallback to window
         const scrollContainer = rightCol || window;
 
@@ -8782,13 +8931,13 @@
         // 3. Restore scroll state (Robust Logic)
         setTimeout(() => {
             let savedScroll = null;
-            
+
             // A. Check for folder-specific key (Best for switching between cases)
             if (typeof currentFolder !== 'undefined' && currentFolder && typeof getDraftKey === 'function') {
                 const folderKey = 'vadrida_scroll_' + getDraftKey(currentFolder);
                 savedScroll = localStorage.getItem(folderKey);
             }
-            
+
             // B. Fallback to generic key (Best for simple reloads)
             if (!savedScroll) {
                 savedScroll = localStorage.getItem('vadrida_form_scroll');
@@ -8807,16 +8956,16 @@
         // 4. Save scroll state dynamically (Live Save)
         let scrollTimeout;
         const handleScroll = (e) => {
-            updateArrows(); 
+            updateArrows();
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
                 const el = e.target;
                 const pos = (el === window || el === document) ? window.scrollY : el.scrollTop;
-                
+
                 // Only save if it's a meaningful scroll (not 0 unless it was 0)
                 if (pos >= 0) {
                     localStorage.setItem('vadrida_form_scroll', pos);
-                    
+
                     if (typeof currentFolder !== 'undefined' && currentFolder && typeof getDraftKey === 'function') {
                         const folderKey = 'vadrida_scroll_' + getDraftKey(currentFolder);
                         localStorage.setItem(folderKey, pos);
@@ -8911,6 +9060,67 @@
             el.dispatchEvent(new Event('change', { bubbles: true }));
         }
     }, true);
+
+    /* =============================================
+       EXTRA BUILDING NUMBERS — Dynamic Add/Remove
+    ============================================= */
+    let extraBuildingNoCount_fb = 0;
+
+    function addBuildingNoField_fb(value = '') {
+        extraBuildingNoCount_fb++;
+        const index = extraBuildingNoCount_fb + 1; // Building No 2, 3, etc...
+        const dataPath = `Boundary_analysis.Building_no_${index}`;
+        
+        const container = document.getElementById('extraBuildingNos_fb');
+        if (!container) return;
+
+        const row = document.createElement('div');
+        row.id = `extrabuildingrow_${index}`;
+        row.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px;';
+        
+        row.innerHTML = `
+            <div style="width:105px; font-size:12px; font-weight:600; color:#4b5563;">Building No ${index}</div>
+            <input type="text" id="extraBuildingInput_${index}" data-path="${dataPath}" class="form-input sync-input" style="flex: 1; margin: 0;" value="${value}">
+            <button type="button"
+                onclick="removeBuildingNoField_fb(${index})"
+                style="flex-shrink: 0; padding: 4px 10px; background: #cc0000; color: #fff; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: bold; cursor: pointer;">
+                &times; Remove
+            </button>
+        `;
+
+        container.appendChild(row);
+
+        // Bind input to the live-saving sync engine
+        const newInp = document.getElementById(`extraBuildingInput_${index}`);
+        if (newInp) {
+            newInp.addEventListener('input', (e) => {
+                updateNestedState(formState, dataPath, e.target.value);
+            });
+            newInp.addEventListener('change', () => { saveLocal(); });
+        }
+    }
+
+    function removeBuildingNoField_fb(index) {
+        const row = document.getElementById(`extrabuildingrow_${index}`);
+        if (row) {
+            updateNestedState(formState, `Boundary_analysis.Building_no_${index}`, ''); // Clear data
+            saveLocal();
+            row.remove();
+        }
+    }
+
+    function loadExtraBuildingNos_fb() {
+        const container = document.getElementById('extraBuildingNos_fb');
+        if(container) container.innerHTML = ''; // reset on quick reload
+        extraBuildingNoCount_fb = 0; // reset
+        
+        const boundary = (formState && formState.Boundary_analysis) ? formState.Boundary_analysis : {};
+        let i = 2;
+        while (boundary[`Building_no_${i}`] !== undefined && boundary[`Building_no_${i}`] !== '') {
+            addBuildingNoField_fb(boundary[`Building_no_${i}`]);
+            i++;
+        }
+    }
 
 </script>
 {% endblock %}

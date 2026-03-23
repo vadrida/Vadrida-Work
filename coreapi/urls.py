@@ -54,4 +54,6 @@ urlpatterns = [
     path('api/check-duplicate/', views.check_duplicate_api, name='check_duplicate'),
     path('api/upload-site-photos/', views.upload_site_photos_api, name='upload_site_photos'),
     path('api/db-case-search/', views.db_case_search_api, name='db_case_search'),
+    path('api/save-verification/', views.save_verification_data, name='save_verification_data'),
+
 ]

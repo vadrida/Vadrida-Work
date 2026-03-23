@@ -334,8 +334,18 @@ def get_site_report_data(request):
         except VerificationReport.DoesNotExist:
             pass  # No verification done yet, which is totally fine
 
+        # Store original site visit data in a dedicated reference key
+        # AND purge the main DynamicDocuments from the payload to avoid auto-populating cards
+        original_docs = site_data.get('DynamicDocuments', [])
+        site_data['OriginalSiteDocuments'] = original_docs
+        site_data['DynamicDocuments'] = [] 
+
         # Inject the verification database safely into the payload
-        site_data['Verification_Database'] = verification_data
+        if verification_data:
+            site_data['DynamicDocuments'] = verification_data.get('DynamicDocuments', [])
+            site_data['BoundaryAnalysisDocs'] = verification_data.get('BoundaryAnalysisDocs', [])
+            # Keep legacy key for compatibility during transition if needed
+            site_data['Verification_Database'] = verification_data 
 
         # 2. Prepare Metadata for Sidebar
         meta = {
@@ -506,24 +516,17 @@ def create_folder_api(request):
         dist_code = meta.get('dist_code') 
         year = meta.get('year', '26')    
         
-        # # 2. Check for Duplicate (DB Check)
-        # existing = ClientFolder.objects.filter(
-        #     bank_ref_no=meta.get('bank_ref'),
-        #     bank_code=bank_code
-        # ).exists()
-        
-        # if existing:
-        #      return JsonResponse({'success': False, 'error': 'A file with this Bank Ref No already exists!'})
-
         # 3. DB Transaction (Get Next Sequence)
         with transaction.atomic():
-            current_count = ClientFolder.objects.filter(
+            # USE MAX SHIFT: prevent collision if a previous file was deleted
+            res = ClientFolder.objects.filter(
                 year=year,
                 bank_code=bank_code,
                 district_code=dist_code
-            ).count()
+            ).aggregate(Max('sequence_no'))
             
-            next_seq = current_count + 1
+            max_seq = res.get('sequence_no__max') or 0
+            next_seq = max_seq + 1
             seq_str = f"{next_seq:04d}"
             
             # 4. Generate Unique ID & Name
@@ -854,6 +857,7 @@ def search_files(request):
 @require_http_methods(["GET"])
 def get_folder_contents_api(request):
     rel_path = request.GET.get("path", "").strip("/")
+    recursive = request.GET.get("recursive", "0") == "1"
     page = int(request.GET.get("page", 1))
     limit = int(request.GET.get("limit", 50))
     
@@ -863,11 +867,11 @@ def get_folder_contents_api(request):
     saved_draft = None
     folder_info = None
     auto_fill_data = None
+    vetting_data = None
 
     if not abs_path.startswith(base) or not os.path.isdir(abs_path):
         return JsonResponse({"folders": [], "files": [], "has_next": False})
 
-    # --- METADATA (Page 1 Only) ---
     # --- METADATA & DRAFT FETCHING (Page 1 Only) ---
     if page == 1:
         if rel_path:
@@ -878,11 +882,10 @@ def get_folder_contents_api(request):
             
             # 2. Search Database by File Number (NOT by folder path)
             if file_no:
-                # Fetch the most recently updated draft for this file number
                 draft = SiteVisitReport.objects.filter(office_file_no=file_no).order_by('-updated_at').first()
-                
                 if draft and draft.form_data:
                     saved_draft = draft.form_data if isinstance(draft.form_data, dict) else json.loads(draft.form_data)
+                    saved_draft['report_id'] = draft.id
                     sketches = ReportSketch.objects.filter(report=draft)
                     if 'images' not in saved_draft: 
                         saved_draft['images'] = {}
@@ -890,10 +893,10 @@ def get_folder_contents_api(request):
                         if sketch.image: 
                             saved_draft['images'][sketch.source_key] = sketch.image.url
                             
-        # Fetch Case Folder Status
         folder_name = os.path.basename(abs_path)
         if "#" in folder_name or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name):
             folder_info = get_case_folder_info(abs_path)
+
     # --- SCANNING & SORTING ---
     all_folders = []
     all_files = []
@@ -905,36 +908,52 @@ def get_folder_contents_api(request):
         except: pass
 
     try:
-        with os.scandir(abs_path) as it:
-            for entry in it:
-                if entry.is_dir():
-                    all_folders.append(entry)
-                else:
-                    all_files.append(entry)
+        if recursive:
+            # Flattened recursive file search
+            for root, dirs, files in os.walk(abs_path):
+                for name in files:
+                    if name.lower() in ['desktop.ini', '.ds_store']: continue
+                    full_abs = os.path.join(root, name)
+                    rel_to_base = os.path.relpath(full_abs, base).replace('\\', '/')
+                    
+                    # Create a simple object mirroring the os.DirEntry interface
+                    class MockEntry:
+                        def __init__(self, n, p, rp):
+                            self.name = n
+                            self.path = p
+                            self.rel_path = rp
+                            self._stat = None
+                        def is_dir(self): return False
+                        def stat(self):
+                            if not self._stat: self._stat = os.stat(self.path)
+                            return self._stat
+                    
+                    all_files.append(MockEntry(name, full_abs, rel_to_base))
+            all_folders = [] # Return no folders when recursive
+        else:
+            with os.scandir(abs_path) as it:
+                for entry in it:
+                    if entry.is_dir():
+                        all_folders.append(entry)
+                    else:
+                        all_files.append(entry)
 
-        # ✅ FIX 1: Sort BOTH by Date Descending (Newest First)
-        all_folders.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-        all_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)  # Changed from name to mtime
+        # Sort by MTime Descending
+        if all_folders:
+            all_folders.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        all_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
-        # --- PAGINATION SLICE ---
+        # --- PAGINATION ---
         start = (page - 1) * limit
         end = start + limit
         
-        folders_to_process = []
-        files_to_process = []
-        current_idx = 0
-        
-        for f in all_folders:
-            if current_idx >= start and current_idx < end:
-                folders_to_process.append(f)
-            current_idx += 1
-            
-        for f in all_files:
-            if current_idx >= start and current_idx < end:
-                files_to_process.append(f)
-            current_idx += 1
+        folders_to_process = all_folders[start:end] if not recursive else []
+        # If we didn't fill the limit with folders, fill with files
+        remaining_limit = limit - len(folders_to_process)
+        file_start = max(0, start - len(all_folders))
+        files_to_process = all_files[file_start : file_start + remaining_limit]
 
-        has_next = current_idx > end
+        has_next = (len(all_folders) + len(all_files)) > end
 
         # --- PROCESS FOLDERS ---
         final_folders = []
@@ -950,20 +969,11 @@ def get_folder_contents_api(request):
             
             is_unread = False
             status_color = None
-            
             if has_chat:
                 if current_user_profile:
                     is_unread = check_unread_status(current_user_profile, full_rel_path)
-                
-                cache_key = f"folder_status_{full_abs_path}"
-                cached_stats = cache.get(cache_key)
-                if cached_stats:
-                    status_color = cached_stats['status_color']
-                else:
-                    stats = get_case_folder_info(full_abs_path)
-                    if stats:
-                        status_color = stats['status_color']
-                        cache.set(cache_key, stats, 3600)
+                stats = get_case_folder_info(full_abs_path)
+                if stats: status_color = stats['status_color']
 
             final_folders.append({
                 "name": name,
@@ -972,8 +982,7 @@ def get_folder_contents_api(request):
                 "has_chat": has_chat,
                 "is_unread": is_unread,
                 "status_color": status_color,
-                "created": folder_stats.st_mtime,
-                "mtime": folder_stats.st_mtime  # ✅ FIX 2: Send mtime
+                "mtime": folder_stats.st_mtime
             })
 
         # --- PROCESS FILES ---
@@ -981,7 +990,8 @@ def get_folder_contents_api(request):
         for entry in files_to_process:
             stats = entry.stat()
             ext = os.path.splitext(entry.name)[1].lower()
-            full_file_path = f"{rel_path}/{entry.name}" if rel_path else entry.name
+            # If recursive, use the pre-calculated rel_path, otherwise build it
+            full_file_path = entry.rel_path if hasattr(entry, 'rel_path') else (f"{rel_path}/{entry.name}" if rel_path else entry.name)
             
             final_files.append({
                 "name": entry.name,
@@ -990,19 +1000,21 @@ def get_folder_contents_api(request):
                 "type": "file",
                 "extension": ext,
                 "size": format_file_size(stats.st_size),
-                "mtime": stats.st_mtime  # ✅ FIX 2: Send mtime
+                "mtime": stats.st_mtime
             })
 
     except Exception as e:
+        print(f"Error in get_folder_contents_api: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({
         "folders": final_folders,
         "files": final_files,
-        "folder_info": folder_info,
-        "auto_fill": auto_fill_data,
-        "saved_draft": saved_draft,
         "has_next": has_next,
+        "saved_draft": saved_draft,
+        "folder_info": folder_info,
+
+        "auto_fill": auto_fill_data,
         "page": page
     })
 
@@ -1034,6 +1046,7 @@ def parse_folder_metadata(folder_name):
         'LAPL': 'lap',
         'EXTE': 'extension',
         'NPAN': 'npa',
+
         
         # (Optional) Keeping some old legacy codes just in case 
         # someone clicks an older folder created before the update
@@ -1155,7 +1168,7 @@ def auto_save_api(request):
                 if match:
                     final_target_path = match['path']
                     folder_changed = True
-                    print(f"🚀 Found correct folder: {final_target_path}")
+                    print(f"Found correct folder: {final_target_path}")
                 else:
                     # Critical mismatch and no valid folder found
                     print(f"❌ No matching folder found for {user_file_no}. Save rejected.")
@@ -1396,9 +1409,19 @@ def get_file_info(request):
         'size': format_file_size(file_stat.st_size),
         'modified': file_stat.st_mtime,
         'created': file_stat.st_ctime,
-        'extension': os.path.splitext(full_path)[1],
+        'extension': os.path.splitext(full_path)[1].lower(),
     }
     
+    # If PDF, add page count
+    if info['extension'] == '.pdf':
+        try:
+            doc = fitz.open(full_path)
+            info['page_count'] = len(doc)
+            doc.close()
+        except Exception as e:
+            print(f"Error getting PDF page count for {full_path}: {e}")
+            info['page_count'] = 0
+
     return JsonResponse(info)
 
 
@@ -1659,7 +1682,7 @@ def save_feedback(request):
         folder_changed = False
 
         # =========================================================
-        # 🛡️ THE TRAFFIC CONTROLLER (Strict Folder Matching)
+        # TRAFFIC CONTROLLER (Strict Folder Matching)
         # =========================================================
         # Logic triggers only if form is >= 20% filled
         if score >= 20 and office_file_no_val:
@@ -1668,7 +1691,7 @@ def save_feedback(request):
             folder_file_no = current_folder_name.split('_')[0]
 
             if office_file_no_val != folder_file_no:
-                print(f"🔍 Mismatch! User: {office_file_no_val} vs Folder: {folder_file_no}. Searching index...")
+                print(f"Mismatch! User: {office_file_no_val} vs Folder: {folder_file_no}. Searching index...")
                 
                 # Query the In-Memory Index (Previously built at server start)
                 index = get_index()
@@ -1680,10 +1703,9 @@ def save_feedback(request):
                 if match:
                     final_target_path = match['path']
                     folder_changed = True
-                    print(f"🚀 Found correct folder: {final_target_path}")
+                    print(f"Found correct folder: {final_target_path}")
                 else:
-                    # 🛑 ABORT SAVE: Mismatch detected but no matching folder found in index
-                    print(f"❌ No matching folder found for {office_file_no_val}. Save rejected.")
+                    print(f"No matching folder found for {office_file_no_val}. Save rejected.")
                     return JsonResponse({
                         'success': False,
                         'error': f'Office File No {office_file_no_val} does not match current folder and was not found in system.',
@@ -1695,10 +1717,14 @@ def save_feedback(request):
         report = None
 
         if report_id:
-            report = SiteVisitReport.objects.filter(id=report_id, user=user).first()
+            report = SiteVisitReport.objects.filter(id=report_id).first()
+
+        # FIX: Prevent UNIQUE constraint failed by checking Office File No
+        if not report and office_file_no_val:
+            report = SiteVisitReport.objects.filter(office_file_no=office_file_no_val).first()
 
         if not report:
-            # Use final_target_path to ensure we are looking in the right place
+            # Fallback: Find by user and target folder path
             report = SiteVisitReport.objects.filter(
                 user=user,
                 target_folder=final_target_path
@@ -1738,10 +1764,9 @@ def save_feedback(request):
             base64_val = images_data.get(source_key)
             vector_val = vectors_data.get(source_key)
             
-            # ✅ THE MISSING PIECE: If both values are empty, the user cleared the sketch.
-            # We MUST delete the record, otherwise the old one stays in the DB forever.
+            # If both values are empty, the user cleared the sketch.
             if not base64_val and not vector_val:
-                print(f"🗑️ Deleting sketch record for: {source_key}")
+                print(f"Deleting sketch record for: {source_key}")
                 ReportSketch.objects.filter(report=report, source_key=source_key).delete()
                 continue 
 
@@ -1893,21 +1918,34 @@ def finalize_pdf(request):
             counter += 1
 
         # 4. GENERATE PDF
-        with sync_playwright() as p:
-            browser = p.chromium.launch()
-            page = browser.new_page()
-            
-            # Set content & wait for network to be idle (images loaded)
-            page.set_content(html_content, wait_until="networkidle") 
-            
-            page.pdf(
-                path=full_save_path,
-                format="A4",
-                margin={ "top": "0", "bottom": "0", "left": "0", "right": "0" },
-                print_background=True,
-                scale=1.0 
-            )
-            browser.close()
+        print(f"Starting PDF generation for {pdf_filename} (HTML size: {len(html_content)} bytes)")
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(args=["--no-sandbox", "--disable-setuid-sandbox"])
+                # Set a reasonable viewport to avoid layout issues
+                context = browser.new_context(viewport={'width': 800, 'height': 1200})
+                page = context.new_page()
+                
+                # Set content & wait for images (already base64 mostly)
+                # Using 'load' instead of 'networkidle' for speed since images are local
+                page.set_content(html_content, wait_until="load", timeout=60000) 
+                
+                # Small buffer for any late-loading resources or JS execution
+                time.sleep(1)
+                
+                page.pdf(
+                    path=full_save_path,
+                    format="A4",
+                    margin={ "top": "0", "bottom": "0", "left": "0", "right": "0" },
+                    print_background=True,
+                    scale=1.0,
+                    prefer_css_page_size=False
+                )
+                browser.close()
+            print("PDF successfully generated.")
+        except Exception as pw_err:
+            print(f"Playwright Error: {pw_err}")
+            raise pw_err
 
         # 5. Backup Logic
         try:
@@ -2064,10 +2102,13 @@ def db_case_search_api(request):
     dist_id = request.GET.get('dist', '')  # e.g. "02"
     user_input = request.GET.get('q', '').strip()  # e.g. "1"
 
-    # 1. Convert Bank ID to 2-digit Short Code (1000 -> 01)
+    # 1. Convert Bank ID to 2-digit Short Code (1000 -> 01 or 06 -> 06)
     bank_short_code = ""
     if raw_bank.isdigit():
-        bank_short_code = str(int(raw_bank) // 1000).zfill(2)
+        if len(raw_bank) <= 2:
+            bank_short_code = raw_bank.zfill(2)
+        else:
+            bank_short_code = str(int(raw_bank) // 1000).zfill(2)
 
     filters = Q()
 
@@ -2146,7 +2187,10 @@ def save_verification_data(request):
                     'verified_by': user_profile,
                     'inspection_date': data.get('inspection_date', ''),
                     'documents_received': data.get('documents_received', []),
-                    'verification_database': data.get('verification_database', {})
+                    'verification_database': {
+                        'DynamicDocuments': data.get('DynamicDocuments', []),
+                        'BoundaryAnalysisDocs': data.get('BoundaryAnalysisDocs', [])
+                    }
                 }
             )
 
@@ -2155,4 +2199,7 @@ def save_verification_data(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
             
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
