@@ -28,3 +28,19 @@ generated_pdfs/
 .DS_Store
 Thumbs.db
 vision_key.json
+
+# Scratch & Logs
+*.txt
+!requirements.txt
+logs/
+chat_uploads/
+vadrida.apk
+
+# Excel backups
+*backup*.xlsm
+~$*.xlsm
+
+# Local Scripts
+backup_db.py
+start_vadrida.bat
+run_tunnel.bat
