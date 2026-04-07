@@ -203,16 +203,9 @@
     <div class="action-panel">
         <div class="welcome-text">Welcome, {{ user_profile.user_name }}</div>
         
-        <a href="{% url 'coreapi:office_verification' %}" class="action-card">
-            <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
-            <div class="card-content">
-                <h3>Correct Site Report</h3>
-                <p>Review, verify, and edit site visit reports submitted by field staff.</p>
-            </div>
-            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
-        </a>
 
-        <a href="{% url 'coreapi:create_folder' %}" class="action-card"> <div class="card-icon"><i class="fas fa-folder-plus"></i></div>
+        <a href="{% url 'coreapi:create_folder' %}" class="action-card"> 
+            <div class="card-icon"><i class="fas fa-folder-plus"></i></div>
             <div class="card-content">
                 <h3>Create File Folder</h3>
                 <p>Generate new file structures for incoming loan applications.</p>
@@ -220,7 +213,34 @@
             <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
         </a>
 
+        <a href="{% url 'coreapi:office_verification' %}" class="action-card">
+            <div class="card-icon"><i class="fas fa-file-signature"></i></div>
+            <div class="card-content">
+                <h3>Vetting and Analysis</h3>
+                <p>Analyze and verify document credentials for office vetting processes.</p>
+            </div>
+            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
         </a>
+
+        <a href="{% url 'coreapi:status_viewer' %}" class="action-card">
+            <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
+            <div class="card-content">
+                <h3>File Status / TAT Viewer</h3>
+                <p>Monitor real-time Turnaround Time (TAT), completion status, and file age across the system.</p>
+            </div>
+            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
+        </a>
+
+        {% if user_profile.email == "treesaneenu89@gmail.com" or user_profile.email == "maluremya13@gmail.com" %}
+        <a href="{% url 'coreapi:feedback' %}" class="action-card">
+            <div class="card-icon"><i class="fas fa-comments"></i></div>
+            <div class="card-content">
+                <h3>Feedback Portal</h3>
+                <p>Access the specialized feedback form and site visit report generation tool.</p>
+            </div>
+            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
+        </a>
+        {% endif %}
 
     </div>
 

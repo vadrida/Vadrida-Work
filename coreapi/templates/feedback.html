@@ -113,65 +113,264 @@
         margin-bottom: 15px;
     }
 
+    /* --- NEW FLEX LAYOUT SYSTEM --- */
+    .feedback-nav {
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+        min-height: 70px;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .nav-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 100%;
+        padding: 0 20px;
+        height: 100%;
+        min-height: 70px;
+    }
+    .nav-left, .nav-right {
+        flex: 1;
+        min-width: 150px;
+    }
+    .nav-right { text-align: right; }
+    .nav-center {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 250px;
+    }
+    .page-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    /* Progress System */
+    .progress-container {
+        width: 100%;
+        max-width: 250px;
+        margin-top: 4px;
+    }
+    .progress-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 2px;
+    }
+    .progress-label {
+        font-size: 10px;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .progress-value {
+        font-size: 11px;
+        font-weight: bold;
+        color: #2563eb;
+    }
+    .progress-bar-bg {
+        width: 100%;
+        height: 6px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .progress-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: #2563eb;
+        transition: width 0.3s ease;
+        border-radius: 3px;
+    }
+
+    /* Location Banner */
+    .location-banner {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 20px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .sticky-banner {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+    }
+    .location-wrapper {
+        display: flex;
+        align-items: center;
+        min-width: 0; /* Important for truncation */
+        flex: 1;
+    }
+    .location-label {
+        font-size: 13px;
+        color: #64748b;
+        margin-right: 8px;
+        white-space: nowrap;
+    }
+    .location-path {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 13px;
+        color: #1e40af;
+        font-weight: 600;
+        letter-spacing: 0.025em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .reload-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.1rem;
+        color: #64748b;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+    .reload-btn:hover {
+        background: #f1f5f9;
+        color: #2563eb;
+    }
+
+    /* Search Filters */
+    .search-filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 12px;
+    }
+
+    /* Enforce visible input borders for high-brightness screens (Tabs/Desktops) */
+    .form-input, .form-select, .form-textarea, .search-trigger, #caseSearchInput {
+        border: 1px solid #94a3b8 !important; 
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        border-radius: 6px;
+        padding: 10px;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+    }
+    
+    .search-dashboard-section {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        margin-bottom: 16px;
+    }
+
+    /* --- RESPONSIVE OVERHAUL --- */
+
+    /* Tablet & Desktop Tweaks */
+    @media (min-width: 1025px) {
+        .left-column { width: 400px; border-right: 1px solid #e5e7eb; }
+    }
+
+    @media (max-width: 1200px) {
+        .left-column { width: 350px; }
+    }
+
+    @media (max-width: 1024px) {
+        .feedback-nav { height: auto !important; min-height: 80px; }
+        .nav-content { flex-wrap: wrap; padding: 12px 20px; }
+        .nav-left, .nav-right { flex: 1; min-width: 120px; }
+        .nav-center { width: 100% !important; order: 3; margin-top: 12px; flex: none; }
+        
+        .left-column { width: 320px; }
+        .feedback-layout { height: calc(100vh - 80px); }
+    }
+
+    /* Mobile & Tablet Portrait */
     @media (max-width: 768px) {
         .feedback-layout {
-            flex-direction: column;
-            height: calc(100vh - 60px) !important;
-            /* Adjust based on your actual navbar height */
-            overflow: hidden !important;
-        }
-
-        .resizer-gutter {
-            width: 100% !important;
-            height: 30px !important;
-            /* Large hit area for thumbs */
-            cursor: row-resize;
-            background: #f1f5f9;
-            border-top: 1px solid #cbd5e1;
-            border-bottom: 1px solid #cbd5e1;
-            display: flex !important;
-            touch-action: none;
-            /* Prevent browser scrolling while dragging handle */
-        }
-
-        .resizer-icon {
-            transform: rotate(90deg);
-            font-size: 16px;
-            color: #64748b;
+            flex-direction: column !important;
+            height: calc(100vh - 120px) !important;
+            overflow-y: auto !important;
         }
 
         .left-column {
             width: 100% !important;
-            height: 40vh;
-            /* Default split: 40% top, 60% bottom */
-            min-height: 100px;
-            max-height: 80vh;
+            height: auto !important;
+            max-height: 50vh !important;
             border-right: none;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 2px solid #e2e8f0;
             flex-shrink: 0;
+            overflow-y: auto;
         }
+
+        .resizer-gutter {
+            width: 100% !important;
+            height: 28px !important;
+            cursor: row-resize;
+            background: #f8fafc;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resizer-icon { transform: rotate(90deg); color: #94a3b8; }
 
         .right-column {
             width: 100% !important;
             flex: 1;
-            min-height: 0;
-        }
-
-        .duration-row {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Ensure the "Years/Months" labels sit correctly */
-        .duration-input-group {
-            width: 100%;
+            min-height: 60vh;
+            padding: 12px;
         }
 
         .form-row {
             grid-template-columns: 1fr !important;
-            /* Force single column */
             gap: 12px;
         }
+
+        .duration-row { flex-direction: column; }
+        
+        .nav-left { font-size: 13px; }
+        .user-info { font-size: 13px; font-weight: 600; }
+        .page-title { font-size: 18px !important; }
+        
+        .sticky-banner { top: 0 !important; position: sticky !important; margin: 0 -12px 16px -12px; border-radius: 0; }
+    }
+
+    /* Small Phones */
+    @media (max-width: 480px) {
+        .nav-content { padding: 10px; }
+        .nav-label-text { display: none; } /* Show only icon for back link */
+        .nav-left { min-width: 40px; flex: none; }
+        .nav-right { flex: none; width: auto; min-width: 0; }
+        .page-title { font-size: 16px !important; }
+        
+        .search-filters-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .preview-header { flex-direction: column; align-items: stretch !important; gap: 8px; }
+        .preview-controls { display: flex; justify-content: space-between; gap: 8px; }
+        .analyse-btn, .control-btn { flex: 1; padding: 8px 10px; font-size: 13px; text-align: center; justify-content: center; }
+        
+        .form-header { padding: 12px !important; flex-direction: column; gap: 12px; align-items: stretch !important; }
+        .form-header h2 { font-size: 16px; text-align: center; }
+        
+        .v-modal { width: 90vw; max-width: 340px; }
+        .utility-fab { width: 42px; height: 42px; right: 15px; bottom: 15px; }
     }
 
     .right-column.fullscreen-active {
@@ -180,18 +379,13 @@
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-
-        /* SUPER HIGH Z-INDEX to cover Navbar (which is usually 1000) */
         z-index: 100 !important;
-
         background: #ffffff;
         overflow-y: auto !important;
-        /* The DIV handles scrolling now */
         padding: 0 !important;
         margin: 0 !important;
     }
 
-    /* Ensure the form inside scrolls properly when full screen */
     .right-column.fullscreen-active .form-section {
         height: 100%;
         display: flex;
@@ -201,17 +395,14 @@
         box-shadow: none;
     }
 
-    /* Make the actual form scrollable, keeping the header fixed at top */
     .right-column.fullscreen-active .feedback-form {
         flex: 1;
         overflow-y: auto;
         padding: 0 20px 40px 20px;
-        /* Add bottom padding for submit buttons */
     }
 
     .form-header {
         flex-shrink: 0;
-        /* Never shrink */
         z-index: 10;
         background-color: #ffffff;
         border-bottom: 1px solid #e5e7eb;
@@ -223,21 +414,19 @@
     }
 
     .right-column.fullscreen-active .form-header {
-        margin: -20px -20px 20px -20px;
+        margin: 0; 
         padding: 15px 25px;
         background-color: #f8f9fa;
         border-radius: 0;
         z-index: 9999;
+        padding-top: 100px;
     }
 
     .feedback-form {
         flex-grow: 1;
-        /* Take up all remaining space */
         overflow-y: auto;
-        /* ENABLE SCROLLING here */
         padding: 20px;
         padding-bottom: 100px;
-        /* Space for buttons */
     }
 
     .form-section {
@@ -248,60 +437,251 @@
 
     .feedback-layout {
         display: flex;
-        /* Side-by-side layout */
         flex-direction: row;
         width: 100%;
         height: calc(100vh - 70px);
-        /* Full height minus Navbar */
         overflow: hidden;
-        /* Prevent page-wide scrollbars */
         background: #f8fafc;
+    }
+
+    .swal2-container {
+        z-index: 10001 !important;
+    }
+
+    /* ===== UTILITY MODAL & FLOATING BUTTON ===== */
+    .utility-fab {
+        position: fixed; bottom: 150px; right: 30px; width: 50px; height: 50px;
+        background: #2563eb; color: white; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; cursor: pointer; z-index: 1000;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .utility-fab:hover { transform: scale(1.1) rotate(15deg); background: #1d4ed8; }
+
+    .v-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4); 
+        backdrop-filter: blur(4px);
+        display: none; align-items: center; justify-content: center; z-index: 2000;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .v-modal-overlay.visible { display: flex !important; }
+    
+    /* When floating/shrunk, remove blur and allow clicking through background overlay */
+    .v-modal-overlay.floating {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        pointer-events: none !important;
+    }
+
+    .v-modal {
+        background: white; width: 340px; border-radius: 16px;
+        border: 1px solid #e5e7eb; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        overflow: hidden; position: relative; 
+        pointer-events: auto; /* Ensures it is clickable in floating mode */
+        animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .v-modal.floating {
+        position: absolute;
+        width: 280px; /* Slimmed down in floating state */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+        border-radius: 12px;
+        z-index: 2001;
+    }
+
+    .v-modal-header {
+        padding: 12px 16px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: grab;
+        user-select: none;
+    }
+    .v-modal-header:active { cursor: grabbing; }
+
+    .v-modal-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .v-modal-controls {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .v-modal-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    .v-modal-btn:hover { background: #e2e8f0; color: #1e293b; }
+    .v-modal-btn.close-btn:hover { background: #fee2e2; color: #ef4444; }
+
+    /* Converter Styles (Inside the modal) */
+    .conv-panel {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .conv-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .conv-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .conv-input {
+        width: 100%;
+        height: 38px;
+        padding: 0 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #1e293b;
+        background: #ffffff;
+        transition: border-color 0.2s;
+    }
+    .conv-input:focus {
+        border-color: #2563eb;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .conv-input[readonly] {
+        background: #f1f5f9;
+        cursor: default;
+    }
+
+    @keyframes modalPop { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+    @media (max-width: 1024px) {
+        .v-modal { width: 300px; }
+        .utility-fab { width: 45px; height: 45px; font-size: 1.1rem; }
+    }
+
+    /* Photo Upload Enhancements */
+    .photo-upload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .upload-choice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 8px;
+    }
+    .upload-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 12px;
+        background: #ffffff;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 8px;
+    }
+    .upload-card:hover {
+        border-color: #2563eb;
+        background: #f8faff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+    .upload-card i {
+        font-size: 1.5rem;
+        color: #64748b;
+    }
+    .upload-card span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #475569;
+    }
+    .upload-card.camera-card {
+        background: #f0f7ff;
+        border-style: solid;
+        border-color: #dbeafe;
+    }
+    .upload-card.camera-card i { color: #2563eb; }
+    .upload-card.camera-card:hover { border-color: #2563eb; background: #e0efff; }
+
+    .dir-image-box {
+        border: 1px solid #e2e8f0;
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .dir-image-preview {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Navigation Bar -->
-<nav class="feedback-nav" style="height: 70px;">
-    <div class="nav-content" style="display: flex; justify-content: space-between; align-items: center; height: 100%;">
-
-        <div class="nav-left" style="width: 200px; flex-shrink: 0;"> <a href="{% url 'coreapi:dashboard' %}"
-                class="nav-link back-link">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
+<nav class="feedback-nav">
+    <div class="nav-content">
+        <div class="nav-left">
+            <a href="{% url 'coreapi:dashboard' %}" class="nav-link back-link">
+                <i class="fas fa-arrow-left"></i> <span class="nav-label-text">Back to Dashboard</span>
             </a>
         </div>
 
-        <div class="nav-center"
-            style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <h1 class="page-title" style="margin: 0; line-height: 1.2;">Site Feedback Form</h1>
+        <div class="nav-center">
+            <h1 class="page-title">Site Feedback Form</h1>
 
-            <div style="width: 250px; margin-top: 4px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">
-                    <span
-                        style="font-size: 10px; color: #6b7280; font-weight: 600; text-transform: uppercase;">Completion</span>
-                    <span id="progressText" style="font-size: 11px; font-weight: bold; color: #2563eb;">0%</span>
+            <div class="progress-container">
+                <div class="progress-details">
+                    <span class="progress-label">Completion</span>
+                    <span id="progressText" class="progress-value">0%</span>
                 </div>
-                <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
-                    <div id="progressBar"
-                        style="width: 0%; height: 100%; background: #2563eb; transition: width 0.3s ease; border-radius: 2px;">
-                    </div>
+                <div class="progress-bar-bg">
+                    <div id="progressBar" class="progress-bar-fill"></div>
                 </div>
             </div>
         </div>
 
-        <div class="nav-right" style="width: 200px; flex-shrink: 0; display: flex; justify-content: flex-end;"> <span
-                class="user-info">{{ request.session.user_name }}</span>
+        <div class="nav-right">
+            <span class="user-info">{{ request.session.user_name }}</span>
         </div>
-
     </div>
 </nav>
-
-<div id="orientationBlocker" class="orientation-blocker hidden">
-    <div class="orientation-box">
-        <h2>Rotate Device</h2>
-        <p>This page works only in <b>landscape mode</b> on tablets.</p>
-    </div>
-</div>
 
 <div class="relative">
     <!-- Loading overlay for Analyse action -->
@@ -310,19 +690,14 @@
         <div class="text-lg font-semibold">Analyzing — please wait...</div>
         <div class="text-sm">Processing your file...</div>
     </div>
-    <div
-        class="sticky top-[90px] z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4 shadow-sm flex items-center justify-between">
-        <div class="flex items-center" style="overflow: hidden;">
-            <div class="text-gray-500 mr-2 text-sm whitespace-nowrap">
+    <div class="location-banner sticky-banner">
+        <div class="location-wrapper">
+            <div class="location-label">
                 <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
             </div>
-            <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
-                /
-            </div>
+            <div id="topBannerPath" class="location-path">/</div>
         </div>
-        <button type="button" onclick="location.reload()" class="control-btn" title="Reload Page"
-            style="background: transparent; border: none; font-size: 1.1rem; color: #4b5563; cursor: pointer; padding: 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; margin-left: 10px; flex-shrink: 0;"
-            onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='transparent'">
+        <button type="button" onclick="location.reload()" class="reload-btn" title="Reload Page">
             <i class="fas fa-sync-alt"></i>
         </button>
     </div>
@@ -333,7 +708,7 @@
                 style="padding: 10px; display: flex; flex-direction: column; gap: 12px; background: #fff;">
                 <h3 class="section-title">Case Finder</h3>
 
-                <div class="search-filters" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div class="search-filters-grid">
                     <div class="form-group">
                         <label class="text-xs font-bold text-gray-500 uppercase">Bank</label>
                         <select id="bank_select" class="form-select search-trigger">
@@ -346,8 +721,10 @@
                             <option value="7000" data-name="CSB">7000. CSB</option>
                             <option value="8000" data-name="Chola">8000. Chola</option>
                             <option value="9000" data-name="SIB">9000. SIB</option>
-                            <option value="10000" data-name="CHOLA SME">10000. CHOLA SME</option>
-                            <option value="11000" data-name="ICICI">11000. ICICI</option>
+                            <option value="10000" data-name="ICICI">10000. ICICI</option>
+                            <option value="11000" data-name="RBL">11000. RBL</option>
+                            <option value="12000" data-name="Chola SME">12000. Chola SME</option>
+                            <option value="13000" data-name="Axis Finance">13000. Axis Finance</option>
                         </select>
                     </div>
 
@@ -485,12 +862,11 @@
                         <div class="form-group">
                             <label class="form-label">1. Office File No.</label>
                             <input type="text" data-path="Valuers_Checklist.Office_file_no" class="form-input" readonly
-                                style="background-color: #f3f4f6; font-weight: bold; cursor: not-allowed;">
+                                style="background-color: #f1f5f9; font-weight: 700; cursor: not-allowed; color: #64748b;">
                         </div>
                         <div class="form-group">
                             <label class="form-label">2. Applicant Name</label>
-                            <input type="text" data-path="Valuers_Checklist.applicant_name" class="form-input"
-                                style="display: flex; flex-wrap: wrap;">
+                            <input type="text" data-path="Valuers_Checklist.applicant_name" class="form-input">
                         </div>
                     </div>
 
@@ -526,11 +902,9 @@
 
                 <!-- DYNAMIC DOCUMENTS SECTION -->
                 <div class="form-section-group" id="dynamicDocumentsSection">
-                    <div class="form-header"
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h4 class="form-section-title" style="margin-bottom: 0;">6. Documents Received & Analysis
-                        </h4>
-                    </div>
+
+                    <h4 class="form-section-title" style="margin-bottom: 20px;">6. Documents Received & Analysis
+                    </h4>
 
                     <div id="dynamicDocumentsContainer" style="display: flex; flex-direction: column; gap: 20px;">
                         <!-- Dynamic Document Forms Rendered Here -->
@@ -1101,8 +1475,8 @@
 
                         <div class="table-container">
                             <table class="analysis-table">
-                                <thead>
-                                    <tr>
+                                <thead id="buildingTableHead">
+                                    <tr id="buildingHeaderRow">
                                         <th>Floor No / Unit</th>
                                         <th>Builtup Area (measured at site)</th>
                                         <th>No. of Rooms</th>
@@ -1124,7 +1498,148 @@
                                 <i class="fas fa-arrow-down mr-1"></i> Add Floor Below
                             </button>
                         </div>
-                        <label class="form-label" style="font-size: 15px; font-weight: bolder;">Details if
+
+                        <!-- Construction Timeline Table -->
+                        <div class="form-group">
+                            <label class="form-label">Year of Construction</label>
+                            <div class="table-container">
+                                <table class="analysis-table" id="timelineTable"
+                                    style="table-layout: fixed; width: 100%;">
+                                    <tbody>
+                                        <tr id="row_year">
+                                            <td style="width: 100px; background: #f0f0f0; font-weight: bold;">Year</td>
+
+                                            <td rowspan="2" id="controlCell"
+                                                style="width: 40px; text-align: center; vertical-align: middle; background: #e8f0fe; border-left: 2px solid #ccc;">
+                                                <div
+                                                    style="display: flex; flex-direction: column; gap: 5px; align-items: center;">
+                                                    <button type="button" class="timeline-btn add-btn"
+                                                        onclick="manualAddColumn()" title="Add Column">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                    <button type="button" class="timeline-btn remove-btn"
+                                                        onclick="removeLastColumn()" title="Remove Last">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr id="row_percent">
+                                            <td style="width: 100px; background: #f0f0f0; font-weight: bold;">% Area
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <input type="hidden" data-path="Building_analysis.construction_year"
+                                id="finalConstructionString">
+                        </div>
+
+                        <!-- Roof Type Table -->
+                        <div class="table-container">
+                            <table class="analysis-table">
+                                <thead>
+                                    <tr>
+                                        <th>Roof Type</th>
+                                        <th> <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Building_analysis.roof_type" value="RCC"> RCC</label>
+                                        </th>
+                                        <th> <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Building_analysis.roof_type" value="Tiled">Tiled</label>
+                                        </th>
+                                        <th> <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Building_analysis.roof_type" value="Sheet">
+                                                Sheet</label>
+                                        </th>
+                                        <th> <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Building_analysis.roof_type" value="Other">
+                                                Other</label>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Roof Percentage</td>
+                                        <td><input type="number" data-path="Building_analysis.RCC_Percentage"
+                                                step="0.01" class="table-input" placeholder="%"></td>
+                                        <td><input type="number" data-path="Building_analysis.Tiled_Percentage"
+                                                step="0.01" class="table-input" placeholder="%"></td>
+                                        <td><input type="number" data-path="Building_analysis.Sheet_Percentage"
+                                                step="0.01" class="table-input" placeholder="%"></td>
+                                        <td><input type="number" data-path="Building_analysis.Other_Percentage"
+                                                step="0.01" class="table-input" placeholder="%"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Setback Table -->
+                        <div class="table-container">
+                            <table class="analysis-table">
+                                <thead>
+                                    <tr>
+                                        <!-- Single column -->
+                                        <th rowspan="2">Setback (m)</th>
+
+                                        <!-- Yard headers -->
+                                        <th colspan="2">Front Yard</th>
+                                        <th colspan="2">Side-1 Yard</th>
+                                        <th colspan="2">Side-2 Yard</th>
+                                        <th colspan="2">Rear Yard</th>
+                                    </tr>
+                                    <tr>
+                                        <!-- Sub headers -->
+                                        <th style="z-index: auto;">Min</th>
+                                        <th>Max</th>
+
+                                        <th>Min</th>
+                                        <th>Max</th>
+
+                                        <th>Min</th>
+                                        <th>Max</th>
+
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <!-- SINGLE setback input -->
+                                        <td>
+                                            <input type="number" data-path="Building_analysis.setback" step="0.01"
+                                                class="table-input" placeholder="Setback" />
+                                        </td>
+
+                                        <!-- Front yard -->
+                                        <td><input type="number" data-path="Building_analysis.front_yard_min"
+                                                step="0.01" class="table-input" /></td>
+                                        <td><input type="number" data-path="Building_analysis.front_yard_max"
+                                                step="0.01" class="table-input" /></td>
+
+                                        <!-- Side-1 -->
+                                        <td><input type="number" data-path="Building_analysis.side1_yard_min"
+                                                step="0.01" class="table-input" /></td>
+                                        <td><input type="number" data-path="Building_analysis.side1_yard_max"
+                                                step="0.01" class="table-input" /></td>
+
+                                        <!-- Side-2 -->
+                                        <td><input type="number" data-path="Building_analysis.side2_yard_min"
+                                                step="0.01" class="table-input" /></td>
+                                        <td><input type="number" data-path="Building_analysis.side2_yard_max"
+                                                step="0.01" class="table-input" /></td>
+
+                                        <!-- Rear -->
+                                        <td><input type="number" data-path="Building_analysis.rear_yard_min" step="0.01"
+                                                class="table-input" /></td>
+                                        <td><input type="number" data-path="Building_analysis.rear_yard_max" step="0.01"
+                                                class="table-input" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <label class="form-label" style="font-size: 15px; margin-top: 10px; text-decoration: solid underline 2px; font-weight: bolder; color:green;">Details if
                             Rented</label> <br>
                         <label class="form-label">Occupant Name&nbsp;&nbsp;</label>
                         <input type="text" data-path="Building_analysis.occupant_name" class="form-input"> <br>
@@ -1152,9 +1667,9 @@
 
                         <label class="form-label">Building No</label>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                            <input type="text" id="buildingNo1" data-path="Boundary_analysis.Building_no" class="form-input" style="flex: 1; margin: 0;">
-                            <button type="button"
-                                onclick="addBuildingNoField_fb()"
+                            <input type="text" id="buildingNo1" data-path="Boundary_analysis.Building_no"
+                                class="form-input" style="flex: 1; margin: 0;">
+                            <button type="button" onclick="addBuildingNoField_fb()"
                                 style="flex-shrink: 0; padding: 6px 14px; background: #003366; color: #fff; border: none; border-radius: 5px; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap;">
                                 &#43; Add
                             </button>
@@ -1174,145 +1689,6 @@
                             <textarea data-path="Building_analysis.building_analysis_notes" class="form-textarea"
                                 rows="4"></textarea>
                         </div>
-                    </div>
-                    <!-- Roof Type Table -->
-                    <div class="table-container">
-                        <table class="analysis-table">
-                            <thead>
-                                <tr>
-                                    <th>Roof Type</th>
-                                    <th> <label class="checkbox-label-small"><input type="checkbox"
-                                                data-array="Building_analysis.roof_type" value="RCC"> RCC</label>
-                                    </th>
-                                    <th> <label class="checkbox-label-small"><input type="checkbox"
-                                                data-array="Building_analysis.roof_type" value="Tiled">Tiled</label>
-                                    </th>
-                                    <th> <label class="checkbox-label-small"><input type="checkbox"
-                                                data-array="Building_analysis.roof_type" value="Sheet">
-                                            Sheet</label>
-                                    </th>
-                                    <th> <label class="checkbox-label-small"><input type="checkbox"
-                                                data-array="Building_analysis.roof_type" value="Other">
-                                            Other</label>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Roof Percentage</td>
-                                    <td><input type="number" data-path="Building_analysis.RCC_Percentage" step="0.01"
-                                            class="table-input" placeholder="%"></td>
-                                    <td><input type="number" data-path="Building_analysis.Tiled_Percentage" step="0.01"
-                                            class="table-input" placeholder="%"></td>
-                                    <td><input type="number" data-path="Building_analysis.Sheet_Percentage" step="0.01"
-                                            class="table-input" placeholder="%"></td>
-                                    <td><input type="number" data-path="Building_analysis.Other_Percentage" step="0.01"
-                                            class="table-input" placeholder="%"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Setback Table -->
-                    <div class="table-container">
-                        <table class="analysis-table">
-                            <thead>
-                                <tr>
-                                    <!-- Single column -->
-                                    <th rowspan="2">Setback (m)</th>
-
-                                    <!-- Yard headers -->
-                                    <th colspan="2">Front Yard</th>
-                                    <th colspan="2">Side-1 Yard</th>
-                                    <th colspan="2">Side-2 Yard</th>
-                                    <th colspan="2">Rear Yard</th>
-                                </tr>
-                                <tr>
-                                    <!-- Sub headers -->
-                                    <th style="z-index: auto;">Min</th>
-                                    <th>Max</th>
-
-                                    <th>Min</th>
-                                    <th>Max</th>
-
-                                    <th>Min</th>
-                                    <th>Max</th>
-
-                                    <th>Min</th>
-                                    <th>Max</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                <tr>
-                                    <!-- SINGLE setback input -->
-                                    <td>
-                                        <input type="number" data-path="Building_analysis.setback" step="0.01"
-                                            class="table-input" placeholder="Setback" />
-                                    </td>
-
-                                    <!-- Front yard -->
-                                    <td><input type="number" data-path="Building_analysis.front_yard_min" step="0.01"
-                                            class="table-input" /></td>
-                                    <td><input type="number" data-path="Building_analysis.front_yard_max" step="0.01"
-                                            class="table-input" /></td>
-
-                                    <!-- Side-1 -->
-                                    <td><input type="number" data-path="Building_analysis.side1_yard_min" step="0.01"
-                                            class="table-input" /></td>
-                                    <td><input type="number" data-path="Building_analysis.side1_yard_max" step="0.01"
-                                            class="table-input" /></td>
-
-                                    <!-- Side-2 -->
-                                    <td><input type="number" data-path="Building_analysis.side2_yard_min" step="0.01"
-                                            class="table-input" /></td>
-                                    <td><input type="number" data-path="Building_analysis.side2_yard_max" step="0.01"
-                                            class="table-input" /></td>
-
-                                    <!-- Rear -->
-                                    <td><input type="number" data-path="Building_analysis.rear_yard_min" step="0.01"
-                                            class="table-input" /></td>
-                                    <td><input type="number" data-path="Building_analysis.rear_yard_max" step="0.01"
-                                            class="table-input" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Construction Timeline Table -->
-                    <div class="form-group">
-                        <label class="form-label">Year of Construction</label>
-                        <div class="table-container">
-                            <table class="analysis-table" id="timelineTable" style="table-layout: fixed; width: 100%;">
-                                <tbody>
-                                    <tr id="row_year">
-                                        <td style="width: 100px; background: #f0f0f0; font-weight: bold;">Year</td>
-
-                                        <td rowspan="2" id="controlCell"
-                                            style="width: 40px; text-align: center; vertical-align: middle; background: #e8f0fe; border-left: 2px solid #ccc;">
-                                            <div
-                                                style="display: flex; flex-direction: column; gap: 5px; align-items: center;">
-                                                <button type="button" class="timeline-btn add-btn"
-                                                    onclick="manualAddColumn()" title="Add Column">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                                <button type="button" class="timeline-btn remove-btn"
-                                                    onclick="removeLastColumn()" title="Remove Last">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr id="row_percent">
-                                        <td style="width: 100px; background: #f0f0f0; font-weight: bold;">% Area
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <input type="hidden" data-path="Building_analysis.construction_year"
-                            id="finalConstructionString">
                     </div>
 
                     <div class="form-group">
@@ -1646,19 +2022,27 @@
                                 <label class="form-label font-bold" style="font-size: 14px;">📍 Property Location
                                     (Pinpoint)</label>
 
-                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                    <div style="flex: 1;">
-                                        <label class="text-xs text-gray-500">Latitude</label>
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-end;">
+                                    <div style="flex: 1; min-width: 120px;">
+                                        <label class="text-xs text-gray-500 font-bold">Latitude</label>
                                         <input type="text" id="input_lat" data-path="land_inspection_details.latitude"
-                                            class="table-input bg-gray-50" readonly>
+                                            class="form-input" style="height: 40px;" placeholder="e.g. 9.93">
                                     </div>
-                                    <div style="flex: 1;">
-                                        <label class="text-xs text-gray-500">Longitude</label>
+                                    <div style="flex: 1; min-width: 120px;">
+                                        <label class="text-xs text-gray-500 font-bold">Longitude</label>
                                         <input type="text" id="input_lng" data-path="land_inspection_details.longitude"
-                                            class="table-input bg-gray-50" readonly>
+                                            class="form-input" style="height: 40px;" placeholder="e.g. 76.26">
+                                    </div>
+                                    <div style="flex: 2; min-width: 200px; position: relative;">
+                                        <label class="text-xs text-gray-500 font-bold">Search Location</label>
+                                        <div style="position: relative;">
+                                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
+                                            <input type="text" id="mapSearchInput" class="form-input" 
+                                                style="height: 40px; padding-left: 35px;" placeholder="Enter address or landmark...">
+                                        </div>
                                     </div>
                                     <button type="button" onclick="getCurrentLocation(this)" class="modal-btn success"
-                                        style="width: auto; padding: 0 15px;">
+                                        style="width: auto; padding: 0 15px; height: 40px; margin: 0; min-width: 140px;">
                                         <i class="fas fa-crosshairs"></i> Use My GPS
                                     </button>
                                 </div>
@@ -1724,90 +2108,107 @@
                                 style="color: #374151; font-size: 1.25rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px;">Photos
                                 & Directional Images</label>
 
-                            <!-- General Site Photos -->
-                            <div style="margin-bottom: 24px;">
-                                <label class="form-label font-bold" style="color: #4b5563;">Site Photos</label>
-                                <label for="generalPhotosInput"
-                                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 100px; border: 2px dashed #cbd5e1; border-radius: 8px; background-color: #f8fafc; cursor: pointer; margin-top: 8px; transition: all 0.2s ease;">
-                                    <i class="fas fa-image"
-                                        style="font-size: 28px; color: #94a3b8; margin-bottom: 8px;"></i>
-                                    <span style="font-size: 14px; color: #64748b; font-weight: 500;">Click or drag
-                                        to select photos</span>
-                                </label>
-                                <input type="file" id="generalPhotosInput" multiple accept="image/*" class="hidden"
-                                    onchange="previewGeneralPhotos(this)" style="display: none;">
-                                <div id="generalPhotosPreview"
-                                    style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; min-height: 50px; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 8px; background: white;">
-                                    <span class="text-gray-400 text-sm flex items-center justify-center w-full">Selected
-                                        general photos will preview here</span>
+                            <div class="photo-upload-container">
+                                <!-- General Site Photos -->
+                                <div class="form-section-inner">
+                                    <label class="form-label font-bold" style="color: #4b5563; font-size: 1.1rem;">Site Photos (General)</label>
+                                    <div class="upload-choice-grid">
+                                        <div class="upload-card" onclick="document.getElementById('generalPhotosInput').click()">
+                                            <i class="fas fa-images"></i>
+                                            <span>From Gallery</span>
+                                        </div>
+                                        <div class="upload-card camera-card" onclick="document.getElementById('generalPhotosCameraInput').click()">
+                                            <i class="fas fa-camera"></i>
+                                            <span>Capture Live</span>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="generalPhotosInput" multiple accept="image/*" class="hidden"
+                                        onchange="previewGeneralPhotos(this)">
+                                    <input type="file" id="generalPhotosCameraInput" accept="image/*" capture="environment" class="hidden"
+                                        onchange="previewGeneralPhotos(this)">
+                                    
+                                    <div id="generalPhotosPreview"
+                                        style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; min-height: 50px; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 10px; background: white;">
+                                        <span class="text-gray-400 text-sm flex items-center justify-center w-full">Temporary selection preview...</span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Directional Images -->
-                            <label class="form-label font-bold"
-                                style="color: #4b5563; font-size: 1.1rem; margin-bottom: 12px; display: block;">Directional
-                                Images</label>
+                                <!-- Directional Images -->
+                                <label class="form-label font-bold"
+                                    style="color: #4b5563; font-size: 1.1rem; margin-top: 8px;">Directional Images</label>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                                <!-- North -->
-                                <div
-                                    style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
-                                    <label class="form-label font-bold" style="margin-bottom: 8px;">North</label>
-                                    <label for="northImageInput"
-                                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
-                                        <i class="fas fa-camera"
-                                            style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
-                                        <span style="font-size: 12px; color: #64748b;">Add North Photo</span>
-                                    </label>
-                                    <input type="file" id="northImageInput" accept="image/*" class="hidden"
-                                        onchange="previewDirectionalImage(this, 'northPreview')" style="display: none;">
-                                    <img id="northPreview"
-                                        style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
-                                </div>
-                                <!-- East -->
-                                <div
-                                    style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
-                                    <label class="form-label font-bold" style="margin-bottom: 8px;">East</label>
-                                    <label for="eastImageInput"
-                                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
-                                        <i class="fas fa-camera"
-                                            style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
-                                        <span style="font-size: 12px; color: #64748b;">Add East Photo</span>
-                                    </label>
-                                    <input type="file" id="eastImageInput" accept="image/*" class="hidden"
-                                        onchange="previewDirectionalImage(this, 'eastPreview')" style="display: none;">
-                                    <img id="eastPreview"
-                                        style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
-                                </div>
-                                <!-- South -->
-                                <div
-                                    style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
-                                    <label class="form-label font-bold" style="margin-bottom: 8px;">South</label>
-                                    <label for="southImageInput"
-                                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
-                                        <i class="fas fa-camera"
-                                            style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
-                                        <span style="font-size: 12px; color: #64748b;">Add South Photo</span>
-                                    </label>
-                                    <input type="file" id="southImageInput" accept="image/*" class="hidden"
-                                        onchange="previewDirectionalImage(this, 'southPreview')" style="display: none;">
-                                    <img id="southPreview"
-                                        style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
-                                </div>
-                                <!-- West -->
-                                <div
-                                    style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column;">
-                                    <label class="form-label font-bold" style="margin-bottom: 8px;">West</label>
-                                    <label for="westImageInput"
-                                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 80px; border: 2px dashed #cbd5e1; border-radius: 6px; background-color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
-                                        <i class="fas fa-camera"
-                                            style="font-size: 20px; color: #94a3b8; margin-bottom: 4px;"></i>
-                                        <span style="font-size: 12px; color: #64748b;">Add West Photo</span>
-                                    </label>
-                                    <input type="file" id="westImageInput" accept="image/*" class="hidden"
-                                        onchange="previewDirectionalImage(this, 'westPreview')" style="display: none;">
-                                    <img id="westPreview"
-                                        style="max-height: 120px; width: 100%; object-fit: contain; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #e2e8f0; background: white;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <!-- North -->
+                                    <div class="dir-image-box">
+                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">North</label>
+                                        <div class="upload-choice-grid" style="margin-top: 0;">
+                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('northImageInput').click()">
+                                                <i class="fas fa-images" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('northImageCameraInput').click()">
+                                                <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="northImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'northPreview')">
+                                        <input type="file" id="northImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'northPreview')">
+                                        <img id="northPreview" class="dir-image-preview hidden">
+                                    </div>
+                                    
+                                    <!-- East -->
+                                    <div class="dir-image-box">
+                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">East</label>
+                                        <div class="upload-choice-grid" style="margin-top: 0;">
+                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('eastImageInput').click()">
+                                                <i class="fas fa-images" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('eastImageCameraInput').click()">
+                                                <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="eastImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'eastPreview')">
+                                        <input type="file" id="eastImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'eastPreview')">
+                                        <img id="eastPreview" class="dir-image-preview hidden">
+                                    </div>
+                                    
+                                    <!-- South -->
+                                    <div class="dir-image-box">
+                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">South</label>
+                                        <div class="upload-choice-grid" style="margin-top: 0;">
+                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('southImageInput').click()">
+                                                <i class="fas fa-images" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('southImageCameraInput').click()">
+                                                <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="southImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'southPreview')">
+                                        <input type="file" id="southImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'southPreview')">
+                                        <img id="southPreview" class="dir-image-preview hidden">
+                                    </div>
+                                    
+                                    <!-- West -->
+                                    <div class="dir-image-box">
+                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">West</label>
+                                        <div class="upload-choice-grid" style="margin-top: 0;">
+                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('westImageInput').click()">
+                                                <i class="fas fa-images" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('westImageCameraInput').click()">
+                                                <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="westImageInput" accept="image/*" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'westPreview')">
+                                        <input type="file" id="westImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                            onchange="previewDirectionalImage(this, 'westPreview')">
+                                        <img id="westPreview" class="dir-image-preview hidden">
+                                    </div>
                                 </div>
                             </div>
 
@@ -1965,6 +2366,10 @@
                 <button onclick="setTool('brush')" class="tool-btn active keep-visible" title="Pencil (P)"><i
                         class="fas fa-pencil-alt"></i></button>
 
+                <button onclick="setTool('highlighter')" id="btn_highlighter" class="tool-btn" title="Highlighter (H)">
+                    <i class="fas fa-marker"></i>
+                </button>
+
                 <button onclick="setEraserMode('object')" class="tool-btn" id="btn_erase_object" title="Object Eraser">
                     <i class="fas fa-trash-alt"></i>
                 </button>
@@ -1978,6 +2383,16 @@
                         class="fas fa-fill-drip"></i></button>
             </div>
         </div>
+
+        <!-- <div class="toolbar-section">
+            <div class="section-label">Symbols</div>
+            <div class="tools-grid">
+                <button onclick="addStamp('north-arrow')" class="tool-btn" title="North Arrow"><i class="fas fa-location-arrow"></i></button>
+                <button onclick="addStamp('well')" class="tool-btn" title="Well"><i class="fas fa-dot-circle"></i></button>
+                <button onclick="addStamp('tree')" class="tool-btn" title="Tree"><i class="fas fa-tree"></i></button>
+                <button onclick="addStamp('gate')" class="tool-btn" title="Main Gate"><i class="fas fa-door-open"></i></button>
+            </div>
+        </div> -->
 
         <div class="toolbar-section">
             <div class="section-label">Shapes</div>
@@ -2075,21 +2490,6 @@
         <canvas id="proCanvas" class="canvas-layer" style="touch-action: none; overscroll-behavior: none;"></canvas>
     </div>
 </div>
-<div id="confirmationModal" class="modal hidden">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <div style="margin-bottom: 15px; font-size: 40px; color: #f59e0b;">
-            <i class="fas fa-exclamation-circle"></i>
-        </div>
-        <h2 id="confirmTitle" class="modal-title">Are you sure?</h2>
-        <p id="confirmMessage" class="modal-text">Do you really want to proceed?</p>
-
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="confirmYesBtn" class="modal-btn primary"
-                style="background: #ef4444; border-color: #ef4444;">Yes, do it</button>
-            <button id="confirmNoBtn" class="modal-btn">No, Cancel</button>
-        </div>
-    </div>
-</div>
 <div id="dataLoadingOverlay"
     class="fixed inset-0 z-[2000] hidden flex flex-col items-center justify-center bg-white bg-opacity-95 backdrop-blur-sm transition-opacity duration-300">
     <div class="spinner border-4 border-gray-200 border-t-blue-600 rounded-full w-12 h-12 animate-spin mb-4">
@@ -2173,6 +2573,7 @@
             DynamicDocuments: [],
             images: {},
             vectors: {},
+            site_photos: [], // Store paths of uploaded site images
             completion_metrics: { percent: 0, filled: 0, total: 0, last_updated: "" }
         };
     }
@@ -2207,19 +2608,46 @@
 
     function initBuildingTable() {
         const data = formState.Building_analysis || {};
+        // --- THE FIX: Always start with GF (index 2) and 1st Floor (index 3) ---
+        visibleFloorIndices = [2, 3]; 
+
         floorConfig.forEach((floor, index) => {
             const hasData = data[`${floor.key}_Builtup_area`] || data[`${floor.key}_Rooms_no`];
             if (hasData && !visibleFloorIndices.includes(index)) {
                 visibleFloorIndices.push(index);
             }
         });
-        visibleFloorIndices.sort((a, b) => a - b);
+        visibleFloorIndices.sort((a, b) => (a || 0) - (b || 0));
         renderBuildingRows();
     }
 
     function renderBuildingRows() {
+        const thead = document.getElementById("buildingHeaderRow");
         const tbody = document.getElementById("buildingTableBody");
-        if (!tbody) return;
+        if (!tbody || !thead) return;
+
+        // 1. Determine dynamic columns based on plans checked
+        const showApproved = !!getNestedValue(formState, "Building_analysis.approved_plan_checked");
+        const showDevelopment = !!getNestedValue(formState, "Building_analysis.development_plan_checked");
+        const showEngineers = !!getNestedValue(formState, "Building_analysis.engineers_plan_checked");
+
+        // 2. Update Header
+        let headerHtml = `<th>Floor No / Unit</th>`;
+        if (showApproved) headerHtml += `<th>Builtup area as per Approved plan</th>`;
+        if (showDevelopment) headerHtml += `<th>Builtup area as per Development plan</th>`;
+        if (showEngineers) headerHtml += `<th>Builtup area as per Engineers plan</th>`;
+        headerHtml += `
+            <th>Builtup Area (measured at site)</th>
+            <th>No. of Rooms</th>
+            <th>No. of Kitchen</th>
+            <th>No. of Bathrooms</th>
+            <th>Usage (Residential/Commercial/Industrial)</th>
+            <th>Occupancy (Owner/Applicant/Rented/Lease/Vacant)</th>
+            <th style="width: 10px;"></th>
+        `;
+        thead.innerHTML = headerHtml;
+
+        // 3. Update Body
         tbody.innerHTML = "";
 
         visibleFloorIndices.forEach(index => {
@@ -2232,32 +2660,37 @@
             };
 
             const tr = document.createElement("tr");
-            tr.innerHTML = `
-            <td class="font-bold bg-gray-50">${floor.label}</td>
-            <td><input type="number" data-path="Building_analysis.${key}_Builtup_area" step="0.01" class="table-input" value="${getVal('Builtup_area')}"></td>
-            <td><input type="number" data-path="Building_analysis.${key}_Rooms_no" class="table-input" value="${getVal('Rooms_no')}"></td>
-            <td><input type="number" data-path="Building_analysis.${key}_Kitchen_no" class="table-input" value="${getVal('Kitchen_no')}"></td>
-            <td><input type="number" data-path="Building_analysis.${key}_Bathrooms_no" class="table-input" value="${getVal('Bathrooms_no')}"></td>
-            <td>
-                <div class="radio-cell-group">
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Residential" ${getChecked('Usage', 'Residential')}> Res</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Commercial" ${getChecked('Usage', 'Commercial')}> Com</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Industrial" ${getChecked('Usage', 'Industrial')}> Ind</label>
-                </div>
-            </td>
-            <td>
-                <div class="radio-cell-group">
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Owner" ${getChecked('Occupancy', 'Owner')}> Owner</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Applicant" ${getChecked('Occupancy', 'Applicant')}> App</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Rented" ${getChecked('Occupancy', 'Rented')}> Rent</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Lease" ${getChecked('Occupancy', 'Lease')}> Lease</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Vacant" ${getChecked('Occupancy', 'Vacant')}> Vac</label>
-                </div>
-            </td>
-            <td>
-                ${(floor.label !== 'GF' && floor.label !== '1st Floor') ? `<button onclick="removeFloor(${index})" class="text-red-500 hover:text-red-700" title="Remove Row"><i class="fas fa-trash"></i></button>` : ''}
-            </td>
-        `;
+            let rowHtml = `<td class="font-bold bg-gray-50">${floor.label}</td>`;
+            if (showApproved) rowHtml += `<td><input type="number" data-path="Building_analysis.${key}_approved_plan_area" step="0.01" class="table-input" value="${getVal('approved_plan_area')}"></td>`;
+            if (showDevelopment) rowHtml += `<td><input type="number" data-path="Building_analysis.${key}_development_plan_area" step="0.01" class="table-input" value="${getVal('development_plan_area')}"></td>`;
+            if (showEngineers) rowHtml += `<td><input type="number" data-path="Building_analysis.${key}_engineers_plan_area" step="0.01" class="table-input" value="${getVal('engineers_plan_area')}"></td>`;
+
+            rowHtml += `
+                <td><input type="number" data-path="Building_analysis.${key}_Builtup_area" step="0.01" class="table-input" value="${getVal('Builtup_area')}"></td>
+                <td><input type="number" data-path="Building_analysis.${key}_Rooms_no" class="table-input" value="${getVal('Rooms_no')}"></td>
+                <td><input type="number" data-path="Building_analysis.${key}_Kitchen_no" class="table-input" value="${getVal('Kitchen_no')}"></td>
+                <td><input type="number" data-path="Building_analysis.${key}_Bathrooms_no" class="table-input" value="${getVal('Bathrooms_no')}"></td>
+                <td>
+                    <div class="radio-cell-group">
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Residential" ${getChecked('Usage', 'Residential')}> Res</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Commercial" ${getChecked('Usage', 'Commercial')}> Com</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Industrial" ${getChecked('Usage', 'Industrial')}> Ind</label>
+                    </div>
+                </td>
+                <td>
+                    <div class="radio-cell-group">
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Owner" ${getChecked('Occupancy', 'Owner')}> Owner</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Applicant" ${getChecked('Occupancy', 'Applicant')}> App</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Rented" ${getChecked('Occupancy', 'Rented')}> Rent</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Lease" ${getChecked('Occupancy', 'Lease')}> Lease</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Occupancy" value="Vacant" ${getChecked('Occupancy', 'Vacant')}> Vac</label>
+                    </div>
+                </td>
+                <td>
+                    ${(floor.label !== 'GF' && floor.label !== '1st Floor') ? `<button onclick="removeFloor(${index})" class="text-red-500 hover:text-red-700" title="Remove Row"><i class="fas fa-trash"></i></button>` : ''}
+                </td>
+            `;
+            tr.innerHTML = rowHtml;
             tbody.appendChild(tr);
         });
 
@@ -2268,34 +2701,41 @@
             const getAptChecked = (key, val) => (Array.isArray(apt[key]) && apt[key].includes(val)) ? "checked" : "";
 
             const tr = document.createElement("tr");
-            tr.innerHTML = `
-            <td class="font-bold bg-green-50 text-green-800">
-                <input type="text" data-path="${basePath}.label" class="table-input font-bold" value="${getAptVal('label') || 'Apartment ' + (idx + 1)}" placeholder="Unit Name">
-            </td>
-            <td><input type="number" data-path="${basePath}.Builtup_area" step="0.01" class="table-input" value="${getAptVal('Builtup_area')}"></td>
-            <td><input type="number" data-path="${basePath}.Rooms_no" class="table-input" value="${getAptVal('Rooms_no')}"></td>
-            <td><input type="number" data-path="${basePath}.Kitchen_no" class="table-input" value="${getAptVal('Kitchen_no')}"></td>
-            <td><input type="number" data-path="${basePath}.Bathrooms_no" class="table-input" value="${getAptVal('Bathrooms_no')}"></td>
-            <td>
-                <div class="radio-cell-group">
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Residential" ${getAptChecked('Usage', 'Residential')}> Res</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Commercial" ${getAptChecked('Usage', 'Commercial')}> Com</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Industrial" ${getAptChecked('Usage', 'Industrial')}> Ind</label>
-                </div>
-            </td>
-            <td>
-                <div class="radio-cell-group">
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Owner" ${getAptChecked('Occupancy', 'Owner')}> Owner</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Applicant" ${getAptChecked('Occupancy', 'Applicant')}> App</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Rented" ${getAptChecked('Occupancy', 'Rented')}> Rent</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Lease" ${getAptChecked('Occupancy', 'Lease')}> Lease</label>
-                  <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Vacant" ${getAptChecked('Occupancy', 'Vacant')}> Vac</label>
-                </div>
-            </td>
-            <td>
-                <button onclick="removeApartment(${idx})" class="text-red-500 hover:text-red-700" title="Remove Apartment"><i class="fas fa-trash"></i></button>
-            </td>
-        `;
+            let rowHtml = `
+                <td class="font-bold bg-green-50 text-green-800">
+                    <input type="text" data-path="${basePath}.label" class="table-input font-bold" value="${getAptVal('label') || 'Apartment ' + (idx + 1)}" placeholder="Unit Name">
+                </td>
+            `;
+            if (showApproved) rowHtml += `<td><input type="number" data-path="${basePath}.approved_plan_area" step="0.01" class="table-input" value="${getAptVal('approved_plan_area')}"></td>`;
+            if (showDevelopment) rowHtml += `<td><input type="number" data-path="${basePath}.development_plan_area" step="0.01" class="table-input" value="${getAptVal('development_plan_area')}"></td>`;
+            if (showEngineers) rowHtml += `<td><input type="number" data-path="${basePath}.engineers_plan_area" step="0.01" class="table-input" value="${getAptVal('engineers_plan_area')}"></td>`;
+
+            rowHtml += `
+                <td><input type="number" data-path="${basePath}.Builtup_area" step="0.01" class="table-input" value="${getAptVal('Builtup_area')}"></td>
+                <td><input type="number" data-path="${basePath}.Rooms_no" class="table-input" value="${getAptVal('Rooms_no')}"></td>
+                <td><input type="number" data-path="${basePath}.Kitchen_no" class="table-input" value="${getAptVal('Kitchen_no')}"></td>
+                <td><input type="number" data-path="${basePath}.Bathrooms_no" class="table-input" value="${getAptVal('Bathrooms_no')}"></td>
+                <td>
+                    <div class="radio-cell-group">
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Residential" ${getAptChecked('Usage', 'Residential')}> Res</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Commercial" ${getAptChecked('Usage', 'Commercial')}> Com</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Usage" value="Industrial" ${getAptChecked('Usage', 'Industrial')}> Ind</label>
+                    </div>
+                </td>
+                <td>
+                    <div class="radio-cell-group">
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Owner" ${getAptChecked('Occupancy', 'Owner')}> Owner</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Applicant" ${getAptChecked('Occupancy', 'Applicant')}> App</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Rented" ${getAptChecked('Occupancy', 'Rented')}> Rent</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Lease" ${getAptChecked('Occupancy', 'Lease')}> Lease</label>
+                      <label class="radio-cell-label"><input type="checkbox" data-array="${basePath}.Occupancy" value="Vacant" ${getAptChecked('Occupancy', 'Vacant')}> Vac</label>
+                    </div>
+                </td>
+                <td>
+                    <button onclick="removeApartment(${idx})" class="text-red-500 hover:text-red-700" title="Remove Apartment"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tr.innerHTML = rowHtml;
             tbody.appendChild(tr);
         });
     }
@@ -2519,8 +2959,18 @@
         if (!shouldShowOverlay) {
             formState = getEmptyState();
             syncStateToUI();
-            localStorage.removeItem(STORAGE_KEY);
+            // --- THE FIX: Clear UI components too! ---
+            renderDynamicDocuments();
+            renderBoundaryAnalysisTable();
+            renderHistoricDiagrams();
+            initBuildingTable();
         }
+
+        // --- THE CRITICAL FIX: Reset formState BEFORE updating currentFolder ---
+        // This ensures if saveLocal() triggers during the fetch, it doesn't 
+        // save the OLD case's data into the NEW case's key.
+        formState = getEmptyState(); 
+        isRestoringDraft = true; // Block UI-triggered saves during transition
 
         currentPage = 1;
         hasMoreFiles = true;
@@ -2530,7 +2980,6 @@
         currentFolder = path;
         formState.target_folder = path;
 
-        // --- THIS IS THE FIX: Safely check if elements exist before updating them ---
         const pathText = document.getElementById("currentPath");
         if (pathText) pathText.textContent = "/" + (path || "");
 
@@ -2560,6 +3009,16 @@
             renderThumbs(data.files || []);
             hasMoreFiles = data.has_next;
 
+            // --- SYNC Site Photos with Disk ---
+            // Ensure formState.site_photos only contains files that actually exist in the CURRENT folder's 'P' directory
+            const diskPhotos = (data.files || []).filter(f => {
+                const p = f.path.toLowerCase().replace(/\\/g, '/');
+                const targetDir = (path.toLowerCase().replace(/\\/g, '/') + '/p/').replace(/\/+$/, '/p/');
+                return p.includes(targetDir);
+            }).map(f => f.path);
+            
+            formState.site_photos = diskPhotos;
+
             await forcePaint();
 
             if (shouldShowOverlay) {
@@ -2568,7 +3027,8 @@
                 await forcePaint();
 
                 try {
-                    formState = getEmptyState();
+                    isRestoringDraft = true; // LOCK AUTOSAVE during population
+                    if (autoSaveTimer) clearTimeout(autoSaveTimer);
 
                     // 1. Check Server DB
                     let serverDraft = data.saved_draft || {};
@@ -2605,7 +3065,16 @@
                         }
 
                         syncStateToUI();
-                        loadExtraBuildingNos_fb(); // Restore dynamic building nos
+                        // --- THE CRITICAL FIX: Ensure UI components are cleared/reset ---
+                        initBuildingTable();
+                        renderDynamicDocuments();
+                        renderBoundaryAnalysisTable();
+                        renderHistoricDiagrams();
+                        updateAllDocumentDropdowns();
+                        injectPencilIcons();
+                        loadExtraBuildingNos_fb(); 
+                        renderAllSavedImages(); // Clears previews if empty
+                        updateMapFromState();
                     }
                     // ==========================================
                     // HEAVY LOAD FOR SAVED FILES
@@ -2616,12 +3085,19 @@
 
                         if (hasServerData) {
                             formState = getEmptyState();
-                            const deepMerge = (target, source) => {
+                            const deepMerge = (target, source, isLocalSource = false) => {
                                 for (const key in source) {
                                     if (source[key] instanceof Object && !Array.isArray(source[key])) {
                                         if (!target[key]) target[key] = {};
-                                        deepMerge(target[key], source[key]);
+                                        deepMerge(target[key], source[key], isLocalSource);
                                     } else {
+                                        // THE CRITICAL FIX: Don't let an empty local array overwrite existing server data
+                                        if (isLocalSource && Array.isArray(source[key]) && source[key].length === 0) {
+                                            if (Array.isArray(target[key]) && target[key].length > 0) {
+                                                console.log(`Skipping overwrite of non-empty server array [${key}] with empty local array.`);
+                                                continue;
+                                            }
+                                        }
                                         target[key] = source[key];
                                     }
                                 }
@@ -2632,7 +3108,7 @@
                             // because local data is almost always the most recent session state.
                             if (hasLocalData) {
                                 console.log("🔄 Merging local draft onto server data...");
-                                deepMerge(formState, localData);
+                                deepMerge(formState, localData, true); // true = local source safety active
                             }
                         }
                         else if (hasLocalData) {
@@ -2652,7 +3128,7 @@
                         if (!formState.vectors) formState.vectors = {};
 
                         initBuildingTable();
-                        renderDynamicDocuments();
+                        renderDynamicDocuments(); // This will now receive server data correctly!
                         renderBoundaryAnalysisTable();
                         renderHistoricDiagrams();
                         updateAllDocumentDropdowns();
@@ -3261,41 +3737,14 @@
     /* =========================
        UPDATED ORIENTATION LOGIC
     ========================= */
-    function enforceTabletLandscape() {
-        const sketchModal = document.getElementById('sketchModal');
-
-        // 1. If Sketch Modal is Open, ALLOW Portrait (Do not block)
-        if (sketchModal && !sketchModal.classList.contains('hidden')) {
-            document.getElementById("orientationBlocker").classList.add("hidden");
-            document.body.style.overflow = "hidden"; // Keep scrolling locked
-            return;
-        }
-
-        // 2. Standard Logic for Dashboard
-        const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
-        const isPortrait = window.innerHeight > window.innerWidth;
-        const blocker = document.getElementById("orientationBlocker");
-
-        if (isTablet && isPortrait) {
-            blocker.classList.remove("hidden");
-            document.body.style.overflow = "hidden";
-        } else {
-            blocker.classList.add("hidden");
-            document.body.style.overflow = "";
-        }
-    }
-
     // Add a specific resize listener to handle canvas resizing when rotating
     window.addEventListener("resize", () => {
-        enforceTabletLandscape();
         // If sketch modal is open, resize the canvas to fit the new orientation
-        if (!document.getElementById('sketchModal').classList.contains('hidden')) {
+        const sketchModal = document.getElementById('sketchModal');
+        if (sketchModal && !sketchModal.classList.contains('hidden')) {
             resizeCanvas();
         }
     });
-
-    window.addEventListener("resize", enforceTabletLandscape);
-    window.addEventListener("orientationchange", enforceTabletLandscape);
 
     /* =========================
        8. SKETCH PAD & DRAWING LOGIC (COMPLETE & FIXED)
@@ -3398,7 +3847,6 @@
         sketchModal.classList.add('hidden');
         activeSketchPath = null;
         if (document.exitFullscreen) document.exitFullscreen().catch(e => console.log(e));
-        enforceTabletLandscape();
     }
 
     // ================= ZOOM & PAN LOGIC =================
@@ -3447,6 +3895,22 @@
     }
 
     // ================= TOOLBAR FUNCTIONS =================
+    function addStamp(code) {
+        saveToHistory();
+        const centerX = (canvas.width / 2 - camera.x) / camera.z;
+        const centerY = (canvas.height / 2 - camera.y) / camera.z;
+        elements.push({
+            type: 'stamp',
+            code: code,
+            x: centerX,
+            y: centerY,
+            size: 15,
+            color: document.getElementById('mainColor').value
+        });
+        setTool('select'); // Switch to move the stamp
+        renderScene();
+    }
+
     function setTool(tool) {
         currentTool = tool;
         isEraserActive = false;
@@ -3458,6 +3922,7 @@
 
         if (tool === 'select') canvas.style.cursor = 'grab';
         else if (tool === 'text') canvas.style.cursor = 'text';
+        else if (tool === 'highlighter') canvas.style.cursor = 'copy';
         else canvas.style.cursor = 'crosshair';
 
         // Hide Eraser Specific Controls
@@ -3604,26 +4069,38 @@
 
     function triggerClearSketch() {
         if (elements.length === 0) return;
-        showConfirm(
-            "Clear Drawing?",
-            "Are you sure you want to delete everything? (Including any base images)",
-            () => {
+        Swal.fire({
+            title: 'Clear Drawing?',
+            text: "Are you sure you want to delete everything? (Including any base images)",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, clear it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
                 saveToHistory(); // ✅ Save before clearing!
                 elements = []; // Allow complete wiping so sketch can be removed from DB
                 renderScene();
             }
-        );
+        });
     }
 
     // Trigger Save with Popup
     function triggerSaveSketch() {
-        showConfirm(
-            "Save Sketch?",
-            "Do you want to save this drawing and close the sketch pad?",
-            () => {
+        Swal.fire({
+            title: 'Save Sketch?',
+            text: "Do you want to save this drawing and close the sketch pad?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Save it'
+        }).then((result) => {
+            if (result.isConfirmed) {
                 saveSketchModal(); // Call the actual save logic
             }
-        );
+        });
     }
 
     /* =========================
@@ -3659,11 +4136,19 @@
             if (el.isEraser) {
                 // "destination-out" removes existing pixels where we draw
                 ctx.globalCompositeOperation = 'destination-out';
-                ctx.strokeStyle = "rgba(0,0,0,1)"; // Color is irrelevant, only Alpha matters
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = "rgba(0,0,0,1)"; 
                 ctx.fillStyle = "rgba(0,0,0,1)";
+            } else if (el.isHighlighter) {
+                // Highlighter uses standard blending but semi-transparent
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 0.35; // Semi-transparent for highlighting
+                ctx.strokeStyle = el.color;
+                ctx.fillStyle = el.fill || 'transparent';
             } else {
                 // "source-over" is standard drawing on top
                 ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
                 ctx.strokeStyle = el.color;
                 ctx.fillStyle = el.fill || 'transparent';
             }
@@ -3713,9 +4198,29 @@
             else if (el.type === 'text') {
                 // Text needs standard blending always
                 ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
                 ctx.font = (el.size * 3) + "px Arial";
                 ctx.fillStyle = el.color;
                 ctx.fillText(el.text || "", el.x, el.y);
+            }
+            // --- NEW: Draw Icon/Stamp Element ---
+            else if (el.type === 'stamp') {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = el.color || '#000';
+                ctx.font = (el.size * 5) + "px 'Font Awesome 5 Free'";
+                ctx.fontWeight = "900";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                
+                // Map stamp codes to FontAwesome glyphs
+                const glyphMap = {
+                    'north-arrow': '\uf14e',
+                    'well': '\uf192',
+                    'tree': '\uf1bb',
+                    'gate': '\uf5ff'
+                };
+                ctx.fillText(glyphMap[el.code] || '?', el.x, el.y);
             }
             // --- NEW: Draw Image Element ---
             else if (el.type === 'image') {
@@ -4177,8 +4682,13 @@
 
         let newEl = { type: currentTool, color, size, style, x: startX, y: startY };
 
-        if (currentTool === 'brush') {
+        if (currentTool === 'brush' || currentTool === 'highlighter') {
             newEl.points = [{ x: startX, y: startY }];
+            if (currentTool === 'highlighter') {
+                newEl.type = 'brush'; // Use brush renderer
+                newEl.isHighlighter = true;
+                if (newEl.size < 15) newEl.size = 20; // Default thick for highlighter
+            }
         } else if (['line', 'arrow'].includes(currentTool)) {
             newEl.endX = startX; newEl.endY = startY;
         } else if (['rect', 'triangle'].includes(currentTool)) {
@@ -5192,13 +5702,27 @@
 
             const isExtended = EXTENDED_DOC_TYPES.includes(scrubbedDoc.type);
 
-            let html = `<div class="p-4 border border-gray-200 rounded-lg bg-white relative shadow-sm">`;
+            // Alternating Background Colors (Light shades)
+            const bgColor = index % 2 === 0 ? 'bg-orange-50' : 'bg-blue-50';
+            const textColor = ['text-red-700', 'text-green-700', 'text-blue-700', 'text-yellow-700'][index % 4];
+
+            // A. Card starts here
+            let html = `<div class="p-4 border border-gray-200 rounded-lg ${bgColor} relative shadow-sm">`;
             html += `<button type="button" onclick="removeDynamicDocument(${index})" class="absolute top-4 right-4 text-red-400 hover:text-red-700"><i class="fas fa-trash"></i></button>`;
 
-            // Base Dropdown
+            // B. THE HEADING (Now outside the limited-width box)
             html += `
-                <div class="form-group mb-0 w-11/12 md:w-3/4">
-                    <label class="text-xs font-bold text-blue-700 uppercase mb-1">Document Type</label>
+                <div style="width: 100%; text-align: center; margin-bottom: 20px; padding: 0 40px;">
+                    <label class="font-bold uppercase ${textColor}" 
+                        style="font-size: 15px; text-decoration: underline; display: inline-block;">
+                        Document Type : ${scrubbedDoc.type}
+                    </label>
+                </div>
+            `;
+
+            // C. The Select Box box
+            html += `
+                <div class="form-group mb-0 w-full md:w-3/4 mx-auto">
                     <select class="form-select font-semibold" onchange="updateDynamicDoc(${index}, 'type', this.value)">
                         <option value="">Select Document...</option>
                         ${FULL_DOC_TYPES.map(t => `<option value="${t}" ${t === scrubbedDoc.type ? 'selected' : ''}>${t}</option>`).join('')}
@@ -5256,7 +5780,7 @@
             <div class="border-t border-gray-100 pt-5 mt-4">
                 
                 <!-- METADATA -->
-                <h5 class="font-bold text-sm text-gray-700 mb-3"><i class="fas fa-info-circle text-blue-500 mr-1"></i> Metadata</h5>
+                <h5 class="font-bold text-sm text-gray-700 mb-3"><i class="fas fa-info-circle text-blue-500 mr-1"></i> Document Details</h5>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="form-group mb-0">
                         <label class="text-xs font-semibold text-gray-500 uppercase">Document Date</label>
@@ -5337,7 +5861,7 @@
 
                 <!-- LAND EXTENT & CLASSIFICATION -->
                 <h5 class="font-bold text-sm text-gray-700 mb-3"><i class="fas fa-map-marked-alt text-orange-500 mr-1"></i> Land Extent & Classification</h5>
-                <div class="bg-orange-50 p-4 rounded-lg border border-orange-100 mb-6">
+                <div class="bg-green-100 p-4 rounded-lg border border-green-100 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div class="form-group mb-0">
                             <label class="text-xs font-bold text-gray-800 uppercase">Land Extent</label>
@@ -5706,46 +6230,40 @@
         }
     });
 
-    let pendingAction = null;
-    const confirmModal = document.getElementById('confirmationModal');
-    const confirmTitle = document.getElementById('confirmTitle');
-    const confirmMessage = document.getElementById('confirmMessage');
-
-    function showConfirm(title, message, actionCallback) {
-        confirmTitle.textContent = title;
-        confirmMessage.textContent = message;
-        pendingAction = actionCallback;
-        confirmModal.classList.remove('hidden');
-    }
-
-    document.getElementById('confirmNoBtn').onclick = () => {
-        confirmModal.classList.add('hidden');
-        pendingAction = null;
-    };
-
-    document.getElementById('confirmYesBtn').onclick = () => {
-        if (pendingAction) pendingAction();
-        confirmModal.classList.add('hidden');
-    };
-
     // 1. TRIGGER SUBMIT
     document.getElementById('triggerSubmitBtn').onclick = (e) => {
         e.preventDefault();
-        showConfirm(
-            "Submit Report?",
-            "Are you sure you want to submit this feedback? This cannot be undone.",
-            performSubmit
-        );
+        Swal.fire({
+            title: 'Submit Report?',
+            text: "Are you sure you want to submit this feedback? This cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Submit it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                performSubmit();
+            }
+        });
     };
 
     // 2. TRIGGER RESET
     document.getElementById('triggerResetBtn').onclick = (e) => {
         e.preventDefault();
-        showConfirm(
-            "Clear All Data?",
-            "This will delete all your text, checkboxes, and sketches. Are you sure?",
-            performReset
-        );
+        Swal.fire({
+            title: 'Clear All Data?',
+            text: "This will delete all your text, checkboxes, and sketches. Are you sure?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Clear everything!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                performReset();
+            }
+        });
     };
 
     async function performSubmit() {
@@ -5872,11 +6390,21 @@
         }
     }
     async function performReset() {
+        // 0. CAPTURE IDENTIFICATION BEFORE WIPE
+        const oldFileNo = (formState.Valuers_Checklist && formState.Valuers_Checklist.Office_file_no) || "";
+        const oldApplicant = (formState.Valuers_Checklist && formState.Valuers_Checklist.applicant_name) || "";
+        const oldID = formState.report_id || null;
+
         // 1. Reset the State Object to Blank Defaults
         formState = getEmptyState();
 
+        // RESTORE IDENTIFICATION (Otherwise server can't find record to clear!)
+        formState.report_id = oldID;
+        if (!formState.Valuers_Checklist) formState.Valuers_Checklist = {};
+        formState.Valuers_Checklist.Office_file_no = oldFileNo;
+        formState.Valuers_Checklist.applicant_name = oldApplicant;
+
         // 2. Clear Local Storage (But keep folder location!)
-        localStorage.removeItem(STORAGE_KEY);
         if (currentFolder) {
             localStorage.removeItem('vadrida_scroll_' + getDraftKey(currentFolder));
             localStorage.removeItem(getDraftKey(currentFolder));
@@ -5885,7 +6413,9 @@
         // 3. Update the UI Immediately (No Reload needed)
         syncStateToUI();              // Clears text boxes, radios, checkboxes
         initBuildingTable();          // Resets building table to default rows
-        renderSurveyColumns();        // Resets survey table columns
+        renderDynamicDocuments();     // Resets Docs Received section
+        renderBoundaryAnalysisTable();// Resets Boundary table
+        renderHistoricDiagrams();     // Resets Diagram section
         updateAllDocumentDropdowns(); // Resets dropdowns
 
         // Clear Timeline
@@ -5904,8 +6434,7 @@
         });
 
         // 4. Force Save to Server
-        // We send the 'formState' which is now full of empty strings.
-        // This overwrites the database logic, ensuring the "Auto-Fill" doesn't triggers again.
+        // We send the 'formState' which is now mostly empty but HAS the file_no so backend can match.
         const btn = document.getElementById('triggerResetBtn');
         const originalText = btn.innerText;
         btn.innerText = "Clearing...";
@@ -5913,7 +6442,18 @@
         await saveToServer();
 
         btn.innerText = originalText;
-        // No alert needed, the UI update is feedback enough
+
+        // 5. Final Synchronisation: Reload the page to ensure everything is perfectly clean
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Form Reset Successfully!',
+            showConfirmButton: false,
+            timer: 1500
+        }).then(() => {
+            location.reload();
+        });
     }
 
     // Store previous values for Undo functionality
@@ -6909,12 +7449,12 @@
     function isSentinelVisible() {
         const sentinel = document.getElementById("scrollSentinel");
         if (!sentinel) return false;
-        
+
         // If container is hidden, definitely not visible
         if (scrollContainer && scrollContainer.classList.contains('hidden')) return false;
 
         const rect = sentinel.getBoundingClientRect();
-        
+
         // Be more lenient: if it's anywhere near the bottom of the screen, keep pre-loading
         return rect.top < (window.innerHeight + 500);
     }
@@ -7683,6 +8223,8 @@
                 }
             }
         }
+        // Force table re-render for dynamic columns
+        renderBuildingRows();
     }
     /* ==========================================
        LOGIC: Toggle Encroachment Fields
@@ -7789,9 +8331,15 @@
 
         initBuildingTable();
 
-        // Load Folder: If we preserved lastPath (Reload/Editor), load it. Otherwise load "" (Root).
-        if (lastPath) loadFolder(lastPath);
-        else loadFolder("");
+        // Load Folder: If we preserved lastPath (Reload/Editor), load it. 
+        // Otherwise DO NOTHING (keep the list empty until searched).
+        if (lastPath) {
+            loadFolder(lastPath);
+        } else {
+            console.log("📂 File explorer starting empty (Search required)");
+            const listContainer = document.getElementById('searchResultsList');
+            if (listContainer) listContainer.innerHTML = `<li class="p-4 text-center text-gray-400 text-sm">Fill details to find a case</li>`;
+        }
 
         enforceTabletLandscape();
         injectPencilIcons();
@@ -7925,6 +8473,73 @@
         document.addEventListener("msfullscreenchange", handleFullscreenChange);
 
         isMapReady = true;
+
+        // --- Search Box Logic (with safety) ---
+        const mapSearchBoxInput = document.getElementById("mapSearchInput");
+        if (mapSearchBoxInput) {
+            if (google.maps.places && google.maps.places.SearchBox) {
+                try {
+                    const searchBox = new google.maps.places.SearchBox(mapSearchBoxInput);
+                    
+                    // Bias the SearchBox results towards current map's viewport.
+                    map.addListener("bounds_changed", () => {
+                        searchBox.setBounds(map.getBounds());
+                    });
+
+                    searchBox.addListener("places_changed", () => {
+                        const places = searchBox.getPlaces();
+                        if (places.length == 0) return;
+
+                        const place = places[0];
+                        if (!place.geometry || !place.geometry.location) return;
+
+                        // Move map and marker to the searched place
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(19);
+                        marker.setPosition(place.geometry.location);
+                        marker.setVisible(true);
+                        
+                        updateLocationInputs(place.geometry.location.lat(), place.geometry.location.lng());
+                    });
+                } catch (e) {
+                    console.error("Places API SearchBox init failed:", e);
+                }
+            } else {
+                console.warn("Google Places library not loaded. Search bar will be disabled.");
+                mapSearchBoxInput.placeholder = "Search disabled (API library missing)";
+                mapSearchBoxInput.disabled = true;
+            }
+        }
+
+        // --- Manual Lat/Lng Listeners ---
+        const handleManualLLChange = () => {
+            const latVal = document.getElementById("input_lat").value;
+            const lngVal = document.getElementById("input_lng").value;
+            const lat = parseFloat(latVal);
+            const lng = parseFloat(lngVal);
+            
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const pos = { lat: lat, lng: lng };
+                map.setCenter(pos);
+                marker.setPosition(pos);
+                marker.setVisible(true);
+                
+                // Save to state
+                updateLocationInputs(lat, lng);
+            }
+        };
+
+        const inputLat = document.getElementById("input_lat");
+        const inputLng = document.getElementById("input_lng");
+        if (inputLat) {
+            inputLat.addEventListener("change", handleManualLLChange);
+            inputLat.addEventListener("blur", handleManualLLChange);
+        }
+        if (inputLng) {
+            inputLng.addEventListener("change", handleManualLLChange);
+            inputLng.addEventListener("blur", handleManualLLChange);
+        }
+
         if (pendingMapUpdate) updateMapFromState();
     };
 
@@ -7983,6 +8598,34 @@
         if (typeof updateNestedState === "function") {
             updateNestedState(formState, 'land_inspection_details.latitude', lat.toFixed(6));
             updateNestedState(formState, 'land_inspection_details.longitude', lng.toFixed(6));
+
+            // NEW: REVERSE GEOCODING TO RESOLVE PLACE NAME
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: { lat: lat, lng: lng } }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    const components = results[0].address_components;
+                    let locality = "";
+                    let state = "Kerala"; 
+
+                    for (const comp of components) {
+                        if (comp.types.includes("locality") || comp.types.includes("sublocality") || comp.types.includes("administrative_area_level_2")) {
+                            locality = comp.long_name;
+                            if (comp.types.includes("locality")) break; 
+                        }
+                    }
+                    if (!locality) locality = results[0].formatted_address.split(',')[0];
+
+                    for (const comp of components) {
+                        if (comp.types.includes("administrative_area_level_1")) {
+                            state = comp.long_name;
+                        }
+                    }
+
+                    updateNestedState(formState, 'land_inspection_details.place_name', locality);
+                    updateNestedState(formState, 'land_inspection_details.state_name', state);
+                    saveLocal();
+                }
+            });
 
             clearTimeout(autoSaveTimer);
             autoSaveTimer = setTimeout(() => saveToServer(), 2000);
@@ -8449,26 +9092,31 @@
     }
 
     // Image Preview Handlers
-    function previewGeneralPhotos(input) {
+    function previewGeneralPhotos() {
+        const galleryInput = document.getElementById('generalPhotosInput');
+        const cameraInput = document.getElementById('generalPhotosCameraInput');
         const previewContainer = document.getElementById('generalPhotosPreview');
+        
         previewContainer.innerHTML = '';
-        if (input.files && input.files.length > 0) {
-            Array.from(input.files).forEach(file => {
+        const allFiles = [...(galleryInput.files || []), ...(cameraInput.files || [])];
+        
+        if (allFiles.length > 0) {
+            allFiles.forEach(file => {
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = (e) => {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.style.height = '80px';
                     img.style.width = '80px';
                     img.style.objectFit = 'cover';
-                    img.style.borderRadius = '6px';
-                    img.style.border = '1px solid #cbd5e1';
+                    img.style.borderRadius = '8px';
+                    img.style.border = '1px solid #e2e8f0';
                     previewContainer.appendChild(img);
                 };
                 reader.readAsDataURL(file);
             });
         } else {
-            previewContainer.innerHTML = '<span class="text-gray-400 text-sm flex items-center justify-center w-full">Selected general photos will preview here</span>';
+            previewContainer.innerHTML = '<span class="text-gray-400 text-sm flex items-center justify-center w-full">Temporary selection preview...</span>';
         }
     }
 
@@ -8478,13 +9126,48 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 previewImg.src = e.target.result;
+                previewImg.classList.remove('hidden');
                 previewImg.style.display = 'block';
             };
             reader.readAsDataURL(input.files[0]);
         } else {
             previewImg.src = '';
+            previewImg.classList.add('hidden');
             previewImg.style.display = 'none';
         }
+    }
+
+    /* ==========================================
+       PHOTO COMPRESSION & UPLOAD PROGRESS
+       ========================================== */
+    async function compressImage(file, maxWidth = 1200, quality = 0.7) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = (maxWidth / width) * height;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        resolve(blob);
+                    }, 'image/jpeg', quality);
+                };
+            };
+        });
     }
 
     // New unified upload logic
@@ -8492,108 +9175,278 @@
         const uploadBtn = document.getElementById('uploadAllPhotosBtn');
         const statusText = document.getElementById("unifiedUploadStatusText");
 
-        let generalFiles = document.getElementById('generalPhotosInput').files;
-        let northFile = document.getElementById('northImageInput').files[0];
-        let eastFile = document.getElementById('eastImageInput').files[0];
-        let southFile = document.getElementById('southImageInput').files[0];
-        let westFile = document.getElementById('westImageInput').files[0];
+        let generalFilesInput = document.getElementById('generalPhotosInput');
+        let northFileInput = document.getElementById('northImageInput');
+        let eastFileInput = document.getElementById('eastImageInput');
+        let southFileInput = document.getElementById('southImageInput');
+        let westFileInput = document.getElementById('westImageInput');
 
-        if ((!generalFiles || generalFiles.length === 0) && !northFile && !eastFile && !southFile && !westFile) {
-            alert("Please select at least one photo to upload.");
+        if (!currentFolder) {
+            Swal.fire('No Folder', 'Please select a folder from the list first.', 'error');
             return;
         }
 
-        if (!currentFolder) {
-            alert("Please select a folder from the left list first.");
+        // --- STEP 0: FRESH DISK SCAN ---
+        // Specifically scan the 'P' (Photos) subdirectory to see what is already there
+        let existingPhotos = [];
+        try {
+            const pFolderPath = currentFolder.replace(/\/+$/, '') + '/P';
+            const scanResponse = await fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(pFolderPath)}&recursive=1`);
+            const scanData = await scanResponse.json();
+            
+            // Collect all file paths
+            existingPhotos = (scanData.files || []).map(f => f.path);
+            
+            // Sync current state
+            formState.site_photos = existingPhotos;
+            console.log("🔄 Fresh scan of /P complete. Found:", existingPhotos.length, "files");
+        } catch (e) {
+            console.error("Failed to perform fresh disk scan before upload:", e);
+            existingPhotos = formState.site_photos || [];
+        }
+
+        const filesToProcess = [];
+        
+        // 1. Prepare Directional Images (Gallery + Camera)
+        const directionalConfigs = [
+            { gallery: document.getElementById('northImageInput'), camera: document.getElementById('northImageCameraInput'), base: "north image" },
+            { gallery: document.getElementById('eastImageInput'), camera: document.getElementById('eastImageCameraInput'), base: "east image" },
+            { gallery: document.getElementById('southImageInput'), camera: document.getElementById('southImageCameraInput'), base: "south image" },
+            { gallery: document.getElementById('westImageInput'), camera: document.getElementById('westImageCameraInput'), base: "west image" }
+        ];
+
+        const collisions = [];
+        const finalDirectional = [];
+
+        for (const config of directionalConfigs) {
+            // Priority: Take camera file if exists, then gallery
+            let file = null;
+            let captured = false;
+
+            if (config.camera.files && config.camera.files.length > 0) {
+                file = config.camera.files[0];
+                captured = true;
+            } else if (config.gallery.files && config.gallery.files.length > 0) {
+                file = config.gallery.files[0];
+                captured = false;
+            }
+
+            if (!file) continue;
+
+            const collisionExists = existingPhotos.some(path => {
+                const fileName = path.split('/').pop().toLowerCase();
+                const match = fileName === (baseName + ".jpg") || 
+                              fileName.startsWith(baseName + " ") || 
+                              fileName.startsWith(baseName + "_");
+                return match;
+            });
+
+            if (collisionExists) {
+                collisions.push({ ...config, file, isCaptured: captured });
+            } else {
+                finalDirectional.push({ file, name: config.base, isCaptured: captured });
+            }
+        }
+
+        // 2. Handle Collisions with Popup
+        if (collisions.length > 0) {
+            const collisionNames = collisions.map(c => c.base.replace(" image", "")).join(", ");
+            const result = await Swal.fire({
+                title: 'Photos Exist',
+                html: `Photos for <b>${collisionNames}</b> already exist in this folder.<br>Do you want to upload them as additional versions?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Upload as Version 2/3...',
+                cancelButtonText: 'Skip these',
+                reverseButtons: true
+            });
+
+            if (result.isConfirmed) {
+                for (const config of collisions) {
+                    const file = config.gallery.files[0] || config.camera.files[0];
+                    if (!file) continue;
+
+                    let nextNo = 2;
+                    const baseName = config.base.toLowerCase();
+                    // Find the highest sequence number already in the folder's P subfolder
+                    const existingNums = existingPhotos.map(path => {
+                        const name = path.split('/').pop().toLowerCase();
+                        if (name === baseName + ".jpg") return 1;
+                        // Matches "north image 2.jpg", "north image 3.jpg" etc.
+                        const match = name.match(new RegExp("^" + baseName + " (\\d+)"));
+                        return match ? parseInt(match[1]) : 0;
+                    }).filter(n => n > 0);
+                    
+                    const maxNum = (existingNums.length > 0) ? Math.max(...existingNums) : 0;
+                    nextNo = Math.max(2, maxNum + 1);
+
+                    finalDirectional.push({ file, name: `${config.base} ${nextNo}`, isCaptured: config.isCaptured });
+                }
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // User clicked "Skip these" - continue with what's in finalDirectional
+            } else {
+                // User closed modal - abort entire upload
+                return;
+            }
+        }
+
+        // 2. Prepare General Photos (Combine both Gallery and Camera)
+        const generalGalleryInput = document.getElementById('generalPhotosInput');
+        const generalCameraInput = document.getElementById('generalPhotosCameraInput');
+
+        if (generalGalleryInput.files) {
+            Array.from(generalGalleryInput.files).forEach(file => {
+                filesToProcess.push({ file, name: null, isCaptured: false });
+            });
+        }
+        if (generalCameraInput.files) {
+            Array.from(generalCameraInput.files).forEach(file => {
+                filesToProcess.push({ file, name: null, isCaptured: true });
+            });
+        }
+
+        // 3. Add to processing queue
+        finalDirectional.forEach(item => filesToProcess.push(item));
+
+        if (filesToProcess.length === 0) {
+            Swal.fire('No Photos', 'Please select at least one photo.', 'warning');
             return;
         }
 
         uploadBtn.disabled = true;
-        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-        statusText.innerText = "Uploading photos...";
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        statusText.innerText = "Compressing images...";
         statusText.style.color = "orange";
 
         const formData = new FormData();
         formData.append('current_folder', currentFolder);
+        
+        // Add GPS & Time data for watermarking
+        const lat = getNestedValue(formState, 'land_inspection_details.latitude') || "";
+        const lng = getNestedValue(formState, 'land_inspection_details.longitude') || "";
+        const place_name = getNestedValue(formState, 'land_inspection_details.place_name') || document.getElementById('mapSearchInput')?.value || "";
+        const state_name = getNestedValue(formState, 'land_inspection_details.state_name') || "Kerala";
+        
+        // Custom Date Formatter for "30 March 2026"
+        const now = new Date();
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const day = now.getDate();
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        let hours = now.getHours();
+        const mins = now.getMinutes().toString().padStart(2, '0');
+        const secs = now.getSeconds().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12 || 12;
+        const ts = `${day} ${month} ${year}, ${hours}:${mins}:${secs} ${ampm}`;
+        
+        // Grab current map view state
+        const mapZoom = (typeof map !== 'undefined' && map) ? map.getZoom() : 15;
+        const mapCenter = (typeof map !== 'undefined' && map) ? map.getCenter() : null;
+        const lat_m = mapCenter ? mapCenter.lat().toFixed(6) : lat;
+        const lng_m = mapCenter ? mapCenter.lng().toFixed(6) : lng;
+        
+        // Use Yandex Static as it handles markers easily via URL without server-side keys
+        // Use a slightly more conservative zoom if map not ready to avoid white-out rural areas
+        const finalZoom = (mapZoom > 18) ? 17 : (mapZoom < 12 ? 15 : mapZoom);
+        const mapUrl = `https://static-maps.yandex.ru/1.x/?ll=${lng_m},${lat_m}&z=${finalZoom}&l=map&size=450,450&pt=${lng},${lat},pm2rdm`;
+        
+        formData.append('latitude', lat);
+        formData.append('longitude', lng);
+        formData.append('timestamp', ts);
+        formData.append('place_name', place_name);
+        formData.append('state_name', state_name);
+        formData.append('map_url', mapUrl);
+        
+        console.log("📍 Location & Map for Watermark:", { lat, lng, place_name, mapUrl });
 
-        // General files
-        if (generalFiles && generalFiles.length > 0) {
-            for (let i = 0; i < generalFiles.length; i++) {
-                formData.append('site_photos', generalFiles[i]);
-            }
+        // Process and compress each file
+        for (let i = 0; i < filesToProcess.length; i++) {
+            const item = filesToProcess[i];
+            statusText.innerText = `Compressing image ${i + 1} of ${filesToProcess.length}...`;
+
+            const compressedBlob = await compressImage(item.file);
+            let finalName = item.name ? item.name + ".jpg" : item.file.name;
+
+            formData.append('is_captured', item.isCaptured ? '1' : '0');
+            formData.append('site_photos', compressedBlob, finalName);
         }
 
-        // Helper to rename file
-        function appendRenamedFile(file, newName) {
-            if (file) {
-                // Keep the original extension
-                let ext = file.name.substring(file.name.lastIndexOf('.'));
-                if (!ext) ext = '.jpg';
-                let renamedFile = new File([file], newName + ext, { type: file.type });
-                formData.append('site_photos', renamedFile);
+        statusText.innerText = "Starting upload...";
+
+        // Use XHR for progress tracking
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/coreapi/api/upload-site-photos/', true);
+        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                uploadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading ${percent}%`;
+                statusText.innerText = `Uploading: ${percent}% complete...`;
             }
-        }
+        };
 
-        appendRenamedFile(northFile, "north image");
-        appendRenamedFile(eastFile, "east image");
-        appendRenamedFile(southFile, "south image");
-        appendRenamedFile(westFile, "west image");
+        xhr.onload = async function () {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload All Selected Photos';
 
-        try {
-            const response = await fetch('/coreapi/api/upload-site-photos/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                body: formData
-            });
+            if (xhr.status === 200) {
+                try {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.success) {
+                        statusText.innerText = "Done! Saved to /P";
+                        statusText.style.color = "green";
+                        setTimeout(() => { statusText.innerText = ""; }, 3000);
 
-            const result = await response.json();
+                        if (!formState.site_photos) formState.site_photos = [];
+                        result.saved_paths.forEach(path => {
+                            if (!formState.site_photos.includes(path)) {
+                                formState.site_photos.push(path);
+                            }
+                        });
 
-            if (result.success) {
-                statusText.innerText = "Done! Saved to /p";
-                statusText.style.color = "green";
+                        saveLocal();
+                        saveToServer();
 
-                setTimeout(() => { statusText.innerText = ""; }, 3000);
+                        // Clear inputs
+                        generalFilesInput.value = "";
+                        northFileInput.value = "";
+                        eastFileInput.value = "";
+                        southFileInput.value = "";
+                        westFileInput.value = "";
 
-                if (!formState.site_photos) formState.site_photos = [];
-
-                result.saved_paths.forEach(path => {
-                    if (!formState.site_photos.includes(path)) {
-                        formState.site_photos.push(path);
+                        // Clear previews
+                        previewGeneralPhotos(generalFilesInput);
+                        document.getElementById('northPreview').style.display = 'none';
+                        document.getElementById('eastPreview').style.display = 'none';
+                        document.getElementById('southPreview').style.display = 'none';
+                        document.getElementById('westPreview').style.display = 'none';
+                    } else {
+                        alert("Upload Error: " + result.error);
+                        statusText.innerText = "Error: " + result.error;
+                        statusText.style.color = "red";
                     }
-                });
-
-                saveLocal();
-                saveToServer();
-
-                // Clear inputs and previews
-                document.getElementById('generalPhotosInput').value = "";
-                document.getElementById('northImageInput').value = "";
-                document.getElementById('eastImageInput').value = "";
-                document.getElementById('southImageInput').value = "";
-                document.getElementById('westImageInput').value = "";
-
-                previewGeneralPhotos(document.getElementById('generalPhotosInput'));
-                document.getElementById('northPreview').style.display = 'none';
-                document.getElementById('eastPreview').style.display = 'none';
-                document.getElementById('southPreview').style.display = 'none';
-                document.getElementById('westPreview').style.display = 'none';
-
+                } catch (e) {
+                    alert("Server Error: Invalid response");
+                    statusText.innerText = "Server Error";
+                }
             } else {
-                alert("Upload Error: " + result.error);
-                statusText.innerText = "Error: " + result.error;
+                alert("Upload failed with status: " + xhr.status);
+                statusText.innerText = "System Error " + xhr.status;
                 statusText.style.color = "red";
             }
-        } catch (err) {
-            console.error(err);
+        };
+
+        xhr.onerror = function () {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload All Selected Photos';
             alert("Network Error uploading photos.");
             statusText.innerText = "Network Error";
             statusText.style.color = "red";
-        } finally {
-            uploadBtn.disabled = false;
-            uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload All Selected Photos';
-        }
+        };
+
+        xhr.send(formData);
     }
     /* =========================
        DATABASE CASE FINDER
@@ -9070,14 +9923,14 @@
         extraBuildingNoCount_fb++;
         const index = extraBuildingNoCount_fb + 1; // Building No 2, 3, etc...
         const dataPath = `Boundary_analysis.Building_no_${index}`;
-        
+
         const container = document.getElementById('extraBuildingNos_fb');
         if (!container) return;
 
         const row = document.createElement('div');
         row.id = `extrabuildingrow_${index}`;
         row.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px;';
-        
+
         row.innerHTML = `
             <div style="width:105px; font-size:12px; font-weight:600; color:#4b5563;">Building No ${index}</div>
             <input type="text" id="extraBuildingInput_${index}" data-path="${dataPath}" class="form-input sync-input" style="flex: 1; margin: 0;" value="${value}">
@@ -9111,9 +9964,9 @@
 
     function loadExtraBuildingNos_fb() {
         const container = document.getElementById('extraBuildingNos_fb');
-        if(container) container.innerHTML = ''; // reset on quick reload
+        if (container) container.innerHTML = ''; // reset on quick reload
         extraBuildingNoCount_fb = 0; // reset
-        
+
         const boundary = (formState && formState.Boundary_analysis) ? formState.Boundary_analysis : {};
         let i = 2;
         while (boundary[`Building_no_${i}`] !== undefined && boundary[`Building_no_${i}`] !== '') {
@@ -9122,5 +9975,207 @@
         }
     }
 
+    /* ===== UTILITY HUB LOGIC ===== */
+    const UtilityHub = {
+        isDragging: false, 
+        offset: { x: 0, y: 0 }, 
+        initialized: false,
+        open() { 
+            const el = document.getElementById('utilityModalOverlay');
+            if(el) {
+                el.classList.add('visible');
+                // Check if it was previously floating
+                if (localStorage.getItem('vadrida_utility_mode') === 'floating') {
+                    this.setMode('floating');
+                } else {
+                    this.setMode('docked');
+                }
+            }
+            this.initDraggable();
+        },
+        close() { 
+            const el = document.getElementById('utilityModalOverlay');
+            if(el) el.classList.remove('visible');
+            // We don't necessarily want to reset mode on close, but we can if desired
+        },
+        setMode(mode) {
+            const overlay = document.getElementById('utilityModalOverlay');
+            const modal = overlay?.querySelector('.v-modal');
+            if (!overlay || !modal) return;
+
+            if (mode === 'floating') {
+                overlay.classList.add('floating');
+                modal.classList.add('floating');
+                
+                // Restore previous position or set default
+                const savedPos = JSON.parse(localStorage.getItem('vadrida_utility_pos') || '{"left":50, "top":100}');
+                modal.style.left = savedPos.left + 'px';
+                modal.style.top = savedPos.top + 'px';
+                modal.style.transform = 'none';
+                localStorage.setItem('vadrida_utility_mode', 'floating');
+            } else {
+                overlay.classList.remove('floating');
+                modal.classList.remove('floating');
+                modal.style.left = ''; 
+                modal.style.top = ''; 
+                modal.style.transform = '';
+                localStorage.setItem('vadrida_utility_mode', 'docked');
+            }
+        },
+        initDraggable() {
+            if (this.initialized) return;
+            const modal = document.querySelector('.v-modal');
+            const header = document.querySelector('.v-modal-header');
+            if (!header || !modal) return;
+
+            const startDragging = (e) => {
+                if (modal.classList.contains('floating')) {
+                    this.isDragging = true;
+                    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                    
+                    this.offset.x = clientX - modal.offsetLeft;
+                    this.offset.y = clientY - modal.offsetTop;
+                    
+                    if (e.type === 'mousedown') e.preventDefault();
+                }
+            };
+
+            const moveDragging = (e) => {
+                if (this.isDragging && modal.classList.contains('floating')) {
+                    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                    
+                    let newLeft = clientX - this.offset.x;
+                    let newTop = clientY - this.offset.y;
+
+                    // Boundary checks
+                    const maxX = window.innerWidth - modal.offsetWidth;
+                    const maxY = window.innerHeight - modal.offsetHeight;
+                    
+                    newLeft = Math.max(0, Math.min(newLeft, maxX));
+                    newTop = Math.max(0, Math.min(newTop, maxY));
+
+                    modal.style.left = newLeft + 'px';
+                    modal.style.top = newTop + 'px';
+                    
+                    // Save position
+                    localStorage.setItem('vadrida_utility_pos', JSON.stringify({left: newLeft, top: newTop}));
+                }
+            };
+
+            const stopDragging = () => {
+                this.isDragging = false;
+            };
+
+            header.addEventListener('mousedown', startDragging);
+            header.addEventListener('touchstart', startDragging, { passive: true });
+            
+            window.addEventListener('mousemove', moveDragging);
+            window.addEventListener('touchmove', moveDragging, { passive: false });
+            
+            window.addEventListener('mouseup', stopDragging);
+            window.addEventListener('touchend', stopDragging);
+            
+            this.initialized = true;
+        }
+    };
+
+
+    /* ===== AREA CONVERTER LOGIC ===== */
+    const Converter = {
+        factors: { 'sqm':1, 'are':100, 'cent':40.4686, 'acre':4046.86, 'hectare':10000, 'sqft':0.092903 },
+        init() {
+            const data = JSON.parse(localStorage.getItem('v_conv_state_fb') || '{"from":"are","to":"cent","val":""}');
+            const f = document.getElementById('convFrom');
+            const t = document.getElementById('convTo');
+            const v = document.getElementById('convVal');
+            if(f) f.value = data.from; if(t) t.value = data.to; if(v) v.value = data.val;
+            this.convert();
+        },
+        convert() {
+            const f = document.getElementById('convFrom')?.value;
+            const t = document.getElementById('convTo')?.value;
+            const v = parseFloat(document.getElementById('convVal')?.value) || 0;
+            if(!f || !t) return;
+            const result = (v * this.factors[f]) / this.factors[t];
+            const resEl = document.getElementById('convResult');
+            if(resEl) resEl.value = result ? parseFloat(result.toFixed(4)) + ' ' + t.toUpperCase() : '';
+            localStorage.setItem('v_conv_state_fb', JSON.stringify({from:f, to:t, val:document.getElementById('convVal')?.value}));
+        }
+    };
+
+    // Initialize Converter on load
+    Converter.init();
+
 </script>
+    <!-- Floating Toggle (Area Converter) -->
+    <div class="utility-fab" onclick="UtilityHub.open()" title="Quick Tools">
+        <i class="fas fa-tools"></i>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="v-modal-overlay" id="utilityModalOverlay" onclick="if(event.target === this) UtilityHub.close()">
+        <div class="v-modal">
+            <div class="v-modal-header">
+                <div class="v-modal-title">Area Converter</div>
+                <div class="v-modal-controls">
+                    <button type="button" class="v-modal-btn" onclick="UtilityHub.setMode('floating')" title="Shrink / PIP Mode">
+                        <i class="fas fa-compress-alt"></i>
+                    </button>
+                    <button type="button" class="v-modal-btn" onclick="UtilityHub.setMode('docked')" title="Maximize">
+                        <i class="fas fa-expand-alt"></i>
+                    </button>
+                    <button type="button" class="v-modal-btn close-btn" onclick="UtilityHub.close()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="conv-panel">
+                <div class="conv-group">
+                    <label class="conv-label">Convert From</label>
+                    <div style="display:flex; gap: 8px;">
+                        <input type="number" id="convVal" class="conv-input" style="flex: 1.5;" placeholder="Value..." oninput="Converter.convert()">
+                        <select id="convFrom" class="conv-input" style="flex: 1;" onchange="Converter.convert()">
+                            <option value="are">Ares</option>
+                            <option value="cent">Cents</option>
+                            <option value="sqft">Sq. Ft</option>
+                            <option value="sqm">Sq. M</option>
+                            <option value="acre">Acres</option>
+                            <option value="hectare">Hectares</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; margin: 4px 0;">
+                    <div style="width: 32px; height: 32px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                </div>
+
+                <div class="conv-group">
+                    <label class="conv-label">Converted To</label>
+                    <div style="display:flex; gap: 8px;">
+                        <input type="text" id="convResult" class="conv-input" readonly style="flex: 1.5; background: #f8fafc; color: #2563eb; font-weight: 700; border-color: #bfdbfe;">
+                        <select id="convTo" class="conv-input" style="flex: 1;" onchange="Converter.convert()">
+                            <option value="cent">Cents</option>
+                            <option value="are">Ares</option>
+                            <option value="sqft">Sq. Ft</option>
+                            <option value="sqm">Sq. M</option>
+                            <option value="acre">Acres</option>
+                            <option value="hectare">Hectares</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top: 8px; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; font-size: 0.65rem; color: #64748b; line-height: 1.5;">
+                    <div style="font-weight: 600; margin-bottom: 2px;"><i class="fas fa-info-circle"></i> Quick Reference:</div>
+                    • 1 Are = 100 Sq. M<br>
+                    • 1 Cent = 435.6 Sq. Ft<br>
+                    • 1 Are ≈ 2.471 Cents
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

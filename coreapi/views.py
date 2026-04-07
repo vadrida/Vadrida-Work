@@ -344,8 +344,23 @@ def get_site_report_data(request):
         if verification_data:
             site_data['DynamicDocuments'] = verification_data.get('DynamicDocuments', [])
             site_data['BoundaryAnalysisDocs'] = verification_data.get('BoundaryAnalysisDocs', [])
+            
+            # Map database keys to frontend expected keys
+            site_data['owners_data'] = verification_data.get('OwnersData', [])
+            site_data['schedule_data'] = verification_data.get('ScheduleData', {})
+            site_data['survey_land_extend'] = verification_data.get('SurveyAnalysis', {})
+            site_data['survey_notes'] = verification_data.get('SurveyNotes', '')
+            
+            # Update Valuers_Checklist for top summary strip
+            if 'Valuers_Checklist' not in site_data:
+                site_data['Valuers_Checklist'] = {}
+            
+            site_data['Valuers_Checklist']['applicant_name'] = verification_data.get('ApplicantName', '')
+            site_data['Valuers_Checklist']['product'] = verification_data.get('Product', '')
+            site_data['Valuers_Checklist']['person_met'] = verification_data.get('PersonMet', '')
+            
             # Keep legacy key for compatibility during transition if needed
-            site_data['Verification_Database'] = verification_data 
+            site_data['Verification_Database'] = verification_data
 
         # 2. Prepare Metadata for Sidebar
         meta = {
@@ -585,6 +600,33 @@ def create_folder_api(request):
                 office_staff_code=meta.get('off_code'),
                 full_folder_path=full_path
             )
+
+            # --- NEW: COPY EXCEL TEMPLATE ---
+            try:
+                # 1. Get Bank Name (from our global list)
+                bank_map = {b['code']: b['name'] for b in BANKS}
+                bank_name = bank_map.get(bank_code)
+
+                if bank_name:
+                    # 2. Check for template in static/excels/
+                    template_filename = f"{bank_name}.xlsm"
+                    template_src = os.path.join(settings.BASE_DIR, 'static', 'excels', template_filename)
+
+                    if os.path.exists(template_src):
+                        # 3. New Format: OfficeFileNo_BankFileNo_Applicant
+                        office_no = unique_id
+                        bank_ref = str(meta.get('bank_ref', 'XXXX')).strip().replace(' ', '_')
+                        applicant_sanitized = str(meta.get('applicant', 'Report')).strip().replace(' ', '_')
+                        
+                        new_excel_name = f"{office_no}_{bank_ref}_{applicant_sanitized}.xlsm"
+                        excel_dest = os.path.join(full_path, new_excel_name)
+
+                        # 4. Copy the file
+                        shutil.copy2(template_src, excel_dest)
+                        print(f"Excel template copied: {new_excel_name}")
+            except Exception as ex:
+                # We skip errors here so the folder creation isn't aborted if template copy fails
+                print(f"Warning: Excel template copy skipped: {ex}")
 
         return JsonResponse({'success': True, 'new_id': unique_id})
 
@@ -895,7 +937,9 @@ def get_folder_contents_api(request):
                             
         folder_name = os.path.basename(abs_path)
         if "#" in folder_name or re.search(r'^\d+_.*\d{2}\.\d{2}\.\d{4}', folder_name):
-            folder_info = get_case_folder_info(abs_path)
+            # Fetch the creation date from the ClientFolder table using the file number
+            case_folder = ClientFolder.objects.filter(unique_file_no=file_no).first() if file_no else None
+            folder_info = get_case_folder_info(abs_path, db_created_at=case_folder.created_at if case_folder else None)
 
     # --- SCANNING & SORTING ---
     all_folders = []
@@ -2188,8 +2232,14 @@ def save_verification_data(request):
                     'inspection_date': data.get('inspection_date', ''),
                     'documents_received': data.get('documents_received', []),
                     'verification_database': {
-                        'DynamicDocuments': data.get('DynamicDocuments', []),
-                        'BoundaryAnalysisDocs': data.get('BoundaryAnalysisDocs', [])
+                        'DynamicDocuments': data.get('documents_received', []),
+                        'OwnersData': data.get('owners_data', []),
+                        'ScheduleData': data.get('schedule_data', {}),
+                        'SurveyAnalysis': data.get('survey_land_extend', {}),
+                        'SurveyNotes': data.get('survey_notes', ''),
+                        'ApplicantName': data.get('applicantName', ''),
+                        'Product': data.get('product', ''),
+                        'PersonMet': data.get('personMetAtSite', '')
                     }
                 }
             )
@@ -2202,4 +2252,185 @@ def save_verification_data(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+# --- TAT STATUS VIEWER ---
+
+BANKS = [
+    {'code': '01', 'name': 'HDFC'},
+    {'code': '02', 'name': 'Muthoot'},
+    {'code': '03', 'name': 'Bajaj'},
+    {'code': '04', 'name': 'DCB'},
+    {'code': '05', 'name': 'PNBHFL'},
+    {'code': '06', 'name': 'SBI'},
+    {'code': '07', 'name': 'CSB'},
+    {'code': '08', 'name': 'Chola'},
+    {'code': '09', 'name': 'SIB'},
+    {'code': '10', 'name': 'ICICI'},
+    {'code': '11', 'name': 'RBL'},
+    {'code': '12', 'name': 'Chola SME'},
+    {'code': '13', 'name': 'Axis Finance'},
+]
+
+DISTRICTS = [
+    {'code': '01', 'name': 'TVM'},
+    {'code': '02', 'name': 'Kollam'},
+    {'code': '03', 'name': 'Pathanamthitta'},
+    {'code': '04', 'name': 'Alappuzha'},
+    {'code': '05', 'name': 'Kottayam'},
+    {'code': '06', 'name': 'Idukki'},
+    {'code': '07', 'name': 'Ernakulam'},
+    {'code': '08', 'name': 'Thrissur'},
+    {'code': '09', 'name': 'Palakkad'},
+    {'code': '10', 'name': 'Malappuram'},
+    {'code': '11', 'name': 'Kozhikode'},
+    {'code': '12', 'name': 'Wayanad'},
+    {'code': '13', 'name': 'Kannur'},
+    {'code': '14', 'name': 'Kasargod'},
+]
+
+def status_viewer(request):
+    if not request.session.get("user_id"):
+        return redirect("coreapi:login_page")
+
+    # Fetch all client folders
+    folders = ClientFolder.objects.all().order_by('-created_at')
+    
+    results = []
+    for f in folders:
+        # Get TAT info from disk/metadata
+        tat_info = get_case_folder_info(f.full_folder_path, db_created_at=f.created_at)
+        
+        if tat_info:
+            results.append({
+                'unique_file_no': f.unique_file_no,
+                'applicant_name': f.applicant_name,
+                'created_at': f.created_at,
+                'bank_code': f.bank_code,
+                'district_code': f.district_code,
+                'status_color': tat_info['status_color'],
+                'status_label': tat_info['status_label'],
+                'tat_data': tat_info
+            })
+        else:
+            # Fallback if folder missing on disk or error
+            results.append({
+                'unique_file_no': f.unique_file_no,
+                'applicant_name': f.applicant_name,
+                'created_at': f.created_at,
+                'bank_code': f.bank_code,
+                'district_code': f.district_code,
+                'status_color': 'gray',
+                'status_label': 'FOLDER MISSING',
+                'tat_data': {
+                    'download_date': f.created_at.strftime('%d/%m/%Y'),
+                    'tat_date': (f.created_at + timedelta(days=3)).strftime('%d/%m/%Y'),
+                    'site_report_date': '--',
+                    'final_report_date': '--',
+                    'days_taken': (datetime.now().replace(tzinfo=None) - f.created_at.replace(tzinfo=None)).days,
+                    'days_overdue': 0
+                }
+            })
+
+    context = {
+        'results': results,
+        'banks': BANKS,
+        'districts': DISTRICTS
+    }
+    return render(request, "status_viewer.html", context)
+
+
+@csrf_protect
+@require_POST
+def export_status_excel_api(request):
+    try:
+        data = json.loads(request.body)
+        file_nos = data.get('file_nos', [])
+        
+        folders = ClientFolder.objects.filter(unique_file_no__in=file_nos)
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Status Report"
+        
+        # Headers
+        headers = ["File No", "Applicant", "Created Date", "Download Date", "TAT Date", "Site Rpt", "Final Rpt", "Status", "Days Taken"]
+        ws.append(headers)
+        
+        for f in folders:
+            tat = get_case_folder_info(f.full_folder_path, db_created_at=f.created_at)
+            if not tat: continue
+            
+            ws.append([
+                f.unique_file_no,
+                f.applicant_name,
+                f.created_at.strftime('%d-%m-%Y'),
+                tat['download_date'],
+                tat['tat_date'],
+                tat['site_report_date'],
+                tat['final_report_date'],
+                tat['status_label'],
+                tat['days_taken']
+            ])
+            
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        response = HttpResponse(
+            output.read(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = 'attachment; filename="Status_Report.xlsx"'
+        return response
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@csrf_protect
+@require_POST
+def export_master_status_excel_api(request):
+    try:
+        data = json.loads(request.body)
+        selected_bank = data.get('selected_bank')
+        selected_bank_name = data.get('selected_bank_name', 'Bank')
+        
+        # Fetch folders for this bank
+        folders = ClientFolder.objects.filter(bank_code=selected_bank).order_by('district_code', '-created_at')
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = f"{selected_bank_name} Master Report"
+        
+        headers = ["District", "File No", "Applicant", "Created Date", "Status", "Days Taken", "Site Rpt", "Final Rpt"]
+        ws.append(headers)
+        
+        for f in folders:
+            tat = get_case_folder_info(f.full_folder_path, db_created_at=f.created_at)
+            if not tat: continue
+            
+            # Map district name
+            dist_name = next((d['name'] for d in DISTRICTS if d['code'] == f.district_code), f.district_code)
+            
+            ws.append([
+                dist_name,
+                f.unique_file_no,
+                f.applicant_name,
+                f.created_at.strftime('%d-%m-%Y'),
+                tat['status_label'],
+                tat['days_taken'],
+                tat['site_report_date'],
+                tat['final_report_date']
+            ])
+            
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        response = HttpResponse(
+            output.read(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = f'attachment; filename="{selected_bank_name}_Master_Report.xlsx"'
+        return response
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+

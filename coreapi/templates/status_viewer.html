@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}TAT Status Viewer — Vadrida{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --brand-blue: #004a8f;
+        --brand-accent: #0066cc;
+        --bg-app: #f0f2f5;
+        --bg-white: #ffffff;
+        --text-dark: #1f2937;
+        --text-grey: #6b7280;
+        --border-color: #d1d5db;
+        --success: #059669;
+        --warning: #d97706;
+        --danger: #dc2626;
+        --pending: #6b7280;
+    }
+
+    body {
+        background-color: var(--bg-app);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        color: var(--text-dark);
+    }
+
+    .viewer-container {
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 25px;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--brand-blue);
+        margin: 0;
+    }
+
+    /* --- FILTERS & CONTROLS --- */
+    .controls-bar {
+        background: var(--bg-white);
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 1;
+        min-width: 250px;
+        padding: 10px 15px 10px 40px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 14px;
+        position: relative;
+    }
+
+    .select-filter {
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 13px;
+        background: white;
+        min-width: 150px;
+        cursor: pointer;
+    }
+
+    .btn-action {
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        text-decoration: none;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-back {
+        background: #f8fafc;
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-back:hover {
+        background: #e2e8f0;
+    }
+
+    /* --- STATUS GRID (2 COLUMNS) --- */
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    @media (max-width: 1000px) {
+        .status-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .status-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        transition: transform 0.2s;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        height: 100%;
+        min-height: 110px;
+    }
+
+    .status-card:hover {
+        border-color: var(--brand-accent);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-width: 0;
+    }
+
+    .file-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+
+    .file-no {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 2px 6px;
+        background: #f1f5f9;
+        border-radius: 4px;
+        color: var(--brand-blue);
+    }
+
+    .applicant-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .timeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 8px;
+    }
+
+    .time-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .time-label {
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text-grey);
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .time-val {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .card-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-left: 15px;
+        border-left: 1px solid #f1f5f9;
+        padding-left: 15px;
+        flex-shrink: 0;
+        width: 140px;
+    }
+
+    /* --- DYNAMIC COLORS --- */
+    .color-green {
+        color: var(--success);
+        border-color: var(--success);
+    }
+
+    .color-yellow {
+        color: var(--warning);
+        border-color: var(--warning);
+    }
+
+    .color-red {
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    .color-grey,
+    .color-gray {
+        color: var(--text-grey);
+        border-color: var(--border-color);
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 4px;
+    }
+
+    .bg-green {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .bg-yellow {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .bg-red {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .bg-grey,
+    .bg-gray {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .tat-limit {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--brand-accent);
+        margin-top: auto;
+    }
+
+    .tat-limit i {
+        margin-right: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="viewer-container">
+    <div class="header-section">
+        <div>
+            <h1 class="page-title">File Operations Center</h1>
+            <p style="color: var(--text-grey); font-size: 13px;">Real-time monitoring of file status and TAT (Turnaround
+                Time).</p>
+        </div>
+        <a href="{% url 'coreapi:office' %}" class="btn-action btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Office
+        </a>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="controls-bar">
+        <div style="position: relative; flex: 1; display: flex; gap: 10px;">
+            <div style="position: relative; flex: 1;">
+                <i class="fas fa-search"
+                    style="position: absolute; left: 15px; top: 12px; color: var(--text-grey);"></i>
+                <input type="text" id="statusSearch" class="search-input"
+                    placeholder="Search applicant, file ID, or path..." onkeyup="runFilters()">
+            </div>
+            <button class="btn-action btn-back" onclick="location.reload()" title="Refresh Dashboard">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+
+        <select id="timeFilter" class="select-filter" onchange="runFilters()">
+            <option value="all">Any Date</option>
+            <option value="1">Last 24 Hours</option>
+            <option value="7">Last 7 Days</option>
+            <option value="14">Last 2 Weeks</option>
+            <option value="30">Last Month</option>
+        </select>
+
+        <select id="bankFilter" class="select-filter" onchange="runFilters()">
+            <option value="all">All Banks</option>
+            {% for b in banks %}
+            <option value="{{ b.code }}">{{ b.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="districtFilter" class="select-filter" onchange="runFilters()">
+            <option value="all">All Districts</option>
+            {% for d in districts %}
+            <option value="{{ d.code }}">{{ d.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="sortOrder" class="select-filter" onchange="runFilters()">
+            <option value="newest">Newest Created</option>
+            <option value="oldest">Oldest Created</option>
+            <option value="status">Group by Status</option>
+        </select>
+
+        <button class="btn-action bg-green" onclick="exportToExcel(this)" style="margin-left: auto; border: 1px solid var(--success);">
+            <i class="fas fa-file-excel"></i> Export
+        </button>
+
+        <button class="btn-action" onclick="exportMasterExcel(this)" style="background: var(--brand-blue); color: white;">
+            <i class="fas fa-file-invoice"></i> Master Report (2W)
+        </button>
+    </div>
+
+    <div id="statusGrid" class="status-grid">
+        {% for row in results %}
+        <div class="status-card-wrapper" data-file="{{ row.unique_file_no }}" data-name="{{ row.applicant_name }}"
+            data-color="{{ row.status_color }}" data-district="{{ row.district_code }}" data-bank="{{ row.bank_code }}"
+            data-date="{{ row.created_at|date:'Y-m-d H:i:s' }}" data-timestamp="{{ row.created_at|date:'U' }}">
+
+            <div class="status-card">
+                <div class="card-left">
+                    <div class="file-meta">
+                        <span class="file-no">{{ row.unique_file_no }}</span>
+                        <span class="date-text" style="font-size: 10px;">{{ row.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <h3 class="applicant-name color-{{ row.status_color }}">{{ row.applicant_name }}</h3>
+
+                    <div class="timeline">
+                        <div class="time-item">
+                            <span class="time-label">Download</span>
+                            <span class="time-val">{{ row.tat_data.download_date }}</span>
+                        </div>
+                        <div class="time-item">
+                            <span class="time-label">Site Rpt</span>
+                            <span class="time-val">{{ row.tat_data.site_report_date|default:"--" }}</span>
+                        </div>
+                        <div class="time-item">
+                            <span class="time-label">Final Rpt</span>
+                            <span class="time-val">{{ row.tat_data.final_report_date|default:"--" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-right">
+                    <span class="badge bg-{{ row.status_color }}">{{ row.status_label }}</span>
+
+                    <div class="duration-stats" style="margin-top: auto; text-align: right;">
+                        {% if row.tat_data.days_overdue > 0 %}
+                        <div style="color: var(--danger); font-size: 11px; font-weight: 800;">
+                            <i class="fas fa-exclamation-triangle"></i> {{ row.tat_data.days_overdue }} DAYS LATE
+                        </div>
+                        {% elif row.status_color == "green" %}
+                        <div style="color: var(--success); font-size: 11px; font-weight: 700;">
+                            <i class="fas fa-check-circle"></i> TOOK {{ row.tat_data.days_taken }} DAYS
+                        </div>
+                        {% else %}
+                        <div style="color: var(--text-grey); font-size: 11px; font-weight: 600;">
+                            <i class="fas fa-hourglass-half"></i> AGE: {{ row.tat_data.days_taken }}D
+                        </div>
+                        {% endif %}
+                        <div class="tat-limit" style="margin-top: 2px;">
+                            <i class="fas fa-clock"></i> {{ row.tat_data.tat_date }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: span 2; padding: 100px; text-align: center; color: var(--text-grey);">
+            <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.2; margin-bottom: 20px;"></i>
+            <p>No records found matching your database.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function saveStatusState() {
+        const state = {
+            query: document.getElementById('statusSearch').value,
+            time: document.getElementById('timeFilter').value,
+            bank: document.getElementById('bankFilter').value,
+            district: document.getElementById('districtFilter').value,
+            sort: document.getElementById('sortOrder').value
+        };
+        localStorage.setItem('vadrida_status_viewer_state', JSON.stringify(state));
+    }
+
+    function restoreStatusState() {
+        const saved = localStorage.getItem('vadrida_status_viewer_state');
+        if (!saved) return;
+        try {
+            const s = JSON.parse(saved);
+            if (s.query !== undefined) document.getElementById('statusSearch').value = s.query;
+            if (s.time) document.getElementById('timeFilter').value = s.time;
+            if (s.bank) document.getElementById('bankFilter').value = s.bank;
+            if (s.district) document.getElementById('districtFilter').value = s.district;
+            if (s.sort) document.getElementById('sortOrder').value = s.sort;
+        } catch (e) {
+            console.error("Restore error", e);
+        }
+    }
+
+    function runFilters() {
+        const query = document.getElementById('statusSearch').value.toLowerCase();
+        const days = document.getElementById('timeFilter').value;
+        const bank = document.getElementById('bankFilter').value;
+        const district = document.getElementById('districtFilter').value;
+        const sort = document.getElementById('sortOrder').value;
+
+        let wrappers = Array.from(document.querySelectorAll('.status-card-wrapper'));
+        const nowSec = Math.floor(Date.now() / 1000);
+
+        wrappers.forEach(wrap => {
+            const fileName = wrap.dataset.file.toLowerCase();
+            const applicant = wrap.dataset.name.toLowerCase();
+            const timestamp = parseInt(wrap.dataset.timestamp);
+            const distCode = wrap.dataset.district;
+            const bankCode = wrap.dataset.bank;
+
+            // 1. Search Filter
+            const matchesSearch = fileName.includes(query) || applicant.includes(query);
+
+            // 2. Time Filter
+            let matchesTime = true;
+            if (days !== 'all') {
+                const limitSec = parseInt(days) * 24 * 60 * 60;
+                matchesTime = (nowSec - timestamp) <= limitSec;
+            }
+
+            // 3. Bank & District Filter
+            let matchesBank = (bank === 'all' || bankCode === bank);
+            let matchesDistrict = (district === 'all' || distCode === district);
+
+            if (matchesSearch && matchesTime && matchesBank && matchesDistrict) {
+                wrap.style.display = "";
+            } else {
+                wrap.style.display = "none";
+            }
+        });
+
+        // 4. Sorting
+        const grid = document.getElementById('statusGrid');
+        let visibleWrappers = wrappers.filter(w => w.style.display !== "none");
+
+        visibleWrappers.sort((a, b) => {
+            if (sort === 'newest') return parseInt(b.dataset.timestamp) - parseInt(a.dataset.timestamp);
+            if (sort === 'oldest') return parseInt(a.dataset.timestamp) - parseInt(b.dataset.timestamp);
+            if (sort === 'status') {
+                const colors = { 'red': 0, 'yellow': 1, 'gray': 2, 'grey': 2, 'green': 3 };
+                return colors[a.dataset.color] - colors[b.dataset.color];
+            }
+            return 0;
+        });
+
+        // Re-append in sorted order
+        visibleWrappers.forEach(w => grid.appendChild(w));
+
+        saveStatusState();
+    }
+
+    // Initial run
+    document.addEventListener('DOMContentLoaded', () => {
+        restoreStatusState();
+        runFilters();
+    });    function exportToExcel(btn) {
+        const visibleWrappers = Array.from(document.querySelectorAll('.status-card-wrapper'))
+            .filter(w => w.style.display !== "none");
+        if (visibleWrappers.length === 0) {
+            alert("No results to export!");
+            return;
+        }
+        const fileNos = visibleWrappers.map(w => w.dataset.file);
+        const filters = {
+            search: document.getElementById('statusSearch').value,
+            time: document.getElementById('timeFilter').options[document.getElementById('timeFilter').selectedIndex].text,
+            bank: document.getElementById('bankFilter').options[document.getElementById('bankFilter').selectedIndex].text,
+            district: document.getElementById('districtFilter').options[document.getElementById('districtFilter').selectedIndex].text
+        };
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        btn.disabled = true;
+        fetch('{% url "coreapi:export_status_excel" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ file_nos: fileNos, filters: filters })
+        })
+        .then(async response => {
+            if (!response.ok) throw new Error("Export failed");
+            let filename = `Status_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); a.remove();
+        })
+        .catch(err => { alert("Error exporting Excel: " + err.message); })
+        .finally(() => { btn.innerHTML = originalContent; btn.disabled = false; });
+    }    function exportMasterExcel(btn) {
+        const bankSelect = document.getElementById('bankFilter');
+        let selectedBank = bankSelect.value;
+        let selectedBankName = bankSelect.options[bankSelect.selectedIndex].text;
+
+        // If "All Banks" is selected, we must ask the user to pick one
+        if (selectedBank === 'all') {
+            const banks = Array.from(bankSelect.options)
+                .filter(opt => opt.value !== 'all')
+                .map(opt => `${opt.value}: ${opt.text}`)
+                .join('\n');
+            
+            const choice = prompt("Please enter the Bank Code to generate the District-wise Master Report:\n\n" + banks);
+            if (!choice) return; // User cancelled
+
+            const found = Array.from(bankSelect.options).find(opt => opt.value === choice);
+            if (!found) {
+                alert("Invalid Bank Code selected.");
+                return;
+            }
+            selectedBank = choice;
+            selectedBankName = found.text;
+        }
+
+        const visibleWrappers = Array.from(document.querySelectorAll('.status-card-wrapper'))
+            .filter(w => w.style.display !== "none");
+        const fileNos = visibleWrappers.map(w => w.dataset.file);
+        
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${selectedBankName}...`;
+        btn.disabled = true;
+
+        fetch('{% url "coreapi:export_master_excel" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ 
+                file_nos: fileNos,
+                selected_bank: selectedBank,
+                selected_bank_name: selectedBankName
+            })
+        })
+        .then(async response => {
+            if (!response.ok) throw new Error("Master Export failed");
+            let filename = `${selectedBankName}_District_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); a.remove();
+        })
+        .catch(err => { alert("Error: " + err.message); })
+        .finally(() => { btn.innerHTML = originalContent; btn.disabled = false; });
+    }
+</script>
+{% endblock %}
+%}

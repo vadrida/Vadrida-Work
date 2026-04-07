@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+load_dotenv()
 import mimetypes
 SECRET_KEY = 'django-insecure-_ig@9s8_3u#jib24eap(oydc$olvq)=)#4pb@9%u^=2)y8!6*$'
 # SECURITY WARNING: don't run with debug turned on in production!

@@ -418,6 +418,15 @@
             style="position: absolute; top: 10mm; right: 15mm; width: 25mm; height: auto; object-fit: contain;">
         <h1>Site Inspection Report</h1>
 
+        <div class="completion-status-bar" style="margin-top: 10px; margin-bottom: 20px; border-bottom: 2.5px solid #075e54; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div style="font-weight: 850; font-size: 10.5pt; color: #333; text-transform: uppercase;">
+                Form filled out <span id="completion" data-path="completion_metrics.percent"></span> %
+            </div>
+            <div id="average_filling_display" style="font-weight: 850; font-size: 10.5pt; color: #333; text-transform: uppercase;">
+                Calculating metrics...
+            </div>
+        </div>
+
         <div class="section-title">1. General Information</div>
         <div class="row">
             <div style="width: 50%;">
@@ -596,40 +605,42 @@
         </div>
         <div class="img-wrapper" id="wrap_Access_access_notes"></div>
         <br><br><br><br><br><br><br><br><br><br>
-        <div class="section-title">VI. For Purchase and Resale cases</div>
-        <div class="row">
-            <label>1.Buyer name</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_name"></div>
+        <div id="pdf_purchase_resale_section">
+            <div class="section-title">VI. For Purchase and Resale cases</div>
+            <div class="row">
+                <label>1.Buyer name</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_name"></div>
+            </div>
+            <div class="row">
+                <label>2.Seller name</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.seller_name"></div>
+                <label>3.Relation b/w Buyer and Seller, if any</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_seller_relation"></div>
+            </div>
+            <div class="row">
+                <label>4.Since how long the property is up for sale..? (months)</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.property_sale_duration"></div>
+            </div>
+            <div class="row">
+                <label>5.Brokers/OLX/99acers involved or how transaction happened..?</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.transaction_method"></div>
+            </div>
+            <div class="row">
+                <label>6.Land extend proposed for purchase..?</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_land_extent"></div>
+            </div>
+            <div class="row">
+                <label>7.Price Asked</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.price_asked"></div>
+                <label>8.Deal Breaker Value</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.deal_breaker_value"></div>
+            </div>
+            <div class="row-stacked">
+                <label>Notes</label>
+                <div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_resale_notes"></div>
+            </div>
+            <div class="img-wrapper" id="wrap_Purchase_resale_purchase_resale_notes"></div>
         </div>
-        <div class="row">
-            <label>2.Seller name</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.seller_name"></div>
-            <label>3.Relation b/w Buyer and Seller, if any</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.buyer_seller_relation"></div>
-        </div>
-        <div class="row">
-            <label>4.Since how long the property is up for sale..? (months)</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.property_sale_duration"></div>
-        </div>
-        <div class="row">
-            <label>5.Brokers/OLX/99acers involved or how transaction happened..?</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.transaction_method"></div>
-        </div>
-        <div class="row">
-            <label>6.Land extend proposed for purchase..?</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_land_extent"></div>
-        </div>
-        <div class="row">
-            <label>7.Price Asked</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.price_asked"></div>
-            <label>8.Deal Breaker Value</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.deal_breaker_value"></div>
-        </div>
-        <div class="row-stacked">
-            <label>Notes</label>
-            <div class="field-box" contenteditable="true" data-path="Purchase_resale.purchase_resale_notes"></div>
-        </div>
-        <div class="img-wrapper" id="wrap_Purchase_resale_purchase_resale_notes"></div>
 
         <div class="section-title">VII. Building Analysis</div>
         <div id="pdf_building_plans_container" style="margin-bottom: 10px;">
@@ -650,8 +661,8 @@
         </div>
 
         <table class="report-table">
-            <thead>
-                <tr>
+            <thead id="building_dynamic_thead">
+                <tr id="building_header_row">
                     <th>Floor No</th>
                     <th>Builtup Area (Measured at Site)</th>
                     <th>No of Rooms</th>
@@ -665,11 +676,15 @@
             </tbody>
         </table>
         <div class="row" style="margin-top: 10px;">
-            <label>If Rented - Amount:</label>
-            <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
+            <div id="pdf_rent_amt_section" style="display: contents;">
+                <label>If Rented - Amount:</label>
+                <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_amt"></div>
+            </div>
 
-            <label>Occupant Name:</label>
-            <div class="field-box" contenteditable="true" data-path="Building_analysis.occupant_name"></div>
+            <div id="pdf_occupant_name_section" style="display: contents;">
+                <label>Occupant Name:</label>
+                <div class="field-box" contenteditable="true" data-path="Building_analysis.occupant_name"></div>
+            </div>
 
             <label>Ward No:</label>
             <div class="field-box" contenteditable="true" data-path="Boundary_analysis.Ward"></div>
@@ -684,8 +699,10 @@
                 ＋ Add
             </button>
 
-            <label>Duration:</label>
-            <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_duration"></div>
+            <div id="pdf_rent_duration_section" style="display: contents;">
+                <label>Duration:</label>
+                <div class="field-box" contenteditable="true" data-path="Building_analysis.rent_duration"></div>
+            </div>
         </div>
 
         <!-- Extra Building Numbers (dynamically added) -->
@@ -1268,6 +1285,7 @@
     }
     // --- 2. Render Data to HTML ---
     function renderPage() {
+        Completion(); // Refresh completion stats
         renderBuildingTableDynamic();
         renderDynamicDocumentsReceived();
         renderBoundaryAnalysisDiagrams();
@@ -1460,8 +1478,40 @@
         if (!ltrTotal && !deedTotal) {
             const totalBox = document.querySelector('[data-path="Survey.total_ltr_extent"]');
             if (totalBox) {
-                totalBox.closest('.row').classList.add('hidden-row');
+                const totalRow = totalBox.closest('.row');
+                if (totalRow) totalRow.classList.add('hidden-row');
             }
+        }
+
+        // --- 5. SPECIFIC LOGIC: PURCHASE AND RESALE ---
+        const purchaseData = reportData.Purchase_resale || {};
+        const hasPurchaseData = Object.values(purchaseData).some(v => v && v.toString().trim() !== "");
+        const purchaseSection = document.getElementById("pdf_purchase_resale_section");
+        if (purchaseSection) {
+            if (!hasPurchaseData) purchaseSection.classList.add('hidden-row');
+            else purchaseSection.classList.remove('hidden-row');
+        }
+
+        // --- 6. SPECIFIC LOGIC: RENT DETAILS ---
+        const rentAmt = getNested(reportData, "Building_analysis.rent_amt");
+        const occupant = getNested(reportData, "Building_analysis.occupant_name");
+        const duration = getNested(reportData, "Building_analysis.rent_duration");
+
+        const rentAmtSec = document.getElementById("pdf_rent_amt_section");
+        const occupantSec = document.getElementById("pdf_occupant_name_section");
+        const durationSec = document.getElementById("pdf_rent_duration_section");
+
+        if (rentAmtSec) {
+            if (!rentAmt || rentAmt.toString().trim() === "") rentAmtSec.style.display = 'none';
+            else rentAmtSec.style.display = 'contents';
+        }
+        if (occupantSec) {
+            if (!occupant || occupant.toString().trim() === "") occupantSec.style.display = 'none';
+            else occupantSec.style.display = 'contents';
+        }
+        if (durationSec) {
+            if (!duration || duration.toString().trim() === "") durationSec.style.display = 'none';
+            else durationSec.style.display = 'contents';
         }
 
         // --- 5. HIDE EMPTY IMAGE WRAPPERS ---
@@ -1754,19 +1804,19 @@
                             <span style="font-size: 10px; font-weight: 800; color: #1e3a8a;">${doc.land_extent ? parseFloat(doc.land_extent).toFixed(2) + ' Ares' : '—'}</span>
                             <span style="font-size: 8px; font-weight: 600; color: #1e3a8a;">${doc.land_extent ? (parseFloat(doc.land_extent) * 2.47105).toFixed(2) + ' Cents' : ''}</span>
                         </div>
-                        <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);text-align:center;min-width:50px;">
+                        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);text-align:center;min-width:50px;">
                             <div style="font-size:8px;font-weight:900;color:Blue;">N</div>
                             <div style="font-size:8px;color:#1e3a8a;font-weight:800;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${doc.north || '—'}</div>
                         </div>
-                        <div style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);text-align:center;min-width:50px;">
+                        <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);text-align:center;min-width:50px;">
                             <div style="font-size:8px;font-weight:900;color:Red;">S</div>
                             <div style="font-size:8px;color:#1e3a8a;font-weight:800;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${doc.south || '—'}</div>
                         </div>
-                        <div style="position:absolute;left:-22px;top:50%;transform:translateY(-50%) rotate(-90deg);text-align:center;min-width:50px;transform-origin:center center;">
+                        <div style="position:absolute;left:-25px;top:50%;transform:translateY(-50%) rotate(-90deg);text-align:center;min-width:50px;transform-origin:center center;">
                             <div style="font-size:8px;font-weight:900;color:Purple;">W</div>
                             <div style="font-size:8px;color:#1e3a8a;font-weight:800;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${doc.west || '—'}</div>
                         </div>
-                        <div style="position:absolute;right:-22px;top:50%;transform:translateY(-50%) rotate(90deg);text-align:center;min-width:50px;transform-origin:center center;">
+                        <div style="position:absolute;right:-25px;top:50%;transform:translateY(-50%) rotate(90deg);text-align:center;min-width:50px;transform-origin:center center;">
                             <div style="font-size:8px;font-weight:900;color:Green;">E</div>
                             <div style="font-size:8px;color:#1e3a8a;font-weight:800;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${doc.east || '—'}</div>
                         </div>
@@ -2199,8 +2249,31 @@
     }
 
     function renderBuildingTableDynamic() {
+        const thead = document.getElementById("building_header_row");
         const tbody = document.getElementById("building_dynamic_body");
-        if (!tbody) return;
+        if (!tbody || !thead) return;
+
+        // 1. Determine dynamic columns based on plans checked
+        const showApproved = !!getNested(reportData, "Building_analysis.approved_plan_checked");
+        const showDevelopment = !!getNested(reportData, "Building_analysis.development_plan_checked");
+        const showEngineers = !!getNested(reportData, "Building_analysis.engineers_plan_checked");
+
+        // 2. Update Header
+        let headerHtml = `<th>Floor No / Unit</th>`;
+        if (showApproved) headerHtml += `<th>BUA as per Approved plan</th>`;
+        if (showDevelopment) headerHtml += `<th>BUA as per Development plan</th>`;
+        if (showEngineers) headerHtml += `<th>BUA as per Engineers plan</th>`;
+        headerHtml += `
+            <th>Builtup Area (Measured at Site)</th>
+            <th>No of Rooms</th>
+            <th>No of Kitchen</th>
+            <th>No of Bathrooms</th>
+            <th>Usage</th>
+            <th>Occupancy</th>
+        `;
+        thead.innerHTML = headerHtml;
+
+        // 3. Update Body
         tbody.innerHTML = "";
 
         const floorConfig = [
@@ -2217,7 +2290,13 @@
         floorConfig.forEach(floor => {
             const k = floor.key;
             const builtUp = getNested(reportData, `Building_analysis.${k}_Builtup_area`);
-            if (k !== 'GF' && !builtUp) return;
+            // Show GF always, or any floor that has any data
+            const hasAnyData = builtUp || 
+                             getNested(reportData, `Building_analysis.${k}_approved_plan_area`) ||
+                             getNested(reportData, `Building_analysis.${k}_development_plan_area`) ||
+                             getNested(reportData, `Building_analysis.${k}_engineers_plan_area`);
+
+            if (k !== 'GF' && !hasAnyData) return;
 
             const valBuiltUp = builtUp || "";
             const valRooms = getNested(reportData, `Building_analysis.${k}_Rooms_no`) || "";
@@ -2227,8 +2306,12 @@
             const occArr = getNested(reportData, `Building_analysis.${k}_Occupancy`) || [];
 
             const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td style="background-color: var(--heading-green)">${floor.label}</td>
+            let rowHtml = `<td style="background-color: var(--heading-green)">${floor.label}</td>`;
+            if (showApproved) rowHtml += `<td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_approved_plan_area">${getNested(reportData, `Building_analysis.${k}_approved_plan_area`) || ''}</div></td>`;
+            if (showDevelopment) rowHtml += `<td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_development_plan_area">${getNested(reportData, `Building_analysis.${k}_development_plan_area`) || ''}</div></td>`;
+            if (showEngineers) rowHtml += `<td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_engineers_plan_area">${getNested(reportData, `Building_analysis.${k}_engineers_plan_area`) || ''}</div></td>`;
+
+            rowHtml += `
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Builtup_area">${valBuiltUp}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Rooms_no">${valRooms}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Kitchen_no">${valKitchen}</div></td>
@@ -2236,6 +2319,7 @@
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Usage">${usageArr.join(', ')}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="Building_analysis.${k}_Occupancy">${occArr.join(', ')}</div></td>
             `;
+            tr.innerHTML = rowHtml;
             tbody.appendChild(tr);
         });
 
@@ -2248,8 +2332,12 @@
 
             const tr = document.createElement("tr");
             tr.style.backgroundColor = "#f9fbe7";
-            tr.innerHTML = `
-                <td><div class="field-box" contenteditable="true" data-path="${basePath}.label">${label}</div></td>
+            let rowHtml = `<td><div class="field-box" contenteditable="true" data-path="${basePath}.label">${label}</div></td>`;
+            if (showApproved) rowHtml += `<td><div class="field-box" contenteditable="true" data-path="${basePath}.approved_plan_area">${apt.approved_plan_area || ''}</div></td>`;
+            if (showDevelopment) rowHtml += `<td><div class="field-box" contenteditable="true" data-path="${basePath}.development_plan_area">${apt.development_plan_area || ''}</div></td>`;
+            if (showEngineers) rowHtml += `<td><div class="field-box" contenteditable="true" data-path="${basePath}.engineers_plan_area">${apt.engineers_plan_area || ''}</div></td>`;
+
+            rowHtml += `
                 <td><div class="field-box" contenteditable="true" data-path="${basePath}.Builtup_area">${apt.Builtup_area || ''}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="${basePath}.Rooms_no">${apt.Rooms_no || ''}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="${basePath}.Kitchen_no">${apt.Kitchen_no || ''}</div></td>
@@ -2257,6 +2345,7 @@
                 <td><div class="field-box" contenteditable="true" data-path="${basePath}.Usage">${usage}</div></td>
                 <td><div class="field-box" contenteditable="true" data-path="${basePath}.Occupancy">${occupancy}</div></td>
             `;
+            tr.innerHTML = rowHtml;
             tbody.appendChild(tr);
         });
     }
@@ -2408,6 +2497,28 @@
         while (boundary[`Building_no_${i}`] !== undefined) {
             addBuildingNoField(boundary[`Building_no_${i}`]);
             i++;
+        }
+    }
+    function Completion(){
+        const completion = getNested(reportData, 'completion_metrics.percent') || 0;
+        const userAvg = getNested(reportData, 'completion_metrics.user_average') || 0;
+        const username = getNested(reportData, 'completion_metrics.username') || "User";
+
+        const compEl = document.getElementById('completion');
+        if (compEl) {
+            compEl.innerText = completion;
+            if(completion > 60) compEl.style.color = 'green';
+            else if(completion > 30) compEl.style.color = 'orange';
+            else compEl.style.color = 'red';
+        }
+
+        const avgEl = document.getElementById('average_filling_display');
+        if (avgEl) {
+            let valColor = 'red';
+            if(userAvg > 60) valColor = 'green';
+            else if(userAvg > 30) valColor = 'orange';
+            
+            avgEl.innerHTML = `Avg by ${username}: <span style="color: ${valColor}">${userAvg}%</span>`;
         }
     }
 

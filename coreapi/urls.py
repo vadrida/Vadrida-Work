@@ -39,6 +39,7 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path('office-verification/', views.office_verification, name='office_verification'),
     path('office-dash/', views.office, name='office'),
+    path('status-viewer/', views.status_viewer, name='status_viewer'),
     
     # Feedback Form URLs
     path("feedback/", views.feedback, name="feedback"),
@@ -56,4 +57,6 @@ urlpatterns = [
     path('api/db-case-search/', views.db_case_search_api, name='db_case_search'),
     path('api/save-verification/', views.save_verification_data, name='save_verification_data'),
 
+    path('api/export-status-excel/', views.export_status_excel_api, name='export_status_excel'),
+    path('api/export-master-excel/', views.export_master_status_excel_api, name='export_master_excel'),
 ]

@@ -212,8 +212,10 @@
                             <option value="07" data-name="CSB">07. CSB</option>
                             <option value="08" data-name="Chola">08. Chola</option>
                             <option value="09" data-name="SIB">09. SIB</option>
-                            <option value="10" data-name="CHOLA SME">10. CHOLA SME</option>
-                            <option value="11" data-name="ICICI">11. ICICI</option>
+                            <option value="10" data-name="ICICI">10. ICICI</option>
+                            <option value="11" data-name="RBL">11. RBL</option>
+                            <option value="12" data-name="Chola SME">12. Chola SME</option>
+                            <option value="13" data-name="Axis Finance">13. Axis Finance</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -327,32 +329,39 @@
                         <label class="form-label">Site Staff Code</label>
                         <select id="site_code_select" class="form-select trigger-preview"
                             onchange="toggleManualInput('site_code_select', 'other_site_container', 'site_code_manual')">
-                            <option value="100SAN">100SAN</option>
-                            <option value="103VIS">103VIS</option>
-                            <option value="106JOJ">106JOJ</option>
-                            <option value="107SRJ">107SRJ</option>
-                            <option value="109NNU">109NNU</option>
-                            <option value="110NDU">110NDU</option>
-                            <option value="114JAY">114JAY</option>
-                            <option value="115RMY">115RMY</option>
-                            <option value="117VMJ">117VMJ</option>
-                            <option value="OTHER">Other...</option>
+                            <option value="100SAN">100SAN(SANJAY)</option>
+                            <option value="106JOJ">106JOJ(JOJU)</option>
+                            <option value="107SRJ">107SRJ(SOORAJ)</option>
+                            <option value="109NNU">109NNU(NEENU)</option>
+                            <option value="110NDU">110NDU(NANDU)</option>
+                            <option value="114JAY">114JAY(JAYESH)</option>
+                            <option value="115RMY">115RMY(REMYA)</option>
+                            <option value="117VMJ">117VMJ(VIMAL)</option>
+                            <option value="125RAV">125RAV(RAVAS)</option>
+                            <option value="123HAR">123HAR(HARI)</option>
+                            <option value="121SND">121SND(SANDU)</option>
+                            <option value="132SUJ">132SUJ(SUJITH)</option>
+                            <option value="133ASH">133ASH(ASHIK)</option>
                         </select>
-                        <div id="other_site_container" class="hidden" style="margin-top: 10px;">
+                        <!-- <div id="other_site_container" class="hidden" style="margin-top: 10px;">
                             <input type="text" id="site_code_manual" class="form-input trigger-preview"
                                 placeholder="Type Site Code...">
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Office Staff Code</label>
                         <select id="office_code_select" class="form-select trigger-preview">
-                            <option value="104FMY">104FMY</option>
-                            <option value="109NNU">109NNU</option>
-                            <option value="115RMY">115RMY</option>
-                            <option value="119ATH">119ATH</option>
-                            <option value="126VIJ">126VIJ</option>
-                            <option value="118SAF">118SAF</option>
+                            <option value="104FMY">104FMY(FEMINA)</option>
+                            <option value="109NNU">109NNU(NEENU)</option>
+                            <option value="115RMY">115RMY(REMYA)</option>
+                            <option value="119ATH">119ATH(ATHIRA)</option>
+                            <option value="126VIJ">126VIJ(VIJITHA)</option>
+                            <option value="118SAF">118SAF(SAFNA)</option>
+                            <option value="129SAN">129SAN(SANU)</option>
+                            <option value="130RES">130RES(RESHMA)</option>
+                            <option value="131FAT">131FAT(FATHIMA)</option>
+                            <option value="100SNJ">100SNJ(SANJAY)</option>
                         </select>
                     </div>
                 </div>
@@ -402,9 +411,73 @@
             }
         });
 
+        // --- NEW: Persistence Events ---
+        const persistentFields = [
+            'bank_select', 'district_select', 'local_body_select', 'muthoot_branch_select',
+            'product_select', 'product_manual', 'site_code_select', 'site_code_manual', 'office_code_select'
+        ];
+        persistentFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', saveFormState);
+                el.addEventListener('input', saveFormState);
+            }
+        });
+
+        restoreFormState();
         toggleExtraFields();
         fetchNextSequence();
     });
+
+    // --- PERSISTENCE LOGIC ---
+    function saveFormState() {
+        const state = {};
+        const fields = [
+            'bank_select', 'district_select', 'local_body_select', 'muthoot_branch_select',
+            'product_select', 'product_manual', 'site_code_select', 'site_code_manual', 'office_code_select'
+        ];
+        
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) state[id] = el.value;
+        });
+        
+        localStorage.setItem('vadrida_create_folder_state', JSON.stringify(state));
+    }
+
+    function restoreFormState() {
+        const saved = localStorage.getItem('vadrida_create_folder_state');
+        if (!saved) return;
+        try {
+            const s = JSON.parse(saved);
+            
+            if (s.bank_select) document.getElementById('bank_select').value = s.bank_select;
+            if (s.district_select) document.getElementById('district_select').value = s.district_select;
+            if (s.local_body_select) document.getElementById('local_body_select').value = s.local_body_select;
+            if (s.muthoot_branch_select) document.getElementById('muthoot_branch_select').value = s.muthoot_branch_select;
+            
+            if (s.product_select) {
+                document.getElementById('product_select').value = s.product_select;
+                toggleManualInput('product_select', 'other_product_container', 'product_manual');
+            }
+            if (s.product_manual) document.getElementById('product_manual').value = s.product_manual;
+            
+            if (s.site_code_select) {
+                document.getElementById('site_code_select').value = s.site_code_select;
+                // Only toggle if the manual container exists
+                if(document.getElementById('other_site_container')) {
+                    toggleManualInput('site_code_select', 'other_site_container', 'site_code_manual');
+                }
+            }
+            if (s.site_code_manual && document.getElementById('site_code_manual')) {
+                document.getElementById('site_code_manual').value = s.site_code_manual;
+            }
+            
+            if (s.office_code_select) document.getElementById('office_code_select').value = s.office_code_select;
+            
+            updatePreview();
+        } catch (e) { console.error("Restore error", e); }
+    }
 
     // --- CHECK WHICH EXTRA DROPDOWN SHOULD BE SHOWN ---
     function toggleExtraFields() {
@@ -635,7 +708,8 @@
                     dist_name: data.distName,
                     date_str: dateStr,
                     local_body: data.localBodyValue,
-                    muthoot_branch: data.muthootBranchValue // Passes Muthoot info to backend
+                    muthoot_branch: data.muthootBranchValue, // Passes Muthoot info to backend
+                    bank_name: data.bankName
                 },
                 structure: {
                     year: "2026_2027",
@@ -652,14 +726,26 @@
                 if (resp.success) {
                     Swal.fire({
                         title: 'Folder Created Successfully!',
-                        text: `Folder was successfully created: ${data.folderName}`,
+                        html: `
+                            <p class="text-sm text-gray-600 mb-6">Folder was successfully created:<br><span class="font-mono font-bold text-blue-700">${data.folderName}</span></p>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <button onclick="Swal.close()" 
+                                    style="background: #004a8f; color: white; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;">
+                                    Done
+                                </button>
+                            </div>
+                        `,
                         icon: 'success',
-                        confirmButtonColor: "#004a8f"
+                        showConfirmButton: false
                     });
 
 
                     document.getElementById('createFolderForm').reset();
                     document.getElementById('uniqueIdDisplay').innerText = "--";
+                    
+                    // Restore dropdowns so they last across multiple creations
+                    restoreFormState();
+                    
                     toggleExtraFields(); // Reset visibility
                     fetchNextSequence();
                 } else {

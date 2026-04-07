@@ -93,11 +93,17 @@ class VerificationReport(models.Model):
     verified_by = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True)
     
     # The Top Section Data
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    product = models.CharField(max_length=100, blank=True, null=True)
     inspection_date = models.CharField(max_length=50, blank=True, null=True)
+    person_met_at_site = models.CharField(max_length=255, blank=True, null=True)
     documents_received = models.JSONField(default=list, blank=True, null=True)
     
     # The massive, isolated dictionary containing all document forms (Title Deed, etc.)
     verification_database = models.JSONField(default=dict, blank=True, null=True)
+    
+    # General Notes/Deviations
+    survey_notes = models.TextField(blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 from django.conf import settings
 
-def get_case_folder_info(abs_path):
+def get_case_folder_info(abs_path, db_created_at=None):
     """
     Calculates TAT, Report Dates, and Status.
     MOVED here so background tasks can use it.
@@ -19,10 +19,20 @@ def get_case_folder_info(abs_path):
             return None
 
         if not files:
-            return None
+            # If no files, we still want to show something if we have a DB date
+            if not db_created_at: return None
+            download_dt = db_created_at
+        else:
+            if db_created_at:
+                download_dt = db_created_at
+            else:
+                earliest_ts = min(f.stat().st_mtime for f in files)
+                download_dt = datetime.fromtimestamp(earliest_ts)
 
-        earliest_ts = min(f.stat().st_mtime for f in files)
-        download_dt = datetime.fromtimestamp(earliest_ts)
+        # Ensure download_dt is TZ-naive for comparison with datetime.now()
+        if hasattr(download_dt, 'tzinfo') and download_dt.tzinfo is not None:
+            download_dt = download_dt.replace(tzinfo=None)
+
         tat_dt = download_dt + timedelta(days=3)
 
         site_report_dt = None
@@ -44,26 +54,33 @@ def get_case_folder_info(abs_path):
                     final_report_dt = datetime.fromtimestamp(ts)
 
         # Status Logic
-        status_color = "grey"
-        status_label = "Pending"
         now = datetime.now()
-
-        if final_report_dt:
+        
+        if abs_path.lower().endswith('_hold'):
+            status_color = "grey"
+            status_label = "ON HOLD"
+        elif final_report_dt:
             status_color = "green"
-            status_label = "Completed"
+            status_label = "COMPLETED"
+        elif now > tat_dt:
+            status_color = "red"
+            status_label = "OUT OF TAT"
         else:
-            if now <= tat_dt:
-                if site_report_dt:
-                    status_color = "yellow"
-                    status_label = "Site report submitted"
-                else:
-                    status_color = "grey"
-                    status_label = "Pending"
-            else:
-                status_color = "red"
-                status_label = "Out of TAT"
+            status_color = "yellow"
+            status_label = "PENDING"
 
         def fmt(dt): return dt.strftime('%d/%m/%Y') if dt else "N/A"
+
+        # Calculate Duration Metrics
+        days_taken = None
+        days_overdue = 0
+        
+        if final_report_dt:
+            days_taken = (final_report_dt - download_dt).days
+        else:
+            days_taken = (now - download_dt).days
+            if now > tat_dt:
+                days_overdue = (now - tat_dt).days
 
         return {
             "download_date": fmt(download_dt),
@@ -71,7 +88,9 @@ def get_case_folder_info(abs_path):
             "site_report_date": fmt(site_report_dt),
             "final_report_date": fmt(final_report_dt),
             "status_color": status_color,
-            "status_label": status_label
+            "status_label": status_label,
+            "days_taken": days_taken,
+            "days_overdue": days_overdue
         }
 
     except Exception as e:

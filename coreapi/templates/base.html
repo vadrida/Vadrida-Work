@@ -45,12 +45,11 @@
         html { scroll-behavior: smooth; }
 
         .glass-effect {
-            background: rgba(255,255,255,0.45);
+            background: var(--bg-card); /* Fallback if variables not loaded yet */
+            background: var(--bg-header);
             backdrop-filter: blur(18px);
-            border-bottom: 1px solid rgba(255,255,255,0.4);
-            z-index: 99;
-            position: relative;
-            background: white;
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
         }
 
         .nav-link {
@@ -72,6 +71,12 @@
         .nav-link.active::after {
             width: 100%;
         }
+
+        /* Reload Button Animation */
+        .reload-btn:hover i {
+            transform: rotate(180deg);
+            transition: transform 0.5s ease-in-out;
+        }
     </style>
 <link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
@@ -82,21 +87,29 @@
     <nav class="w-full fixed top-0 left-0 glass-effect shadow-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-            <a href="#" id="logoFullscreenTrigger" class="flex items-center gap-2 cursor-pointer" title="Click to Toggle Fullscreen">
+            <a href="{% url 'coreapi:dashboard' %}" class="flex items-center gap-2 cursor-pointer">
                 <img src="{% static 'images/VADRIDA LOGO.png' %}" class="w-32 h-auto" alt="Vadrida Logo">
             </a>
 
-            <ul class="hidden md:flex gap-8 font-montserrat text-gray-800 font-medium">
-                <li style="color: #FFD700; font-weight: bold;">Welcome</li>
-                <li style="font-weight: bold;">{{ request.session.user_name }}</li>
-                <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
-                <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
-            </ul>
+            <div class="flex items-center gap-5">
+                <a href="javascript:location.reload()" 
+                   class="text-xl text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-all hover:rotate-180 duration-500 flex items-center" 
+                   title="Reload Page">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
 
-            <button id="mobileMenuBtn"
-                    class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
-                <i class="fas fa-bars"></i>
-            </button>
+                <ul class="hidden md:flex gap-8 font-montserrat text-gray-800 font-medium items-center">
+                    <li style="color: #FFD700; font-weight: bold;">Welcome</li>
+                    <li style="font-weight: bold;">{{ request.session.user_name }}</li>
+                    <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
+                    <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
+                </ul>
+
+                <button id="mobileMenuBtn"
+                        class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
 
         </div>
     </nav>
@@ -110,6 +123,9 @@
             </div>
             <a href="{% url 'coreapi:dashboard' %}" class="py-4 border-b border-gray-100 flex items-center gap-3">
                 <i class="fas fa-home text-royal-blue-600"></i> Home
+            </a>
+            <a href="javascript:location.reload()" class="py-4 border-b border-gray-100 flex items-center gap-3">
+                <i class="fas fa-sync-alt text-royal-blue-600"></i> Reload Page
             </a>
             <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -135,67 +151,7 @@
         }
 
 
-        /* =========================
-           3. FULLSCREEN LOGIC (Aggressive Restore)
-        ========================= */
-        const logoTrigger = document.getElementById('logoFullscreenTrigger');
-
-        // A. Manual Toggle (Click Logo)
-        if (logoTrigger) {
-            logoTrigger.addEventListener('click', (e) => {
-                e.preventDefault(); 
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => console.warn("Error:", err));
-                    sessionStorage.setItem("wantsFullscreen", "true"); // Remember user preference
-                } else {
-                    if (document.exitFullscreen) document.exitFullscreen();
-                    sessionStorage.setItem("wantsFullscreen", "false"); // Forget preference
-                }
-            });
-        }
-
-        // B. Save State Before Reload
-        window.addEventListener("beforeunload", () => {
-            if (document.fullscreenElement) {
-                sessionStorage.setItem("wantsFullscreen", "true");
-            }
-        });
-
-        // C. Restore on First Interaction (Workaround for Browser Security)
-        document.addEventListener("DOMContentLoaded", () => {
-            // Check if we should be in fullscreen
-            if (sessionStorage.getItem("wantsFullscreen") === "true") {
-                
-                const aggressiveRestore = () => {
-                    if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen()
-                            .then(() => {
-                                // Success! Remove listeners so we don't spam
-                                removeaggressiveListeners();
-                            })
-                            .catch((e) => {
-                                // Failed (interaction not valid yet), keep listening
-                                console.log("Waiting for user gesture to restore fullscreen...");
-                            });
-                    }
-                };
-
-                const removeAggressiveListeners = () => {
-                    document.removeEventListener("click", aggressiveRestore);
-                    document.removeEventListener("touchstart", aggressiveRestore);
-                    document.removeEventListener("keydown", aggressiveRestore);
-                    document.removeEventListener("scroll", aggressiveRestore);
-                };
-
-                // Listen to EVERYTHING. The moment user touches, clicks, or types, we go fullscreen.
-                document.addEventListener("click", aggressiveRestore);
-                document.addEventListener("touchstart", aggressiveRestore);
-                document.addEventListener("keydown", aggressiveRestore);
-                document.addEventListener("scroll", aggressiveRestore);
-            }
-        });
-        
-
+        // --- FULLSCREEN LOGIC REMOVED ---
     </script>
 {% if request.session.user_id %}
 <script>
