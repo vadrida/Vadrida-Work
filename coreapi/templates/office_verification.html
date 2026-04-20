@@ -74,6 +74,16 @@
         gap: 4px;
     }
 
+    .form-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-dim);
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
     /* === BASE === */
     body {
         transition: background-color 0.3s ease, color 0.3s ease;
@@ -297,6 +307,162 @@
     .filter-row {
         display: flex;
         gap: 10px;
+    }
+
+    /* === BOUNDARY VISUAL SQUARE === */
+    .boundary-visual-row {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        margin-top: 20px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) transparent;
+    }
+
+    .boundary-square-wrapper {
+        flex: 0 0 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+
+    .square-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .boundary-square {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        min-width: 180px;
+        min-height: 180px;
+    }
+
+    .square-plot {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        background: var(--bg-input);
+        border: 2px solid var(--accent);
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+    }
+
+    .square-extent-ares {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--accent);
+    }
+
+    .square-extent-cents {
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--text-dim);
+    }
+
+    .dir-label {
+        position: absolute;
+        text-align: center;
+        min-width: 50px;
+        z-index: 2;
+    }
+
+    .dir-letter {
+        position: absolute;
+        font-size: 10px;
+        font-weight: 900;
+        z-index: 5;
+    }
+
+    .letter-n {
+        top: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #2563eb;
+    }
+
+    .letter-s {
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #dc2626;
+    }
+
+    .letter-e {
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #16a34a;
+    }
+
+    .letter-w {
+        left: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9333ea;
+    }
+
+    .dir-val {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-main);
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        background: transparent;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        text-align: center;
+    }
+
+    .dir-north {
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .dir-south {
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .dir-west {
+        left: -45px;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: right;
+    }
+
+    .dir-east {
+        right: -45px;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: left;
     }
 
     .filter-row .field-group {
@@ -1126,7 +1292,7 @@
                     <div class="summary-item">
                         <span class="summary-label">Inspection Date</span>
                         <div id="disp_inspectionDate" class="summary-value">–</div>
-                        <input type="hidden" id="inspectionDate" name="inspectionDate">
+                        <!-- <input type="hidden" id="inspectionDate" name="inspectionDate"> -->
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">Person Met</span>
@@ -1331,16 +1497,14 @@
                                 style="width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.82rem; table-layout: auto; color: var(--text-main);">
                                 <thead>
                                     <!-- Row 1: Document Selection Dropdowns -->
-                                    <tr id="surveyHeaderDocs"
-                                        style="background: var(--bg-card); text-align: left;">
+                                    <tr id="surveyHeaderDocs" style="background: var(--bg-card); text-align: left;">
                                         <th
                                             style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
                                             Select Document</th>
                                         <!-- Document Columns will go here -->
                                     </tr>
                                     <!-- Row 2: Sub-Entry Part Labels & Add Button -->
-                                    <tr id="surveyHeaderSub"
-                                        style="background: var(--bg-card); text-align: left;">
+                                    <tr id="surveyHeaderSub" style="background: var(--bg-card); text-align: left;">
                                         <th
                                             style="padding: 10px 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
                                             Document Entry</th>
@@ -1572,7 +1736,8 @@
                                 style="min-width: 0; border-left: 2px solid #4caf50;">
                                 <div class="panel-header" style="justify-content: space-between; padding: 10px;">
                                     <div style="display:flex; align-items:center; gap:8px;">
-                                        <i class="fas fa-file-import ph-icon" style="color: #4caf50; font-size: 0.8rem;"></i>
+                                        <i class="fas fa-file-import ph-icon"
+                                            style="color: #4caf50; font-size: 0.8rem;"></i>
                                         <span class="ph-title" style="color: #4caf50; font-size: 0.75rem;">Land Tax
                                             Receipt (OTR)</span>
                                     </div>
@@ -1596,11 +1761,14 @@
                             </div>
 
                             <!-- Land Classification Summary Card -->
-                            <div class="panel" id="landClassificationCard" style="min-width: 0; border-left: 2px solid var(--accent);">
+                            <div class="panel" id="landClassificationCard"
+                                style="min-width: 0; border-left: 2px solid var(--accent);">
                                 <div class="panel-header" style="justify-content: space-between; padding: 10px;">
                                     <div style="display:flex; align-items:center; gap:8px;">
-                                        <i class="fas fa-layer-group ph-icon" style="color: var(--accent); font-size: 0.8rem;"></i>
-                                        <span class="ph-title" style="font-size: 0.75rem;">Land Classification Summary</span>
+                                        <i class="fas fa-layer-group ph-icon"
+                                            style="color: var(--accent); font-size: 0.8rem;"></i>
+                                        <span class="ph-title" style="font-size: 0.75rem;">Land Classification
+                                            Summary</span>
                                     </div>
                                     <button type="button" onclick="copyDynamicLabel(this, 'landClassificationOutput')"
                                         class="btn-portal"
@@ -1613,26 +1781,227 @@
                                         style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                         Classification details will appear here...
                                     </div>
-                                    <div style="margin-top: 6px; text-align: center; color: var(--text-dim); font-size: 0.65rem;">
-                                        <i class="fas fa-sync-alt fa-spin" style="font-size: 7px; margin-right: 4px;"></i> Live
+                                    <div
+                                        style="margin-top: 6px; text-align: center; color: var(--text-dim); font-size: 0.65rem;">
+                                        <i class="fas fa-sync-alt fa-spin"
+                                            style="font-size: 7px; margin-right: 4px;"></i> Live
                                     </div>
                                 </div>
                             </div>
                         </div> <!-- End agreementSummaryWrapper -->
                     </div> <!-- End surveyAnalysisArea -->
-                </div> <!-- End line 1301 flex wrap -->
+                </div> <!-- End Analysis Flex Row -->
 
-                <div id="notesArea" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
-                    <label class="field-label" for="survey_notes" style="color: var(--accent);">Additional Vetting
-                        Observations & Remarks</label>
-                    <textarea id="survey_notes" name="survey_notes" class="form-input" style="min-height: 80px;"
-                        placeholder="Add any general remarks here..."></textarea>
+                <!-- ===== BOUNDARY ANALYSIS SECTION ===== -->
+                <div id="boundaryAnalysisArea"
+                    style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                    <div class="panel-sub-header"
+                        style="border-bottom: none; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="psh-title" style="color: var(--accent); font-size: 0.9rem;">
+                            Boundary Analysis
+                        </h3>
+                        <div style="display:flex; gap: 8px;">
+                            <button type="button" class="btn-portal" onclick="addBoundaryColumn()"
+                                style="font-size: 0.7rem; padding: 4px 10px; background: var(--accent); border-color: var(--accent);">
+                                <i class="fas fa-plus-circle"></i> Add Column
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="analysis-table-container" id="boundaryTableContainer"
+                        style="overflow-x: auto; background: var(--bg-page); border: 1px solid var(--border); border-radius: 12px; padding: 1px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; max-width: 100%;">
+                        <table class="analysis-table" id="boundaryAnalysisTable"
+                            style="width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.82rem; table-layout: auto; color: var(--text-main);">
+                            <thead>
+                                <tr id="boundaryHeaderDocs" style="background: var(--bg-card); text-align: left;">
+                                    <th
+                                        style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
+                                        Select Document</th>
+                                    <!-- Document Columns added here -->
+                                </tr>
+                            </thead>
+                            <tbody id="boundaryTableBody">
+                                <tr class="analysis-row" id="boundaryNorthRow"
+                                    style="border-bottom: 1px solid var(--border);">
+                                    <td
+                                        style="padding: 13px 15px; color: var(--text-dim); background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
+                                        North</td>
+                                    <!-- Input Cells here -->
+                                </tr>
+                                <tr class="analysis-row" id="boundaryEastRow"
+                                    style="border-bottom: 1px solid var(--border);">
+                                    <td
+                                        style="padding: 13px 15px; color: var(--text-dim); background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
+                                        East</td>
+                                    <!-- Input Cells here -->
+                                </tr>
+                                <tr class="analysis-row" id="boundarySouthRow"
+                                    style="border-bottom: 1px solid var(--border);">
+                                    <td
+                                        style="padding: 13px 15px; color: var(--text-dim); background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
+                                        South</td>
+                                    <!-- Input Cells here -->
+                                </tr>
+                                <tr class="analysis-row" id="boundaryWestRow"
+                                    style="border-bottom: 2px solid var(--accent);">
+                                    <td
+                                        style="padding: 13px 15px; color: var(--accent); font-weight: bold; background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
+                                        West</td>
+                                    <!-- Input Cells here -->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Chronological Timeline Visual Row -->
+                    <div id="boundaryVisualRow"
+                        style="display: flex; flex-wrap: nowrap; gap: 20px; background: var(--bg-card); padding: 20px 15px; border-top: 1px dashed var(--border); overflow-x: auto;">
+                        <!-- Visual Squares will be injected and sorted here -->
+                    </div>
+                    <!-- NEW: SITE SPECIFIC VIEW (Diagrams) -->
+                    <div id="siteSpecificView" style="margin-bottom: 25px;">
+                        <h4
+                            style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-map-marked-alt" style="color: var(--accent);"></i> Site Specific View
+                        </h4>
+                        <div id="vettingDiagramsRow"
+                            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px dashed var(--border); overflow-x: auto;">
+                            <!-- Diagrams will be injected here -->
+                            <div
+                                style="color: var(--text-dim); font-size: 0.7rem; padding: 20px; width: 100%; text-align: center;">
+                                -- No site specific data available yet --</div>
+                        </div>
+                    </div>
+                    <!-- DEMARCATIONS SECTION -->
+                    <div id="demarcationView" style="margin-bottom: 25px; margin-top: 20px;">
+                        <h4
+                            style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-border-style" style="color: var(--accent);"></i> Demarcations
+                        </h4>
+                        <div id="demarcationContent"
+                            style="display: flex; flex-wrap: wrap; gap: 24px; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px dashed var(--border);">
+                            <!-- Demarcation details injected here -->
+                            <div
+                                style="color: var(--text-dim); font-size: 0.7rem; padding: 20px; width: 100%; text-align: center;">
+                                -- No demarcation data available --</div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT OF ACCESS SECTION -->
+                    <div id="accessVerificationView" style="margin-top: 35px; margin-bottom: 25px;">
+                        <h1 style="color: #2e7d32; font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #2e7d32; padding-bottom: 8px;">
+                            <i class="fas fa-road"></i> Right of access
+                        </h1>
+                        <div id="accessVerificationContent" 
+                            style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+                            <!-- Table Container (Left) -->
+                            <div style="flex: 1.3; min-width: 500px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                                <table class="verification-table" style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: rgba(0,0,0,0.05);">
+                                        <tr>
+                                            <th style="padding: 12px; text-align: left; font-size: 0.75rem; color: var(--text-dim); border-bottom: 1px solid var(--border); width: 35%;">Document / Source</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 0.75rem; color: var(--text-dim); border-bottom: 1px solid var(--border); width: 40%;">Type of Access / Material</th>
+                                            <th style="padding: 12px; text-align: left; font-size: 0.75rem; color: var(--text-dim); border-bottom: 1px solid var(--border); width: 25%;">Width / Vehicular Access</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accessTableBody">
+                                        <!-- Dynamic Rows Injected Here -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Summary Cards Container (Right) -->
+                            <div id="accessSummaryPanel" 
+                                style="flex: 1; min-width: 350px; display: flex; flex-direction: column; gap: 15px;">
+                                <!-- Dynamic Summary Cards Injected Here -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ===== ADDITIONAL VETTING SECTION ===== -->
+                    <!-- ===== MASTER REPORT SYNTHESIS SECTION ===== -->
+                    <div id="masterSynthesisArea" style="margin-top: 40px; padding-top: 25px; border-top: 1px solid var(--border);">
+                        <div class="panel" id="masterSynthesisPanel" style="border: 1px solid var(--accent-glow); box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 900px; margin: 0 auto;">
+                            <div class="panel-header" style="justify-content: space-between; padding: 12px 20px; background: var(--bg-header);">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <i class="fas fa-file-signature ph-icon" style="color: var(--accent); font-size: 1rem;"></i>
+                                    <div>
+                                        <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-main);">Master Report Synthesis</div>
+                                        <div style="font-size: 0.6rem; color: var(--text-dim);">Editable Draft</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button type="button" onclick="resetSynthesisManual()" class="btn-portal" title="Regenerate from form data"
+                                        style="background: rgba(0,0,0,0.1); color: var(--text-dim); border:1px solid var(--border); padding: 6px 10px; border-radius: 6px;">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button type="button" onclick="copyMasterSynthesis(this)" class="btn-portal" 
+                                        style="background: var(--accent); color: white; border:none; padding: 6px 15px; font-weight: bold; border-radius: 6px; font-size: 0.75rem;">
+                                        <i class="fas fa-copy"></i> Copy Report
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="panel-body" style="padding: 15px; background: var(--bg-card);">
+                                <textarea id="masterSynthesisOutput" data-manual="false"
+                                    oninput="this.setAttribute('data-manual', 'true'); triggerAutoSave();"
+                                    style="width: 100%; height: 300px; background: var(--bg-page); border: 1px solid var(--border); border-radius: 8px; padding: 15px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.82rem; line-height: 1.6; color: var(--text-main); resize: vertical; outline: none; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);"
+                                    placeholder="Synthesis will be generated here as you fill the form..."></textarea>
+
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border);">
+                                    <label class="form-label" style="font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block; font-weight: bold;">
+                                        Additional Vetting Remarks (Manual)
+                                    </label>
+                                    <textarea id="SurveyNotes" name="SurveyNotes" class="form-input"
+                                        oninput="triggerAutoSave()"
+                                        style="min-height: 60px; width: 100%; font-size: 0.78rem; background: var(--bg-input);"
+                                        placeholder="Add any specific observations..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-            </div> <!-- End panel-body -->
-        </div> <!-- End verificationFormCard -->
-    </div> <!-- End main-panel -->
+            </div>
+        </div> <!-- End panel-body -->
+    </div> <!-- End verificationFormCard -->
+</div> <!-- End main-panel -->
 </div> <!-- End portal-layout -->
+
+<!-- Hidden Datalist for Road Materials -->
+<datalist id="roadMaterialList">
+    <option value="Tar Road"></option>
+    <option value="Tiled Road"></option>
+    <option value="Concrete Road"></option>
+    <option value="Gravel Road"></option>
+    <option value="Mud Road"></option>
+</datalist>
+
+<!-- Hidden Datalist for Vehicular Access -->
+<datalist id="vehicularAccessList">
+    <option value="4-Wheeler"></option>
+    <option value="3-Wheeler"></option>
+    <option value="2-Wheeler"></option>
+    <option value="Pedestrian"></option>
+</datalist>
+
+<!-- Hidden Datalist for Access Users -->
+<datalist id="accessUsersList">
+    <option value="Self Use"></option>
+    <option value="Self & Family"></option>
+    <option value="Self & 1 User"></option>
+    <option value="Self & 2 User"></option>
+    <option value="Multiple Users"></option>
+</datalist>
+
+<!-- Hidden Datalist for Demarcation -->
+<datalist id="demarcationList">
+    <option value="no demarcation"></option>
+    <option value="partial demarcation"></option>
+    <option value="gi sheet fence"></option>
+    <option value="barbed wire"></option>
+    <option value="steel pegs"></option>
+    <option value="compound wall"></option>
+    <option value="bio fence"></option>
+    <option value="survey stone"></option>
+    <option value="wooden pegs"></option>
+</datalist>
 
 <!-- Hidden Datalist for Document Types -->
 <datalist id="docTypes">
@@ -1646,7 +2015,32 @@
     <option value="Encumbrance"></option>
     <option value="Approved Plan"></option>
     <option value="Engineer's Plan"></option>
+    <option value="TIR/Legal Report"></option>
 </datalist>
+
+<!-- Hidden Datalist for Access Types -->
+<datalist id="accessTypesList">
+   <option value="Footway"></option>
+    <option value="Panchayat Road"></option>
+    <option value="Corporation Road"></option>
+    <option value="National Highway"></option>
+    <option value="Private Way"></option>
+    <option value="Municipal Road"></option>
+    <option value="PWD Road"></option>
+    <option value="Land Locked"></option>
+</datalist>
+
+<!-- Hidden Datalist for Agreement Access Types -->
+<datalist id="agreementAccessTypesList">
+    <option value="Footway"></option>
+    <option value="Panchayat Road"></option>
+    <option value="Corporation Road"></option>
+    <option value="National Highway"></option>
+    <option value="Private Way"></option>
+    <option value="Municipal Road"></option>
+    <option value="PWD Road"></option>
+    <option value="Land Locked"></option>
+    <option value="Proposed private road"></option>
 </datalist>
 
 <!-- Main Portal Logic -->
@@ -1687,22 +2081,30 @@
     function collectVerificationFormData() {
         const docRows = [];
         document.querySelectorAll('.doc-row').forEach(row => {
-            docRows.push({
-                type: row.querySelector('.col-type').value,
-                no: row.querySelector('.col-no').value,
-                date: row.querySelector('.col-date').value,
-                year: row.querySelector('.col-year').value
-            });
+            const rowType = row.querySelector('.col-type');
+            const rowNo = row.querySelector('.col-no');
+            const rowDate = row.querySelector('.col-date');
+            const rowYear = row.querySelector('.col-year');
+            if (rowType && rowNo && rowDate && rowYear) {
+                docRows.push({
+                    type: rowType.value,
+                    no: rowNo.value,
+                    date: rowDate.value,
+                    year: rowYear.value
+                });
+            }
         });
 
-        return {
-            file_no: document.getElementById('officeFileNo').value,
-            applicantName: document.getElementById('applicantName').value,
-            inspection_date: document.getElementById('inspectionDate').value,
-            personMetAtSite: document.getElementById('personMetAtSite').value,
-            product: document.getElementById('product').value,
+        const fileNo = document.getElementById('officeFileNo')?.value || '';
+        if (!fileNo) return null; // Mandatory for backend save
 
-            // Left Panel Search State (for local persistence)
+        return {
+            file_no: fileNo,
+            applicantName: document.getElementById('applicantName')?.value || '',
+            inspection_date: document.getElementById('inspectionDate')?.value || '',
+            personMetAtSite: document.getElementById('personMetAtSite')?.value || '',
+            product: document.getElementById('product')?.value || '',
+
             searchBank: document.getElementById('Bankdd')?.value || '',
             searchDistrict: document.getElementById('Districtdd')?.value || '',
             searchYear: document.getElementById('Yeardd')?.value || '',
@@ -1713,9 +2115,42 @@
             owners_data: collectOwnersData(),
             schedule_data: collectScheduleData(),
             survey_land_extend: collectSurveyAnalysisData(),
-            BoundaryAnalysisDocs: collectBoundaryAnalysisDocs(),
-            survey_notes: document.getElementById('survey_notes').value
+            Boundary: collectBoundaryData(),
+            Demarcation: collectDemarcationData(),
+            RightOfAccess: collectRightOfAccessData(),
+            SurveyNotes: document.getElementById('SurveyNotes')?.value || '',
+            MasterSynthesis: document.getElementById('masterSynthesisOutput')?.value || '',
+            SynthesisManualLock: document.getElementById('masterSynthesisOutput')?.getAttribute('data-manual') === 'true'
         };
+    }
+
+    function collectRightOfAccessData() {
+        const rows = document.querySelectorAll('#accessTableBody tr[data-source]');
+        const data = {};
+        rows.forEach(row => {
+            const source = row.dataset.source;
+            const type = row.querySelector('.access-type-input')?.value || '';
+            const width = row.querySelector('.access-width-input')?.value || '';
+            const material = row.querySelector('.access-material-input')?.value || '';
+            const vehicular = row.querySelector('.access-vehicular-input')?.value || '';
+            const users = row.querySelector('.access-users-input')?.value || '';
+            const demarcation = row.querySelector('.access-demarcation-input')?.value || '';
+            
+            data[source] = { type, width, material, vehicular, users, demarcation };
+        });
+        return data;
+    }
+
+
+    function collectDemarcationData() {
+        const inputs = document.querySelectorAll('.dem-input');
+        const data = {};
+        inputs.forEach(input => {
+            const dir = input.dataset.dir;
+            const val = input.value.trim();
+            data[dir] = val ? val.split(',').map(s => s.trim()) : [];
+        });
+        return data;
     }
 
     function collectScheduleData() {
@@ -1752,21 +2187,26 @@
         if (isRestoringDraft) return;
         clearTimeout(autoSaveTimer);
 
-        const data = collectVerificationFormData();
-
-        // Persist search state to localStorage
-        localStorage.setItem('last_verification_file_no', data.file_no || data.searchInputText);
-        localStorage.setItem('search_bank', data.searchBank);
-        localStorage.setItem('search_dist', data.searchDistrict);
-        localStorage.setItem('search_year', data.searchYear);
-        localStorage.setItem('search_q', data.searchInputText);
-
-        if (!data.file_no) return;
-
-        showAutoSaveBadge('Saving...', 'var(--text-muted)');
+        // Visual indicator that we're waiting to save
+        showAutoSaveBadge('Waiting...', 'var(--text-dim)');
 
         autoSaveTimer = setTimeout(async () => {
             try {
+                const data = collectVerificationFormData();
+                if (!data) {
+                    showAutoSaveBadge('Ready', 'var(--text-dim)');
+                    return;
+                }
+
+                // Persist search state to localStorage
+                localStorage.setItem('last_verification_file_no', data.file_no);
+                localStorage.setItem('search_bank', data.searchBank);
+                localStorage.setItem('search_dist', data.searchDistrict);
+                localStorage.setItem('search_year', data.searchYear);
+                localStorage.setItem('search_q', data.searchInputText);
+
+                showAutoSaveBadge('Saving...', 'var(--accent)');
+
                 const response = await fetch('/coreapi/api/save-verification/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1776,14 +2216,15 @@
 
                 if (resData.success) {
                     showAutoSaveBadge('Draft Protected', 'var(--accent)');
+                    console.log("Auto-save successful at " + new Date().toLocaleTimeString());
                 } else {
                     showAutoSaveBadge('Sync Warning', 'var(--warning)');
                 }
             } catch (err) {
-                console.error("Autosave API Error: ", err);
+                console.error("Autosave Error:", err);
                 showAutoSaveBadge('Draft Offline', 'var(--danger)');
             }
-        }, 1500);
+        }, 1000);
     }
 
     function showAutoSaveBadge(text, color) {
@@ -1858,11 +2299,11 @@
             altInput: true,
             altFormat: "d/m/Y",
             allowInput: true,
-            onChange: function() {
+            onChange: function () {
                 updateDynamicLabels();
                 triggerAutoSave();
             },
-            onClose: function() {
+            onClose: function () {
                 updateDynamicLabels();
                 triggerAutoSave();
             }
@@ -1881,6 +2322,7 @@
                 refreshAllDropdowns();
                 updateAgreementLabels();
                 updateDeedLabels();
+                renderRightOfAccess(getCurrentDashboardPayload()); // Update Access table
                 triggerAutoSave();
             });
         });
@@ -1889,6 +2331,7 @@
             row.remove();
             updateDynamicLabels();
             refreshBasisDropdowns();
+            renderRightOfAccess(getCurrentDashboardPayload()); // Update Access table
             triggerAutoSave();
         });
 
@@ -1916,6 +2359,7 @@
     function refreshAllDropdowns() {
         refreshBasisDropdowns();
         refreshSurveyDropdowns();
+        refreshAllBoundaryDropdowns();
     }
 
     /* =============================================
@@ -1936,7 +2380,7 @@
         headerDoc.innerHTML = `
             <div style="display:flex; align-items:center; gap:5px;">
                 <select class="survey-doc-select doc-input" data-slot="${slotNum}" data-col="${colId}" 
-                    onchange="syncSlotName(${slotNum}, this.value)"
+                    onchange="syncSlotName(${slotNum}, this.value); renderRightOfAccess(getCurrentDashboardPayload());"
                     style="width: 100%; border: none; background: transparent; font-size: 0.75rem; font-weight: bold; color: var(--accent);">
                     <option value="">-- Document ${slotNum} --</option>
                     ${docOptions}
@@ -1955,8 +2399,12 @@
                 <span id="slot-title-${slotNum}" style="font-size: 0.65rem; color: var(--text-dim); font-weight:700;">Initial Entry</span>
                 <div class="col-action-btns">
                     <button type="button" onclick="addSubEntry(${slotNum}, ${colId})" title="Add Part for this Doc"
-                        style="background:none; border:none; color: var(--success); cursor:pointer; font-size: 0.9rem;">
+                        style="background:none; border:none; color: var(--success); cursor:pointer; font-size: 0.9rem; padding: 0 2px;">
                         <i class="fas fa-plus-circle"></i>
+                    </button>
+                    <button type="button" onclick="confirmDeleteSlot(${slotNum}); renderRightOfAccess(getCurrentDashboardPayload())" title="Delete entire slot"
+                        style="background:none; border:none; color: var(--danger); cursor:pointer; font-size: 0.9rem; padding: 0 2px;">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
@@ -1992,12 +2440,12 @@
                 <span style="font-size: 0.65rem; color: var(--text-dim); font-weight:600;">Part ${partNum}</span>
                 <div class="col-action-btns">
                     <button type="button" onclick="addSubEntry(${slotNum}, ${colId})" title="Add Another Part"
-                        style="background:none; border:none; color: var(--success); cursor:pointer; font-size: 0.9rem;">
+                        style="background:none; border:none; color: var(--success); cursor:pointer; font-size: 0.9rem; padding: 0 2px;">
                         <i class="fas fa-plus-circle"></i>
                     </button>
                     <button type="button" onclick="removeSurveyColumn(${colId})" title="Remove Part"
-                        style="background:none; border:none; color: var(--danger); cursor:pointer; font-size: 0.9rem;">
-                        <i class="fas fa-minus-circle"></i>
+                        style="background:none; border:none; color: var(--danger); cursor:pointer; font-size: 0.9rem; padding: 0 2px;">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
@@ -2026,6 +2474,1183 @@
         updateAgreementLabels();
     }
 
+    /* BOUNDARY ANALYSIS LOGIC */
+    function addBoundaryColumn(initialData = null) {
+        const headerRow = document.getElementById('boundaryHeaderDocs');
+        const northRow = document.getElementById('boundaryNorthRow');
+        const eastRow = document.getElementById('boundaryEastRow');
+        const southRow = document.getElementById('boundarySouthRow');
+        const westRow = document.getElementById('boundaryWestRow');
+
+        if (!headerRow) return;
+
+        const colIndex = headerRow.cells.length;
+        const colId = 'boundary_col_' + Date.now() + Math.random().toString(36).substr(2, 5);
+
+        // 1. Header Column (Document Dropdown)
+        const th = document.createElement('th');
+        th.style = "padding: 15px; min-width: 200px; background: var(--bg-card); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative;";
+        th.dataset.colId = colId;
+
+        const select = document.createElement('select');
+        select.className = 'form-select boundary-doc-select';
+        select.style = "font-size: 0.75rem; padding: 4px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-input); color: var(--text-main); width: 100%;";
+        select.onchange = () => {
+            updateBoundaryVisual(colId);
+            triggerAutoSave();
+            updateAgreementLabels();
+        };
+
+        // Trash button with confirmation
+        const removeBtn = document.createElement('button');
+        removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeBtn.title = "Remove Column";
+        removeBtn.style = "position: absolute; top: 4px; right: 4px; background: none; border: none; color: #ff5252; cursor: pointer; font-size: 0.75rem; padding: 2px; opacity: 0.6; transition: opacity 0.2s;";
+        removeBtn.onmouseover = () => removeBtn.style.opacity = '1';
+        removeBtn.onmouseout = () => removeBtn.style.opacity = '0.6';
+        removeBtn.onclick = () => removeBoundaryColumn(colId);
+        th.appendChild(removeBtn);
+        th.appendChild(select);
+        headerRow.appendChild(th);
+
+        // Populate dropdown from Survey table's selected docs
+        updateBoundarySelectOptions(select, initialData ? initialData.docName : null);
+
+        // 1b. Create Visual Square for this column
+        addBoundaryVisualSquare(colId, initialData ? initialData.docName : null);
+
+        // 2. Boundary Input Rows
+        const rows = [
+            { row: northRow, field: 'North' },
+            { row: eastRow, field: 'East' },
+            { row: southRow, field: 'South' },
+            { row: westRow, field: 'West' }
+        ];
+
+        rows.forEach(r => {
+            const td = document.createElement('td');
+            td.style = "padding: 8px 15px; border-right: 1px solid var(--border);";
+            td.dataset.colId = colId;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = `form-input boundary-input-${r.field.toLowerCase()}`;
+            input.placeholder = `${r.field} boundary...`;
+            input.style = "font-size: 0.75rem; padding: 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: var(--text-main); width: 100%;";
+            input.oninput = () => {
+                updateBoundaryVisual(colId);
+                triggerAutoSave();
+            };
+
+            if (initialData && initialData[r.field]) {
+                input.value = initialData[r.field];
+            }
+
+            td.appendChild(input);
+            r.row.appendChild(td);
+        });
+
+        // Initial visual update
+        updateBoundaryVisual(colId);
+    }
+
+    function removeBoundaryColumn(colId, isSilent = false) {
+        const elements = document.querySelectorAll(`[data-col-id="${colId}"]`);
+        const visual = document.querySelector(`.boundary-square-wrapper[data-col-id="${colId}"]`);
+
+        if (isSilent) {
+            elements.forEach(el => el.remove());
+            if (visual) visual.remove();
+            return;
+        }
+
+        // Hide elements
+        elements.forEach(el => {
+            el.style.display = 'none';
+            el.classList.add('is-pending-delete');
+        });
+        if (visual) {
+            visual.style.display = 'none';
+            visual.classList.add('is-pending-delete');
+        }
+
+        updateAgreementLabels();
+        triggerAutoSave();
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'warning',
+            title: 'Boundary column removed',
+            showConfirmButton: true,
+            confirmButtonText: 'Undo',
+            timer: 5000,
+            timerProgressBar: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // RESTORE
+                elements.forEach(el => {
+                    el.style.display = '';
+                    el.classList.remove('is-pending-delete');
+                });
+                if (visual) {
+                    visual.style.display = 'flex';
+                    visual.classList.remove('is-pending-delete');
+                }
+                updateAgreementLabels();
+                triggerAutoSave();
+            } else {
+                // FINALIZE
+                elements.forEach(el => el.remove());
+                if (visual) visual.remove();
+            }
+        });
+    }
+
+    // Helper to get all documents that have been selected in the Survey Analysis header
+    function updateBoundarySelectOptions(select, selectedValue = null) {
+        const allDocs = getAllReceivedDocuments();
+
+        const currentVal = selectedValue || select.value;
+        select.innerHTML = '<option value="">-- Choose Document --</option>';
+
+        allDocs.forEach(doc => {
+            const opt = document.createElement('option');
+            opt.value = doc.id;
+            opt.innerText = doc.display;
+            if (doc.id === currentVal) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
+    // This should be called whenever Survey table's docs change
+    function refreshAllBoundaryDropdowns() {
+        const boundarySelects = document.querySelectorAll('.boundary-doc-select');
+        boundarySelects.forEach(s => {
+            const oldValue = s.value;
+            updateBoundarySelectOptions(s);
+            // If the value changed, trigger visual update
+            if (s.value !== oldValue) {
+                const colId = s.closest('th').dataset.colId;
+                updateBoundaryVisual(colId);
+            }
+        });
+    }
+
+    /* =============================================
+       SITE SPECIFIC VIEW (VETTING DIAGRAMS)
+    ============================================= */
+    function renderVettingDiagrams(payload) {
+        const container = document.getElementById('vettingDiagramsRow');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        let hasData = false;
+
+        // Create lookups for areas and document numbers
+        const areaMap = {};
+        const noMap = {};
+        const siteDocs = payload.OriginalSiteDocuments || payload.DynamicDocuments || [];
+        siteDocs.forEach(d => {
+            if (d.type) {
+                if (d.land_extent) areaMap[d.type] = d.land_extent;
+                if (d.document_no) noMap[d.type] = d.document_no;
+            }
+        });
+
+        const docRefMap = {
+            'doc1': { type: 'Title Deed', no: noMap['Title Deed'] || '' },
+            'doc2': { type: 'Agreement', no: noMap['Agreement'] || noMap['Location Sketch'] || '' }
+        };
+
+        // 1. SITE REFERENCE (from property identification)
+        const idData = payload.Boundary_analysis_property_identification;
+        if (idData) {
+            const sel = docRefMap[idData.global_selection] || { type: 'Site Ref', no: '' };
+
+            const square = createVettingSquare("Site Reference", {
+                north: idData.north_site || 'N/A',
+                east: idData.east_site || 'N/A',
+                south: idData.south_site || 'N/A',
+                west: idData.west_site || 'N/A',
+                area: areaMap[sel.type] || '',
+                docType: sel.type,
+                docNo: sel.no
+            }, true);
+            container.appendChild(square);
+            hasData = true;
+        }
+
+        // 2. DOCUMENT REFERENCES (from BoundaryAnalysisDocs array)
+        if (payload.BoundaryAnalysisDocs && Array.isArray(payload.BoundaryAnalysisDocs)) {
+            payload.BoundaryAnalysisDocs.forEach(doc => {
+                const area = areaMap[doc.ref_doc] || '';
+                const square = createVettingSquare(doc.ref_doc || "Ref Document", {
+                    north: doc.north || 'N/A',
+                    east: doc.east || 'N/A',
+                    south: doc.south || 'N/A',
+                    west: doc.west || 'N/A',
+                    area: area,
+                    docType: doc.ref_doc,
+                    docNo: noMap[doc.ref_doc] || ''
+                });
+                container.appendChild(square);
+                hasData = true;
+            });
+        }
+
+        if (!hasData) {
+            container.innerHTML = '<div style="color: var(--text-dim); font-size: 0.7rem; padding: 20px; width: 100%; text-align: center;">-- No site specific data available yet --</div>';
+        }
+    }
+
+    function createVettingSquare(title, data, isSiteRef = false) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'vetting-square-wrapper';
+        wrapper.style = "min-width: 380px; width: 380px; padding: 45px 15px; display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;";
+        
+        // Simplified labels (Only names for sides)
+        const formatLabel = (name) => `<div class="dir-val" style="font-size: 0.72rem; font-weight:700;">${name}</div>`;
+
+        wrapper.innerHTML = `
+            <div style="font-size: 0.65rem; font-weight: 800; color: var(--accent); margin-bottom: 45px; text-transform:uppercase; letter-spacing:1.5px; background: rgba(37, 99, 235, 0.1); padding: 5px 15px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.2);">${title}</div>
+            <div class="boundary-square" style="position: relative; width: 180px; height: 180px;">
+                <div class="square-plot" style="border-width: 1px; background: rgba(255,255,255,0.01); display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <div class="dir-letter letter-n">N</div>
+                    <div class="dir-letter letter-e">E</div>
+                    <div class="dir-letter letter-s">S</div>
+                    <div class="dir-letter letter-w">W</div>
+                    
+                    ${data.area || data.docNo ? 
+                        `<div style="text-align:center; z-index: 10; padding: 0 10px;">
+                            ${data.docNo ? `<div style="font-size: 0.6rem; font-weight: bold; color: var(--accent); white-space: nowrap; margin-bottom:4px;">${data.docType} No.${data.docNo}</div>` : ''}
+                            ${data.area ? 
+                                `<div>
+                                    <div class="square-extent-ares" style="font-size: 1.1rem; line-height: 1;">${data.area}</div>
+                                    <div style="font-size: 0.5rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase;">Ares</div>
+                                </div>` : ''
+                            }
+                        </div>` : 
+                        `<i class="fas ${isSiteRef ? 'fa-street-view' : 'fa-file-alt'}" style="opacity: ${isSiteRef ? '0.3' : '0.1'}; font-size: 2rem; color: var(--accent);"></i>`
+                    }
+                </div>
+                
+                <!-- NORTH -->
+                <div class="dir-label" style="top: -25px; left: 0; right: 0; width: 100%; display: flex; justify-content: center;">
+                    ${formatLabel(data.north)}
+                </div>
+                
+                <!-- EAST -->
+                <div class="dir-label" style="right: -115px; top: 0; bottom: 0; width: 110px; display: flex; align-items: center; justify-content: flex-start; text-align: left;">
+                    ${formatLabel(data.east)}
+                </div>
+                
+                <!-- SOUTH -->
+                <div class="dir-label" style="bottom: -25px; left: 0; right: 0; width: 100%; display: flex; justify-content: center;">
+                    ${formatLabel(data.south)}
+                </div>
+                
+                <!-- WEST -->
+                <div class="dir-label" style="left: -115px; top: 0; bottom: 0; width: 110px; display: flex; align-items: center; justify-content: flex-end; text-align: right;">
+                    ${formatLabel(data.west)}
+                </div>
+            </div>
+        `;
+        return wrapper;
+    }
+
+    /* =============================================
+       DEMARCATION SECTION (VETTING)
+    ============================================= */
+    function renderDemarcationInfo(payload) {
+        const container = document.getElementById('demarcationContent');
+        if (!container) return;
+        
+        // Use a flex layout to put directions on left and summary on right
+        container.style = "display: flex; flex-wrap: wrap; gap: 24px; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px dashed var(--border);";
+        container.innerHTML = `
+            <div id="demarcationGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; flex: 1.2; min-width: 450px;">
+                <!-- Directions injected here -->
+            </div>
+            <div id="demarcationSummaryLink" style="flex: 1; min-width: 350px; display: flex; flex-direction: column;">
+                <!-- Summary Card injected here -->
+            </div>
+        `;
+
+        const grid = document.getElementById('demarcationGrid');
+        const summaryLink = document.getElementById('demarcationSummaryLink');
+        
+        // 1. Original Site Data (From SiteVisitReport)
+        const siteDem = payload.Demarcation || {};
+        
+        // 2. Office Verification Edits (From our saved Verification record)
+        const officeDem = (payload.Verification && payload.Verification.Demarcation) ? payload.Verification.Demarcation : null;
+
+        const directions = ['north', 'east', 'south', 'west'];
+        directions.forEach(dir => {
+            // Get original site value
+            const siteValRaw = siteDem[dir];
+            const siteVal = (Array.isArray(siteValRaw) && siteValRaw.length > 0) ? siteValRaw.join(', ') : (siteValRaw || 'Not Specified');
+            
+            // Logic: Use office edit if it exists and IS NOT EMPTY. Otherwise, fallback to site data.
+            let inputVal = '';
+            const officeValRaw = officeDem ? officeDem[dir] : null;
+            
+            if (officeValRaw && (Array.isArray(officeValRaw) ? officeValRaw.length > 0 : officeValRaw.trim() !== '')) {
+                inputVal = Array.isArray(officeValRaw) ? officeValRaw.join(', ') : officeValRaw;
+            } else {
+                // FALLBACK: Use site data if no office edit exists for this specific direction
+                inputVal = (siteVal === 'Not Specified' || siteVal === 'Not specified') ? '' : siteVal;
+            }
+
+            const card = document.createElement('div');
+            card.style = "background: var(--bg-card); padding: 18px; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: transform 0.2s;";
+            
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+                    <div style="font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;">${dir}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-main); text-align:right; max-width:75%; line-height:1.2; background: rgba(var(--accent-rgb), 0.08); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(var(--accent-rgb), 0.15);">
+                        <span style="font-weight:900; color:var(--accent); font-size: 0.6rem; vertical-align: middle; margin-right: 4px;">SITE REF:</span> ${siteVal}
+                    </div>
+                </div>
+                <input type="text" 
+                    class="dem-input" 
+                    data-dir="${dir}" 
+                    data-site-ref="${siteVal}"
+                    value="${inputVal}" 
+                    placeholder="Refine observation..."
+                    oninput="handleDemarcationEdit()"
+                    style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 0.82rem; color: var(--text-main); width: 100%; outline: none; font-weight:600; transition: border-color 0.2s;">
+            `;
+            grid.appendChild(card);
+        });
+
+        // RE-ADD: Smart Summary Card (Rebuilt to match Label style)
+        const summaryCard = document.createElement('div');
+        summaryCard.className = "panel";
+        summaryCard.style = "min-width: 100%; height: 100%; border-left: 3px solid var(--accent); border-radius: 10px; display: flex; flex-direction: column; margin: 0;";
+        
+        // Grab values from the inputs
+        const currentVals = {};
+        directions.forEach(d => {
+            const inp = grid.querySelector(`.dem-input[data-dir="${d}"]`);
+            currentVals[d] = (inp && inp.value) ? inp.value.split(',').map(s=>s.trim()).filter(s=>s) : [];
+        });
+        const summaryText = generateDemarcationSummary(currentVals);
+
+        summaryCard.innerHTML = `
+            <div class="panel-header" style="justify-content: space-between; padding: 15px; border-bottom: 1px solid var(--border);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background: var(--accent-glow); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-quote-right" style="color: var(--accent); font-size: 0.9rem;"></i>
+                    </div>
+                    <div>
+                        <span class="ph-title" style="font-size: 0.85rem; display: block;">Demarcation Summary Label</span>
+                        <span style="font-size: 0.65rem; color: var(--text-dim);">Ready for final report</span>
+                    </div>
+                </div>
+                <button type="button" onclick="copyDynamicLabel(this, 'demarcationSummaryOutput')"
+                    class="btn-portal"
+                    style="padding: 6px 12px; font-size: 0.7rem; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-copy"></i> Copy Label
+                </button>
+            </div>
+            <div class="panel-body" style="padding: 15px; flex: 1; display: flex; flex-direction: column;">
+                <div id="demarcationSummaryOutput"
+                    style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 15px; font-size: 0.85rem; color: var(--text-main); flex: 1; line-height: 1.6; word-wrap: break-word; min-height: 120px; overflow-y: auto;">
+                    ${summaryText}
+                </div>
+                <div style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 6px;">
+                    <i class="fas fa-sync-alt fa-spin" style="color: var(--accent);"></i> 
+                    <span>Synthesizing live observations...</span>
+                </div>
+            </div>
+        `;
+        summaryLink.appendChild(summaryCard);
+        
+        // Add the summary immediately for initial load
+        handleDemarcationEdit();
+    }
+
+    function handleDemarcationEdit() {
+        const inputs = document.querySelectorAll('.dem-input');
+        const tempDem = {};
+        inputs.forEach(input => {
+            const dir = input.dataset.dir;
+            const siteVal = input.dataset.siteRef || '';
+            const officeVal = input.value.trim();
+            
+            // LOGIC: If input is empty, use Site Value. Otherwise use Input Value.
+            const activeVal = (officeVal !== '') ? officeVal : siteVal;
+            
+            // Convert to array for the generator (splitting by comma if present)
+            tempDem[dir] = activeVal ? activeVal.split(',').map(s => s.trim()).filter(s => s && s.toLowerCase() !== 'not specified') : [];
+        });
+
+        const summaryText = generateDemarcationSummary(tempDem);
+        const outputEl = document.getElementById('demarcationSummaryOutput');
+        if (outputEl) {
+            outputEl.innerText = summaryText;
+        }
+
+        // Update the window payload Verification object so it persists during this session
+        if (window.currentSitePayload) {
+            if (!window.currentSitePayload.Verification) window.currentSitePayload.Verification = {};
+            window.currentSitePayload.Verification.Demarcation = {
+                ...window.currentSitePayload.Verification.Demarcation,
+                ...tempDem
+            };
+        }
+
+        // Trigger auto-save so changes are sent to the backend
+        triggerAutoSave();
+        
+        // Update Right of Access to stay in sync with documents
+        renderRightOfAccess(getCurrentDashboardPayload());
+    }
+
+    // Helper to get raw object representing current screen state
+    function getCurrentDashboardPayload() {
+        if (!window.currentSitePayload) return { Verification: { RightOfAccess: collectRightOfAccessData() } };
+        
+        // Return a temporary payload structure that renderRightOfAccess expects
+        return {
+            ...window.currentSitePayload,
+            Verification: {
+                ...(window.currentSitePayload.Verification || {}),
+                RightOfAccess: collectRightOfAccessData()
+            }
+        };
+    }
+
+    function collectDynamicDocumentsFromUI() {
+        const slots = document.querySelectorAll('select.survey-doc-select[data-col]');
+        const docs = [];
+        const seen = new Set();
+
+        slots.forEach(sel => {
+            const val = sel.value;
+            // Only include unique, non-empty documents
+            if (val && !seen.has(val)) {
+                // Try to find the document no if possible (from the UI inputs)
+                // Note: The document number is usually in a separate input field
+                docs.push({
+                    doc_type: val,
+                    document_no: "" // We will handle doc numbers if needed
+                });
+                seen.add(val);
+            }
+        });
+        return docs;
+    }
+
+    function renderRightOfAccess(payload) {
+        const body = document.getElementById('accessTableBody');
+        if (!body) return;
+
+        // 1. Get List of Documents from Central Source and Filter
+        const allDocs = getAllReceivedDocuments();
+        const allowedTypes = ['Title Deed', 'Agreement', 'Location Sketch', 'Survey Sketch', 'TIR/Legal Report'];
+        const docs = allDocs.filter(doc => allowedTypes.some(type => doc.display.includes(type)));
+        
+        const savedAccess = (payload.Verification && payload.Verification.RightOfAccess) ? payload.Verification.RightOfAccess : {};
+        
+        // 2. Clear Body
+        body.innerHTML = '';
+
+        if (docs.length === 0) {
+            body.innerHTML = '<tr><td colspan="3" style="padding: 24px; text-align: center; color: var(--text-dim); font-size: 0.75rem; background: rgba(0,0,0,0.02);">-- No legal documents identified in the Checklist above --</td></tr>';
+        } else {
+            docs.forEach(doc => {
+                const sourceName = doc.display;
+                const saved = savedAccess[sourceName] || { type: '', width: '', material: '', vehicular: '' };
+                const isAgreement = doc.display.toLowerCase().includes('agreement');
+                const listId = isAgreement ? 'agreementAccessTypesList' : 'accessTypesList';
+                
+                const row = document.createElement('tr');
+                row.dataset.source = sourceName;
+                row.innerHTML = `
+                    <td style="padding: 12px 15px; font-size: 0.78rem; color: var(--text-main); border-bottom: 1px solid var(--border); font-weight: 600; background: var(--bg-card);">
+                        <i class="fas fa-file-alt" style="color: var(--accent); margin-right: 8px; opacity: 0.7;"></i> ${sourceName}
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid var(--border); background: var(--bg-card);">
+                        <input type="text" class="access-type-input" list="${listId}" value="${saved.type || ''}" oninput="triggerAutoSave(); generateAccessSummary();"
+                            style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; font-size: 0.78rem; color: var(--text-main); outline: none;" placeholder="Access Type...">
+                    </td>
+                    <td style="padding: 10px; border-bottom: 1px solid var(--border); background: var(--bg-card);">
+                        <input type="text" class="access-width-input" value="${saved.width || ''}" oninput="triggerAutoSave(); generateAccessSummary();"
+                            style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; font-size: 0.78rem; color: var(--text-main); outline: none;" placeholder="Meters">
+                    </td>
+                `;
+                body.appendChild(row);
+            });
+        }
+
+        // 3. Automated "As per Site" Logic
+        const siteData = payload.Access || {};
+        const siteType = (Array.isArray(siteData.typeofaccess_sitevisit) && siteData.typeofaccess_sitevisit.length > 0) 
+            ? siteData.typeofaccess_sitevisit.join(', ') 
+            : (siteData.typeofaccess_sitevisit || '');
+        
+        const siteMaterial = (Array.isArray(siteData.road_material) && siteData.road_material.length > 0)
+            ? siteData.road_material.join(', ')
+            : (siteData.road_material || '');
+            
+        const siteVehicular = (Array.isArray(siteData.vehicular_access) && siteData.vehicular_access.length > 0)
+            ? siteData.vehicular_access.join(', ')
+            : (siteData.vehicular_access || '');
+            
+        const siteUsers = (Array.isArray(siteData.private_no_user) && siteData.private_no_user.length > 0)
+            ? siteData.private_no_user.join(', ')
+            : (siteData.private_no_user || '');
+
+        const siteDemarcation = (Array.isArray(siteData.private_rd_demarcation) && siteData.private_rd_demarcation.length > 0)
+            ? siteData.private_rd_demarcation.join(', ')
+            : (siteData.private_rd_demarcation || '');
+            
+        // ... calculation logic ...
+        const extractNum = (str) => {
+            if (!str) return Infinity;
+            const match = str.toString().match(/(\d+(\.\d+)?)/);
+            return match ? parseFloat(match[0]) : Infinity;
+        };
+        const mainW = extractNum(siteData.main_access_width);
+        const internalW = extractNum(siteData.internal_road_width);
+        const minW = Math.min(mainW, internalW);
+        const siteWidth = minW === Infinity ? '' : minW;
+
+        const savedAsPerSite = savedAccess['As per Site'] || {};
+        const activeType = (savedAsPerSite.type && savedAsPerSite.type.trim() !== '') ? savedAsPerSite.type : siteType;
+        const activeWidth = (savedAsPerSite.width && savedAsPerSite.width.trim() !== '') ? savedAsPerSite.width : siteWidth;
+        const activeMaterial = (savedAsPerSite.material && savedAsPerSite.material.trim() !== '') ? savedAsPerSite.material : siteMaterial;
+        const activeVehicular = (savedAsPerSite.vehicular && savedAsPerSite.vehicular.trim() !== '') ? savedAsPerSite.vehicular : siteVehicular;
+        const activeUsers = (savedAsPerSite.users && savedAsPerSite.users.trim() !== '') ? savedAsPerSite.users : siteUsers;
+        const activeDemarcation = (savedAsPerSite.demarcation && savedAsPerSite.demarcation.trim() !== '') ? savedAsPerSite.demarcation : siteDemarcation;
+
+        const siteRow = document.createElement('tr');
+        siteRow.dataset.source = "As per Site";
+        siteRow.style.background = "rgba(var(--accent-rgb), 0.03)";
+        siteRow.innerHTML = `
+            <td style="padding: 12px 15px; font-size: 0.78rem; color: var(--accent); border-bottom: 1px solid var(--border); font-weight: 700;">
+                <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> As per Site
+            </td>
+            <td style="padding: 10px; border-bottom: 1px solid var(--border);">
+                <!-- Type of Access -->
+                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: 900; color: var(--accent); background: rgba(var(--accent-rgb), 0.1); padding: 2px 6px; border-radius: 4px;">SITE REF (TYPE):</span> ${siteType || 'Not specified'}
+                </div>
+                <input type="text" class="access-type-input" list="accessTypesList" value="${activeType}" oninput="triggerAutoSave(); generateAccessSummary();"
+                    style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--accent-glow); border-radius: 6px; font-size: 0.78rem; color: var(--text-main); outline: none; font-weight: 700;" placeholder="Access Type...">
+                
+                <!-- Material (Below Type) -->
+                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; margin-top: 15px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: 900; color: var(--accent); background: rgba(var(--accent-rgb), 0.1); padding: 2px 6px; border-radius: 4px;">SITE REF (MATERIAL):</span> ${siteMaterial || 'Not specified'}
+                </div>
+                <input type="text" class="access-material-input" list="roadMaterialList" value="${activeMaterial}" oninput="triggerAutoSave(); generateAccessSummary();"
+                    style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--accent-glow); border-radius: 6px; font-size: 0.75rem; color: var(--text-main); outline: none; font-weight: 700;" placeholder="Material...">
+                
+                <!-- Road Demarcation (New) -->
+                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; margin-top: 15px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: 900; color: var(--accent); background: rgba(var(--accent-rgb), 0.1); padding: 2px 6px; border-radius: 4px;">SITE REF (DEMARCATION):</span> ${siteDemarcation || 'Not specified'}
+                </div>
+                <input type="text" class="access-demarcation-input" list="demarcationList" value="${activeDemarcation}" oninput="triggerAutoSave(); generateAccessSummary();"
+                    style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--accent-glow); border-radius: 6px; font-size: 0.75rem; color: var(--text-main); outline: none; font-weight: 700;" placeholder="Road Demarcation...">
+            </td>
+            <td style="padding: 10px; border-bottom: 1px solid var(--border);">
+                <!-- Width -->
+                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: 900; color: var(--accent); background: rgba(var(--accent-rgb), 0.1); padding: 2px 6px; border-radius: 4px;">SITE REF (WIDTH):</span> ${siteWidth ? siteWidth + ' m' : 'Not specified'}
+                </div>
+                <input type="text" class="access-width-input" value="${activeWidth}" oninput="triggerAutoSave(); generateAccessSummary();"
+                    style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--accent-glow); border-radius: 6px; font-size: 0.78rem; color: var(--text-main); outline: none; font-weight: 700;" placeholder="Meters">
+                
+                <!-- Vehicular Access (Below Width) -->
+                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; margin-top: 15px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: 900; color: var(--accent); background: rgba(var(--accent-rgb), 0.1); padding: 2px 6px; border-radius: 4px;">SITE REF (VEHICULAR):</span> ${siteVehicular || 'Not specified'}
+                </div>
+                <input type="text" class="access-vehicular-input" list="vehicularAccessList" value="${activeVehicular}" oninput="triggerAutoSave(); generateAccessSummary();"
+                    style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--accent-glow); border-radius: 6px; font-size: 0.75rem; color: var(--text-main); outline: none; font-weight: 700;" placeholder="Vehicular...">
+
+                <!-- Private Road Users (New) -->
+                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; margin-top: 15px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: 900; color: var(--accent); background: rgba(var(--accent-rgb), 0.1); padding: 2px 6px; border-radius: 4px;">SITE REF (USERS):</span> ${siteUsers || 'Not specified'}
+                </div>
+                <input type="text" class="access-users-input" list="accessUsersList" value="${activeUsers}" oninput="triggerAutoSave(); generateAccessSummary();"
+                    style="width: 100%; padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--accent-glow); border-radius: 6px; font-size: 0.75rem; color: var(--text-main); outline: none; font-weight: 700;" placeholder="Road Users...">
+            </td>
+        `;
+        body.appendChild(siteRow);
+
+        // Finally, generate the summary cards
+        generateAccessSummary();
+    }
+
+    function generateAccessSummary() {
+        const panel = document.getElementById('accessSummaryPanel');
+        if (!panel) return;
+        panel.innerHTML = '';
+
+        const rows = document.querySelectorAll('#accessTableBody tr');
+        let docStances = {
+            access: [],      // Docs that mention a road
+            landlocked: [],  // Docs that say landlocked
+            silent: []       // Docs that mention nothing
+        };
+        let asPerSite = null;
+
+        rows.forEach(row => {
+            const source = row.dataset.source;
+            const type = row.querySelector('.access-type-input')?.value.trim() || '';
+            const width = row.querySelector('.access-width-input')?.value.trim() || '';
+            const material = row.querySelector('.access-material-input')?.value.trim() || '';
+            const vehicular = row.querySelector('.access-vehicular-input')?.value.trim() || '';
+            const users = row.querySelector('.access-users-input')?.value.trim() || '';
+            const demarcation = row.querySelector('.access-demarcation-input')?.value.trim() || '';
+            
+            if (source === "As per Site") {
+                asPerSite = { type, width, material, vehicular, users, demarcation };
+            } else {
+                if (!type || type === '' || type === 'Access Type...') {
+                    docStances.silent.push(source);
+                } else if (isLLValue(type)) {
+                    docStances.landlocked.push({ name: source, type, width });
+                } else {
+                    docStances.access.push({ name: source, type, width });
+                }
+            }
+        });
+
+        // 3. Document classification & formatting helpers
+        function isLLValue(val) { return val && val.toLowerCase().includes('land') && val.toLowerCase().includes('lock'); }
+        function hasWidth(val) { return val && val.trim() !== '' && val !== '0' && val.toLowerCase() !== 'unknown' && val.toLowerCase() !== 'not specified'; }
+        
+        // Normalize types for comparison (e.g. "Proposed Private Road" == "Private Way")
+        function norm(val) {
+            if (!val) return "";
+            return val.toLowerCase()
+                .replace(/proposed|existing|available|access|through|width/g, '')
+                .replace(/road|rd|way|path|lane/g, '')
+                .trim();
+        }
+        function formatWidth(w) { return hasWidth(w) ? (w.includes('m') ? w : w + "m") + " wide " : ""; }
+        function formatMat(mat) {
+            if (!mat) return "";
+            const m = mat.toLowerCase().trim();
+            if (m.includes('tar')) return "tarred ";
+            if (m.includes('concrete')) return "concreted ";
+            if (m.includes('paving tile')) return "paving tile paved ";
+            if (m.includes('mud')) return "mud ";
+            if (m.includes('gravel')) return "gravel ";
+            return m.replace(/\s*road\s*$/i, "") + " ";
+        }
+        function joinList(arr) { if (arr.length === 0) return ""; if (arr.length === 1) return arr[0]; return arr.slice(0, -1).join(', ') + " and " + arr[arr.length - 1]; }
+        
+        // Road Type Priority Hierarchy
+        function getRoadPriority(val) {
+            if (!val) return 0;
+            const v = val.toLowerCase();
+            if (isLLValue(v)) return 1;
+            if (v.includes('national highway') || v.includes('nh')) return 10;
+            if (v.includes('state highway') || v.includes('sh')) return 9;
+            if (v.includes('pwd')) return 8;
+            if (v.includes('panchayat')) return 7;
+            if (v.includes('private')) return 6;
+            if (v.includes('way') || v.includes('road')) return 5;
+            return 2; // Generic road/undermined
+        }
+        
+        // Automated Vehicular Access based on Width logic
+        function getCalculatedVehicular(w) {
+            const num = parseFloat(w);
+            if (isNaN(num) || num <= 0) return "";
+            if (num <= 0.7) return "pedestrian access";
+            if (num <= 1.5) return "2-wheeler access";
+            if (num <= 2.2) return "3-wheeler access";
+            if (num <= 3.5) return "4-wheeler access";
+            return "heavy vehicle access";
+        }
+
+        // Helper for Site Observation String
+        function getSiteObservation(site) {
+            if (!site || !site.type) return "";
+            const w = formatWidth(site.width);
+            const m = formatMat(site.material);
+            
+            // For Site Observation, show EXACTLY what is in the row (don't force calculation)
+            const v = site.vehicular ? ` with ${site.vehicular} access` : "";
+            
+            // Grammatically correct Demarcation mapping
+            let d = "";
+            if (site.demarcation) {
+                const lowD = site.demarcation.toLowerCase().trim();
+                if (lowD === 'no demarcation') {
+                    d = ", with no formal demarcation";
+                } else {
+                    let items = site.demarcation.split(',').map(s => s.trim().replace(/gi sheet/i, 'GI sheet'));
+                    let partialIdx = items.findIndex(s => s.toLowerCase() === 'partial demarcation');
+                    
+                    let phrase = "";
+                    if (partialIdx !== -1 && items.length > 1) {
+                        const partial = items[partialIdx];
+                        const others = items.filter((_, i) => i !== partialIdx);
+                        phrase = `${partial} with ${joinList(others)}`;
+                    } else {
+                        phrase = joinList(items);
+                    }
+                    d = `, demarcated using ${phrase}`;
+                }
+            }
+
+            // Grammatically correct Users mapping
+            let u = "";
+            if (site.users) {
+                const lowU = site.users.toLowerCase().trim();
+                let userPhrase = lowU;
+                if (lowU === 'self use') userPhrase = "self-use";
+                else if (lowU === 'self & family') userPhrase = "self and family";
+                else if (lowU.includes('&')) userPhrase = lowU.replace('&', 'and');
+                
+                if (lowU !== 'not specified') u = ` for ${userPhrase}`;
+            }
+            
+            // Result: Wide + Material + Type + Vehicular + Users + Demarcation
+            return `the access was observed to be a ${w}${m}${site.type}${v}${u}${d}`;
+        }
+
+        let finalTitle = "Access Verdict";
+        let finalSentence = "";
+        let isWarning = false;
+
+        // Define which documents are "Primary Sources" of legal authority
+        const isPrimaryDoc = (name) => {
+            const n = name.toLowerCase();
+            return n.includes('title') || n.includes('deed') || n.includes('tir') || n.includes('legal report');
+        };
+
+        // Define doc lists for reporting
+        let displayAccess = [...docStances.access];
+        let displayLL = [...docStances.landlocked];
+        let displaySilent = [...docStances.silent];
+
+        // Identify Primary Stances
+        const primaryAccess = docStances.access.filter(d => isPrimaryDoc(d.name))
+                              .sort((a,b) => getRoadPriority(b.type) - getRoadPriority(a.type));
+        const primaryLL = docStances.landlocked.filter(d => isPrimaryDoc(d.name));
+        
+        // Final Hierarchy: If any Deed says Road -> Good (No Warning).
+        // If NO deeds say road, but TIR says Road -> Discrepancy Note (Warning).
+        const deedsAccess = primaryAccess.filter(d => d.name.toLowerCase().includes('title') || d.name.toLowerCase().includes('deed'));
+        const deedsLL = primaryLL.filter(d => d.name.toLowerCase().includes('title') || d.name.toLowerCase().includes('deed'));
+        const isDeedAccess = deedsAccess.length > 0;
+
+        // Pick the BEST road from primary docs as our definitive Lead
+        const leadDoc = primaryAccess.length > 0 ? primaryAccess[0] : null;
+
+        const isTIRAccessOnly = (!isDeedAccess && leadDoc && (leadDoc.name.toLowerCase().includes('tir') || leadDoc.name.toLowerCase().includes('legal report')));
+        const hasLegalAccess = !!leadDoc;
+        const allPrimaryAreLL = (primaryLL.length > 0 && primaryAccess.length === 0);
+
+        const primaryMatchesSite = (leadDoc && asPerSite && asPerSite.type && norm(asPerSite.type) === norm(leadDoc.type));
+
+        // Simplify doc lists if we have a match
+        if (primaryMatchesSite && leadDoc) {
+            displayAccess = displayAccess.filter(d => d.name === leadDoc.name || !isPrimaryDoc(d.name));
+            displayLL = displayLL.filter(d => !isPrimaryDoc(d.name));
+            displaySilent = displaySilent.filter(d => !isPrimaryDoc(d));
+        }
+
+        // --- THE ENGINE: HARMONIZING STANCES ---
+        const isSiteLL = asPerSite && isLLValue(asPerSite.type);
+        const hasSiteAccess = asPerSite && asPerSite.type && !isLLValue(asPerSite.type);
+
+        // A. THE LL CONFLICT (Red Flag Case)
+        if (isSiteLL || allPrimaryAreLL) {
+            isWarning = true;
+            finalTitle = "Major Access Conflict";
+            let sentenceBlocks = [];
+
+            if (isSiteLL) {
+                if (hasLegalAccess) {
+                    sentenceBlocks.push(`As per ${leadDoc.name}, the right of access is established through a ${formatWidth(leadDoc.width)}${leadDoc.type}; however, during our site visit, the property was observed to be Land Locked.`);
+                } else {
+                    sentenceBlocks.push(`As per the site visit, the property was observed to be Land Locked.`);
+                }
+            } else if (allPrimaryAreLL) {
+                const docNames = joinList(primaryLL.map(d => d.name));
+                const docPhrase = `${docNames} explicitly ${primaryLL.length > 1 ? 'describe' : 'describes'} the property as landlocked.`;
+                if (hasSiteAccess) {
+                    sentenceBlocks.push(`While our site visit identified that ${getSiteObservation(asPerSite)}, ${docPhrase}`);
+                } else {
+                    sentenceBlocks.push(`The legal documentation (${docNames}) describes the property as landlocked.`);
+                }
+            }
+            finalSentence = sentenceBlocks.join(' ') + " Consequently, the bank must independently verify the legal right of access before proceeding with the mortgage.";
+        }
+        // B. ESTABLISHED ACCESS
+        else if (hasLegalAccess || hasSiteAccess) {
+            isWarning = isTIRAccessOnly; 
+            finalTitle = isWarning ? "Access Discrepancy Note" : "Access Alignment";
+            let sentenceBlocks = [];
+
+            if (hasLegalAccess) {
+                const docVeh = getCalculatedVehicular(leadDoc.width);
+                const docPhrase = `As per ${leadDoc.name}, the right of access is established through a ${formatWidth(leadDoc.width)}${leadDoc.type}${docVeh ? ' suitable for ' + docVeh : ''}`;
+                
+                if (hasSiteAccess) {
+                    const diff = parseFloat(asPerSite.width) - parseFloat(leadDoc.width);
+                    const widthNote = (hasWidth(asPerSite.width) && hasWidth(leadDoc.width) && Math.abs(diff) > 0.1) 
+                        ? ` (which is ${diff > 0 ? 'wider' : 'narrower'} than the legal description of ${leadDoc.width}m)` 
+                        : "";
+                    
+                    const siteW = formatWidth(asPerSite.width);
+                    const siteM = formatMat(asPerSite.material);
+                    const siteObs = getSiteObservation(asPerSite).replace(`${siteW}${siteM}${asPerSite.type}`, `${siteW}${siteM}${asPerSite.type}${widthNote}`);
+                    sentenceBlocks.push(`${docPhrase}, which was corroborated during our site visit where ${siteObs}.`);
+                } else {
+                    sentenceBlocks.push(`${docPhrase}.`);
+                }
+
+                if (isTIRAccessOnly && deedsLL.length > 0) {
+                    const names = joinList(deedsLL.map(d => d.name));
+                    sentenceBlocks.push(`However, it is noted that ${names} explicitly ${deedsLL.length > 1 ? 'describe' : 'describes'} the property as landlocked.`);
+                    sentenceBlocks.push("Given these legal discrepancies, the bank must independently verify the right of access before proceeding with the mortgage.");
+                }
+            } else {
+                const primarySilent = displaySilent.filter(d => isPrimaryDoc(d));
+                const secondaryAccess = docStances.access.filter(d => !isPrimaryDoc(d.name));
+                let leadPhrase = "While the legal documentation provides no specific details regarding access";
+                if (primarySilent.length > 0) {
+                    leadPhrase = `As the primary documents : ${joinList(primarySilent)} provide no specific mention of a legal right of access`;
+                }
+                let secondaryPhrase = "";
+                if (secondaryAccess.length > 0) {
+                    const names = joinList(secondaryAccess.map(d => `${d.name} mentions a ${formatWidth(d.width)}${d.type}`));
+                    secondaryPhrase = `, while the ${names},`;
+                }
+                sentenceBlocks.push(`${leadPhrase}${secondaryPhrase} our site visit identified that ${getSiteObservation(asPerSite)}.`);
+            }
+            finalSentence = sentenceBlocks.join(' ');
+        }
+        // D. UNIVERSAL SILENCE
+        else {
+            isWarning = true;
+            finalTitle = "Documentation Void";
+            const docList = joinList(docStances.silent);
+            
+            let siteRef = "";
+            if (asPerSite && asPerSite.type && !isLLValue(asPerSite.type)) {
+                siteRef = `However, during the site visit, ${getSiteObservation(asPerSite)}. `;
+            }
+
+            finalSentence = `No legal right of access is explicitly mentioned in ${docList || 'the provided documents'}. ${siteRef}Consequently, the marketability of the property will be significantly reduced due to this fact.`;
+        }
+
+        if (finalSentence) {
+            panel.appendChild(createSummaryCard(finalTitle, finalSentence, isWarning));
+        }
+        updateMasterSynthesis();
+    }
+
+    function createSummaryCard(title, text, isWarning = false) {
+        const card = document.createElement('div');
+        card.className = "panel";
+        card.style = `min-width: 100%; border-left: 3px solid ${isWarning ? '#f44336' : 'var(--accent)'}; border-radius: 10px; display: flex; flex-direction: column; animation: fadeIn 0.3s ease;`;
+        
+        const cardId = 'access-sum-' + Math.random().toString(36).substr(2, 9);
+        
+        card.innerHTML = `
+            <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: ${isWarning ? 'rgba(244, 67, 54, 0.05)' : 'rgba(var(--accent-rgb), 0.02)'};">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="background: ${isWarning ? 'rgba(244, 67, 54, 0.1)' : 'var(--accent-glow)'}; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas ${isWarning ? 'fa-exclamation-triangle' : 'fa-quote-right'}" style="color: ${isWarning ? '#f44336' : 'var(--accent)'}; font-size: 0.8rem;"></i>
+                    </div>
+                    <div>
+                        <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">${title}</span>
+                    </div>
+                </div>
+                <button type="button" onclick="copyDynamicLabel(this, '${cardId}')"
+                    class="btn-portal"
+                    style="padding: 4px 10px; font-size: 0.65rem; background: ${isWarning ? '#f44336' : 'var(--accent)'}; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+            <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card);">
+                <div id="${cardId}" class="summary-card-text" style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word;">
+                    ${text}
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    function generateDemarcationSummary(dem) {
+        const sides = ['north', 'east', 'south', 'west'];
+        const group = {};
+        
+        sides.forEach(s => {
+            let values = (dem[s] && dem[s].length > 0) ? dem[s] : ['no demarcation'];
+            
+            // LINGUISTIC REFINEMENT: Handle "Partial demarcation" + "[Material]"
+            let rawPhrases = values.map(v => v.toLowerCase().trim());
+            let displayPhrase = "";
+
+            const hasPartial = rawPhrases.some(v => v.includes('partial'));
+            const materials = rawPhrases.filter(v => !v.includes('partial') && v !== 'no demarcation' && v !== 'not specified');
+
+            if (hasPartial) {
+                if (materials.length > 0) {
+                    displayPhrase = `partially demarcated with ${materials.join(' and ')}`;
+                } else {
+                    displayPhrase = `partially demarcated`;
+                }
+            } else if (rawPhrases.includes('no demarcation') || rawPhrases.includes('not specified')) {
+                displayPhrase = `not demarcated`;
+            } else {
+                displayPhrase = `demarcated with ${materials.join(' and ')}`;
+            }
+
+            if (!group[displayPhrase]) group[displayPhrase] = [];
+            group[displayPhrase].push(s.charAt(0).toUpperCase() + s.slice(1));
+        });
+
+        const formatList = (list) => {
+            if (list.length === 1) return list[0];
+            if (list.length === 2) return list.join(' and ');
+            return list.slice(0, -1).join(', ') + ', and ' + list[list.length - 1];
+        };
+
+        const phrases = Object.keys(group);
+        
+        // Special case: All same
+        if (phrases.length === 1) {
+            const phrase = phrases[0];
+            const dirs = formatList(group[phrase]);
+            const plural = group[phrase].length > 1 ? 'boundaries' : 'boundary';
+            
+            if (phrase === 'not demarcated') {
+                return `The property is not demarcated in any of its boundaries.`;
+            }
+            return `The property is ${phrase} on the ${dirs} ${plural}.`;
+        }
+
+        // Complex case: Mixed
+        let segments = [];
+        
+        // Handle positive demarcations first
+        const positives = phrases.filter(p => p !== 'not demarcated');
+        positives.forEach(phrase => {
+            const dirs = formatList(group[phrase]);
+            const plural = group[phrase].length > 1 ? 'boundaries' : 'boundary';
+            segments.push(`${phrase} on the ${dirs} ${plural}`);
+        });
+
+        // Handle negative demarcations last
+        const negatives = phrases.filter(p => p === 'not demarcated');
+        if (negatives.length > 0) {
+            const dirs = formatList(group[negatives[0]]);
+            const plural = group[negatives[0]].length > 1 ? 'boundaries' : 'boundary';
+            segments.push(`not demarcated on the ${dirs} ${plural}`);
+        }
+
+        if (segments.length === 0) return "No demarcation data specified.";
+
+        let final = "";
+        if (segments.length === 1) {
+            final = "The property is " + segments[0];
+        } else if (segments.length === 2) {
+            final = "The property is " + segments.join(' and ');
+        } else {
+            const last = segments.pop();
+            final = "The property is " + segments.join(', ') + ', and ' + last;
+        }
+        
+        return final.charAt(0).toUpperCase() + final.slice(1) + ".";
+    }
+
+
+    function addBoundaryVisualSquare(colId, docName = null) {
+        const visualRow = document.getElementById('boundaryVisualRow');
+        if (!visualRow) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'boundary-square-wrapper';
+        wrapper.dataset.colId = colId;
+        wrapper.style = "min-width: 300px; width: 300px; flex-shrink: 0; padding: 20px; background: transparent; border: none; box-shadow: none; display: flex; flex-direction: column; align-items: center;";
+
+        wrapper.innerHTML = `
+            <div class="square-title" style="font-size: 0.7rem; font-weight: bold; color: var(--accent); margin-bottom: 15px; text-align: center; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">-- Choose Document --</div>
+            <div class="boundary-square">
+                <div class="square-plot">
+                    <!-- Internal Direction Letters -->
+                    <div class="dir-letter letter-n">N</div>
+                    <div class="dir-letter letter-e">E</div>
+                    <div class="dir-letter letter-s">S</div>
+                    <div class="dir-letter letter-w">W</div>
+                    
+                    <span class="square-extent-ares">—</span>
+                    <span class="square-extent-cents"></span>
+                </div>
+                <!-- Values (Outside) -->
+                <div class="dir-label dir-north">
+                    <div class="dir-val val-north">—</div>
+                </div>
+                <div class="dir-label dir-east">
+                    <div class="dir-val val-east">—</div>
+                </div>
+                <div class="dir-label dir-south">
+                    <div class="dir-val val-south">—</div>
+                </div>
+                <div class="dir-label dir-west">
+                    <div class="dir-val val-west">—</div>
+                </div>
+                <div class="square-legend"></div>
+            </div>
+        `;
+        visualRow.appendChild(wrapper);
+    }
+
+    function updateBoundaryVisual(colId) {
+        const visual = document.querySelector(`.boundary-square-wrapper[data-col-id="${colId}"]`);
+        if (!visual) return;
+
+        const headerTh = document.querySelector(`th[data-col-id="${colId}"]`);
+        const select = headerTh ? headerTh.querySelector('select') : null;
+        const docId = select ? select.value : '';
+        const docText = select && select.selectedOptions[0] ? select.selectedOptions[0].innerText : '-- Choose Document --';
+
+        // Update Title
+        visual.querySelector('.square-title').innerText = docText;
+
+        // Extract and store year for sorting
+        const yearMatch = docText.match(/\d{4}/);
+        visual.dataset.year = yearMatch ? yearMatch[0] : "9999";
+
+        // Update Boundaries
+        ['north', 'east', 'south', 'west'].forEach(dir => {
+            const input = document.querySelector(`td[data-col-id="${colId}"] .boundary-input-${dir}`);
+            const valEl = visual.querySelector(`.val-${dir}`);
+            if (input && valEl) {
+                const val = input.value.trim();
+                valEl.innerText = val || '—';
+                valEl.title = val;
+            }
+        });
+
+        // Update Land Extent (SUMMED)
+        const extent = getLandExtentForDoc(docId);
+        const aresEl = visual.querySelector('.square-extent-ares');
+        const centsEl = visual.querySelector('.square-extent-cents');
+
+        if (extent && extent > 0) {
+            aresEl.innerText = parseFloat(extent).toFixed(2) + ' Ares';
+            centsEl.innerText = (parseFloat(extent) * 2.47105).toFixed(2) + ' Cents';
+        } else {
+            aresEl.innerText = '—';
+            centsEl.innerText = '';
+        }
+
+        sortVisualSquaresChronologically();
+    }
+
+    function sortVisualSquaresChronologically() {
+        const container = document.getElementById('boundaryVisualRow');
+        if (!container) return;
+
+        const squares = Array.from(container.querySelectorAll('.boundary-square-wrapper'));
+
+        // Sort by year
+        squares.sort((a, b) => {
+            const yearA = parseInt(a.dataset.year) || 9999;
+            const yearB = parseInt(b.dataset.year) || 9999;
+            return yearA - yearB;
+        });
+
+        // Re-append in sorted order (D3-like reordering)
+        squares.forEach(sq => container.appendChild(sq));
+    }
+
+    function getLandExtentForDoc(docId) {
+        if (!docId) return 0;
+        const targetId = docId.trim();
+
+        let total = 0;
+        // Use a broader selector in case the ID or structure changed in manual edits
+        const extentRows = document.querySelectorAll('.analysis-row[data-field="land_extent"]');
+
+        extentRows.forEach(row => {
+            const inputs = row.querySelectorAll('.analysis-input');
+            inputs.forEach(input => {
+                const colId = input.dataset.col;
+                if (!colId) return;
+
+                // Find corresponding doc select for THIS column
+                const docSelect = document.querySelector(`.survey-doc-select[data-col="${colId}"]`);
+                if (docSelect && docSelect.value.trim() === targetId) {
+                    // Check if parent <th> or <td> is not deleted
+                    const cell = docSelect.closest('th, td');
+                    if (cell && !cell.classList.contains('is-pending-delete') && window.getComputedStyle(cell).display !== 'none') {
+                        const val = parseFloat(input.value.replace(/,/g, '')) || 0;
+                        total += val;
+                    }
+                }
+            });
+        });
+
+        console.log(`Summing Ares for "${targetId}": Total = ${total.toFixed(2)}`);
+        return total;
+    }
+
+    function updateAllBoundaryVisuals() {
+        const headerThs = document.querySelectorAll('#boundaryHeaderDocs th[data-col-id]');
+        headerThs.forEach(th => updateBoundaryVisual(th.dataset.colId));
+    }
+
+    function collectBoundaryData() {
+        const boundaries = {};
+        const headerRow = document.getElementById('boundaryHeaderDocs');
+        if (!headerRow) return boundaries;
+
+        const ths = headerRow.querySelectorAll('th[data-col-id]:not(.is-pending-delete)');
+        ths.forEach(th => {
+            const colId = th.dataset.colId;
+            const docName = th.querySelector('select').value;
+            if (!docName) return;
+
+            boundaries[docName] = {
+                "North": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-north`)?.value || "",
+                "East": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-east`)?.value || "",
+                "South": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-south`)?.value || "",
+                "West": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-west`)?.value || ""
+            };
+        });
+        return boundaries;
+    }
+
+    function restoreBoundaryTable(boundaryObj) {
+        // Clean existing dynamic columns first (SILENTLY)
+        const headerRow = document.getElementById('boundaryHeaderDocs');
+        if (headerRow) {
+            headerRow.querySelectorAll('th[data-col-id]').forEach(c => removeBoundaryColumn(c.dataset.colId, true));
+        }
+
+        if (!boundaryObj || Object.keys(boundaryObj).length === 0) {
+            // Add ONE initial empty column if no data
+            addBoundaryColumn();
+            return;
+        }
+
+        for (let docName in boundaryObj) {
+            const data = boundaryObj[docName];
+            addBoundaryColumn({
+                docName: docName,
+                North: data.North || "",
+                East: data.East || "",
+                South: data.South || "",
+                West: data.West || ""
+            });
+        }
+    }
+
     function addSurveySlot() {
         // Find existing slots to determine next number
         const existingSlots = new Set();
@@ -2035,6 +3660,8 @@
         addMasterSlot(nextNum);
         refreshActionButtons(nextNum);
         refreshSurveyDropdowns();
+        updateAgreementLabels();
+        updateAllBoundaryVisuals();
         triggerAutoSave();
     }
 
@@ -2048,7 +3675,7 @@
             const td = document.createElement('td');
             td.className = `survey-col-${colId} slot-group-${slotNum}`;
             td.style = "padding: 4px; border-left: 2px solid var(--accent); background: var(--bg-card); color: var(--text-main);";
-            
+
             if (field === 'land_classification') {
                 td.innerHTML = `
                     <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -2085,9 +3712,6 @@
         headerDocsRow.querySelector(`.survey-col-${afterColId}`).after(headerDoc);
         headerSubRow.querySelector(`.survey-col-${afterColId}`).after(headerSub);
 
-        const rootDoc = document.querySelector(`.survey-doc-select[data-slot="${slotNum}"]:not([style*="display: none"])`);
-        if (rootDoc) headerDoc.querySelector('select').value = rootDoc.value;
-
         document.querySelectorAll('#surveyTableBody .analysis-row').forEach(row => {
             const field = row.dataset.field;
             const parentCell = row.querySelector(`.survey-col-${afterColId}`);
@@ -2121,8 +3745,17 @@
         });
 
         attachSurveyListeners(colId);
+        refreshSurveyDropdowns(); // CRITICAL: Populate options so the next line can set the value
+
+        const rootDoc = document.querySelector(`.survey-doc-select[data-slot="${slotNum}"]:not([style*="display: none"])`);
+        if (rootDoc) {
+            const newSelect = headerDoc.querySelector('select');
+            if (newSelect) newSelect.value = rootDoc.value;
+        }
+
         refreshActionButtons(slotNum);
         updateAgreementLabels();
+        updateAllBoundaryVisuals();
         triggerAutoSave();
     }
 
@@ -2131,19 +3764,104 @@
         updateAgreementLabels();
     }
 
-    function removeSurveyColumn(colId) {
+    window.pendingDeletions = {};
+
+    function removeSurveyColumn(colId, isSilent = false) {
+        const columns = document.querySelectorAll(`.survey-col-${colId}`);
         const header = document.querySelector(`th.survey-col-${colId}`);
         const slotNum = header ? header.dataset.slot : null;
 
-        document.querySelectorAll(`.survey-col-${colId}`).forEach(el => el.remove());
-
-        if (slotNum) {
-            relabelParts(slotNum);
-            refreshActionButtons(slotNum);
+        if (isSilent) {
+            columns.forEach(el => el.remove());
+            if (slotNum) {
+                relabelParts(slotNum);
+                refreshActionButtons(slotNum);
+            }
+            return;
         }
+
+        // Mark as pending delete instead of immediate removal
+        columns.forEach(el => {
+            el.style.display = 'none';
+            el.classList.add('is-pending-delete');
+        });
+
+        updateAgreementLabels();
+        updateAllBoundaryVisuals(); // Recalculate area sums after removal
+        triggerAutoSave();
+
+        const toast = Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'warning',
+            title: 'Column removed',
+            showConfirmButton: true,
+            confirmButtonText: 'Undo',
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (t) => {
+                t.addEventListener('mouseenter', Swal.stopTimer);
+                t.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        toast.then((result) => {
+            if (result.isConfirmed) {
+                // RESTORE
+                columns.forEach(el => {
+                    el.style.display = '';
+                    el.classList.remove('is-pending-delete');
+                });
+                if (slotNum) {
+                    relabelParts(slotNum);
+                    refreshActionButtons(slotNum);
+                }
+                updateAgreementLabels();
+                triggerAutoSave();
+            } else {
+                // FINALIZE DELETE
+                columns.forEach(el => el.remove());
+                if (slotNum) {
+                    relabelParts(slotNum);
+                    refreshActionButtons(slotNum);
+                }
+            }
+        });
+    }
+
+    function confirmDeleteSlot(slotNum) {
+        const columns = document.querySelectorAll(`.slot-group-${slotNum}`);
+
+        // Mark as pending
+        columns.forEach(el => {
+            el.style.display = 'none';
+            el.classList.add('is-pending-delete');
+        });
 
         updateAgreementLabels();
         triggerAutoSave();
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'warning',
+            title: `Document Slot ${slotNum} removed`,
+            showConfirmButton: true,
+            confirmButtonText: 'Undo',
+            timer: 5000,
+            timerProgressBar: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                columns.forEach(el => {
+                    el.style.display = '';
+                    el.classList.remove('is-pending-delete');
+                });
+                updateAgreementLabels();
+                triggerAutoSave();
+            } else {
+                columns.forEach(el => el.remove());
+            }
+        });
     }
 
     function refreshActionButtons(slotNum) {
@@ -2178,6 +3896,7 @@
         colFields.forEach(el => {
             el.addEventListener('input', () => {
                 updateAgreementLabels();
+                updateAllBoundaryVisuals();
                 triggerAutoSave();
             });
             el.addEventListener('change', () => {
@@ -2196,6 +3915,7 @@
                 }
                 updateAgreementLabels();
                 updateLandClassificationSummary();
+                updateAllBoundaryVisuals();
                 triggerAutoSave();
             });
         });
@@ -2216,42 +3936,59 @@
     function collectSurveyAnalysisData() {
         const data = {};
         const slotNums = new Set();
-        document.querySelectorAll('[data-slot]').forEach(el => slotNums.add(el.dataset.slot));
+        document.querySelectorAll('[data-slot]').forEach(el => {
+            if (el.dataset.slot) slotNums.add(el.dataset.slot);
+        });
 
         slotNums.forEach(i => {
             const slotKey = `Document ${i}`;
-            const rootHeader = document.querySelector(`#surveyHeaderDocs .slot-root-${i}`);
+
+            // 1. Get Root Header for this slot
+            const rootHeader = document.querySelector(`#surveyHeaderDocs .slot-root-${i}:not(.is-pending-delete)`);
             if (!rootHeader) return;
 
             const rootColId = rootHeader.dataset.colId;
-            const docName = document.querySelector(`.survey-doc-select[data-slot="${i}"]:not([style*="display: none"])`)?.value || '';
 
+            // 2. Find the visible master dropdown to get the document name
+            // We look for a survey-doc-select that is NOT hidden
+            let docName = '';
+            const allSelects = document.querySelectorAll(`.survey-doc-select[data-slot="${i}"]`);
+            allSelects.forEach(s => {
+                if (window.getComputedStyle(s).display !== 'none') {
+                    docName = s.value;
+                }
+            });
+
+            // 3. Collect Initial Entry Data
             const initialData = {};
-                document.querySelectorAll('.analysis-row').forEach(row => {
-                    const field = row.dataset.field;
-                    const input = row.querySelector(`.analysis-input[data-col="${rootColId}"]`);
-                    if (input) {
-                        if (field === 'land_classification') {
-                            const val = input.value;
-                            if (val === 'others') {
-                                const manual = input.parentElement.querySelector('.cls-manual');
-                                initialData[field] = manual ? manual.value : val;
-                            } else {
-                                initialData[field] = val;
-                            }
+            document.querySelectorAll('#surveyTableBody .analysis-row').forEach(row => {
+                const field = row.dataset.field;
+                if (!field) return;
+                const input = row.querySelector(`.analysis-input[data-col="${rootColId}"]`);
+                if (input) {
+                    if (field === 'land_classification') {
+                        const val = input.value;
+                        if (val === 'others') {
+                            const manual = input.parentElement.querySelector('.cls-manual');
+                            initialData[field] = manual ? manual.value : val;
                         } else {
-                            initialData[field] = input.value;
+                            initialData[field] = val;
                         }
+                    } else {
+                        initialData[field] = input.value;
                     }
-                });
+                }
+            });
 
+            // 4. Collect Parts (Sub-entries)
             const partsList = [];
-            const subCols = document.querySelectorAll(`#surveyHeaderDocs .slot-group-${i}.is-sub-entry`);
+            const subCols = document.querySelectorAll(`#surveyHeaderDocs .slot-group-${i}.is-sub-entry:not(.is-pending-delete)`);
             subCols.forEach(subCol => {
                 const subColId = subCol.dataset.colId;
                 const partData = {};
-                document.querySelectorAll('.analysis-row').forEach(row => {
+                document.querySelectorAll('#surveyTableBody .analysis-row').forEach(row => {
                     const field = row.dataset.field;
+                    if (!field) return;
                     const input = row.querySelector(`.analysis-input[data-col="${subColId}"]`);
                     if (input) {
                         if (field === 'land_classification') {
@@ -2276,29 +4013,25 @@
                 parts: partsList
             };
         });
+
+        console.log("Collected Survey Analysis Data:", data);
         return data;
     }
 
     /* UTILITY: COPY LABEL TO CLIPBOARD */
     function copyDynamicLabel(btnRef, targetId = null) {
         let textToCopy = "";
-        let labelPrefix = "";
-        
-        const panel = btnRef.closest('.panel');
-        if (panel) {
-            const titleEl = panel.querySelector('.ph-title');
-            if (titleEl) labelPrefix = titleEl.innerText + ": ";
-        }
 
         if (targetId) {
             const el = document.getElementById(targetId);
-            if (el) textToCopy = labelPrefix + (el.innerText || el.textContent);
+            if (el) textToCopy = (el.innerText || el.textContent);
         } else {
+            const panel = btnRef.closest('.panel');
             const output = panel ? panel.querySelector('.panel-body div[id*="Output"]') : null;
-            if (output) textToCopy = labelPrefix + (output.innerText || output.textContent);
+            if (output) textToCopy = (output.innerText || output.textContent);
         }
 
-        if (!textToCopy || textToCopy.includes("will appear here") || textToCopy.includes("Narrative...") || textToCopy.trim() === labelPrefix.trim()) {
+        if (!textToCopy || textToCopy.includes("will appear here") || textToCopy.includes("Narrative...") || textToCopy.trim() === "") {
             Swal.fire({
                 icon: 'warning',
                 title: 'Empty Content',
@@ -2311,16 +4044,22 @@
             return;
         }
 
+        // Clean up text
+        textToCopy = textToCopy.trim();
+
         navigator.clipboard.writeText(textToCopy).then(() => {
             const originalHtml = btnRef.innerHTML;
-            btnRef.innerHTML = '<i class="fas fa-check"></i> Done';
+            const originalBg = btnRef.style.background;
+            const originalColor = btnRef.style.color;
+
+            btnRef.innerHTML = '<i class="fas fa-check"></i> Copied';
             btnRef.style.background = 'var(--success)';
             btnRef.style.color = '#fff';
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'Copied!',
-                text: 'Label & Narrative copied to clipboard.',
+                text: 'Narrative copied to clipboard.',
                 timer: 1500,
                 showConfirmButton: false,
                 toast: true,
@@ -2329,8 +4068,8 @@
 
             setTimeout(() => {
                 btnRef.innerHTML = originalHtml;
-                btnRef.style.background = '';
-                btnRef.style.color = '';
+                btnRef.style.background = originalBg;
+                btnRef.style.color = originalColor;
             }, 2000);
         }).catch(err => {
             console.error('Clipboard Error:', err);
@@ -2453,8 +4192,24 @@
 
         ['sumFileNo', 'sumApplicantName', 'sumInspDate', 'sumProduct'].forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.innerText = '-';
+            if (el) el.innerText = '- ';
         });
+
+        // Reset Boundary Table
+        const headerRow = document.getElementById('boundaryHeaderDocs');
+        if (headerRow) {
+            headerRow.querySelectorAll('th[data-col-id]').forEach(c => removeBoundaryColumn(c.dataset.colId, true));
+        }
+        addBoundaryColumn();
+
+        const visualRow = document.getElementById('boundaryVisualRow');
+        if (visualRow) visualRow.innerHTML = '';
+
+        const vettingRow = document.getElementById('vettingDiagramsRow');
+        if (vettingRow) vettingRow.innerHTML = '<div style="color: var(--text-dim); font-size: 0.7rem; padding: 20px; width: 100%; text-align: center;">-- No site specific data available yet --</div>';
+
+        const demarcationContent = document.getElementById('demarcationContent');
+        if (demarcationContent) demarcationContent.innerHTML = '<div style="color: var(--text-dim); font-size: 0.7rem; padding: 20px; width: 100%; text-align: center;">-- No demarcation data available --</div>';
 
         window.currentSitePayload = null;
     }
@@ -2755,11 +4510,39 @@
                     });
                 }
 
+                // --- RESTORE BOUNDARY ANALYSIS ---
+                restoreBoundaryTable(payload.Boundary);
+                renderVettingDiagrams(payload); // Populate Site Specific View (Vetting)
+                renderDemarcationInfo(payload); // Populate Demarcations (Vetting)
+                renderRightOfAccess(payload);   // Populate Right of Access
+                
+                // Finally, update vetting views
                 updateOwnershipLabels();
                 updateAgreementLabels();
-                const notesEl = document.getElementById('survey_notes');
-                if (notesEl) {
-                    notesEl.value = payload.survey_notes || payload.Survey?.survey_notes || payload.Demarcation?.demarcation_notes || '';
+                
+                // --- REINFORCED SURVEY NOTES LOAD ---
+                setTimeout(() => {
+                    const notesEl = document.getElementById('SurveyNotes');
+                    if (notesEl) {
+                        // Check both CamelCase and lowercase for maximum compatibility
+                        const manualNotes = payload.SurveyNotes;
+                        const siteNotes = payload.Survey?.SurveyNotes || payload.Demarcation?.demarcation_notes || '';
+                        
+                        console.log("FINAL Vetting Remarks Load Check:", { manualNotes, siteNotes });
+                        
+                        // If we have manual notes (even empty strings), use them. 
+                        if (manualNotes !== undefined && manualNotes !== null) {
+                            notesEl.value = manualNotes;
+                        } else {
+                            notesEl.value = siteNotes;
+                        }
+                    }
+                }, 100);
+
+                const synthEl = document.getElementById('masterSynthesisOutput');
+                if (synthEl && payload.MasterSynthesis) {
+                    synthEl.value = payload.MasterSynthesis;
+                    synthEl.setAttribute('data-manual', payload.SynthesisManualLock ? 'true' : 'false');
                 }
 
                 // Trigger input events to sync summary labels
@@ -3019,12 +4802,157 @@
             } else if (docStrings.length === 1) {
                 output.innerText = prefix + docStrings[0] + ".";
             } else {
-                // Use ' and ' for the last document instead of a comma
                 const allButLast = docStrings.slice(0, -1);
                 const last = docStrings[docStrings.length - 1];
                 output.innerText = prefix + allButLast.join(', ') + " and " + last + ".";
             }
         }
+        updateMasterSynthesis();
+    }
+
+    function updateMasterSynthesis() {
+        const output = document.getElementById('masterSynthesisOutput');
+        if (!output) return;
+
+        let synthesis = "";
+        const addSection = (title, contentId) => {
+            const el = document.getElementById(contentId);
+            let content = el ? el.innerText.trim() : "";
+            const isPlaceholder = !content || content === "..." || content.toLowerCase().includes("will appear here") || content.toLowerCase().includes("summary will appear") || content.toLowerCase().includes("no applicable land");
+            if (content && !isPlaceholder) {
+                synthesis += `${title}\n${'-'.repeat(title.length)}\n${content}\n\n`;
+            }
+        };
+
+        // 1. Document Summary Label
+        addSection("Documents", "dynamicLabelOutput");
+
+        // 2. Ownership Narrative
+        addSection("Ownership", "ownershipLabelOutput");
+
+        // 3. Agreement (Summary & OTR)
+        addSection("Agreement", "agreementLabelOutput");
+        addSection("Agreement (OTR)", "agreementLabelOutputOTR");
+
+        // 4. Deed (Summary & OTR)
+        addSection("Deed", "deedLabelOutput");
+        addSection("Deed (OTR)", "deedLabelOutputOTR");
+
+        // 5. Land Tax Receipt (Summary & OTR)
+        addSection("Land Tax Receipt", "landTaxLabelOutput");
+        addSection("Land Tax Receipt (OTR)", "landTaxLabelOutputOTR");
+
+        // 6. Land Classification Summary
+        addSection("Land Classification", "landClassificationOutput");
+
+        // 7. Demarcation Summary Label
+        const demOutput = document.getElementById('demarcationSummaryOutput');
+        if (demOutput) {
+            let demText = demOutput.innerText.trim();
+            const isPlaceholder = !demText || demText === "..." || demText.toLowerCase().includes("will appear here") || demText.toLowerCase().includes("no demarcation data");
+            if (demText && !isPlaceholder) {
+                const title = "Demarcation";
+                synthesis += `${title}\n${'-'.repeat(title.length)}\n${demText}\n\n`;
+            }
+        }
+
+        // 8. Access Note
+        const accessPanel = document.getElementById('accessSummaryPanel');
+        if (accessPanel) {
+            const cards = accessPanel.querySelectorAll('.summary-card-body');
+            if (cards.length > 0) {
+                const title = "Right of Access";
+                synthesis += `${title}\n${'-'.repeat(title.length)}\n`;
+                cards.forEach(card => {
+                    const txt = card.querySelector('.summary-card-text')?.innerText.trim();
+                    if (txt) synthesis += txt + "\n";
+                });
+                synthesis += "\n";
+            }
+        }
+
+        // 9. Manual Remarks
+        const remarks = document.getElementById('SurveyNotes')?.value.trim();
+        if (remarks) {
+            const title = "Remarks";
+            synthesis += `${title}\n${'-'.repeat(title.length)}\n${remarks}\n\n`;
+        }
+
+        // --- THE DRAFTING LOCK ---
+        // If the user has manually edited the synthesis, do NOT overwrite it automatically
+        if (output.getAttribute('data-manual') === 'true' && output.value.trim() !== "") {
+            return; 
+        }
+
+        output.value = synthesis.trim() || "Synthesis will be generated here as you fill the form...";
+    }
+
+    function resetSynthesisManual() {
+        const output = document.getElementById('masterSynthesisOutput');
+        if (output) {
+            output.setAttribute('data-manual', 'false');
+            updateMasterSynthesis();
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: 'Draft Regenerated',
+                text: 'The synthesis has been reset to follow form data.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            triggerAutoSave();
+        }
+    }
+
+    function copyMasterSynthesis(btn) {
+        const output = document.getElementById('masterSynthesisOutput');
+        if (!output) return;
+        
+        const textToCopy = output.value;
+        const isPlaceholder = !textToCopy || textToCopy.includes("Synthesis will be generated");
+
+        if (!isPlaceholder) {
+            // Success handler
+            const showSuccess = () => {
+                const originalText = btn.innerHTML;
+                const originalBg = btn.style.background;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = originalBg;
+                }, 2000);
+            };
+
+            // Modern API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(showSuccess).catch(err => {
+                    console.error("Clipboard API failed, using fallback", err);
+                    fallbackCopyText(textToCopy, showSuccess);
+                });
+            } else {
+                fallbackCopyText(textToCopy, showSuccess);
+            }
+        }
+    }
+
+    function fallbackCopyText(text, callback) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            const successful = document.execCommand('copy');
+            if (successful && callback) callback();
+        } catch (err) {
+            console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textArea);
     }
 
     function updateAgreementLabels() {
@@ -3233,39 +5161,75 @@
         if (!output) return;
 
         const data = collectSurveyAnalysisData();
-        let summaries = [];
+        const cats = {
+            'Deed': { items: [], wetArea: 0, totalArea: 0 },
+            'Land Tax': { items: [], wetArea: 0, totalArea: 0 },
+            'Possession': { items: [], wetArea: 0, totalArea: 0 }
+        };
 
         for (let key in data) {
             const slot = data[key];
-            const docRef = slot.doc_name || `Document ${key.split(' ')[1]}`;
+            const dName = (slot.doc_name || '').toLowerCase();
+            let cat = null;
 
-            // Helper to get formatted string
-            const getPhrase = (entry) => {
+            if (dName.includes('deed')) cat = 'Deed';
+            else if (dName.includes('land tax receipt')) cat = 'Land Tax';
+            else if (dName.includes('possession certificate')) cat = 'Possession';
+
+            if (!cat) continue;
+
+            const processEntry = (entry) => {
                 const area = parseFloat(entry.land_extent) || 0;
-                const cls = entry.land_classification || '';
-                if (!cls) return null;
+                const cls = (entry.land_classification || '').toLowerCase();
+                if (!cls) return;
 
-                // Capitalize first letter of class for grammar
-                const clsDisplay = cls.charAt(0).toUpperCase() + cls.slice(1);
-                return `${area.toFixed(2)} ares of land is classified as ${clsDisplay} as per ${docRef}`;
+                cats[cat].items.push({
+                    doc: slot.doc_name,
+                    area: area,
+                    cls: entry.land_classification
+                });
+                cats[cat].totalArea += area;
+                if (cls === 'wet') cats[cat].wetArea += area;
             };
 
-            const p1 = getPhrase(slot.initial);
-            if (p1) summaries.push(p1);
+            processEntry(slot.initial);
+            if (slot.parts) slot.parts.forEach(p => processEntry(p));
+        }
 
-            if (slot.parts && slot.parts.length > 0) {
-                slot.parts.forEach(p => {
-                    const ps = getPhrase(p);
-                    if (ps) summaries.push(ps);
-                });
+        // 1. Check for Warning Threshold (> 10.12 Ares Wetland in any category)
+        let warningCategory = null;
+        for (let c in cats) {
+            if (cats[c].wetArea > 10.12) {
+                warningCategory = c;
+                break;
             }
         }
 
-        if (summaries.length === 0) {
-            output.innerText = "No land classification data found.";
-        } else {
-            output.innerText = summaries.join("; ") + ".";
+        if (warningCategory) {
+            const catData = cats[warningCategory];
+            const catLabel = warningCategory === 'Deed' ? 'Title deed' : (warningCategory === 'Land Tax' ? 'Land Tax Receipt' : 'Possession Certificate');
+
+            output.innerText = `The land is classified as wetland as per the ${catLabel}. As the extent of the wetland is ${catData.wetArea.toFixed(2)} ares, the marketability of the property is significantly reduced in view of the provisions of the Kerala Conservation of Paddy Land and Wetland Act, 2008.`;
+            updateMasterSynthesis();
+            return;
         }
+
+        // 2. Otherwise generate standard concatenated list (Only for the 3 allowed categories)
+        let phrases = [];
+        for (let c in cats) {
+            cats[c].items.forEach(item => {
+                const clsDisplay = item.cls.charAt(0).toUpperCase() + item.cls.slice(1);
+                // e.g. "wet land as per Title Deed No. 12/2002"
+                phrases.push(`${clsDisplay.toLowerCase()} land as per ${item.doc}`);
+            });
+        }
+
+        if (phrases.length === 0) {
+            output.innerText = "No applicable land classification data found.";
+        } else {
+            output.innerText = "The land is classified as " + phrases.join(", ") + ".";
+        }
+        updateMasterSynthesis();
     }
 
     function updateLandTaxLabels() {
@@ -3359,6 +5323,7 @@
             } else narrOTR += "; ";
             outputOTR.innerText = narrOTR + finalLoc;
         }
+        updateMasterSynthesis();
     }
 
     function updateOwnershipLabels() {
@@ -3401,6 +5366,7 @@
             label += allButLast.join('; ') + " and " + last + ".";
         }
         output.innerText = label;
+        updateMasterSynthesis();
     }
 
     function refreshSurveyDropdowns() {
@@ -3511,7 +5477,7 @@
             altInput: true,
             altFormat: "d/m/Y",
             allowInput: true,
-            onClose: function() {
+            onClose: function () {
                 triggerAutoSave();
             }
         });
@@ -3611,6 +5577,7 @@
         document.querySelectorAll('.analysis-input').forEach(inp => {
             inp.addEventListener('input', () => {
                 updateAgreementLabels();
+                updateAllBoundaryVisuals();
                 triggerAutoSave();
             });
         });
@@ -3627,6 +5594,12 @@
                 el.addEventListener('change', triggerUpdate);
             }
         });
+
+        // Sync Master Synthesis with Manual Remarks
+        const surveyNotesEl = document.getElementById('SurveyNotes');
+        if (surveyNotesEl) {
+            surveyNotesEl.addEventListener('input', updateMasterSynthesis);
+        }
 
         // If URL has file_no, prioritize it (but avoid double call if already restored)
         const urlParams = new URLSearchParams(window.location.search);

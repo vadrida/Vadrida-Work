@@ -349,7 +349,18 @@ def get_site_report_data(request):
             site_data['owners_data'] = verification_data.get('OwnersData', [])
             site_data['schedule_data'] = verification_data.get('ScheduleData', {})
             site_data['survey_land_extend'] = verification_data.get('SurveyAnalysis', {})
-            site_data['survey_notes'] = verification_data.get('SurveyNotes', '')
+            site_data['Boundary'] = verification_data.get('BoundaryAnalysis', {})
+            # Handle both old (lowercase) and new (CamelCase) keys to prevent data loss
+            site_data['SurveyNotes'] = verification_data.get('SurveyNotes') or verification_data.get('survey_notes') or ''
+            
+            site_data['Verification'] = {
+                'Demarcation': verification_data.get('Demarcation', {}),
+                'RightOfAccess': verification_data.get('RightOfAccess', {})
+            }
+            
+            # Restore Master Synthesis to the payload
+            site_data['MasterSynthesis'] = verification_data.get('MasterSynthesis', '')
+            site_data['SynthesisManualLock'] = verification_data.get('SynthesisManualLock', False)
             
             # Update Valuers_Checklist for top summary strip
             if 'Valuers_Checklist' not in site_data:
@@ -551,12 +562,23 @@ def create_folder_api(request):
             # --- DETERMINE WHICH EXTRA STRING TO USE ---
             local_body = meta.get('local_body', '')
             muthoot_branch = meta.get('muthoot_branch', '')
+            sib_branch = meta.get('sib_branch', '')
+            sib_region = meta.get('sib_region', '')
+            village = meta.get('village', '')
             
             extra_str = ""
             if local_body:
                 extra_str = f"_{local_body}"
             elif muthoot_branch:
                 extra_str = f"_{muthoot_branch}"
+            elif sib_branch and sib_region:
+                # Add Branch and Region for SIB
+                extra_str = f"_{sib_branch}_{sib_region}"
+            elif sib_branch:
+                extra_str = f"_{sib_branch}"
+            
+            if village and village != 'NONE':
+                extra_str += f"_{village}"
                 
             # --- BUILD FOLDER NAME ---
             folder_name = f"{unique_id}_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}{extra_str}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
@@ -569,12 +591,19 @@ def create_folder_api(request):
             base_drive_root = os.path.dirname(settings.DOCUMENTS_ROOT) 
             # OR explicitly: base_drive_root = r"G:\My Drive"
             
+            dist_folder = structure.get('dist_folder', 'Unknown')
+            was_redirected = False
+            # Redirect KL04 Alappuzha to KL02 Kollam ONLY for HDFC bank if village is selected
+            if bank_code == '01' and dist_code == '04' and village and village != 'NONE':
+                dist_folder = 'KL02.KLM'
+                was_redirected = True
+
             # Construct: G:\My Drive \ 2026_2027 \ 1000.HDFC \ KL01.TVM \ Folder...
             path_components = [
                 base_drive_root,
                 structure.get('year', '2026_2027'),
                 structure.get('bank_folder', 'Unknown'),
-                structure.get('dist_folder', 'Unknown'),
+                dist_folder,
                 folder_name
             ]
             full_path = os.path.join(*path_components)
@@ -628,7 +657,7 @@ def create_folder_api(request):
                 # We skip errors here so the folder creation isn't aborted if template copy fails
                 print(f"Warning: Excel template copy skipped: {ex}")
 
-        return JsonResponse({'success': True, 'new_id': unique_id})
+        return JsonResponse({'success': True, 'new_id': unique_id, 'saved_in_kollam': was_redirected})
 
     except Exception as e:
         print(f"Error: {e}")
@@ -2236,10 +2265,15 @@ def save_verification_data(request):
                         'OwnersData': data.get('owners_data', []),
                         'ScheduleData': data.get('schedule_data', {}),
                         'SurveyAnalysis': data.get('survey_land_extend', {}),
-                        'SurveyNotes': data.get('survey_notes', ''),
+                        'BoundaryAnalysis': data.get('Boundary', {}),
+                        'Demarcation': data.get('Demarcation', {}),
+                        'RightOfAccess': data.get('RightOfAccess', {}),
+                        'SurveyNotes': data.get('SurveyNotes', ''),
                         'ApplicantName': data.get('applicantName', ''),
                         'Product': data.get('product', ''),
-                        'PersonMet': data.get('personMetAtSite', '')
+                        'PersonMet': data.get('personMetAtSite', ''),
+                        'MasterSynthesis': data.get('MasterSynthesis', ''),
+                        'SynthesisManualLock': data.get('SynthesisManualLock', False)
                     }
                 }
             )
@@ -2268,6 +2302,7 @@ BANKS = [
     {'code': '11', 'name': 'RBL'},
     {'code': '12', 'name': 'Chola SME'},
     {'code': '13', 'name': 'Axis Finance'},
+    {'code': '14', 'name': 'L & T Finance'},
 ]
 
 DISTRICTS = [

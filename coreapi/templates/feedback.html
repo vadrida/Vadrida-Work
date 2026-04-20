@@ -1229,8 +1229,11 @@
                                                     data-array="Access.private_no_user" value="self & 2 user"> Self
                                                 & 2 user</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
-                                                    data-array="Access.private_no_user" value="self + family"> Self
-                                                + family</label>
+                                                    data-array="Access.private_no_user" value="self & family"> Self
+                                                & family</label>
+                                            <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Access.private_no_user" value="multiple users"> Multiple
+                                                users</label>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1303,7 +1306,7 @@
                                                     data-array="Access.road_material" value="concrete road">
                                                 Concrete road</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
-                                                    data-array="Access.road_material" value="paving tile rd"> Paving
+                                                    data-array="Access.road_material" value="paving tile road"> Paving
                                                 tile rd</label>
                                             <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Access.road_material" value="tar road"> Tar
@@ -2966,11 +2969,24 @@
             initBuildingTable();
         }
 
-        // --- THE CRITICAL FIX: Reset formState BEFORE updating currentFolder ---
-        // This ensures if saveLocal() triggers during the fetch, it doesn't 
-        // save the OLD case's data into the NEW case's key.
+        // --- THE CRITICAL FIX: Reset formState and UI BEFORE starting the fetch ---
+        // This ensures the user doesn't see old data while the loader is spinning.
         formState = getEmptyState(); 
         isRestoringDraft = true; // Block UI-triggered saves during transition
+
+        // Clear Global Sketch Memory
+        if (typeof elements !== 'undefined') elements = [];
+        if (typeof undoStack !== 'undefined') undoStack = [];
+        if (typeof redoStack !== 'undefined') redoStack = [];
+        
+        // Immediate UI Wipe
+        syncStateToUI();
+        initBuildingTable();
+        renderDynamicDocuments();
+        renderBoundaryAnalysisTable();
+        renderHistoricDiagrams();
+        renderAllSavedImages(); // Clears previews
+        if (typeof renderScene === 'function') renderScene();
 
         currentPage = 1;
         hasMoreFiles = true;
@@ -3209,6 +3225,12 @@
     }
 
     function renderAllSavedImages() {
+        // --- THE FIX: Clear all existing previews before rendering new ones ---
+        document.querySelectorAll('img[id^="img_preview_"]').forEach(img => { 
+            img.src = ""; 
+            img.classList.add('hidden'); 
+        });
+
         // Auto-recover images from vectors if missing (Backend stringification or truncation fallback)
         if (formState.vectors) {
             if (!formState.images) formState.images = {};
@@ -4542,7 +4564,11 @@
         }
 
         if (e.type.startsWith('touch')) {
-            if (e.type === 'touchstart') e.preventDefault();
+            // --- THE FIX FOR BUG 2: Prevent accidental navigation gestures & bubbling ---
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
             // 🛡️ PALM REJECTION / HAND RESTING PREVENTION:
             // 1. If more than 2 touches are detected, it's likely a palm/hand resting.
@@ -6363,11 +6389,10 @@
     // --- NEW DYNAMIC KEY GENERATOR ---
     function getDraftKey(folderPath) {
         if (!folderPath) return 'vadrida_draft_unknown';
+        // THE FIX: Use the full folder name (e.g. 0126010008_V1) as the key 
+        // This prevents data collisions between different case versions or reports.
         const folderName = folderPath.split('/').pop() || "";
-        // Extract the leading file number (e.g., 0126010008)
-        const match = folderName.match(/^(\d+)/);
-        const fileNo = match ? match[1] : folderName;
-        return `vadrida_draft_${fileNo}`;
+        return `vadrida_draft_${folderName}`;
     }
 
     // --- UPDATED SAVE LOCAL ---
