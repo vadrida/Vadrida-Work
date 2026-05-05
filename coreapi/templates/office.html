@@ -1,337 +1,391 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Office Dashboard{% endblock %}
+{% block title %}Office Dashboard | Vadrida{% endblock %}
 
 {% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* --- THEME VARIABLES (Consistent with Verification Portal) --- */
+    /* --- ELEGANT MINIMALIST THEME --- */
     :root {
-        --brand-blue: #004a8f;       
-        --brand-accent: #0066cc;     
-        --bg-app: #f0f2f5;           
-        --bg-white: #ffffff;
-        --text-dark: #1f2937;        
-        --text-grey: #6b7280;        
-        --border-color: #d1d5db;     
-        --success: #059669;
-        --shadow-card: 0 1px 3px rgba(0,0,0,0.1);
+        --primary: #1e293b;
+        --primary-light: #334155;
+        --accent: #3b82f6;
+        --accent-soft: rgba(59, 130, 246, 0.08);
+        --bg-main: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #334155;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --radius: 16px;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
 
     body {
-        background-color: var(--bg-app);
-        font-family: 'Roboto', 'Segoe UI', sans-serif;
-        color: var(--text-dark);
+        background-color: var(--bg-main);
+        font-family: 'Outfit', sans-serif;
+        color: var(--text-main);
+        line-height: 1.5;
     }
 
     /* --- LAYOUT --- */
-    .dashboard-container {
-        display: grid;
-        grid-template-columns: 1fr 400px; /* Action Area | Profile Sidebar */
-        gap: 30px;
+    .office-container {
         max-width: 1200px;
         margin: 40px auto;
-        padding: 0 20px;
-        height: calc(100vh - 140px); /* Fill screen minus header/margin */
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 32px;
     }
 
-    /* Responsive: Stack on mobile */
-    @media (max-width: 900px) {
-        .dashboard-container {
+    @media (max-width: 1024px) {
+        .office-container {
             grid-template-columns: 1fr;
-            height: auto;
+            margin: 20px auto;
         }
     }
 
-    /* --- LEFT: ACTION AREA --- */
-    .action-panel {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        justify-content: center;
+    /* --- WELCOME SECTION --- */
+    .welcome-header {
+        margin-bottom: 40px;
     }
 
-    .welcome-text {
-        font-size: 24px;
+    .welcome-header h1 {
+        font-size: 32px;
         font-weight: 700;
-        color: var(--brand-blue);
-        margin-bottom: 10px;
+        color: var(--primary);
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .welcome-header p {
+        color: var(--text-muted);
+        font-size: 16px;
+        margin-top: 4px;
+    }
+
+    /* --- ACTION GRID --- */
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
     }
 
     .action-card {
-        background: var(--bg-white);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 30px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        box-shadow: var(--shadow-card);
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
         text-decoration: none;
-        color: var(--text-dark);
+        color: inherit;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .action-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
     }
 
     .action-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        border-color: var(--brand-accent);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent);
     }
 
-    .card-icon {
-        width: 60px;
-        height: 60px;
-        background: #eff6ff;
-        color: var(--brand-blue);
-        border-radius: 50%;
+    .action-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 20px;
+        transition: all 0.3s ease;
     }
 
-    .card-content h3 { margin: 0 0 5px 0; font-size: 18px; font-weight: 600; color: var(--brand-blue); }
-    .card-content p { margin: 0; font-size: 13px; color: var(--text-grey); }
+    .action-card:hover .icon-box {
+        background: var(--accent);
+        color: #ffffff;
+        transform: scale(1.1) rotate(-5deg);
+    }
 
-    /* --- RIGHT: PROFILE PANEL --- */
-    .profile-card {
-        background: var(--bg-white);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-card);
-        overflow: hidden;
+    .card-info h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary);
+        margin: 0 0 8px 0;
+    }
+
+    .card-info p {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .card-footer {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover .card-footer {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    /* --- PROFILE PANEL --- */
+    .profile-sidebar {
         display: flex;
         flex-direction: column;
+        gap: 24px;
     }
 
-    .profile-header {
-        background: var(--brand-blue);
-        height: 100px;
+    .profile-card-minimal {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px 24px;
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        position: sticky;
+        top: 100px;
+    }
+
+    .avatar-wrapper {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, var(--accent), #60a5fa);
+        border-radius: 50%;
+        padding: 3px;
         position: relative;
     }
 
-    .profile-pic-container {
-        width: 100px;
-        height: 100px;
-        background: #e5e7eb;
-        border: 4px solid var(--bg-white);
+    .avatar-inner {
+        width: 100%;
+        height: 100%;
+        background: var(--card-bg);
         border-radius: 50%;
-        position: absolute;
-        bottom: -50px;
-        left: 50%;
-        transform: translateX(-50%);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #9ca3af;
-        font-size: 40px;
+        font-size: 32px;
+        color: var(--accent);
         overflow: hidden;
     }
-    
-    .profile-pic-container img {
-        width: 100%; height: 100%; object-fit: cover;
+
+    .avatar-inner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .profile-body {
-        padding: 60px 30px 30px 30px; /* Top padding clears the image */
+    .status-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 18px;
+        height: 18px;
+        background: #10b981;
+        border: 3px solid var(--card-bg);
+        border-radius: 50%;
     }
 
-    .info-row {
-        margin-bottom: 15px;
+    .user-meta h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 4px 0;
     }
-    
-    .info-label {
+
+    .role-pill {
+        display: inline-block;
+        background: var(--accent-soft);
+        color: var(--accent);
         font-size: 11px;
         font-weight: 700;
-        color: var(--text-grey);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: block;
-        margin-bottom: 5px;
+        padding: 4px 12px;
+        border-radius: 100px;
+        letter-spacing: 0.05em;
     }
 
-    /* View Mode Styling */
-    .info-value {
-        font-size: 14px;
-        color: var(--text-dark);
-        font-weight: 500;
-        padding: 8px 0;
-        border-bottom: 1px solid #f3f4f6;
+    .profile-details {
+        margin-top: 32px;
+        text-align: left;
+        border-top: 1px solid var(--border);
+        padding-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 
-    /* Edit Mode Styling */
-    .info-input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-size: 14px;
-        color: var(--text-dark);
-        display: none; /* Hidden by default */
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
-    .info-input:focus { outline: none; border-color: var(--brand-accent); }
 
-    .btn-action {
-        width: 100%;
-        padding: 12px;
-        border-radius: 4px;
+    .detail-label {
+        font-size: 11px;
         font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        border: none;
-        transition: 0.2s;
-        margin-top: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
-    .btn-edit { background: var(--bg-app); color: var(--text-dark); border: 1px solid var(--border-color); }
-    .btn-edit:hover { background: #e5e7eb; }
+    .detail-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary);
+    }
 
-    .btn-save { background: var(--success); color: white; display: none; }
-    .btn-save:hover { background: #047857; }
-
-    .badge-role {
-        background: #dbeafe; color: #1e40af; 
-        padding: 4px 8px; border-radius: 12px; 
-        font-size: 12px; font-weight: 700;
+    /* --- MOBILE REFINEMENTS --- */
+    @media (max-width: 640px) {
+        .welcome-header h1 { font-size: 28px; }
+        .action-grid { grid-template-columns: 1fr; }
+        .profile-card-minimal { position: static; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-
-    <div class="action-panel">
-        <div class="welcome-text">Welcome, {{ user_profile.user_name }}</div>
-        
-
-        <a href="{% url 'coreapi:create_folder' %}" class="action-card"> 
-            <div class="card-icon"><i class="fas fa-folder-plus"></i></div>
-            <div class="card-content">
-                <h3>Create File Folder</h3>
-                <p>Generate new file structures for incoming loan applications.</p>
-            </div>
-            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
-        </a>
-
-        <a href="{% url 'coreapi:office_verification' %}" class="action-card">
-            <div class="card-icon"><i class="fas fa-file-signature"></i></div>
-            <div class="card-content">
-                <h3>Vetting and Analysis</h3>
-                <p>Analyze and verify document credentials for office vetting processes.</p>
-            </div>
-            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
-        </a>
-
-        <a href="{% url 'coreapi:status_viewer' %}" class="action-card">
-            <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
-            <div class="card-content">
-                <h3>File Status / TAT Viewer</h3>
-                <p>Monitor real-time Turnaround Time (TAT), completion status, and file age across the system.</p>
-            </div>
-            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
-        </a>
-
-        {% if user_profile.email == "treesaneenu89@gmail.com" or user_profile.email == "maluremya13@gmail.com" %}
-        <a href="{% url 'coreapi:feedback' %}" class="action-card">
-            <div class="card-icon"><i class="fas fa-comments"></i></div>
-            <div class="card-content">
-                <h3>Feedback Portal</h3>
-                <p>Access the specialized feedback form and site visit report generation tool.</p>
-            </div>
-            <i class="fas fa-arrow-right" style="margin-left: auto; color: var(--brand-accent);"></i>
-        </a>
-        {% endif %}
-
-    </div>
-
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="profile-pic-container">
-                <i class="fas fa-user"></i>
-                <img src="" alt="" class="hidden"> 
-            </div>
+<div class="office-container">
+    
+    <!-- Left: Action Hub -->
+    <div class="action-hub">
+        <div class="welcome-header">
+            <h1>Workspace</h1>
+            <p>Welcome back, {{ user_profile.user_name }}. Select a task to continue.</p>
         </div>
 
-        <div class="profile-body">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="margin: 0; color: var(--brand-blue);">{{ user_profile.user_name }}</h2>
-                <span class="badge-role">{{ user_profile.role|upper }}</span>
+        <div class="action-grid">
+            <!-- Create Folder -->
+            <a href="{% url 'coreapi:create_folder' %}" class="action-card">
+                <div class="icon-box">
+                    <i class="fas fa-folder-plus"></i>
+                </div>
+                <div class="card-info">
+                    <h3>File Creation</h3>
+                    <p>Initialize new case folders and structures for property valuation files.</p>
+                </div>
+                <div class="card-footer">
+                    Get Started <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
+
+            <!-- Vetting & Analysis -->
+            <a href="{% url 'coreapi:office_verification' %}" class="action-card">
+                <div class="icon-box">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Vetting Portal</h3>
+                    <p>Perform deep analysis and verification of document credentials and site data.</p>
+                </div>
+                <div class="card-footer">
+                    Open Portal <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
+
+            <!-- Status / TAT -->
+            <a href="{% url 'coreapi:status_viewer' %}" class="action-card">
+                <div class="icon-box">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Monitoring</h3>
+                    <p>Track Turnaround Time (TAT), completion metrics, and real-time case status.</p>
+                </div>
+                <div class="card-footer">
+                    View Stats <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
+
+            <!-- Feedback (Conditional) -->
+            {% if user_profile.email == "treesaneenu89@gmail.com" or user_profile.email == "maluremya13@gmail.com" or user_profile.email == "sayalsafna1@gmail.com" %}
+            <a href="{% url 'coreapi:feedback' %}" class="action-card">
+                <div class="icon-box">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Feedback Hub</h3>
+                    <p>Access specialized feedback forms and automated report generation tools.</p>
+                </div>
+                <div class="card-footer">
+                    Access Hub <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right: Profile Sidebar -->
+    <div class="profile-sidebar">
+        <div class="profile-card-minimal">
+            <div class="avatar-wrapper">
+                <div class="avatar-inner">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="status-badge" title="Online"></div>
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Full Name</span>
-                <div class="info-value">{{ user_profile.user_name }}</div>
-                <input type="text" class="info-input" id="input_name" value="{{ user_profile.user_name }}">
+            <div class="user-meta">
+                <h2>{{ user_profile.user_name }}</h2>
+                <span class="role-pill">{{ user_profile.role|default:"Valuer" }}</span>
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Email Address</span>
-                <div class="info-value">{{ user_profile.email }}</div>
-                <input type="email" class="info-input" id="input_email" value="{{ user_profile.email }}">
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="detail-label">Email Address</span>
+                    <span class="detail-value">{{ user_profile.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Office Contact</span>
+                    <span class="detail-value">{{ user_profile.ph_no|default:"Not Set" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Active</span>
+                    <span class="detail-value" style="color: var(--text-muted); font-size: 13px;">
+                        {% if last_login %}{{ last_login }}{% else %}Just Now{% endif %}
+                    </span>
+                </div>
             </div>
-
-            <div class="info-row">
-                <span class="info-label">Phone Number</span>
-                <div class="info-value">{{ user_profile.ph_no }}</div>
-                <input type="text" class="info-input" id="input_phone" value="{{ user_profile.ph_no }}">
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Last Login</span>
-                <div class="info-value" style="color: #9ca3af;">{{ last_login }}</div>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">Account Created</span>
-                <div class="info-value" style="color: #9ca3af;">{{ created_at|date:"d M Y" }}</div>
-            </div>
+            
+            <a href="{% url 'coreapi:logout_api' %}" style="display: block; margin-top: 32px; color: #ef4444; font-size: 13px; font-weight: 600; text-decoration: none;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </a>
         </div>
     </div>
 
 </div>
-
-<script>
-    let isEditing = false;
-
-    function toggleEditMode() {
-        const values = document.querySelectorAll('.info-value');
-        const inputs = document.querySelectorAll('.info-input');
-        const editBtn = document.querySelector('.btn-edit');
-        const saveBtn = document.querySelector('.btn-save');
-
-        isEditing = !isEditing;
-
-        if (isEditing) {
-            // Switch to Edit Mode
-            values.forEach(el => el.style.display = 'none');
-            inputs.forEach(el => el.style.display = 'block');
-            editBtn.style.display = 'none';
-            saveBtn.style.display = 'block';
-        } else {
-            // Cancel / Switch Back
-            values.forEach(el => el.style.display = 'block');
-            inputs.forEach(el => el.style.display = 'none');
-            editBtn.style.display = 'block';
-            saveBtn.style.display = 'none';
-        }
-    }
-
-    function saveProfile() {
-        // Collect Data
-        const name = document.getElementById('input_name').value;
-        const email = document.getElementById('input_email').value;
-        const phone = document.getElementById('input_phone').value;
-
-        // NOTE: Backend logic for saving profile updates goes here.
-        // For now, we just simulate a UI update.
-        
-        alert("Profile update functionality to be implemented.");
-        
-        // Optionally update UI values immediately
-        // document.querySelectorAll('.info-value')[0].innerText = name;
-        // ...
-        
-        toggleEditMode(); // Exit edit mode
-    }
-</script>
 {% endblock %}

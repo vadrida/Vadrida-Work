@@ -350,6 +350,8 @@ def get_site_report_data(request):
             site_data['schedule_data'] = verification_data.get('ScheduleData', {})
             site_data['survey_land_extend'] = verification_data.get('SurveyAnalysis', {})
             site_data['Boundary'] = verification_data.get('BoundaryAnalysis', {})
+            site_data['BoundaryVerifiedWith'] = verification_data.get('BoundaryVerifiedWith', '')
+            site_data['BoundaryMatches'] = verification_data.get('BoundaryMatches', '')
             # Handle both old (lowercase) and new (CamelCase) keys to prevent data loss
             site_data['SurveyNotes'] = verification_data.get('SurveyNotes') or verification_data.get('survey_notes') or ''
             
@@ -359,8 +361,10 @@ def get_site_report_data(request):
             }
             
             # Restore Master Synthesis to the payload
+            # Restore Master Synthesis to the payload
             site_data['MasterSynthesis'] = verification_data.get('MasterSynthesis', '')
             site_data['SynthesisManualLock'] = verification_data.get('SynthesisManualLock', False)
+            site_data['BuildingDetails'] = verification_data.get('BuildingDetails', {})
             
             # Update Valuers_Checklist for top summary strip
             if 'Valuers_Checklist' not in site_data:
@@ -541,14 +545,23 @@ def create_folder_api(request):
         bank_code = meta.get('bank_code') 
         dist_code = meta.get('dist_code') 
         year = meta.get('year', '26')    
-        
+        village = meta.get('village', '')
+        dcb_officer = meta.get('dcb_officer', '')
+
+        # --- REDIRECTION LOGIC (Complete Kollam Integration) ---
+        # If redirected, we treat the file entirely as a Kollam case (02) for continuity,
+        # but keep the Alappuzha name in the folder for identification.
+        effective_dist_id = dist_code
+        if bank_code == '01' and dist_code == '04' and village and village != 'NONE':
+            effective_dist_id = '02'
+
         # 3. DB Transaction (Get Next Sequence)
         with transaction.atomic():
-            # USE MAX SHIFT: prevent collision if a previous file was deleted
+            # Find the Max sequence actually used for this specific ID prefix (e.g. 012602)
+            # This is more robust against ID collisions.
+            prefix = f"{bank_code}{year}{effective_dist_id}"
             res = ClientFolder.objects.filter(
-                year=year,
-                bank_code=bank_code,
-                district_code=dist_code
+                unique_file_no__startswith=prefix
             ).aggregate(Max('sequence_no'))
             
             max_seq = res.get('sequence_no__max') or 0
@@ -556,7 +569,7 @@ def create_folder_api(request):
             seq_str = f"{next_seq:04d}"
             
             # 4. Generate Unique ID & Name
-            unique_id = f"{bank_code}{year}{dist_code}{seq_str}"
+            unique_id = f"{prefix}{seq_str}"
             applicant_clean = meta.get('applicant', 'XXX')
             
             # --- DETERMINE WHICH EXTRA STRING TO USE ---
@@ -564,7 +577,6 @@ def create_folder_api(request):
             muthoot_branch = meta.get('muthoot_branch', '')
             sib_branch = meta.get('sib_branch', '')
             sib_region = meta.get('sib_region', '')
-            village = meta.get('village', '')
             
             extra_str = ""
             if local_body:
@@ -581,22 +593,21 @@ def create_folder_api(request):
                 extra_str += f"_{village}"
                 
             # --- BUILD FOLDER NAME ---
-            folder_name = f"{unique_id}_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}{extra_str}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
-            # ---------------------------------------------------------
-            # 🔧 PATH FIX: Force Root to 'G:\My Drive'
-            # ---------------------------------------------------------
-            #  'settings.DOCUMENTS_ROOT' is 'G:\My Drive\2026_2027'
-            # So we go one level up to get 'G:\My Drive'
-            
+            if bank_code == '04' and dcb_officer:
+                folder_name = f"{unique_id}_#{dcb_officer.lower()}#_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}{extra_str}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
+            else:
+                folder_name = f"{unique_id}_#{applicant_clean}#_{meta.get('product')}_{meta.get('dist_name')}{extra_str}_{meta.get('date_str')}_{meta.get('site_code')}_{meta.get('off_code')}_{meta.get('bank_ref')}"
+
             base_drive_root = os.path.dirname(settings.DOCUMENTS_ROOT) 
-            # OR explicitly: base_drive_root = r"G:\My Drive"
             
             dist_folder = structure.get('dist_folder', 'Unknown')
             was_redirected = False
             # Redirect KL04 Alappuzha to KL02 Kollam ONLY for HDFC bank if village is selected
             if bank_code == '01' and dist_code == '04' and village and village != 'NONE':
-                dist_folder = 'KL02.KLM'
+                dist_folder = 'KL02.KOL' # Match the user's example folder name
                 was_redirected = True
+            elif bank_code == '04' and dcb_officer:
+                dist_folder = dcb_officer.upper()
 
             # Construct: G:\My Drive \ 2026_2027 \ 1000.HDFC \ KL01.TVM \ Folder...
             path_components = [
@@ -615,12 +626,12 @@ def create_folder_api(request):
             # 5. Create Folders
             os.makedirs(full_path, exist_ok=True)
 
-            # 6. Save to DB
+            # 6. Save to DB (Save with effective_dist_id for list integration)
             ClientFolder.objects.create(
                 unique_file_no=unique_id,
                 year=year,
                 bank_code=bank_code,
-                district_code=dist_code,
+                district_code=effective_dist_id,
                 sequence_no=next_seq,
                 applicant_name=meta.get('applicant'),
                 product=meta.get('product'),
@@ -675,17 +686,16 @@ def get_next_sequence_api(request):
     if not (bank_code and dist_code):
         return JsonResponse({'seq': '0001'})
 
-    # 3. Count existing files for this SPECIFIC combo
-    # e.g. Count HDFC (01) files in TVM (01)
-    count = ClientFolder.objects.filter(
-        year=year,
-        bank_code=bank_code,
-        district_code=dist_code
-    ).count()
+    # 3. Find Max sequence using the ID prefix
+    # This ensures we don't suggest an ID that already exists
+    prefix = f"{bank_code}{year}{dist_code}"
+    res = ClientFolder.objects.filter(
+        unique_file_no__startswith=prefix
+    ).aggregate(Max('sequence_no'))
 
-    # 4. Return next number (Count + 1)
-    next_seq = count + 1
-    return JsonResponse({'seq': f"{next_seq:04d}"})  # Returns "0043"
+    max_seq = res.get('sequence_no__max') or 0
+    next_seq = max_seq + 1
+    return JsonResponse({'seq': f"{next_seq:04d}"})
 
 
 @require_GET
@@ -2266,14 +2276,19 @@ def save_verification_data(request):
                         'ScheduleData': data.get('schedule_data', {}),
                         'SurveyAnalysis': data.get('survey_land_extend', {}),
                         'BoundaryAnalysis': data.get('Boundary', {}),
+                        'BoundaryVerifiedWith': data.get('BoundaryVerifiedWith', ''),
+                        'BoundaryMatches': data.get('BoundaryMatches', ''),
                         'Demarcation': data.get('Demarcation', {}),
                         'RightOfAccess': data.get('RightOfAccess', {}),
+                        'BoundaryReasons': data.get('BoundaryReasons', {}),
+                        'BoundaryRoadOwners': data.get('BoundaryRoadOwners', {}),
                         'SurveyNotes': data.get('SurveyNotes', ''),
                         'ApplicantName': data.get('applicantName', ''),
                         'Product': data.get('product', ''),
                         'PersonMet': data.get('personMetAtSite', ''),
                         'MasterSynthesis': data.get('MasterSynthesis', ''),
-                        'SynthesisManualLock': data.get('SynthesisManualLock', False)
+                        'SynthesisManualLock': data.get('SynthesisManualLock', False),
+                        'BuildingDetails': data.get('BuildingDetails', {})
                     }
                 }
             )
@@ -2468,4 +2483,65 @@ def export_master_status_excel_api(request):
         return response
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+from .ai_utils import generate_gemini_summary
+import requests
+
+@csrf_exempt
+def utility_hub_chat(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '')
+            context_data = data.get('context', {})
+            chat_history = data.get('history', [])
+
+            api_key = os.environ.get('GEMINI_API_KEY')
+            if not api_key:
+                return JsonResponse({'error': 'Gemini API Key not configured.'}, status=500)
+
+            # Build the prompt
+            prompt = f"SYSTEM: You are Friday, an AI assistant built into the Vadrida Verification Dashboard. Use the provided Context Data to help answer the user's questions about the property valuation and data. Provide concise, helpful answers.\n\n"
+            prompt += f"Context Data from User's Screen:\n{json.dumps(context_data, indent=2)}\n\n"
+            
+            # Format chat history
+            contents = []
+            for msg in chat_history:
+                role = "user" if msg['role'] == 'user' else "model"
+                contents.append({"role": role, "parts": [{"text": msg['content']}]})
+            
+            # Add current message with context
+            current_prompt = prompt + f"User Message: {user_message}"
+            contents.append({"role": "user", "parts": [{"text": current_prompt}]})
+
+            # Use gemini-3-flash-preview as requested by the user for the latest futuristic features
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+            payload = {
+                "contents": contents
+            }
+            
+            resp = requests.post(url, json=payload)
+            resp_data = resp.json()
+
+            if resp.status_code == 200:
+                ai_text = resp_data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                return JsonResponse({'reply': ai_text})
+            else:
+                return JsonResponse({'error': resp_data.get('error', {}).get('message', 'API Error')}, status=resp.status_code)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+
+def report_drafting(request):
+    file_no = request.GET.get('file_no', 'Unknown')
+    bank_name = request.GET.get('bank_name', 'Unknown Bank')
+    bank_code = request.GET.get('bank_code', '00')
+    return render(request, 'report_drafting.html', {
+        'file_no': file_no,
+        'bank_name': bank_name,
+        'bank_code': bank_code
+    })
 

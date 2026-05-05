@@ -119,8 +119,9 @@
         border-bottom: 1px solid #e5e7eb;
         min-height: 70px;
         z-index: 1000;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
+
     .nav-content {
         display: flex;
         justify-content: space-between;
@@ -130,11 +131,17 @@
         height: 100%;
         min-height: 70px;
     }
-    .nav-left, .nav-right {
+
+    .nav-left,
+    .nav-right {
         flex: 1;
         min-width: 150px;
     }
-    .nav-right { text-align: right; }
+
+    .nav-right {
+        text-align: right;
+    }
+
     .nav-center {
         flex: 2;
         display: flex;
@@ -143,6 +150,7 @@
         justify-content: center;
         min-width: 250px;
     }
+
     .page-title {
         font-size: 20px;
         font-weight: 700;
@@ -157,23 +165,27 @@
         max-width: 250px;
         margin-top: 4px;
     }
+
     .progress-details {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
         margin-bottom: 2px;
     }
+
     .progress-label {
         font-size: 10px;
         color: #6b7280;
         font-weight: 600;
         text-transform: uppercase;
     }
+
     .progress-value {
         font-size: 11px;
         font-weight: bold;
         color: #2563eb;
     }
+
     .progress-bar-bg {
         width: 100%;
         height: 6px;
@@ -181,6 +193,7 @@
         border-radius: 3px;
         overflow: hidden;
     }
+
     .progress-bar-fill {
         width: 0%;
         height: 100%;
@@ -199,25 +212,30 @@
         align-items: center;
         justify-content: space-between;
         gap: 15px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
+
     .sticky-banner {
         position: sticky;
         top: 0;
         z-index: 40;
     }
+
     .location-wrapper {
         display: flex;
         align-items: center;
-        min-width: 0; /* Important for truncation */
+        min-width: 0;
+        /* Important for truncation */
         flex: 1;
     }
+
     .location-label {
         font-size: 13px;
         color: #64748b;
         margin-right: 8px;
         white-space: nowrap;
     }
+
     .location-path {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-size: 13px;
@@ -228,6 +246,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
     .reload-btn {
         background: transparent;
         border: none;
@@ -242,6 +261,7 @@
         transition: all 0.2s;
         flex-shrink: 0;
     }
+
     .reload-btn:hover {
         background: #f1f5f9;
         color: #2563eb;
@@ -255,18 +275,25 @@
     }
 
     /* Enforce visible input borders for high-brightness screens (Tabs/Desktops) */
-    .form-input, .form-select, .form-textarea, .search-trigger, #caseSearchInput {
-        border: 1px solid #94a3b8 !important; 
+    .form-input,
+    .form-select,
+    .form-textarea,
+    .search-trigger,
+    #caseSearchInput {
+        border: 1px solid #94a3b8 !important;
         background-color: #ffffff !important;
         color: #1e293b !important;
         border-radius: 6px;
         padding: 10px;
     }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
         border-color: #2563eb !important;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
     }
-    
+
     .search-dashboard-section {
         padding: 16px;
         display: flex;
@@ -274,7 +301,7 @@
         gap: 12px;
         background: #ffffff;
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         margin-bottom: 16px;
     }
 
@@ -282,21 +309,49 @@
 
     /* Tablet & Desktop Tweaks */
     @media (min-width: 1025px) {
-        .left-column { width: 400px; border-right: 1px solid #e5e7eb; }
+        .left-column {
+            width: 400px;
+            border-right: 1px solid #e5e7eb;
+        }
     }
 
     @media (max-width: 1200px) {
-        .left-column { width: 350px; }
+        .left-column {
+            width: 350px;
+        }
     }
 
     @media (max-width: 1024px) {
-        .feedback-nav { height: auto !important; min-height: 80px; }
-        .nav-content { flex-wrap: wrap; padding: 12px 20px; }
-        .nav-left, .nav-right { flex: 1; min-width: 120px; }
-        .nav-center { width: 100% !important; order: 3; margin-top: 12px; flex: none; }
-        
-        .left-column { width: 320px; }
-        .feedback-layout { height: calc(100vh - 80px); }
+        .feedback-nav {
+            height: auto !important;
+            min-height: 80px;
+        }
+
+        .nav-content {
+            flex-wrap: wrap;
+            padding: 12px 20px;
+        }
+
+        .nav-left,
+        .nav-right {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .nav-center {
+            width: 100% !important;
+            order: 3;
+            margin-top: 12px;
+            flex: none;
+        }
+
+        .left-column {
+            width: 320px;
+        }
+
+        .feedback-layout {
+            height: calc(100vh - 80px);
+        }
     }
 
     /* Mobile & Tablet Portrait */
@@ -327,7 +382,10 @@
             justify-content: center;
         }
 
-        .resizer-icon { transform: rotate(90deg); color: #94a3b8; }
+        .resizer-icon {
+            transform: rotate(90deg);
+            color: #94a3b8;
+        }
 
         .right-column {
             width: 100% !important;
@@ -341,36 +399,105 @@
             gap: 12px;
         }
 
-        .duration-row { flex-direction: column; }
-        
-        .nav-left { font-size: 13px; }
-        .user-info { font-size: 13px; font-weight: 600; }
-        .page-title { font-size: 18px !important; }
-        
-        .sticky-banner { top: 0 !important; position: sticky !important; margin: 0 -12px 16px -12px; border-radius: 0; }
+        .duration-row {
+            flex-direction: column;
+        }
+
+        .nav-left {
+            font-size: 13px;
+        }
+
+        .user-info {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 18px !important;
+        }
+
+        .sticky-banner {
+            top: 0 !important;
+            position: sticky !important;
+            margin: 0 -12px 16px -12px;
+            border-radius: 0;
+        }
     }
 
     /* Small Phones */
     @media (max-width: 480px) {
-        .nav-content { padding: 10px; }
-        .nav-label-text { display: none; } /* Show only icon for back link */
-        .nav-left { min-width: 40px; flex: none; }
-        .nav-right { flex: none; width: auto; min-width: 0; }
-        .page-title { font-size: 16px !important; }
-        
+        .nav-content {
+            padding: 10px;
+        }
+
+        .nav-label-text {
+            display: none;
+        }
+
+        /* Show only icon for back link */
+        .nav-left {
+            min-width: 40px;
+            flex: none;
+        }
+
+        .nav-right {
+            flex: none;
+            width: auto;
+            min-width: 0;
+        }
+
+        .page-title {
+            font-size: 16px !important;
+        }
+
         .search-filters-grid {
             grid-template-columns: 1fr !important;
         }
-        
-        .preview-header { flex-direction: column; align-items: stretch !important; gap: 8px; }
-        .preview-controls { display: flex; justify-content: space-between; gap: 8px; }
-        .analyse-btn, .control-btn { flex: 1; padding: 8px 10px; font-size: 13px; text-align: center; justify-content: center; }
-        
-        .form-header { padding: 12px !important; flex-direction: column; gap: 12px; align-items: stretch !important; }
-        .form-header h2 { font-size: 16px; text-align: center; }
-        
-        .v-modal { width: 90vw; max-width: 340px; }
-        .utility-fab { width: 42px; height: 42px; right: 15px; bottom: 15px; }
+
+        .preview-header {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 8px;
+        }
+
+        .preview-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .analyse-btn,
+        .control-btn {
+            flex: 1;
+            padding: 8px 10px;
+            font-size: 13px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .form-header {
+            padding: 12px !important;
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch !important;
+        }
+
+        .form-header h2 {
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .v-modal {
+            width: 90vw;
+            max-width: 340px;
+        }
+
+        .utility-fab {
+            width: 42px;
+            height: 42px;
+            right: 15px;
+            bottom: 15px;
+        }
     }
 
     .right-column.fullscreen-active {
@@ -414,7 +541,7 @@
     }
 
     .right-column.fullscreen-active .form-header {
-        margin: 0; 
+        margin: 0;
         padding: 15px 25px;
         background-color: #f8f9fa;
         border-radius: 0;
@@ -450,24 +577,48 @@
 
     /* ===== UTILITY MODAL & FLOATING BUTTON ===== */
     .utility-fab {
-        position: fixed; bottom: 150px; right: 30px; width: 50px; height: 50px;
-        background: #2563eb; color: white; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.3rem; cursor: pointer; z-index: 1000;
+        position: fixed;
+        bottom: 150px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: #2563eb;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        cursor: pointer;
+        z-index: 1000;
         box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .utility-fab:hover { transform: scale(1.1) rotate(15deg); background: #1d4ed8; }
+
+    .utility-fab:hover {
+        transform: scale(1.1) rotate(15deg);
+        background: #1d4ed8;
+    }
 
     .v-modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.4); 
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(4px);
-        display: none; align-items: center; justify-content: center; z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .v-modal-overlay.visible { display: flex !important; }
-    
+
+    .v-modal-overlay.visible {
+        display: flex !important;
+    }
+
     /* When floating/shrunk, remove blur and allow clicking through background overlay */
     .v-modal-overlay.floating {
         background: transparent !important;
@@ -476,19 +627,25 @@
     }
 
     .v-modal {
-        background: white; width: 340px; border-radius: 16px;
-        border: 1px solid #e5e7eb; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-        overflow: hidden; position: relative; 
-        pointer-events: auto; /* Ensures it is clickable in floating mode */
+        background: white;
+        width: 340px;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        position: relative;
+        pointer-events: auto;
+        /* Ensures it is clickable in floating mode */
         animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         display: flex;
         flex-direction: column;
     }
-    
+
     .v-modal.floating {
         position: absolute;
-        width: 280px; /* Slimmed down in floating state */
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+        width: 280px;
+        /* Slimmed down in floating state */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
         border-radius: 12px;
         z-index: 2001;
     }
@@ -503,7 +660,10 @@
         cursor: grab;
         user-select: none;
     }
-    .v-modal-header:active { cursor: grabbing; }
+
+    .v-modal-header:active {
+        cursor: grabbing;
+    }
 
     .v-modal-title {
         font-size: 0.7rem;
@@ -517,7 +677,7 @@
         display: flex;
         gap: 4px;
     }
-    
+
     .v-modal-btn {
         width: 28px;
         height: 28px;
@@ -532,8 +692,16 @@
         transition: all 0.2s;
         font-size: 0.9rem;
     }
-    .v-modal-btn:hover { background: #e2e8f0; color: #1e293b; }
-    .v-modal-btn.close-btn:hover { background: #fee2e2; color: #ef4444; }
+
+    .v-modal-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .v-modal-btn.close-btn:hover {
+        background: #fee2e2;
+        color: #ef4444;
+    }
 
     /* Converter Styles (Inside the modal) */
     .conv-panel {
@@ -566,22 +734,40 @@
         background: #ffffff;
         transition: border-color 0.2s;
     }
+
     .conv-input:focus {
         border-color: #2563eb;
         outline: none;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
-    
+
     .conv-input[readonly] {
         background: #f1f5f9;
         cursor: default;
     }
 
-    @keyframes modalPop { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    @keyframes modalPop {
+        from {
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+    }
 
     @media (max-width: 1024px) {
-        .v-modal { width: 300px; }
-        .utility-fab { width: 45px; height: 45px; font-size: 1.1rem; }
+        .v-modal {
+            width: 300px;
+        }
+
+        .utility-fab {
+            width: 45px;
+            height: 45px;
+            font-size: 1.1rem;
+        }
     }
 
     /* Photo Upload Enhancements */
@@ -590,12 +776,14 @@
         flex-direction: column;
         gap: 16px;
     }
+
     .upload-choice-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 8px;
     }
+
     .upload-card {
         display: flex;
         flex-direction: column;
@@ -609,28 +797,39 @@
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         gap: 8px;
     }
+
     .upload-card:hover {
         border-color: #2563eb;
         background: #f8faff;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
     }
+
     .upload-card i {
         font-size: 1.5rem;
         color: #64748b;
     }
+
     .upload-card span {
         font-size: 0.75rem;
         font-weight: 600;
         color: #475569;
     }
+
     .upload-card.camera-card {
         background: #f0f7ff;
         border-style: solid;
         border-color: #dbeafe;
     }
-    .upload-card.camera-card i { color: #2563eb; }
-    .upload-card.camera-card:hover { border-color: #2563eb; background: #e0efff; }
+
+    .upload-card.camera-card i {
+        color: #2563eb;
+    }
+
+    .upload-card.camera-card:hover {
+        border-color: #2563eb;
+        background: #e0efff;
+    }
 
     .dir-image-box {
         border: 1px solid #e2e8f0;
@@ -641,6 +840,7 @@
         flex-direction: column;
         gap: 12px;
     }
+
     .dir-image-preview {
         width: 100%;
         height: 180px;
@@ -648,7 +848,7 @@
         border-radius: 10px;
         border: 1px solid #e2e8f0;
         background: #fff;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 </style>
 {% endblock %}
@@ -732,7 +932,7 @@
                         <label class="text-xs font-bold text-gray-500 uppercase">District</label>
                         <select id="district_select" class="form-select search-trigger">
                             <option value="01" data-name="TVM">KL01. TVM</option>
-                            <option value="02" data-name="KLM">KL02. Kollam</option>
+                            <option value="02" data-name="KOL">KL02. Kollam</option>
                             <option value="03" data-name="PTA">KL03. Pathanamthitta</option>
                             <option value="04" data-name="ALP">KL04. Alappuzha</option>
                             <option value="05" data-name="KTM">KL05. Kottayam</option>
@@ -741,7 +941,7 @@
                             <option value="08" data-name="TSR">KL08. Thrissur</option>
                             <option value="09" data-name="PKD">KL09. Palakkad</option>
                             <option value="10" data-name="MLP">KL10. Malappuram</option>
-                            <option value="11" data-name="KKD">KL11. Kozhikode</option>
+                            <option value="11" data-name="KZK">KL11. Kozhikode</option>
                             <option value="12" data-name="WYD">KL12. Wayanad</option>
                             <option value="13" data-name="KNR">KL13. Kannur</option>
                             <option value="14" data-name="KSD">KL14. Kasargod</option>
@@ -1291,6 +1491,9 @@
                                             <label class="checkbox-label-small"><input type="checkbox"
                                                     data-array="Access.vehicular_access" value="4-wheeler">
                                                 4-wheeler</label>
+                                            <label class="checkbox-label-small"><input type="checkbox"
+                                                    data-array="Access.vehicular_access" value="heavy vehicle">
+                                                Heavy vehicle</label>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1456,6 +1659,11 @@
                                     <input type="text" class="form-input" style="width:150px; padding: 4px 8px;"
                                         data-path="Building_analysis.engineers_plan_extent">
                                 </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px; padding-top: 10px; border-top: 1px solid #eee;">
+                                <label style="font-weight: bold; color: #1f2937; margin: 0; font-size: 14px;">Height of the building:</label>
+                                <input type="text" class="form-input" style="width:100px; padding: 4px 8px;"
+                                    data-path="Building_analysis.height" placeholder="e.g. 12.5">
+                                <span style="font-weight: bold; color: #666; font-size: 14px;">M</span>
                             </div>
 
                         </div>
@@ -1642,7 +1850,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <label class="form-label" style="font-size: 15px; margin-top: 10px; text-decoration: solid underline 2px; font-weight: bolder; color:green;">Details if
+                        <label class="form-label"
+                            style="font-size: 15px; margin-top: 10px; text-decoration: solid underline 2px; font-weight: bolder; color:green;">Details
+                            if
                             Rented</label> <br>
                         <label class="form-label">Occupant Name&nbsp;&nbsp;</label>
                         <input type="text" data-path="Building_analysis.occupant_name" class="form-input"> <br>
@@ -2025,7 +2235,8 @@
                                 <label class="form-label font-bold" style="font-size: 14px;">📍 Property Location
                                     (Pinpoint)</label>
 
-                                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-end;">
+                                <div
+                                    style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-end;">
                                     <div style="flex: 1; min-width: 120px;">
                                         <label class="text-xs text-gray-500 font-bold">Latitude</label>
                                         <input type="text" id="input_lat" data-path="land_inspection_details.latitude"
@@ -2036,12 +2247,19 @@
                                         <input type="text" id="input_lng" data-path="land_inspection_details.longitude"
                                             class="form-input" style="height: 40px;" placeholder="e.g. 76.26">
                                     </div>
+                                    <div style="flex: 1; min-width: 120px;">
+                                        <label class="text-xs text-gray-500 font-bold">Pincode</label>
+                                        <input type="text" id="input_pincode" data-path="land_inspection_details.pincode"
+                                            class="form-input" style="height: 40px;" placeholder="e.g. 682024">
+                                    </div>
                                     <div style="flex: 2; min-width: 200px; position: relative;">
                                         <label class="text-xs text-gray-500 font-bold">Search Location</label>
                                         <div style="position: relative;">
-                                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
-                                            <input type="text" id="mapSearchInput" class="form-input" 
-                                                style="height: 40px; padding-left: 35px;" placeholder="Enter address or landmark...">
+                                            <i class="fas fa-search"
+                                                style="position: absolute; left: 12px; top: 12px; color: #94a3b8;"></i>
+                                            <input type="text" id="mapSearchInput" class="form-input"
+                                                style="height: 40px; padding-left: 35px;"
+                                                placeholder="Enter address or landmark...">
                                         </div>
                                     </div>
                                     <button type="button" onclick="getCurrentLocation(this)" class="modal-btn success"
@@ -2114,101 +2332,123 @@
                             <div class="photo-upload-container">
                                 <!-- General Site Photos -->
                                 <div class="form-section-inner">
-                                    <label class="form-label font-bold" style="color: #4b5563; font-size: 1.1rem;">Site Photos (General)</label>
+                                    <label class="form-label font-bold" style="color: #4b5563; font-size: 1.1rem;">Site
+                                        Photos (General)</label>
                                     <div class="upload-choice-grid">
-                                        <div class="upload-card" onclick="document.getElementById('generalPhotosInput').click()">
+                                        <div class="upload-card"
+                                            onclick="document.getElementById('generalPhotosInput').click()">
                                             <i class="fas fa-images"></i>
                                             <span>From Gallery</span>
                                         </div>
-                                        <div class="upload-card camera-card" onclick="document.getElementById('generalPhotosCameraInput').click()">
+                                        <div class="upload-card camera-card"
+                                            onclick="document.getElementById('generalPhotosCameraInput').click()">
                                             <i class="fas fa-camera"></i>
                                             <span>Capture Live</span>
                                         </div>
                                     </div>
                                     <input type="file" id="generalPhotosInput" multiple accept="image/*" class="hidden"
                                         onchange="previewGeneralPhotos(this)">
-                                    <input type="file" id="generalPhotosCameraInput" accept="image/*" capture="environment" class="hidden"
-                                        onchange="previewGeneralPhotos(this)">
-                                    
+                                    <input type="file" id="generalPhotosCameraInput" accept="image/*"
+                                        capture="environment" class="hidden" onchange="previewGeneralPhotos(this)">
+
                                     <div id="generalPhotosPreview"
                                         style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; min-height: 50px; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 10px; background: white;">
-                                        <span class="text-gray-400 text-sm flex items-center justify-center w-full">Temporary selection preview...</span>
+                                        <span
+                                            class="text-gray-400 text-sm flex items-center justify-center w-full">Temporary
+                                            selection preview...</span>
                                     </div>
                                 </div>
 
                                 <!-- Directional Images -->
                                 <label class="form-label font-bold"
-                                    style="color: #4b5563; font-size: 1.1rem; margin-top: 8px;">Directional Images</label>
+                                    style="color: #4b5563; font-size: 1.1rem; margin-top: 8px;">Directional
+                                    Images</label>
 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                                     <!-- North -->
                                     <div class="dir-image-box">
-                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">North</label>
+                                        <label class="form-label font-bold text-center"
+                                            style="margin-bottom: 0;">North</label>
                                         <div class="upload-choice-grid" style="margin-top: 0;">
-                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('northImageInput').click()">
+                                            <div class="upload-card" style="padding: 10px;"
+                                                onclick="document.getElementById('northImageInput').click()">
                                                 <i class="fas fa-images" style="font-size: 1.2rem;"></i>
                                             </div>
-                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('northImageCameraInput').click()">
+                                            <div class="upload-card camera-card" style="padding: 10px;"
+                                                onclick="document.getElementById('northImageCameraInput').click()">
                                                 <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
                                             </div>
                                         </div>
                                         <input type="file" id="northImageInput" accept="image/*" class="hidden"
                                             onchange="previewDirectionalImage(this, 'northPreview')">
-                                        <input type="file" id="northImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                        <input type="file" id="northImageCameraInput" accept="image/*"
+                                            capture="environment" class="hidden"
                                             onchange="previewDirectionalImage(this, 'northPreview')">
                                         <img id="northPreview" class="dir-image-preview hidden">
                                     </div>
-                                    
+
                                     <!-- East -->
                                     <div class="dir-image-box">
-                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">East</label>
+                                        <label class="form-label font-bold text-center"
+                                            style="margin-bottom: 0;">East</label>
                                         <div class="upload-choice-grid" style="margin-top: 0;">
-                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('eastImageInput').click()">
+                                            <div class="upload-card" style="padding: 10px;"
+                                                onclick="document.getElementById('eastImageInput').click()">
                                                 <i class="fas fa-images" style="font-size: 1.2rem;"></i>
                                             </div>
-                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('eastImageCameraInput').click()">
+                                            <div class="upload-card camera-card" style="padding: 10px;"
+                                                onclick="document.getElementById('eastImageCameraInput').click()">
                                                 <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
                                             </div>
                                         </div>
                                         <input type="file" id="eastImageInput" accept="image/*" class="hidden"
                                             onchange="previewDirectionalImage(this, 'eastPreview')">
-                                        <input type="file" id="eastImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                        <input type="file" id="eastImageCameraInput" accept="image/*"
+                                            capture="environment" class="hidden"
                                             onchange="previewDirectionalImage(this, 'eastPreview')">
                                         <img id="eastPreview" class="dir-image-preview hidden">
                                     </div>
-                                    
+
                                     <!-- South -->
                                     <div class="dir-image-box">
-                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">South</label>
+                                        <label class="form-label font-bold text-center"
+                                            style="margin-bottom: 0;">South</label>
                                         <div class="upload-choice-grid" style="margin-top: 0;">
-                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('southImageInput').click()">
+                                            <div class="upload-card" style="padding: 10px;"
+                                                onclick="document.getElementById('southImageInput').click()">
                                                 <i class="fas fa-images" style="font-size: 1.2rem;"></i>
                                             </div>
-                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('southImageCameraInput').click()">
+                                            <div class="upload-card camera-card" style="padding: 10px;"
+                                                onclick="document.getElementById('southImageCameraInput').click()">
                                                 <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
                                             </div>
                                         </div>
                                         <input type="file" id="southImageInput" accept="image/*" class="hidden"
                                             onchange="previewDirectionalImage(this, 'southPreview')">
-                                        <input type="file" id="southImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                        <input type="file" id="southImageCameraInput" accept="image/*"
+                                            capture="environment" class="hidden"
                                             onchange="previewDirectionalImage(this, 'southPreview')">
                                         <img id="southPreview" class="dir-image-preview hidden">
                                     </div>
-                                    
+
                                     <!-- West -->
                                     <div class="dir-image-box">
-                                        <label class="form-label font-bold text-center" style="margin-bottom: 0;">West</label>
+                                        <label class="form-label font-bold text-center"
+                                            style="margin-bottom: 0;">West</label>
                                         <div class="upload-choice-grid" style="margin-top: 0;">
-                                            <div class="upload-card" style="padding: 10px;" onclick="document.getElementById('westImageInput').click()">
+                                            <div class="upload-card" style="padding: 10px;"
+                                                onclick="document.getElementById('westImageInput').click()">
                                                 <i class="fas fa-images" style="font-size: 1.2rem;"></i>
                                             </div>
-                                            <div class="upload-card camera-card" style="padding: 10px;" onclick="document.getElementById('westImageCameraInput').click()">
+                                            <div class="upload-card camera-card" style="padding: 10px;"
+                                                onclick="document.getElementById('westImageCameraInput').click()">
                                                 <i class="fas fa-camera" style="font-size: 1.2rem;"></i>
                                             </div>
                                         </div>
                                         <input type="file" id="westImageInput" accept="image/*" class="hidden"
                                             onchange="previewDirectionalImage(this, 'westPreview')">
-                                        <input type="file" id="westImageCameraInput" accept="image/*" capture="environment" class="hidden"
+                                        <input type="file" id="westImageCameraInput" accept="image/*"
+                                            capture="environment" class="hidden"
                                             onchange="previewDirectionalImage(this, 'westPreview')">
                                         <img id="westPreview" class="dir-image-preview hidden">
                                     </div>
@@ -2612,7 +2852,7 @@
     function initBuildingTable() {
         const data = formState.Building_analysis || {};
         // --- THE FIX: Always start with GF (index 2) and 1st Floor (index 3) ---
-        visibleFloorIndices = [2, 3]; 
+        visibleFloorIndices = [2, 3];
 
         floorConfig.forEach((floor, index) => {
             const hasData = data[`${floor.key}_Builtup_area`] || data[`${floor.key}_Rooms_no`];
@@ -2971,14 +3211,14 @@
 
         // --- THE CRITICAL FIX: Reset formState and UI BEFORE starting the fetch ---
         // This ensures the user doesn't see old data while the loader is spinning.
-        formState = getEmptyState(); 
+        formState = getEmptyState();
         isRestoringDraft = true; // Block UI-triggered saves during transition
 
         // Clear Global Sketch Memory
         if (typeof elements !== 'undefined') elements = [];
         if (typeof undoStack !== 'undefined') undoStack = [];
         if (typeof redoStack !== 'undefined') redoStack = [];
-        
+
         // Immediate UI Wipe
         syncStateToUI();
         initBuildingTable();
@@ -3032,7 +3272,7 @@
                 const targetDir = (path.toLowerCase().replace(/\\/g, '/') + '/p/').replace(/\/+$/, '/p/');
                 return p.includes(targetDir);
             }).map(f => f.path);
-            
+
             formState.site_photos = diskPhotos;
 
             await forcePaint();
@@ -3088,7 +3328,7 @@
                         renderHistoricDiagrams();
                         updateAllDocumentDropdowns();
                         injectPencilIcons();
-                        loadExtraBuildingNos_fb(); 
+                        loadExtraBuildingNos_fb();
                         renderAllSavedImages(); // Clears previews if empty
                         updateMapFromState();
                     }
@@ -3226,9 +3466,9 @@
 
     function renderAllSavedImages() {
         // --- THE FIX: Clear all existing previews before rendering new ones ---
-        document.querySelectorAll('img[id^="img_preview_"]').forEach(img => { 
-            img.src = ""; 
-            img.classList.add('hidden'); 
+        document.querySelectorAll('img[id^="img_preview_"]').forEach(img => {
+            img.src = "";
+            img.classList.add('hidden');
         });
 
         // Auto-recover images from vectors if missing (Backend stringification or truncation fallback)
@@ -4159,7 +4399,7 @@
                 // "destination-out" removes existing pixels where we draw
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.globalAlpha = 1.0;
-                ctx.strokeStyle = "rgba(0,0,0,1)"; 
+                ctx.strokeStyle = "rgba(0,0,0,1)";
                 ctx.fillStyle = "rgba(0,0,0,1)";
             } else if (el.isHighlighter) {
                 // Highlighter uses standard blending but semi-transparent
@@ -4234,7 +4474,7 @@
                 ctx.fontWeight = "900";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                
+
                 // Map stamp codes to FontAwesome glyphs
                 const glyphMap = {
                     'north-arrow': '\uf14e',
@@ -6574,7 +6814,7 @@
             <tr>
                 <th style="width: 10%; vertical-align: bottom; padding-bottom: 12px;">Direction</th>
                 <th style="width: 25%; vertical-align: bottom; padding-bottom: 12px;">
-                    <label class="text-xs font-bold text-gray-700" style="color: white; display: block; margin-bottom: 2px;">Title Deed</label>
+                    <label class="text-xs font-bold text-gray-700" style="color: white; display: block; margin-bottom: 2px;">Title Deed Boundaries</label>
                 </th>
                 <th style="width: 25%; vertical-align: bottom; padding-bottom: 12px;">
                     <label class="text-xs font-bold text-gray-700" style="color: white; display: block; margin-bottom: 2px;">Ref Doc 2</label>
@@ -6587,7 +6827,7 @@
                 </th>
                 <th style="width: 20%; vertical-align: bottom; padding-bottom: 12px;">Translation Reason</th>
                 <th style="width: 20%; vertical-align: bottom; padding-bottom: 12px;">
-                    <div style="margin-bottom: 4px;">Site Selection</div>
+                    <div style="margin-bottom: 4px;">Actual Boundaries</div>
                     <div style="display: flex; flex-direction: column; gap: 4px; font-weight: normal;">
                         <label style="font-size: 10px; color: white; display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
                             <input type="radio" name="global_src" ${globalSource === 'doc1' ? 'checked' : ''} onclick="copyAllBoundaryValuesToSite('doc1')"> Same as Title deed
@@ -6603,6 +6843,15 @@
         // --- BODY ---
         const directions = ['North', 'East', 'South', 'West'];
         let bodyHtml = '';
+
+        tbody.innerHTML = `
+            <datalist id="translationReasonsList">
+                <option value="Not Available">Not Available</option>
+                <option value="Sold To">Sold To</option>
+                <option value="Past it was">Past it was</option>
+                <option value="New Road Formation">New Road Formation</option>
+            </datalist>
+        `;
 
         directions.forEach(dir => {
             const lowerDir = dir.toLowerCase();
@@ -6620,7 +6869,7 @@
                     <td class="text-xs text-gray-800" style="background: #fdfdfd; max-width: 150px; word-break: break-all;">${doc1Val}</td>
                     <td class="text-xs text-gray-800" style="background: #fdfdfd; max-width: 150px; word-break: break-all;">${doc2Val}</td>
                     <td>
-                        <input type="text" data-path="${transPath}" class="table-input" value="${transVal}" onchange="saveLocal()">
+                        <input type="text" data-path="${transPath}" class="table-input" value="${transVal}" list="translationReasonsList" onchange="saveLocal()">
                     </td>
                     <td>
                         <input type="text" data-path="${sitePath}" class="table-input site-input font-bold text-blue-800" 
@@ -6629,7 +6878,7 @@
                 </tr>`;
         });
 
-        tbody.innerHTML = bodyHtml;
+        tbody.innerHTML += bodyHtml;
     }
 
     window.copyAllBoundaryValuesToSite = (source) => {
@@ -7123,7 +7372,8 @@
 
         const parts = str.split(', ');
         parts.forEach((part, idx) => {
-            const match = part.match(/(\d+)\s*\((\d+)%\)/);
+            // Improved regex: Handle cases where year or percent might be empty strings in the encoded format
+            const match = part.match(/(\d*)\s*\((\d*)%\)/);
             if (match) {
                 createColumnAtIndex(idx, match[2], match[1]); // Percent, Year
             } else {
@@ -8348,11 +8598,9 @@
 
         const lastPath = localStorage.getItem('vadrida_active_folder');
 
-        setTimeout(() => {
-            const savedStr = getNestedValue(formState, "Building_analysis.construction_year");
-            if (savedStr) parseTimelineString(savedStr);
-            else createColumnAtIndex(0, "");
-        }, 200);
+        // --- POTENTIAL BUG FIX: Removed redundant timeout that cleared the Timeline table 
+        // after loadFolder already populated it. The population is now handled 
+        // consistently inside loadFolder -> initializePage or in the fallback block below.
 
         initBuildingTable();
 
@@ -8364,6 +8612,9 @@
             console.log("📂 File explorer starting empty (Search required)");
             const listContainer = document.getElementById('searchResultsList');
             if (listContainer) listContainer.innerHTML = `<li class="p-4 text-center text-gray-400 text-sm">Fill details to find a case</li>`;
+
+            // Initial empty row for construction years
+            parseTimelineString("");
         }
 
         enforceTabletLandscape();
@@ -8505,7 +8756,7 @@
             if (google.maps.places && google.maps.places.SearchBox) {
                 try {
                     const searchBox = new google.maps.places.SearchBox(mapSearchBoxInput);
-                    
+
                     // Bias the SearchBox results towards current map's viewport.
                     map.addListener("bounds_changed", () => {
                         searchBox.setBounds(map.getBounds());
@@ -8523,7 +8774,7 @@
                         map.setZoom(19);
                         marker.setPosition(place.geometry.location);
                         marker.setVisible(true);
-                        
+
                         updateLocationInputs(place.geometry.location.lat(), place.geometry.location.lng());
                     });
                 } catch (e) {
@@ -8542,13 +8793,13 @@
             const lngVal = document.getElementById("input_lng").value;
             const lat = parseFloat(latVal);
             const lng = parseFloat(lngVal);
-            
+
             if (!isNaN(lat) && !isNaN(lng)) {
                 const pos = { lat: lat, lng: lng };
                 map.setCenter(pos);
                 marker.setPosition(pos);
                 marker.setVisible(true);
-                
+
                 // Save to state
                 updateLocationInputs(lat, lng);
             }
@@ -8630,12 +8881,12 @@
                 if (status === "OK" && results[0]) {
                     const components = results[0].address_components;
                     let locality = "";
-                    let state = "Kerala"; 
+                    let state = "Kerala";
 
                     for (const comp of components) {
                         if (comp.types.includes("locality") || comp.types.includes("sublocality") || comp.types.includes("administrative_area_level_2")) {
                             locality = comp.long_name;
-                            if (comp.types.includes("locality")) break; 
+                            if (comp.types.includes("locality")) break;
                         }
                     }
                     if (!locality) locality = results[0].formatted_address.split(',')[0];
@@ -9121,10 +9372,10 @@
         const galleryInput = document.getElementById('generalPhotosInput');
         const cameraInput = document.getElementById('generalPhotosCameraInput');
         const previewContainer = document.getElementById('generalPhotosPreview');
-        
+
         previewContainer.innerHTML = '';
         const allFiles = [...(galleryInput.files || []), ...(cameraInput.files || [])];
-        
+
         if (allFiles.length > 0) {
             allFiles.forEach(file => {
                 const reader = new FileReader();
@@ -9218,10 +9469,10 @@
             const pFolderPath = currentFolder.replace(/\/+$/, '') + '/P';
             const scanResponse = await fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(pFolderPath)}&recursive=1`);
             const scanData = await scanResponse.json();
-            
+
             // Collect all file paths
             existingPhotos = (scanData.files || []).map(f => f.path);
-            
+
             // Sync current state
             formState.site_photos = existingPhotos;
             console.log("🔄 Fresh scan of /P complete. Found:", existingPhotos.length, "files");
@@ -9231,7 +9482,7 @@
         }
 
         const filesToProcess = [];
-        
+
         // 1. Prepare Directional Images (Gallery + Camera)
         const directionalConfigs = [
             { gallery: document.getElementById('northImageInput'), camera: document.getElementById('northImageCameraInput'), base: "north image" },
@@ -9260,9 +9511,9 @@
 
             const collisionExists = existingPhotos.some(path => {
                 const fileName = path.split('/').pop().toLowerCase();
-                const match = fileName === (baseName + ".jpg") || 
-                              fileName.startsWith(baseName + " ") || 
-                              fileName.startsWith(baseName + "_");
+                const match = fileName === (baseName + ".jpg") ||
+                    fileName.startsWith(baseName + " ") ||
+                    fileName.startsWith(baseName + "_");
                 return match;
             });
 
@@ -9301,7 +9552,7 @@
                         const match = name.match(new RegExp("^" + baseName + " (\\d+)"));
                         return match ? parseInt(match[1]) : 0;
                     }).filter(n => n > 0);
-                    
+
                     const maxNum = (existingNums.length > 0) ? Math.max(...existingNums) : 0;
                     nextNo = Math.max(2, maxNum + 1);
 
@@ -9345,13 +9596,14 @@
 
         const formData = new FormData();
         formData.append('current_folder', currentFolder);
-        
+
         // Add GPS & Time data for watermarking
         const lat = getNestedValue(formState, 'land_inspection_details.latitude') || "";
         const lng = getNestedValue(formState, 'land_inspection_details.longitude') || "";
+        const pincode = getNestedValue(formState, 'land_inspection_details.pincode') || "";
         const place_name = getNestedValue(formState, 'land_inspection_details.place_name') || document.getElementById('mapSearchInput')?.value || "";
         const state_name = getNestedValue(formState, 'land_inspection_details.state_name') || "Kerala";
-        
+
         // Custom Date Formatter for "30 March 2026"
         const now = new Date();
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -9364,25 +9616,26 @@
         const ampm = hours >= 12 ? 'pm' : 'am';
         hours = hours % 12 || 12;
         const ts = `${day} ${month} ${year}, ${hours}:${mins}:${secs} ${ampm}`;
-        
+
         // Grab current map view state
         const mapZoom = (typeof map !== 'undefined' && map) ? map.getZoom() : 15;
         const mapCenter = (typeof map !== 'undefined' && map) ? map.getCenter() : null;
         const lat_m = mapCenter ? mapCenter.lat().toFixed(6) : lat;
         const lng_m = mapCenter ? mapCenter.lng().toFixed(6) : lng;
-        
+
         // Use Yandex Static as it handles markers easily via URL without server-side keys
         // Use a slightly more conservative zoom if map not ready to avoid white-out rural areas
         const finalZoom = (mapZoom > 18) ? 17 : (mapZoom < 12 ? 15 : mapZoom);
         const mapUrl = `https://static-maps.yandex.ru/1.x/?ll=${lng_m},${lat_m}&z=${finalZoom}&l=map&size=450,450&pt=${lng},${lat},pm2rdm`;
-        
+
         formData.append('latitude', lat);
         formData.append('longitude', lng);
+        formData.append('pincode', pincode);
         formData.append('timestamp', ts);
         formData.append('place_name', place_name);
         formData.append('state_name', state_name);
         formData.append('map_url', mapUrl);
-        
+
         console.log("📍 Location & Map for Watermark:", { lat, lng, place_name, mapUrl });
 
         // Process and compress each file
@@ -10002,12 +10255,12 @@
 
     /* ===== UTILITY HUB LOGIC ===== */
     const UtilityHub = {
-        isDragging: false, 
-        offset: { x: 0, y: 0 }, 
+        isDragging: false,
+        offset: { x: 0, y: 0 },
         initialized: false,
-        open() { 
+        open() {
             const el = document.getElementById('utilityModalOverlay');
-            if(el) {
+            if (el) {
                 el.classList.add('visible');
                 // Check if it was previously floating
                 if (localStorage.getItem('vadrida_utility_mode') === 'floating') {
@@ -10018,9 +10271,9 @@
             }
             this.initDraggable();
         },
-        close() { 
+        close() {
             const el = document.getElementById('utilityModalOverlay');
-            if(el) el.classList.remove('visible');
+            if (el) el.classList.remove('visible');
             // We don't necessarily want to reset mode on close, but we can if desired
         },
         setMode(mode) {
@@ -10031,7 +10284,7 @@
             if (mode === 'floating') {
                 overlay.classList.add('floating');
                 modal.classList.add('floating');
-                
+
                 // Restore previous position or set default
                 const savedPos = JSON.parse(localStorage.getItem('vadrida_utility_pos') || '{"left":50, "top":100}');
                 modal.style.left = savedPos.left + 'px';
@@ -10041,8 +10294,8 @@
             } else {
                 overlay.classList.remove('floating');
                 modal.classList.remove('floating');
-                modal.style.left = ''; 
-                modal.style.top = ''; 
+                modal.style.left = '';
+                modal.style.top = '';
                 modal.style.transform = '';
                 localStorage.setItem('vadrida_utility_mode', 'docked');
             }
@@ -10058,10 +10311,10 @@
                     this.isDragging = true;
                     const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
                     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-                    
+
                     this.offset.x = clientX - modal.offsetLeft;
                     this.offset.y = clientY - modal.offsetTop;
-                    
+
                     if (e.type === 'mousedown') e.preventDefault();
                 }
             };
@@ -10070,22 +10323,22 @@
                 if (this.isDragging && modal.classList.contains('floating')) {
                     const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
                     const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-                    
+
                     let newLeft = clientX - this.offset.x;
                     let newTop = clientY - this.offset.y;
 
                     // Boundary checks
                     const maxX = window.innerWidth - modal.offsetWidth;
                     const maxY = window.innerHeight - modal.offsetHeight;
-                    
+
                     newLeft = Math.max(0, Math.min(newLeft, maxX));
                     newTop = Math.max(0, Math.min(newTop, maxY));
 
                     modal.style.left = newLeft + 'px';
                     modal.style.top = newTop + 'px';
-                    
+
                     // Save position
-                    localStorage.setItem('vadrida_utility_pos', JSON.stringify({left: newLeft, top: newTop}));
+                    localStorage.setItem('vadrida_utility_pos', JSON.stringify({ left: newLeft, top: newTop }));
                 }
             };
 
@@ -10095,13 +10348,13 @@
 
             header.addEventListener('mousedown', startDragging);
             header.addEventListener('touchstart', startDragging, { passive: true });
-            
+
             window.addEventListener('mousemove', moveDragging);
             window.addEventListener('touchmove', moveDragging, { passive: false });
-            
+
             window.addEventListener('mouseup', stopDragging);
             window.addEventListener('touchend', stopDragging);
-            
+
             this.initialized = true;
         }
     };
@@ -10109,24 +10362,24 @@
 
     /* ===== AREA CONVERTER LOGIC ===== */
     const Converter = {
-        factors: { 'sqm':1, 'are':100, 'cent':40.4686, 'acre':4046.86, 'hectare':10000, 'sqft':0.092903 },
+        factors: { 'sqm': 1, 'are': 100, 'cent': 40.4686, 'acre': 4046.86, 'hectare': 10000, 'sqft': 0.092903 },
         init() {
             const data = JSON.parse(localStorage.getItem('v_conv_state_fb') || '{"from":"are","to":"cent","val":""}');
             const f = document.getElementById('convFrom');
             const t = document.getElementById('convTo');
             const v = document.getElementById('convVal');
-            if(f) f.value = data.from; if(t) t.value = data.to; if(v) v.value = data.val;
+            if (f) f.value = data.from; if (t) t.value = data.to; if (v) v.value = data.val;
             this.convert();
         },
         convert() {
             const f = document.getElementById('convFrom')?.value;
             const t = document.getElementById('convTo')?.value;
             const v = parseFloat(document.getElementById('convVal')?.value) || 0;
-            if(!f || !t) return;
+            if (!f || !t) return;
             const result = (v * this.factors[f]) / this.factors[t];
             const resEl = document.getElementById('convResult');
-            if(resEl) resEl.value = result ? parseFloat(result.toFixed(4)) + ' ' + t.toUpperCase() : '';
-            localStorage.setItem('v_conv_state_fb', JSON.stringify({from:f, to:t, val:document.getElementById('convVal')?.value}));
+            if (resEl) resEl.value = result ? parseFloat(result.toFixed(4)) + ' ' + t.toUpperCase() : '';
+            localStorage.setItem('v_conv_state_fb', JSON.stringify({ from: f, to: t, val: document.getElementById('convVal')?.value }));
         }
     };
 
@@ -10134,73 +10387,79 @@
     Converter.init();
 
 </script>
-    <!-- Floating Toggle (Area Converter) -->
-    <div class="utility-fab" onclick="UtilityHub.open()" title="Quick Tools">
-        <i class="fas fa-tools"></i>
-    </div>
+<!-- Floating Toggle (Area Converter) -->
+<div class="utility-fab" onclick="UtilityHub.open()" title="Quick Tools">
+    <i class="fas fa-tools"></i>
+</div>
 
-    <!-- Modal Overlay -->
-    <div class="v-modal-overlay" id="utilityModalOverlay" onclick="if(event.target === this) UtilityHub.close()">
-        <div class="v-modal">
-            <div class="v-modal-header">
-                <div class="v-modal-title">Area Converter</div>
-                <div class="v-modal-controls">
-                    <button type="button" class="v-modal-btn" onclick="UtilityHub.setMode('floating')" title="Shrink / PIP Mode">
-                        <i class="fas fa-compress-alt"></i>
-                    </button>
-                    <button type="button" class="v-modal-btn" onclick="UtilityHub.setMode('docked')" title="Maximize">
-                        <i class="fas fa-expand-alt"></i>
-                    </button>
-                    <button type="button" class="v-modal-btn close-btn" onclick="UtilityHub.close()" title="Close">
-                        <i class="fas fa-times"></i>
-                    </button>
+<!-- Modal Overlay -->
+<div class="v-modal-overlay" id="utilityModalOverlay" onclick="if(event.target === this) UtilityHub.close()">
+    <div class="v-modal">
+        <div class="v-modal-header">
+            <div class="v-modal-title">Area Converter</div>
+            <div class="v-modal-controls">
+                <button type="button" class="v-modal-btn" onclick="UtilityHub.setMode('floating')"
+                    title="Shrink / PIP Mode">
+                    <i class="fas fa-compress-alt"></i>
+                </button>
+                <button type="button" class="v-modal-btn" onclick="UtilityHub.setMode('docked')" title="Maximize">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+                <button type="button" class="v-modal-btn close-btn" onclick="UtilityHub.close()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="conv-panel">
+            <div class="conv-group">
+                <label class="conv-label">Convert From</label>
+                <div style="display:flex; gap: 8px;">
+                    <input type="number" id="convVal" class="conv-input" style="flex: 1.5;" placeholder="Value..."
+                        oninput="Converter.convert()">
+                    <select id="convFrom" class="conv-input" style="flex: 1;" onchange="Converter.convert()">
+                        <option value="are">Ares</option>
+                        <option value="cent">Cents</option>
+                        <option value="sqft">Sq. Ft</option>
+                        <option value="sqm">Sq. M</option>
+                        <option value="acre">Acres</option>
+                        <option value="hectare">Hectares</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="conv-panel">
-                <div class="conv-group">
-                    <label class="conv-label">Convert From</label>
-                    <div style="display:flex; gap: 8px;">
-                        <input type="number" id="convVal" class="conv-input" style="flex: 1.5;" placeholder="Value..." oninput="Converter.convert()">
-                        <select id="convFrom" class="conv-input" style="flex: 1;" onchange="Converter.convert()">
-                            <option value="are">Ares</option>
-                            <option value="cent">Cents</option>
-                            <option value="sqft">Sq. Ft</option>
-                            <option value="sqm">Sq. M</option>
-                            <option value="acre">Acres</option>
-                            <option value="hectare">Hectares</option>
-                        </select>
-                    </div>
+            <div style="display: flex; justify-content: center; margin: 4px 0;">
+                <div
+                    style="width: 32px; height: 32px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                    <i class="fas fa-arrow-down"></i>
                 </div>
-                
-                <div style="display: flex; justify-content: center; margin: 4px 0;">
-                    <div style="width: 32px; height: 32px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                </div>
+            </div>
 
-                <div class="conv-group">
-                    <label class="conv-label">Converted To</label>
-                    <div style="display:flex; gap: 8px;">
-                        <input type="text" id="convResult" class="conv-input" readonly style="flex: 1.5; background: #f8fafc; color: #2563eb; font-weight: 700; border-color: #bfdbfe;">
-                        <select id="convTo" class="conv-input" style="flex: 1;" onchange="Converter.convert()">
-                            <option value="cent">Cents</option>
-                            <option value="are">Ares</option>
-                            <option value="sqft">Sq. Ft</option>
-                            <option value="sqm">Sq. M</option>
-                            <option value="acre">Acres</option>
-                            <option value="hectare">Hectares</option>
-                        </select>
-                    </div>
+            <div class="conv-group">
+                <label class="conv-label">Converted To</label>
+                <div style="display:flex; gap: 8px;">
+                    <input type="text" id="convResult" class="conv-input" readonly
+                        style="flex: 1.5; background: #f8fafc; color: #2563eb; font-weight: 700; border-color: #bfdbfe;">
+                    <select id="convTo" class="conv-input" style="flex: 1;" onchange="Converter.convert()">
+                        <option value="cent">Cents</option>
+                        <option value="are">Ares</option>
+                        <option value="sqft">Sq. Ft</option>
+                        <option value="sqm">Sq. M</option>
+                        <option value="acre">Acres</option>
+                        <option value="hectare">Hectares</option>
+                    </select>
                 </div>
+            </div>
 
-                <div style="margin-top: 8px; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; font-size: 0.65rem; color: #64748b; line-height: 1.5;">
-                    <div style="font-weight: 600; margin-bottom: 2px;"><i class="fas fa-info-circle"></i> Quick Reference:</div>
-                    • 1 Are = 100 Sq. M<br>
-                    • 1 Cent = 435.6 Sq. Ft<br>
-                    • 1 Are ≈ 2.471 Cents
+            <div
+                style="margin-top: 8px; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; font-size: 0.65rem; color: #64748b; line-height: 1.5;">
+                <div style="font-weight: 600; margin-bottom: 2px;"><i class="fas fa-info-circle"></i> Quick Reference:
                 </div>
+                • 1 Are = 100 Sq. M<br>
+                • 1 Cent = 435.6 Sq. Ft<br>
+                • 1 Are ≈ 2.471 Cents
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

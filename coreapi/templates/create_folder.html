@@ -223,7 +223,7 @@
                         <label class="form-label">Select District</label>
                         <select id="district_select" class="form-select trigger-preview">
                             <option value="01" data-name="TVM">KL01. TVM</option>
-                            <option value="02" data-name="KLM">KL02. Kollam</option>
+                            <option value="02" data-name="KOL">KL02. Kollam</option>
                             <option value="03" data-name="PTA">KL03. Pathanamthitta</option>
                             <option value="04" data-name="ALP">KL04. Alappuzha</option>
                             <option value="05" data-name="KTM">KL05. Kottayam</option>
@@ -232,7 +232,7 @@
                             <option value="08" data-name="TSR">KL08. Thrissur</option>
                             <option value="09" data-name="PKD">KL09. Palakkad</option>
                             <option value="10" data-name="MLP">KL10. Malappuram</option>
-                            <option value="11" data-name="KKD">KL11. Kozhikode</option>
+                            <option value="11" data-name="KZK">KL11. Kozhikode</option>
                             <option value="12" data-name="WYD">KL12. Wayanad</option>
                             <option value="13" data-name="KNR">KL13. Kannur</option>
                             <option value="14" data-name="KSD">KL14. Kasargod</option>
@@ -240,8 +240,26 @@
                     </div>
                 </div>
 
+                <div class="form-row hidden" id="dcb_officer_container">
+                    <div class="form-group">
+                        <label class="form-label">DCB Officer Name</label>
+                        <select id="dcb_officer_select" class="form-select trigger-preview">
+                            <option value="KRISHNADAS">Krishnadas</option>
+                            <option value="ANIL">Anil</option>
+                            <option value="KURUP">Kurup</option>
+                            <option value="MENON">Menon</option>
+                            <option value="VISHNU">Vishnu</option>
+                            <option value="SARATH">Sarath</option>
+                            <option value="RAKESH">Rakesh</option>
+                            <option value="DINU">Dinu</option>
+                            <option value="JITHU">Jithu</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group hidden" id="village_container">
-                    <label class="form-label">Select Village <span style="color:var(--brand-accent);">(For Alappuzha District)</span></label>
+                    <label class="form-label">Select Village <span style="color:var(--brand-accent);">(For Alappuzha
+                            District)</span></label>
                     <select id="village_select" class="form-select trigger-preview">
                         <option value="NONE">None of the above</option>
                         <option value="BHARANICKAVU">Bharanickavu</option>
@@ -320,14 +338,17 @@
                 <div id="sib_extra_container" class="hidden">
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">SIB Branch Name <span style="color:var(--brand-accent);">(Required for
-                                SIB)</span></label>
-                            <input type="text" id="sib_branch" class="form-input trigger-preview" placeholder="e.g. ALAPPUZHA">
+                            <label class="form-label">SIB Branch Name <span style="color:var(--brand-accent);">(Required
+                                    for
+                                    SIB)</span></label>
+                            <input type="text" id="sib_branch" class="form-input trigger-preview"
+                                placeholder="e.g. ALAPPUZHA">
                         </div>
                         <div class="form-group">
                             <label class="form-label">SIB Region <span style="color:var(--brand-accent);">(Required for
-                                SIB)</span></label>
-                            <input type="text" id="sib_region" class="form-input trigger-preview" placeholder="e.g. CHERTHALA">
+                                    SIB)</span></label>
+                            <input type="text" id="sib_region" class="form-input trigger-preview"
+                                placeholder="e.g. CHERTHALA">
                         </div>
                     </div>
                 </div>
@@ -428,6 +449,24 @@
             <label class="form-label">Unique Office ID</label>
             <div id="uniqueIdDisplay" class="id-display">--</div>
 
+            <div id="redirect_info" class="hidden"
+                style="margin: -10px 0 20px 0; padding: 12px; background: #fff7ed; border: 1px solid #ffedd5; border-radius: 8px; font-size: 13px;">
+                <div style="color: #9a3412; font-weight: 700; margin-bottom: 8px;">
+                    <i class="fas fa-info-circle"></i> Redirected for Billing
+                </div>
+                <div style="color: #c2410c; margin-bottom: 8px;">
+                    This Alappuzha case is assigned a Kollam ID for continuity.
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; font-family: monospace; font-size: 12px;">
+                    <div style="color: #0369a1; font-weight: 700;">
+                        Assigned ID: <span id="assignedKollamId">--</span>
+                    </div>
+                    <div style="color: #ea580c; font-weight: 700;">
+                        Alappuzha Ref: <span id="originalAlpId">--</span>
+                    </div>
+                </div>
+            </div>
+
             <label class="form-label">Full Path & Folder Name</label>
             <div id="folderRawPreview" class="path-box">
                 Waiting for input...
@@ -454,11 +493,21 @@
         });
         document.getElementById('local_body_select').addEventListener('change', updatePreview);
         document.getElementById('muthoot_branch_select').addEventListener('change', updatePreview);
-        document.getElementById('village_select').addEventListener('change', updatePreview);
+
+        document.getElementById('village_select').addEventListener('change', () => {
+            fetchNextSequence();
+            updatePreview();
+        });
 
         document.querySelectorAll('.trigger-preview').forEach(el => {
-            if (el.id !== 'bank_select' && el.id !== 'district_select' && el.id !== 'local_body_select' && el.id !== 'muthoot_branch_select') {
-                el.addEventListener('input', updatePreview);
+            if (el.id !== 'bank_select' && el.id !== 'district_select' && el.id !== 'local_body_select' && el.id !== 'muthoot_branch_select' && el.id !== 'village_select') {
+                el.addEventListener('input', (e) => {
+                    // --- GLOBAL SANITIZATION: Prevent / or \ which would break the folder structure ---
+                    if (e.target.value.match(/[/\\]/)) {
+                        e.target.value = e.target.value.replace(/[/\\]/g, '-');
+                    }
+                    updatePreview();
+                });
             }
         });
 
@@ -477,8 +526,7 @@
         });
 
         restoreFormState();
-        toggleExtraFields();
-        fetchNextSequence();
+        fetchNextSequence(); // toggleExtraFields is now called inside restore or at start
     });
 
     // --- PERSISTENCE LOGIC ---
@@ -487,52 +535,59 @@
         const fields = [
             'bank_select', 'district_select', 'local_body_select', 'muthoot_branch_select',
             'product_select', 'product_manual', 'site_code_select', 'site_code_manual', 'office_code_select',
-            'sib_branch', 'sib_region', 'village_select'
+            'sib_branch', 'sib_region', 'village_select', 'dcb_officer_select'
         ];
-        
+
         fields.forEach(id => {
             const el = document.getElementById(id);
             if (el) state[id] = el.value;
         });
-        
+
         localStorage.setItem('vadrida_create_folder_state', JSON.stringify(state));
     }
 
     function restoreFormState() {
+        // 1. Initial toggle for defaults
+        toggleExtraFields();
+
         const saved = localStorage.getItem('vadrida_create_folder_state');
-        if (!saved) return;
+        if (!saved) {
+            updatePreview();
+            return;
+        }
+
         try {
             const s = JSON.parse(saved);
-            
-            if (s.bank_select) document.getElementById('bank_select').value = s.bank_select;
-            if (s.district_select) document.getElementById('district_select').value = s.district_select;
-            if (s.local_body_select) document.getElementById('local_body_select').value = s.local_body_select;
-            if (s.muthoot_branch_select) document.getElementById('muthoot_branch_select').value = s.muthoot_branch_select;
-            if (s.sib_branch) document.getElementById('sib_branch').value = s.sib_branch;
-            if (s.sib_region) document.getElementById('sib_region').value = s.sib_region;
-            if (s.village_select) document.getElementById('village_select').value = s.village_select;
-            
-            if (s.product_select) {
-                document.getElementById('product_select').value = s.product_select;
-                toggleManualInput('product_select', 'other_product_container', 'product_manual');
+            const fields = [
+                'bank_select', 'district_select', 'local_body_select', 'muthoot_branch_select',
+                'product_select', 'product_manual', 'site_code_select', 'site_code_manual', 'office_code_select',
+                'sib_branch', 'sib_region', 'village_select', 'dcb_officer_select'
+            ];
+
+            // 2. Restore all simple values
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && s[id] !== undefined) el.value = s[id];
+            });
+
+            // 3. RE-CHECK visibility AFTER values are restored
+            toggleExtraFields();
+
+            // 4. Handle specialized toggles (Manual Inputs)
+            if (s.product_select === "OTHR") {
+                const container = document.getElementById('other_product_container');
+                if (container) container.classList.remove('hidden');
             }
-            if (s.product_manual) document.getElementById('product_manual').value = s.product_manual;
-            
-            if (s.site_code_select) {
-                document.getElementById('site_code_select').value = s.site_code_select;
-                // Only toggle if the manual container exists
-                if(document.getElementById('other_site_container')) {
-                    toggleManualInput('site_code_select', 'other_site_container', 'site_code_manual');
-                }
+            if (s.site_code_select === "OTHR") {
+                const container = document.getElementById('other_site_container');
+                if (container) container.classList.remove('hidden');
             }
-            if (s.site_code_manual && document.getElementById('site_code_manual')) {
-                document.getElementById('site_code_manual').value = s.site_code_manual;
-            }
-            
-            if (s.office_code_select) document.getElementById('office_code_select').value = s.office_code_select;
-            
+
             updatePreview();
-        } catch (e) { console.error("Restore error", e); }
+        } catch (e) {
+            console.error("Restore error", e);
+            updatePreview();
+        }
     }
 
     // --- CHECK WHICH EXTRA DROPDOWN SHOULD BE SHOWN ---
@@ -543,21 +598,63 @@
         const muthootContainer = document.getElementById('muthoot_branch_container');
         const sibContainer = document.getElementById('sib_extra_container');
         const villageContainer = document.getElementById('village_container');
+        const dcbContainer = document.getElementById('dcb_officer_container');
 
         // Reset all to hidden
         lbContainer.classList.add('hidden');
         muthootContainer.classList.add('hidden');
         sibContainer.classList.add('hidden');
         villageContainer.classList.add('hidden');
+        if (dcbContainer) dcbContainer.classList.add('hidden');
+
+        // DCB (04)
+        if (bankCode === "04") {
+            if (dcbContainer) dcbContainer.classList.remove('hidden');
+        }
 
         // Village for Alappuzha (04) ONLY for HDFC (01)
         if (bankCode === "01" && distCode === "04") {
             villageContainer.classList.remove('hidden');
         }
 
-        // PNBHFL (05), Chola (08), CHOLA SME (10)
-        if (["05", "08", "10"].includes(bankCode)) {
+        const lbLabel = lbContainer ? lbContainer.querySelector('.form-label') : null;
+        const lbSelect = document.getElementById('local_body_select');
+
+        // Chola (08) & Chola SME (12) - BRANCH SPECIFIC
+        if (["08", "12"].includes(bankCode)) {
             lbContainer.classList.remove('hidden');
+            if (lbLabel) lbLabel.innerHTML = 'Branch <span style="color:var(--brand-accent);">(Required for Chola)</span>';
+            if (lbSelect) {
+                lbSelect.innerHTML = `
+                    <option value="KOCHI">Kochi</option>
+                    <option value="ALAPPUZHA">Alappuzha</option>
+                    <option value="MUVATTUPUZHA">Muvattupuzha</option>
+                    <option value="THALASHERI">Thalasheri</option>
+                    <option value="KOTTARAKKARA">Kottarakkara</option>
+                    <option value="THRISSUR">Thrissur</option>
+                    <option value="THIRUVALLA">Thiruvalla</option>
+                    <option value="CALICUT">Calicut</option>
+                    <option value="PALAKKAD">Palakkad</option>
+                    <option value="KOTTAYAM">Kottayam</option>
+                    <option value="NEYYATTINKARA">Neyyattinkara</option>
+                    <option value="ALUVA">Aluva</option>
+                    <option value="KAYAMKULAM">Kayamkulam</option>
+                    <option value="TRIVANDRUM">Trivandrum</option>
+                    <option value="MANJERI">Mancheri</option>
+                `;
+            }
+        }
+        // PNBHFL (05), ICICI (10) - LOCAL BODY SPECIFIC
+        else if (["05", "10"].includes(bankCode)) {
+            lbContainer.classList.remove('hidden');
+            if (lbLabel) lbLabel.innerHTML = 'Local Body Type <span style="color:var(--brand-accent);">(Required for this Bank)</span>';
+            if (lbSelect) {
+                lbSelect.innerHTML = `
+                    <option value="MUN">Municipal (MUN)</option>
+                    <option value="COR">Corporation (COR)</option>
+                    <option value="PAN">Panchayat (PAN)</option>
+                `;
+            }
         }
         // Muthoot (02)
         else if (bankCode === "02") {
@@ -571,17 +668,33 @@
         updatePreview();
     }
 
+    let alpSequence = "--";
+
     function fetchNextSequence() {
         const bankEl = document.getElementById('bank_select');
         const distEl = document.getElementById('district_select');
+        const villageEl = document.getElementById('village_select');
 
         const shortBankCode = bankEl.value;
         const distCode = distEl.value;
 
+        // --- EFFECTIVE DISTRICT ID (Continuity) ---
+        let effectiveDistId = distCode;
+        if (shortBankCode === "01" && distCode === "04" && villageEl.value !== "NONE") {
+            effectiveDistId = "02";
+
+            // ALSO fetch the Alappuzha sequence for Reference display
+            fetch(`/coreapi/api/get-sequence/?bank_code=${shortBankCode}&dist_code=04&year=${CURRENT_YEAR}`)
+                .then(r => r.json())
+                .then(d => { alpSequence = d.seq; updatePreview(); });
+        } else {
+            alpSequence = "--";
+        }
+
         document.getElementById('uniqueIdDisplay').innerText = "Checking DB...";
         document.getElementById('uniqueIdDisplay').style.color = "#999";
 
-        fetch(`/coreapi/api/get-sequence/?bank_code=${shortBankCode}&dist_code=${distCode}&year=${CURRENT_YEAR}`)
+        fetch(`/coreapi/api/get-sequence/?bank_code=${shortBankCode}&dist_code=${effectiveDistId}&year=${CURRENT_YEAR}`)
             .then(response => response.json())
             .then(data => {
                 currentSequence = data.seq;
@@ -614,6 +727,7 @@
         // --- 1. GATHER DATA ---
         const bankEl = document.getElementById('bank_select');
         const distEl = document.getElementById('district_select');
+        const villageEl = document.getElementById('village_select');
 
         const shortBankCode = bankEl.value;
         const bankName = bankEl.options[bankEl.selectedIndex].getAttribute('data-name');
@@ -628,14 +742,20 @@
         let sibBranchValue = "";
         let sibRegionValue = "";
         let villageValue = "";
+        let dcbOfficerValue = "";
+
+        const dcbCont = document.getElementById('dcb_officer_container');
+        if (dcbCont && !dcbCont.classList.contains('hidden')) {
+            dcbOfficerValue = document.getElementById('dcb_officer_select').value;
+        }
 
         if (!document.getElementById('village_container').classList.contains('hidden')) {
-            const vSelect = document.getElementById('village_select');
-            if (vSelect.value !== "NONE") {
-                villageValue = vSelect.value;
+            if (villageEl.value !== "NONE") {
+                villageValue = villageEl.value;
                 extraPart += `_${villageValue}`;
             }
         }
+
 
         if (!document.getElementById('local_body_container').classList.contains('hidden')) {
             localBodyValue = document.getElementById('local_body_select').value;
@@ -658,17 +778,18 @@
             extraPart = `_${sibBranchValue}_${sibRegionValue}`;
         }
 
+        // --- EFFECTIVE DISTRICT ID (Continuity) ---
+        let effectiveDistId = distId;
+        if (shortBankCode === "01" && distId === "04" && villageEl.value !== "NONE") {
+            effectiveDistId = "02";
+        }
+
         const rawName = document.getElementById('applicant_name').value.trim();
         const cleanName = rawName.replace(/\s+/g, '_').toUpperCase() || "XXX";
         const applicant = `#${cleanName}#`;
 
-        // --- THE FIX: LIVE SANITIZATION OF BANK REF ---
-        const bankRefInput = document.getElementById('bank_ref');
-        // If the user types a / or \, instantly swap it to a hyphen (-)
-        if (bankRefInput.value.match(/[/\\]/)) {
-            bankRefInput.value = bankRefInput.value.replace(/[/\\]/g, '-');
-        }
-        const bankRef = bankRefInput.value.trim() || "XXX";
+        // Sanitization is now handled globally in the input listener
+        const bankRef = document.getElementById('bank_ref').value.trim() || "XXX";
 
         let product = document.getElementById('product_select').value;
         if (product === "OTHR") {
@@ -683,15 +804,34 @@
         const officeCode = document.getElementById('office_code_select').value;
 
         const d = new Date();
-        const dateStr = ("0" + d.getDate()).slice(-2) + ("0" + (d.getMonth() + 1)).slice(-2) + d.getFullYear();
+        const dateStr = ("0" + d.getDate()).slice(-2) + ("0" + (get_month_val(d))).slice(-2) + d.getFullYear();
+
+        function get_month_val(date) { return date.getMonth() + 1; }
 
         // --- 2. GENERATE ID ---
-        const uniqueID = `${shortBankCode}${CURRENT_YEAR}${distId}${currentSequence}`;
+        // Completely Kollam (02) for continuity
+        const uniqueID = `${shortBankCode}${CURRENT_YEAR}${effectiveDistId}${currentSequence}`;
+
+        // --- UPDATE REDIRECT NOTICE ---
+        const redirectBox = document.getElementById('redirect_info');
+        if (effectiveDistId !== distId) {
+            redirectBox.classList.remove('hidden');
+            document.getElementById('assignedKollamId').innerText = uniqueID;
+            document.getElementById('originalAlpId').innerText = `${shortBankCode}${CURRENT_YEAR}${distId}${alpSequence}`;
+        } else {
+            redirectBox.classList.add('hidden');
+        }
 
         // --- 3. GENERATE FOLDER NAME ---
-        const folderName = `${uniqueID}_${applicant}_${product}_${distName}${extraPart}_${dateStr}_${siteCode}_${officeCode}_${bankRef}`;
+        let folderName = `${uniqueID}_${applicant}_${product}_${distName}${extraPart}_${dateStr}_${siteCode}_${officeCode}_${bankRef}`;
+        let distFolder = `KL${distId}.${distName}`;
 
-        const fullPath = `2026_2027 / ${shortBankCode}.${bankName} / KL${distId}.${distName} /\n${folderName}`;
+        if (shortBankCode === "04" && dcbOfficerValue) {
+            folderName = `${uniqueID}_#${dcbOfficerValue.toLowerCase()}#_${applicant}_${product}_${distName}${extraPart}_${dateStr}_${siteCode}_${officeCode}_${bankRef}`;
+            distFolder = dcbOfficerValue;
+        }
+
+        const fullPath = `2026_2027 / ${shortBankCode}.${bankName} / ${distFolder} /\n${folderName}`;
 
         // --- 4. UPDATE UI ---
         document.getElementById('uniqueIdDisplay').innerText = uniqueID;
@@ -699,6 +839,7 @@
 
         return {
             folderName,
+            uniqueID,
             shortBankCode,
             bankName,
             distId,
@@ -709,6 +850,7 @@
             sibBranchValue,
             sibRegionValue,
             villageValue,
+            dcbOfficerValue,
             bankRef // Pass the sanitized string securely to the submit function
         };
     }
@@ -777,7 +919,7 @@
         const offCode = document.getElementById('office_code_select').value;
 
         const d = new Date();
-        const dateStr = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear();
+        const dateStr = ("0" + d.getDate()).slice(-2) + ("0" + (d.getMonth() + 1)).slice(-2) + d.getFullYear();
 
         fetch('/coreapi/api/create-folder/', {
             method: 'POST',
@@ -802,12 +944,13 @@
                     sib_branch: data.sibBranchValue,
                     sib_region: data.sibRegionValue,
                     village: data.villageValue,
-                    bank_name: data.bankName
+                    bank_name: data.bankName,
+                    dcb_officer: data.dcbOfficerValue
                 },
                 structure: {
                     year: "2026_2027",
                     bank_folder: `${data.shortBankCode}.${data.bankName}`,
-                    dist_folder: `KL${data.distId}.${data.distName}`
+                    dist_folder: data.shortBankCode === "04" ? data.dcbOfficerValue : `KL${data.distId}.${data.distName}`
                 }
             })
         })
@@ -843,10 +986,10 @@
 
                     document.getElementById('createFolderForm').reset();
                     document.getElementById('uniqueIdDisplay').innerText = "--";
-                    
+
                     // Restore dropdowns so they last across multiple creations
                     restoreFormState();
-                    
+
                     toggleExtraFields(); // Reset visibility
                     fetchNextSequence();
                 } else {

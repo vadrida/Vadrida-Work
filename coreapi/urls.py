@@ -40,6 +40,7 @@ urlpatterns = [
     path('office-verification/', views.office_verification, name='office_verification'),
     path('office-dash/', views.office, name='office'),
     path('status-viewer/', views.status_viewer, name='status_viewer'),
+    path('report-drafting/', views.report_drafting, name='report_drafting'),
     
     # Feedback Form URLs
     path("feedback/", views.feedback, name="feedback"),
@@ -56,6 +57,7 @@ urlpatterns = [
     path('api/upload-site-photos/', views.upload_site_photos_api, name='upload_site_photos'),
     path('api/db-case-search/', views.db_case_search_api, name='db_case_search'),
     path('api/save-verification/', views.save_verification_data, name='save_verification_data'),
+    path('api/utility-hub-chat/', views.utility_hub_chat, name='utility_hub_chat'),
 
     path('api/export-status-excel/', views.export_status_excel_api, name='export_status_excel'),
     path('api/export-master-excel/', views.export_master_status_excel_api, name='export_master_excel'),
