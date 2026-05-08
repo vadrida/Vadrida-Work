@@ -61,4 +61,9 @@ urlpatterns = [
 
     path('api/export-status-excel/', views.export_status_excel_api, name='export_status_excel'),
     path('api/export-master-excel/', views.export_master_status_excel_api, name='export_master_excel'),
+    path('api/get-drafting-payload/', views.get_drafting_mega_payload, name='get_drafting_payload'),
+    path('api/save-drafting-data/', views.save_drafting_data, name='save_drafting_data'),
+    path('api/get-property-photos/', views.get_property_photos_api, name='get_property_photos'),
+    path('api/upload-geo-map/', views.upload_geo_map_api, name='upload_geo_map'),
+    path('api/upload-eb-image/', views.upload_eb_image_api, name='upload_eb_image'),
 ]

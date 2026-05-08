@@ -15,6 +15,7 @@ django_asgi_app = get_asgi_application()
 
 # 3️⃣ Import routing ONLY AFTER apps are ready
 import chat.routing
+import coreapi.routing
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
@@ -23,7 +24,8 @@ application = ProtocolTypeRouter({
     "websocket": SessionMiddlewareStack(  # <--- Allows accessing request.session
         AuthMiddlewareStack(              # <--- Allows accessing request.user
             URLRouter(
-                chat.routing.websocket_urlpatterns
+                chat.routing.websocket_urlpatterns + 
+                coreapi.routing.websocket_urlpatterns
             )
         )
     ),

@@ -26,7 +26,7 @@ from django.db.models import Q, Max
 import uuid
 from django.contrib.auth.decorators import login_required
 from weasyprint import HTML, CSS
-from .models import UserProfile, SiteVisitReport
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport
 import fitz  
 from django.shortcuts import render, get_object_or_404
 import shutil
@@ -294,6 +294,7 @@ def office_verification(request):
 
 
 @csrf_protect
+@require_http_methods(["GET"])
 def get_site_report_data(request):
     file_no = request.GET.get('file_no')
     folder_path = request.GET.get('path', '')
@@ -360,13 +361,10 @@ def get_site_report_data(request):
                 'RightOfAccess': verification_data.get('RightOfAccess', {})
             }
             
-            # Restore Master Synthesis to the payload
-            # Restore Master Synthesis to the payload
             site_data['MasterSynthesis'] = verification_data.get('MasterSynthesis', '')
             site_data['SynthesisManualLock'] = verification_data.get('SynthesisManualLock', False)
             site_data['BuildingDetails'] = verification_data.get('BuildingDetails', {})
             
-            # Update Valuers_Checklist for top summary strip
             if 'Valuers_Checklist' not in site_data:
                 site_data['Valuers_Checklist'] = {}
             
@@ -377,7 +375,6 @@ def get_site_report_data(request):
             # Keep legacy key for compatibility during transition if needed
             site_data['Verification_Database'] = verification_data
 
-        # 2. Prepare Metadata for Sidebar
         meta = {
             "user": report.user.user_name if report.user else "Unknown",
             "office_file_no": report.office_file_no,
@@ -396,6 +393,68 @@ def get_site_report_data(request):
         })
     else:
         return JsonResponse({'found': False, 'message': 'Report not found'})
+
+@require_http_methods(["GET"])
+def get_drafting_mega_payload(request):
+    """
+    Dedicated Mega-Payload fetcher for the Report Drafting page.
+    Isolated from the main Verification page data fetcher.
+    """
+    file_no = request.GET.get('file_no')
+    if not file_no:
+        return JsonResponse({'success': False, 'error': 'Missing file_no'}, status=400)
+
+    payload = {
+        'success': True,
+        'file_no': file_no,
+        'site_visit': None,
+        'verification': None,
+        'client_folder': None,
+        'drafting': None
+    }
+
+    # 1. Site Visit
+    site_report = SiteVisitReport.objects.filter(office_file_no=file_no).first()
+    if site_report:
+        payload['site_visit'] = {
+            'form_data': site_report.form_data,
+            'applicant_name': site_report.applicant_name
+        }
+
+    # 2. Verification
+    ver_report = VerificationReport.objects.filter(office_file_no=file_no).first()
+    if ver_report:
+        payload['verification'] = {
+            'database': ver_report.verification_database,
+            'applicant_name': ver_report.applicant_name,
+            'inspection_date': ver_report.inspection_date,
+            'person_met': ver_report.person_met_at_site,
+            'survey_notes': ver_report.survey_notes
+        }
+
+    # 3. Client Folder
+    folder = ClientFolder.objects.filter(unique_file_no=file_no).first()
+    if folder:
+        payload['client_folder'] = {
+            'applicant_name': folder.applicant_name,
+            'product': folder.product,
+            'bank_code': folder.bank_code,
+            'year': folder.year,
+            'district': folder.district_code
+        }
+
+    # 4. Drafting Draft
+    draft = DraftingReport.objects.filter(office_file_no=file_no).first()
+    if draft:
+        payload['drafting'] = {
+            'report_data': draft.report_data,
+            'status': draft.status
+        }
+        print(f"MEGA-PAYLOAD: Returning draft for {file_no} with {len(draft.report_data)} fields")
+    else:
+        print(f"MEGA-PAYLOAD: No draft found for {file_no}")
+
+    return JsonResponse(payload)
 
       
 def save_office_corrections(request):
@@ -621,25 +680,47 @@ def create_folder_api(request):
             full_path = os.path.normpath(full_path)
             
             if os.path.exists(full_path):
-                return JsonResponse({'success': False, 'error': 'System Error: Folder exists on disk but not in DB.'})
+                # ORPHAN RECOVERY: Folder exists on disk but not in DB.
+                # Instead of failing, register it in DB now so the user can proceed.
+                try:
+                    ClientFolder.objects.create(
+                        unique_file_no=unique_id,
+                        year=year,
+                        bank_code=bank_code,
+                        district_code=effective_dist_id,
+                        sequence_no=next_seq,
+                        applicant_name=meta.get('applicant'),
+                        product=meta.get('product'),
+                        bank_ref_no=meta.get('bank_ref'),
+                        site_staff_code=meta.get('site_code'),
+                        office_staff_code=meta.get('off_code'),
+                        full_folder_path=full_path
+                    )
+                    # Fall through — treat as a fresh successful creation
+                except Exception as reg_err:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Folder exists on disk but could not be registered in DB: {reg_err}'
+                    })
 
-            # 5. Create Folders
-            os.makedirs(full_path, exist_ok=True)
+            else:
+                # 5. Save to DB FIRST (inside transaction — if this fails, nothing on disk is touched)
+                ClientFolder.objects.create(
+                    unique_file_no=unique_id,
+                    year=year,
+                    bank_code=bank_code,
+                    district_code=effective_dist_id,
+                    sequence_no=next_seq,
+                    applicant_name=meta.get('applicant'),
+                    product=meta.get('product'),
+                    bank_ref_no=meta.get('bank_ref'),
+                    site_staff_code=meta.get('site_code'),
+                    office_staff_code=meta.get('off_code'),
+                    full_folder_path=full_path
+                )
 
-            # 6. Save to DB (Save with effective_dist_id for list integration)
-            ClientFolder.objects.create(
-                unique_file_no=unique_id,
-                year=year,
-                bank_code=bank_code,
-                district_code=effective_dist_id,
-                sequence_no=next_seq,
-                applicant_name=meta.get('applicant'),
-                product=meta.get('product'),
-                bank_ref_no=meta.get('bank_ref'),
-                site_staff_code=meta.get('site_code'),
-                office_staff_code=meta.get('off_code'),
-                full_folder_path=full_path
-            )
+                # 6. Now create the folder on disk (DB record already safe)
+                os.makedirs(full_path, exist_ok=True)
 
             # --- NEW: COPY EXCEL TEMPLATE ---
             try:
@@ -2268,7 +2349,11 @@ def save_verification_data(request):
                 office_file_no=file_no,
                 defaults={
                     'verified_by': user_profile,
+                    'applicant_name': data.get('applicantName', ''),
+                    'product': data.get('product', ''),
                     'inspection_date': data.get('inspection_date', ''),
+                    'person_met_at_site': data.get('personMetAtSite', ''),
+                    'survey_notes': data.get('SurveyNotes', ''),
                     'documents_received': data.get('documents_received', []),
                     'verification_database': {
                         'DynamicDocuments': data.get('documents_received', []),
@@ -2545,3 +2630,186 @@ def report_drafting(request):
         'bank_code': bank_code
     })
 
+@csrf_exempt
+def save_drafting_data(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        file_no = data.get('file_no')
+        report_data = data.get('report_data')
+        
+        if not file_no:
+            return JsonResponse({'success': False, 'error': 'Missing file_no'}, status=400)
+
+        from .models import DraftingReport, ClientFolder
+        # 1. Update Database
+        DraftingReport.objects.update_or_create(
+            office_file_no=file_no,
+            defaults={'report_data': report_data}
+        )
+
+        # 2. Save to File System (Case Folder)
+        folder = ClientFolder.objects.filter(unique_file_no=file_no).first()
+        if folder and folder.full_folder_path:
+            # Save in the 'P' (Photos/Project) subfolder
+            target_dir = os.path.join(folder.full_folder_path, 'P')
+            os.makedirs(target_dir, exist_ok=True)
+            
+            json_path = os.path.join(target_dir, 'drafting_data.json')
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(report_data, f, indent=4)
+            print(f"DRAFTING: Saved report_data to {json_path}")
+
+        return JsonResponse({'success': True})
+
+    except Exception as e:
+        print(f"DRAFTING SAVE ERROR: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+def get_property_photos_api(request):
+    """
+    Scans the 'P' (Photos) subfolder inside the ClientFolder's full_folder_path
+    and returns a list of image URLs servable via the existing /coreapi/serve-file/ endpoint.
+    """
+    file_no = request.GET.get('file_no')
+    if not file_no:
+        return JsonResponse({'success': False, 'error': 'Missing file_no'}, status=400)
+
+    try:
+        folder = ClientFolder.objects.filter(unique_file_no=file_no).first()
+        if not folder or not folder.full_folder_path:
+            return JsonResponse({'success': False, 'error': 'Client folder not found'}, status=404)
+
+        # Look for a 'P' subfolder (Photos folder)
+        photos_dir = os.path.join(folder.full_folder_path, 'P')
+        if not os.path.isdir(photos_dir):
+            return JsonResponse({'success': True, 'photos': [], 'message': 'No P folder found'})
+
+        # Accepted image extensions
+        image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif'}
+        
+        photo_urls = []
+        for filename in sorted(os.listdir(photos_dir)):
+            ext = os.path.splitext(filename)[1].lower()
+            if ext in image_extensions:
+                # Build a relative path from DOCUMENTS_ROOT so serve-file can serve it
+                abs_path = os.path.join(photos_dir, filename)
+                try:
+                    rel_path = os.path.relpath(abs_path, settings.DOCUMENTS_ROOT).replace('\\', '/')
+                    from urllib.parse import quote
+                    encoded_path = quote(rel_path, safe='/')
+                    url = f"/coreapi/serve-file/?path={encoded_path}"
+                    photo_urls.append({'filename': filename, 'url': url})
+                except ValueError:
+                    # relpath fails if on different drives; fall back to full path
+                    pass
+
+        return JsonResponse({'success': True, 'photos': photo_urls})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+def upload_geo_map_api(request):
+    """
+    Accepts a map screenshot image upload, saves it as geo_map.{ext}
+    in the P (Photos) subfolder of the ClientFolder, and returns
+    the serve-file URL so it can be displayed immediately and on reload.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+
+    file_no = request.POST.get('file_no')
+    image_file = request.FILES.get('map_image')
+
+    if not file_no or not image_file:
+        return JsonResponse({'success': False, 'error': 'Missing file_no or map_image'}, status=400)
+
+    try:
+        folder = ClientFolder.objects.filter(unique_file_no=file_no).first()
+        if not folder or not folder.full_folder_path:
+            return JsonResponse({'success': False, 'error': 'Client folder not found'}, status=404)
+
+        # Ensure P folder exists
+        photos_dir = os.path.join(folder.full_folder_path, 'P')
+        os.makedirs(photos_dir, exist_ok=True)
+
+        # Determine extension from uploaded file
+        original_name = image_file.name
+        ext = os.path.splitext(original_name)[1].lower() or '.png'
+
+        # Remove any previous geo_map file (any extension)
+        for existing in os.listdir(photos_dir):
+            if existing.lower().startswith('geo_map.'):
+                os.remove(os.path.join(photos_dir, existing))
+
+        # Save the new file as geo_map.{ext}
+        save_name = f'geo_map{ext}'
+        save_path = os.path.join(photos_dir, save_name)
+        with open(save_path, 'wb') as f:
+            for chunk in image_file.chunks():
+                f.write(chunk)
+
+        # Build the serve-file URL
+        from urllib.parse import quote
+        rel_path = os.path.relpath(save_path, settings.DOCUMENTS_ROOT).replace('\\', '/')
+        encoded_path = quote(rel_path, safe='/')
+        url = f"/coreapi/serve-file/?path={encoded_path}"
+
+        return JsonResponse({'success': True, 'url': url, 'filename': save_name})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+def upload_eb_image_api(request):
+    """
+    Accepts an Electricity Box verification image upload, saves it as eb.{ext}
+    in the P (Photos) subfolder of the ClientFolder, replacing any previous EB file.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+
+    file_no = request.POST.get('file_no')
+    image_file = request.FILES.get('eb_image')
+
+    if not file_no or not image_file:
+        return JsonResponse({'success': False, 'error': 'Missing file_no or eb_image'}, status=400)
+
+    try:
+        folder = ClientFolder.objects.filter(unique_file_no=file_no).first()
+        if not folder or not folder.full_folder_path:
+            return JsonResponse({'success': False, 'error': 'Client folder not found'}, status=404)
+
+        # Ensure P folder exists
+        photos_dir = os.path.join(folder.full_folder_path, 'P')
+        os.makedirs(photos_dir, exist_ok=True)
+
+        # Determine extension
+        ext = os.path.splitext(image_file.name)[1].lower() or '.jpg'
+
+        # Remove any previous eb.* file
+        for existing in os.listdir(photos_dir):
+            if existing.lower().startswith('eb.'):
+                os.remove(os.path.join(photos_dir, existing))
+
+        # Save as eb.{ext}
+        save_name = f'eb{ext}'
+        save_path = os.path.join(photos_dir, save_name)
+        with open(save_path, 'wb') as f:
+            for chunk in image_file.chunks():
+                f.write(chunk)
+
+        # Build serve-file URL
+        from urllib.parse import quote
+        rel_path = os.path.relpath(save_path, settings.DOCUMENTS_ROOT).replace('\\', '/')
+        encoded_path = quote(rel_path, safe='/')
+        url = f"/coreapi/serve-file/?path={encoded_path}"
+
+        return JsonResponse({'success': True, 'url': url, 'filename': save_name})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

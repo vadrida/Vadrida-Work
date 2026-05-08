@@ -92,6 +92,12 @@
             </a>
 
             <div class="flex items-center gap-5">
+                <!-- Vadrida Global Sync Indicator -->
+                <div id="vadridaSyncIndicator" class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold transition-all duration-300" title="System Online & Synced">
+                    <i id="vadridaSyncIcon" class="fas fa-cloud"></i>
+                    <span id="vadridaSyncText" class="hidden md:inline">Online</span>
+                </div>
+
                 <a href="javascript:location.reload()" 
                    class="text-xl text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-all hover:rotate-180 duration-500 flex items-center" 
                    title="Reload Page">
@@ -127,11 +133,24 @@
             <a href="javascript:location.reload()" class="py-4 border-b border-gray-100 flex items-center gap-3">
                 <i class="fas fa-sync-alt text-royal-blue-600"></i> Reload Page
             </a>
-            <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3">
+            <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3" onclick="return confirmLogout(event)">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
     </div>
+
+    <script>
+        function confirmLogout(e) {
+            if (window.VadridaSync && window.VadridaSync.status === 'offline') {
+                const proceed = confirm("⚠️ SERVER IS OFFLINE\n\nIf you logout now, you will NOT be able to log back in until the server is back online. \n\nDo you still want to logout?");
+                if (!proceed) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            return true;
+        }
+    </script>
 
 
     <main class="pt-28 px-4 md:px-8">
@@ -140,7 +159,20 @@
 
     {% block extra_scripts %}{% endblock %}
 
+    <script src="{% static 'js/vadrida_offline.js' %}"></script>
+
     <script>
+        /* 0. Service Worker Registration */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/serviceworker.js').then(function(registration) {
+                    // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    // console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
         /* 1. Mobile Menu Logic */
         const menuBtn = document.getElementById("mobileMenuBtn");
         const menu = document.getElementById("mobileMenu");

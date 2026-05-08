@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 import json
-from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport
 
 # 1. Improved Inline for Sketches
 class ReportSketchInline(admin.TabularInline):
@@ -110,3 +110,4 @@ class VerificationReportAdmin(admin.ModelAdmin):
             "fields": ("formatted_database",)
         }),
     )
+admin.site.register(DraftingReport)

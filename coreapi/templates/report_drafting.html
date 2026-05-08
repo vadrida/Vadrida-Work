@@ -8,39 +8,1241 @@
     <div class="main-panel">
         <div class="content-header" style="margin-bottom: 30px;">
             <div class="header-left">
-                <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    Report Drafting for {{ bank_name }}
+                <h1
+                    style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Report Drafting for <span id="header_bank_name">{{ bank_name }}</span>
                 </h1>
-                <p style="color: var(--text-dim); margin-top: 5px;">File No: <span style="color: var(--accent); font-weight: 700;">{{ file_no }}</span> | Bank Code: {{ bank_code }}</p>
+                <p style="color: var(--text-dim); margin-top: 5px;">File No: <span id="header_file_no"
+                        style="color: var(--accent); font-weight: 700;">{{ file_no }}</span> | Bank Code: <span
+                        id="header_bank_code">{{ bank_code }}</span></p>
             </div>
-            <div class="header-right">
+            <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
+                <div id="syncStatus" class="sync-indicator">
+                    <i class="fas fa-cloud-upload-alt"></i> <span>Initializing...</span>
+                </div>
                 <button class="btn-portal-secondary" onclick="window.history.back()">
                     <i class="fas fa-arrow-left"></i> Back to Verification
                 </button>
             </div>
         </div>
 
-        <div class="verification-form-card" style="min-height: 600px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-            <div style="text-align: center;">
+        <div id="reportWorkspace" class="report-workspace">
+            {% if bank_code == '12' %}
+            <!-- CHOLA SME FORMAT -->
+            <div class="report-container chola-sme-format">
+
+                <!-- LETTERHEAD (Visible on Screen & Print) -->
+                <div class="print-letterhead"
+                    style="text-align: right; color: #005A9C; font-family: 'Times New Roman', Times, serif; margin-bottom: 25px; border-bottom: 3px solid #005A9C; padding-bottom: 12px; display: flex; justify-content: flex-end;">
+                    <div style="text-align: right;">
+                        <h1 style="font-size: 28px; margin: 0 0 5px 0; font-weight: 800; letter-spacing: 0.5px;">Er.
+                            Sanjay Babu CEng(I)</h1>
+                        <div style="font-size: 14px; line-height: 1.5; font-weight: 500;">
+                            B.E, Mtech (NITK), A.M.I.E<br>
+                            Registered Valuer with Insolvency and Bankruptcy<br>
+                            Board of India (IBBI)[Under Companies Act-2013,<br>
+                            Reg.No. IBBI/RV/11/2022/15183]<br>
+                            Chartered Engineer (India)[Reg.No. AM-1997338]<br>
+                            Engineer-A[Reg.No. E-11153/19/EA-4212/KLM]<br>
+                            <span style="font-weight: bold;">GSTIN:32BXZPB7614J1Z5</span><br>
+                            <span style="font-weight: bold;">HSN/SAC Code: 997224</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="report-title-section">
+                    <h2 class="report-main-title">Valuation Report for Cholamandalam Investment and Finance Company
+                        Limited (SME)</h2>
+                </div>
+
+                <!-- SECTION 1: APPLICATION DETAILS -->
+                <div class="report-section">
+                    <h3 class="section-title">Application Details</h3>
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell">File / Application No</td>
+                            <td class="value-cell" id="val_file_no">{{ file_no }}</td>
+                            <td class="label-cell">Date of Visit</td>
+                            <td class="value-cell" id="val_visit_date">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Branch Name</td>
+                            <td class="value-cell" id="val_branch">--</td>
+                            <td class="label-cell">Date of Report</td>
+                            <td class="value-cell" id="val_report_date">{{ today_date }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Name of Applicant</td>
+                            <td class="value-cell" id="val_applicant">--</td>
+                            <td class="label-cell">Contact Person Name & No</td>
+                            <td class="value-cell" id="val_contact">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Loan Type</td>
+                            <td class="value-cell" id="val_loan_type">--</td>
+                            <td class="label-cell">Person Met at Site</td>
+                            <td class="value-cell" id="val_person_met">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Name of Property Owner as per Legal Document</td>
+                            <td class="value-cell" colspan="3" id="val_owner_legal">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Name of the property owner as per the revenue docs (Patta / Khatha /
+                                Land Tax, etc)</td>
+                            <td class="value-cell" colspan="3" id="val_owner_revenue">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Documents Provided for Valuation</td>
+                            <td class="value-cell" colspan="3" id="val_docs_list">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 2: LOCATION DETAILS -->
+                <div class="report-section">
+                    <h3 class="section-title">Location Details</h3>
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell" rowspan="5">Address of Property</td>
+                            <td colspan="4">
+                                <strong>Address as per Site:</strong><br>
+                                <div id="val_site_address" class="value-cell"
+                                    style="margin-top: 10px; min-height: 40px;">--</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Locality Name:</td>
+                            <td class="value-cell" id="val_locality">--</td>
+                            <td class="label-cell">Landmark Near By</td>
+                            <td class="value-cell" id="val_landmark">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Type of locality</td>
+                            <td class="value-cell" id="val_locality_type"></td>
+                            <td class="label-cell">Distance from Branch</td>
+                            <td class="value-cell" id="val_dist_branch">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Latitude /Longitude</strong></td>
+                            <td class="value-cell" id="val_gps">--</td>
+                            <td class="label-cell">Nearest Railway station</td>
+                            <td class="value-cell" id="val_railway">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Nearest Hospital</td>
+                            <td class="value-cell" id="val_hospital">--</td>
+                            <td class="label-cell">Nearest Bus Stop</td>
+                            <td class="value-cell" id="val_bus_stop">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" rowspan="4">Legal Address of the Property: (As per Title Deed)</td>
+                            <td class="label-cell">Legal Address of Property</td>
+                            <td class="value-cell" colspan="3" id="val_legal_address">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Property State</td>
+                            <td class="value-cell" colspan="3" id="val_state">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Property City</td>
+                            <td class="value-cell" colspan="3" id="val_city">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Property Pin-code</td>
+                            <td class="value-cell" colspan="3" id="val_pincode">--</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 3: JURISDICTION & OCCUPANCY -->
+                <div class="report-section">
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell" style="width: 250px;">Address Matching (Yes/No)</td>
+                            <td class="value-cell" id="val_address_matching" style="width: 150px;">Yes</td>
+                            <td class="label-cell">Jurisdiction/Local Municipal Body</td>
+                            <td class="value-cell" id="val_jurisdiction">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Property Holding Type (Freehold/Lease hold)</td>
+                            <td class="value-cell" id="val_holding_type">Freehold</td>
+                            <td class="label-cell">Marketability (Poor/Average/Good)</td>
+                            <td class="value-cell" id="val_marketability">Good</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Property Occupied by (Self/Tenant/Vacant/Under Construction)</td>
+                            <td class="value-cell" id="val_occupied_by">--</td>
+                            <td class="label-cell">Type of the Property (Flat/Independent House/Commercial
+                                Building/Commercial Unit/Industrial/Plot/Institutional)</td>
+                            <td class="value-cell" id="val_prop_type">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Occupancy Status SORP/SOCP/Rented/Vacant/SOIP</td>
+                            <td class="value-cell" id="val_occ_status">--</td>
+                            <td class="label-cell">If the property is rented, Pls confirm the tenant vintage</td>
+                            <td class="value-cell" id="val_tenant_vintage">NA</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 4: BOUNDARIES -->
+                <div class="report-section">
+                    <h3 class="section-title">Boundaries (As per Deed)</h3>
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell" style="width: 20%; text-align: center;">Schedule of the Property</td>
+                            <td class="label-cell" style="width: 40%; text-align: center;">As per legal
+                                documents<br><small style="font-weight: 400; opacity: 0.8;">(Pls mention combined
+                                    boundary, if the property is having multiple schedules)</small></td>
+                            <td class="label-cell" style="width: 40%; text-align: center;">As per site visit</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">North</td>
+                            <td class="value-cell" id="val_boundary_north">--</td>
+                            <td class="value-cell" id="val_boundary_north_site">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">East</td>
+                            <td class="value-cell" id="val_boundary_east">--</td>
+                            <td class="value-cell" id="val_boundary_east_site">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">West</td>
+                            <td class="value-cell" id="val_boundary_west">--</td>
+                            <td class="value-cell" id="val_boundary_west_site">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">South</td>
+                            <td class="value-cell" id="val_boundary_south">--</td>
+                            <td class="value-cell" id="val_boundary_south_site">--</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 5: PROPERTY IDENTIFICATION & CLASSIFICATION -->
+                <div class="report-section">
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell" style="width: 25%;">Boundaries Matching (Yes/No)</td>
+                            <td class="value-cell" id="val_boundaries_matching" style="width: 25%;"></td>
+                            <td class="label-cell" style="width: 25%;">Property Identified (Yes/No)</td>
+                            <td class="value-cell" id="val_prop_identified" style="width: 25%;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Neighbourhood enquiry for ownership confirmation</td>
+                            <td class="value-cell" id="val_neighbour_enquiry"></td>
+                            <td class="label-cell">Property is demarcated in all sides Yes / No (Pls mention the remarks
+                                if property is not demarcated in all sides)"</td>
+                            <td class="value-cell" id="val_prop_demarcated"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Approach Road Size (&lt;5 ft/5-10 ft/ 10-15 ft/ 15ft / &gt; 15 ft)
+                            </td>
+                            <td class="value-cell" id="val_approach_road" colspan="3">--</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" rowspan="4" style="vertical-align: middle;">Classification of land
+                            </td>
+                            <td class="label-cell" colspan="2">As per the deed / Revenue docs</td>
+                            <td class="value-cell" id="val_class_deed"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">As per the Site</td>
+                            <td class="value-cell" id="val_class_site"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">As per the CDP / Land use maps</td>
+                            <td class="value-cell" id="val_class_cdp"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">Is the land converted &ndash; Conversion certificate /
+                                equivalent orders verified</td>
+                            <td class="value-cell" id="val_class_converted"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 6: APPROVED PLAN DETAILS -->
+                <div class="report-section">
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell" rowspan="8" style="width: 20%; vertical-align: middle;">
+                                <strong>Approved Plan Details</strong>
+                            </td>
+                            <td class="label-cell" style="width: 50%;">Layout Plan Details: Sanctioned No./Permit No.
+                            </td>
+                            <td class="value-cell" id="val_layout_plan_details" style="width: 30%;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Sanctioned Plan Provided (Yes/No)</td>
+                            <td class="value-cell" id="val_sanctioned_plan_provided"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Construction Plan Details: Sanctioned No/Permit No.</td>
+                            <td class="value-cell" id="val_construction_plan_details"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Date of Sanction</td>
+                            <td class="value-cell" id="val_date_of_sanction"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Approving Authority</td>
+                            <td class="value-cell" id="val_approving_authority"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Approved Usages
+                                (Residential/Industrial/Commercial/Industrial/Institutional / Mixed Usages)</td>
+                            <td class="value-cell" id="val_approved_usages"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Approved plan is issued by the competent authority</td>
+                            <td class="value-cell" id="val_approved_plan_issued"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of Floor in Building (as per plan)</td>
+                            <td class="value-cell" id="val_number_of_floor"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 7: TECHNICAL DETAILS -->
+                <div class="report-section">
+                    <h3 class="section-title">Technical Details:</h3>
+                    <table class="report-table">
+                        <tr>
+                            <td class="label-cell" style="width: 25%;">Construction
+                                Quality<br><small>(Good/Average/Poor)</small></td>
+                            <td class="value-cell" id="val_const_quality" style="width: 25%;"></td>
+                            <td class="label-cell" style="width: 25%;">Separate Independent Access (Yes/No)</td>
+                            <td class="value-cell" id="val_sep_access" style="width: 25%;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Accommodation details:<br>Floor wise and Occupancy</td>
+                            <td class="value-cell" id="val_accom_details" colspan="3"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 8: PLOT AREA DETAILS -->
+                <div class="report-section">
+                    <table class="report-table" style="text-align: center;">
+                        <tr>
+                            <td class="label-cell" style="width: 25%; text-align: left;">Plot Area Details</td>
+                            <td class="label-cell" style="width: 25%;">As Per Documents</td>
+                            <td class="label-cell" style="width: 25%;">As Per Plan</td>
+                            <td class="label-cell" style="width: 25%;">As Per Site Visit</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">East to West</td>
+                            <td class="value-cell" id="val_plot_ew_docs"></td>
+                            <td class="value-cell" id="val_plot_ew_plan"></td>
+                            <td class="value-cell" id="val_plot_ew_site"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">North to South</td>
+                            <td class="value-cell" id="val_plot_ns_docs"></td>
+                            <td class="value-cell" id="val_plot_ns_plan"></td>
+                            <td class="value-cell" id="val_plot_ns_site"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Land Area (In Sq. Ft.)</td>
+                            <td class="value-cell" id="val_plot_area_docs"></td>
+                            <td class="value-cell" id="val_plot_area_plan"></td>
+                            <td class="value-cell" id="val_plot_area_site"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 9: BAU AREA DETAILS -->
+                <div class="report-section">
+                    <table class="report-table" style="text-align: center; font-size: 0.85rem;">
+                        <tr>
+                            <td class="label-cell" rowspan="2"
+                                style="width: 12%; vertical-align: middle; text-align: left;">BAU Area Details</td>
+                            <td class="label-cell" rowspan="2" style="width: 10%; vertical-align: middle;">No. of Rooms
+                            </td>
+                            <td class="label-cell" rowspan="2" style="width: 10%; vertical-align: middle;">No. of
+                                Kitchens</td>
+                            <td class="label-cell" rowspan="2" style="width: 12%; vertical-align: middle;">No. of
+                                Bathrooms</td>
+                            <td class="label-cell" colspan="2"><strong>As per approved
+                                    plan</strong><br><small>(Residential / Industrial / Commercial / Mixed Usage /
+                                    Vacant)</small></td>
+                            <td class="label-cell" colspan="2"><strong>Actual
+                                    Construction</strong><br><small>(Residential/ Industrial/Commercial/ Mixed Usage /
+                                    Vacant)</small></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="width: 14%;">Usage</td>
+                            <td class="label-cell" style="width: 14%;">BUA (Sq.ft)</td>
+                            <td class="label-cell" style="width: 14%;">Usage</td>
+                            <td class="label-cell" style="width: 14%;">BUA (Sq.ft)</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Ground floor</td>
+                            <td class="value-cell" id="val_bau_rooms_g"></td>
+                            <td class="value-cell" id="val_bau_kitch_g"></td>
+                            <td class="value-cell" id="val_bau_bath_g"></td>
+                            <td class="value-cell" id="val_bau_use_plan_g"></td>
+                            <td class="value-cell" id="val_bau_bua_plan_g"></td>
+                            <td class="value-cell" id="val_bau_use_act_g"></td>
+                            <td class="value-cell" id="val_bau_bua_act_g"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">First Floor</td>
+                            <td class="value-cell" id="val_bau_rooms_1"></td>
+                            <td class="value-cell" id="val_bau_kitch_1"></td>
+                            <td class="value-cell" id="val_bau_bath_1"></td>
+                            <td class="value-cell" id="val_bau_use_plan_1"></td>
+                            <td class="value-cell" id="val_bau_bua_plan_1"></td>
+                            <td class="value-cell" id="val_bau_use_act_1"></td>
+                            <td class="value-cell" id="val_bau_bua_act_1"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Second Floor</td>
+                            <td class="value-cell" id="val_bau_rooms_2"></td>
+                            <td class="value-cell" id="val_bau_kitch_2"></td>
+                            <td class="value-cell" id="val_bau_bath_2"></td>
+                            <td class="value-cell" id="val_bau_use_plan_2"></td>
+                            <td class="value-cell" id="val_bau_bua_plan_2"></td>
+                            <td class="value-cell" id="val_bau_use_act_2"></td>
+                            <td class="value-cell" id="val_bau_bua_act_2"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Third Floor</td>
+                            <td class="value-cell" id="val_bau_rooms_3"></td>
+                            <td class="value-cell" id="val_bau_kitch_3"></td>
+                            <td class="value-cell" id="val_bau_bath_3"></td>
+                            <td class="value-cell" id="val_bau_use_plan_3"></td>
+                            <td class="value-cell" id="val_bau_bua_plan_3"></td>
+                            <td class="value-cell" id="val_bau_use_act_3"></td>
+                            <td class="value-cell" id="val_bau_bua_act_3"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Fourth Floor</td>
+                            <td class="value-cell" id="val_bau_rooms_4"></td>
+                            <td class="value-cell" id="val_bau_kitch_4"></td>
+                            <td class="value-cell" id="val_bau_bath_4"></td>
+                            <td class="value-cell" id="val_bau_use_plan_4"></td>
+                            <td class="value-cell" id="val_bau_bua_plan_4"></td>
+                            <td class="value-cell" id="val_bau_use_act_4"></td>
+                            <td class="value-cell" id="val_bau_bua_act_4"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 10: FSI AND DEMOLITION -->
+                <div class="report-section">
+                    <table class="report-table" style="text-align: center; font-size: 0.85rem;">
+                        <tr>
+                            <td class="label-cell" rowspan="2" style="vertical-align: middle;">Items</td>
+                            <td class="label-cell" style="vertical-align: middle;">Land Area (in Sq. Ft)</td>
+                            <td class="label-cell" style="vertical-align: middle;">FSI (As per the plan)</td>
+                            <td class="label-cell" style="vertical-align: middle;">Permissible area as per plan (In Sq.
+                                Ft)</td>
+                            <td class="label-cell" style="vertical-align: middle;">FSI (As per Actual)</td>
+                            <td class="label-cell" style="vertical-align: middle;">Actual construction Area (SBUA) (In
+                                Sq. Ft)</td>
+                            <td class="label-cell" style="vertical-align: middle;">Area considered for the valuation
+                            </td>
+                            <td class="label-cell" style="vertical-align: middle;">SBUA considered for the Valuation
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="value-cell" id="val_fsi_land_area"></td>
+                            <td class="value-cell" id="val_fsi_plan"></td>
+                            <td class="value-cell" id="val_fsi_perm_area"></td>
+                            <td class="value-cell" id="val_fsi_actual"></td>
+                            <td class="value-cell" id="val_fsi_actual_area"></td>
+                            <td class="value-cell" id="val_fsi_area_considered">Actual / Approved</td>
+                            <td class="value-cell" id="val_fsi_sbua"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="6" style="text-align: left;">Risk of Demolition (High /
+                                Medium / Low)</td>
+                            <td class="value-cell" id="val_risk_demo" colspan="2"
+                                style="text-align: left; font-weight: bold;">Low
+                            </td>
+                            <td class="label-cell" style="border: none; background: transparent;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2" style="text-align: left;">Status of the Property (Plot /
+                                Under Construction/ Completed / Construction on Hold)</td>
+                            <td class="value-cell" id="val_prop_status" colspan="2" style="font-weight: bold;">Completed
+                            </td>
+                            <td class="label-cell">% Completed</td>
+                            <td class="value-cell" id="val_pct_completed" style="font-weight: bold;">100%</td>
+                            <td class="label-cell">% Recommended</td>
+                            <td class="value-cell" id="val_pct_recommended" style="font-weight: bold;">100%</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2" style="text-align: left;">Current Age of Property</td>
+                            <td class="value-cell" id="val_age_current" colspan="2"></td>
+                            <td class="label-cell">Residual Age</td>
+                            <td class="value-cell" id="val_age_residual" colspan="3"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 11: VALUATION DETAILS -->
+                <div class="report-section">
+                    <table class="report-table" style="font-size: 0.85rem;">
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">Items</td>
+                            <td class="label-cell" style="text-align: center;">Area Details in Sq. Ft.</td>
+                            <td class="label-cell" style="text-align: center;">Rate per Sq. Ft.</td>
+                            <td class="label-cell" style="text-align: center;">Total Values in Rupees</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Land Value</td>
+                            <td class="value-cell" id="val_val_land_area"></td>
+                            <td class="value-cell" id="val_val_land_rate"></td>
+                            <td class="value-cell" id="val_val_land_total"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Building Value (After depreciation)</td>
+                            <td class="value-cell" id="val_val_build_area"></td>
+                            <td class="value-cell" id="val_val_build_rate"></td>
+                            <td class="value-cell" id="val_val_build_total"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Car Parking Charges</td>
+                            <td class="value-cell" id="val_val_car_ls" colspan="2" style="text-align: center;"></td>
+                            <td class="value-cell" id="val_val_car_total" style="text-align: center;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Amenities/Other services like wood work,
+                                bore well, Overhead tank, Compound wall with gate etc.,</td>
+                            <td class="value-cell" id="val_val_amenities_ls" colspan="2" style="text-align: center;">
+                            </td>
+                            <td class="value-cell" id="val_val_amenities_total"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Fair Market Value (In Rs.)</td>
+                            <td class="value-cell" id="val_val_fmv_total"></td>
+                            <td class="label-cell" style="text-align: left;">Government Value (For land alone)</td>
+                            <td class="value-cell" id="val_val_gov_total"
+                                style="text-align: center; font-weight: bold;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Distressed/ Forced Sale Value</td>
+                            <td class="value-cell" id="val_val_distress" style="text-align: center; font-weight: bold;">
+                            </td>
+                            <td class="label-cell" style="text-align: left;">Valuation Done Earlier</td>
+                            <td class="value-cell" id="val_val_done_earlier"
+                                style="text-align: left; font-weight: bold;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Valuation Methodology adopted</td>
+                            <td class="value-cell" id="val_val_methodology"
+                                style="text-align: left; font-weight: bold;"></td>
+                            <td class="label-cell" style="text-align: left;">In Municipal/ Development Authority
+                                Demolition List (Yes/No)</td>
+                            <td class="value-cell" id="val_val_demo_list" style="text-align: left; font-weight: bold;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Is Property in Negative area (Yes/No)</td>
+                            <td class="value-cell" id="val_val_negative_area"
+                                style="text-align: left; font-weight: bold;"></td>
+                            <td class="label-cell" style="text-align: left; height: 60px; vertical-align: top;">Market
+                                value feedback (2 market references to be attached)</td>
+                            <td class="value-cell" id="val_val_market_feedback"
+                                style="text-align: left; vertical-align: top;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"
+                                style="text-align: left; font-weight: bold; height: 120px; vertical-align: middle;">
+                                Remarks If Any</td>
+                            <td class="value-cell" id="val_val_remarks" colspan="3"
+                                style="text-align: left; vertical-align: top; font-weight: bold; padding: 10px;"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 12: PANCHAYAT CHECKS -->
+                <div class="report-section">
+                    <h4
+                        style="font-size: 0.9rem; text-decoration: underline; text-align: left; margin-bottom: 5px; font-weight: bold; padding-left: 2px;">
+                        Checks for Panchayat properties:</h4>
+                    <table class="report-table" style="font-size: 0.85rem;">
+                        <tr>
+                            <td class="label-cell" style="text-align: left; width: 50%;">Approach Road to the property
+                            </td>
+                            <td class="value-cell" id="val_panch_approach" colspan="2" style="text-align: left;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Development of surrounding areas to
+                                property</td>
+                            <td class="value-cell" id="val_panch_dev_surround" colspan="2" style="text-align: left;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Distance from city centre in Kms</td>
+                            <td class="value-cell" id="val_panch_dist_city" colspan="2" style="text-align: left;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Distance from corporation limits in Kms/Bus
+                                stop in case where there is no Municipal body</td>
+                            <td class="value-cell" id="val_panch_dist_corp" colspan="2" style="text-align: left;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Electricity</td>
+                            <td class="value-cell" id="val_panch_elec" style="text-align: left; width: 25%;">Available
+                            </td>
+                            <td class="value-cell" id="val_panch_elec_remarks" style="text-align: left; width: 25%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Electricity Distributor</td>
+                            <td class="value-cell" id="val_panch_elec_dist" colspan="2" style="text-align: left;">
+                                Government</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Water supply</td>
+                            <td class="value-cell" id="val_panch_water" style="text-align: left;">Available</td>
+                            <td class="value-cell" id="val_panch_water_remarks" style="text-align: left;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Water Distributor</td>
+                            <td class="value-cell" id="val_panch_water_dist" colspan="2" style="text-align: left;">Govt.
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Sewer provision</td>
+                            <td class="value-cell" id="val_panch_sewer" style="text-align: left;">Available</td>
+                            <td class="value-cell" id="val_panch_sewer_remarks" style="text-align: left;"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Sewer line connected to main sewer</td>
+                            <td class="value-cell" id="val_panch_sewer_conn" colspan="2" style="text-align: left;">Self
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: left;">Any demolition threat in future
+                                development/ expansion</td>
+                            <td class="value-cell" id="val_panch_demo_threat" colspan="2" style="text-align: left;">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 13: DECLARATION -->
+                <div class="report-section">
+                    <table class="report-table" style="font-size: 0.85rem;">
+                        <tr>
+                            <td class="label-cell" style="text-align: left; width: 30%; vertical-align: middle;">
+                                Declaration (I hereby declare that)</td>
+                            <td style="text-align: left; vertical-align: middle; padding: 20px;">
+                                <ul style="margin: 0; padding-left: 20px; text-align: left; line-height: 1.6;">
+                                    <li>1. I have no direct or indirect interest in the property valued</li>
+                                    <li>2. Information furnished in the report is true and correct to the best of my
+                                        knowledge and belief</li>
+                                    <li>3. Ownership papers / Sale deed may please be verified at your end to ascertain
+                                        the right title & areas</li>
+                                    <li>4. Fair market value indicated in the report is an opinion of the value
+                                        prevailing on the date of the said report and is based on market feedback on
+                                        values of similar properties. Client is free to obtain other independent
+                                        opinions on the same. Fair, market value of such properties / localities may
+                                        increase or decrease, depending on the future market conditions & scenarios.
+                                        Report does not certify or confirm any ownership or title of the property that
+                                        has been valued.</li>
+                                    <li>5. No structural survey was conducted by us</li>
+                                    <li>6. Validity of this report is for 90 days from date</li>
+                                    <li>7. Based on my appraisal and analysis, it is my considered opinion that the
+                                        current market value of the aforesaid property, considering its prevailing
+                                        condition and the specified specifications, is </li>
+                                    <li style="text-align: center; margin-top: 15px;">
+                                        <div id="val_decl_fmv_num" class="value-cell" contenteditable="true"
+                                            style="font-weight: 800; font-size: 1.3rem; outline: none; border: none; background: transparent; box-shadow: none !important;">
+                                            ₹ --</div>
+                                        <div id="val_decl_fmv_words" class="value-cell" contenteditable="true"
+                                            style="font-weight: 700; font-size: 1rem; margin-top: 5px; text-transform: uppercase; outline: none; border: none; background: transparent; box-shadow: none !important;">
+                                            --</div>
+                                    </li>
+                                    <li style="margin-top: 15px;">8. The distress sale value of the property is assessed
+                                        to be 80% of Rs. <span id="val_decl_fmv_ref" class="value-cell"
+                                            contenteditable="true"
+                                            style="outline: none; border: none; box-shadow: none !important;">--</span>
+                                        equals to Rs. <span id="val_decl_distress_num" class="value-cell"
+                                            contenteditable="true"
+                                            style="outline: none; border: none; box-shadow: none !important;">--</span>
+                                    </li>
+                                    <li>9. I have deputed my representative Mr. Sanjay Babu, Asst. Valuer to inspect the
+                                        property, who has personally inspected the property on <span
+                                            id="val_decl_inspect_date" class="value-cell" contenteditable="true"
+                                            style="outline: none; border: none; box-shadow: none !important;">--</span>
+                                    </li>
+                                    <li>10. I hereby declare that I am not affiliated with the client/owner or any
+                                        associated companies, nor have I had any direct or indirect involvement with the
+                                        borrower in the past or present. I assert that this report has been prepared by
+                                        me with the utmost professional integrity.</li>
+                                    <li>11. The value of a property is influenced by the specific purpose of its
+                                        valuation. Therefore, the client is advised to utilize this report solely for
+                                        the specified purpose.</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- SECTION 14: SIGNATURE -->
+                <div class="report-section"
+                    style="margin-top: 40px; font-size: 0.9rem; text-align: left; padding-left: 5px;">
+                    <div style="font-weight: bold; margin-bottom: 200px;">For Seal with Signature</div>
+
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-weight: bold; width: 45px;">Date:</span>
+                        <span class="value-cell" id="val_sign_date"
+                            style="min-width: 200px; display: inline-block; padding: 2px 5px; border: none; background: transparent;"></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-weight: bold; width: 45px;">Place:</span>
+                        <span class="value-cell" id="val_sign_place"
+                            style="min-width: 200px; display: inline-block; padding: 2px 5px; border: none; background: transparent;"></span>
+                    </div>
+                </div>
+
+                <!-- SECTION 15: PROPERTY PHOTOS -->
+                <div class="report-section" style="margin-top: 60px; font-size: 0.9rem; padding-bottom: 40px;">
+                    <h3 style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 1rem;">Property
+                        Photos</h3>
+                    <p style="text-align: center; margin-bottom: 20px;">The following photos must be included
+                        mandatorily in the report and additional photos can be added if necessary</p>
+
+                    <div style="display: flex; justify-content: center;">
+                        <ol style="text-align: left; line-height: 1.8; margin: 0; padding-left: 20px;">
+                            <li>* Selfie photo of the person who has visited the property</li>
+                            <li>* Front Elevation with geo tagging (Roof photo to be captured)</li>
+                            <li>* Clear Approach Road photo</li>
+                            <li>* Hall photo if available</li>
+                            <li>* Kitchen photo if residential portions available</li>
+                            <li>* Name Board / Door No / Plot no / EB Board photos</li>
+                            <li>* Demarcation stone photos if in the case of Vacant land property</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- SECTION 16: PHOTO UPLOADS -->
+                <div class="report-section" style="margin-top: 40px; padding-bottom: 60px;">
+                    <div id="photo-upload-controls"
+                        style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
+                        <button onclick="handleUploadButton(8)"
+                            style="padding: 10px 20px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); cursor: pointer; font-weight: bold; transition: background 0.2s;">Upload
+                            8 images</button>
+                        <button onclick="handleUploadButton(16)"
+                            style="padding: 10px 20px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); cursor: pointer; font-weight: bold; transition: background 0.2s;">Upload
+                            16 images</button>
+                        <button onclick="handleUploadButton(24)"
+                            style="padding: 10px 20px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); cursor: pointer; font-weight: bold; transition: background 0.2s;">Upload
+                            24 images</button>
+                    </div>
+
+                    <div id="photo-grid"
+                        style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; justify-items: center;">
+                        <!-- Photos will be injected here via JS -->
+                    </div>
+                </div>
+
+                <!-- FLOATING BUTTONS -->
+                <button id="floating-save-btn" onclick="manualSaveDraftingData()" title="Save Report"
+                    style="position: fixed; bottom: 115px; right: 40px; width: 65px; height: 65px; border-radius: 50%; background: #28a745; color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); font-size: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 1000; transition: transform 0.2s, background 0.2s;"
+                    onmouseover="this.style.transform='scale(1.1)'; this.style.background='#218838';"
+                    onmouseout="this.style.transform='scale(1)'; this.style.background='#28a745';">
+                    <i class="fas fa-save"></i>
+                </button>
+
+                <!-- FLOATING PRINT BUTTON -->
+                <button id="floating-print-btn" onclick="printValuationReport()" title="Print to PDF"
+                    style="position: fixed; bottom: 40px; right: 40px; width: 65px; height: 65px; border-radius: 50%; background: #005A9C; color: white; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); font-size: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 1000; transition: transform 0.2s, background 0.2s;"
+                    onmouseover="this.style.transform='scale(1.1)'; this.style.background='#0073e6';"
+                    onmouseout="this.style.transform='scale(1)'; this.style.background='#005A9C';">
+                    <i class="fas fa-print"></i>
+                </button>
+
+                <script>
+                    let loadedPhotoUrls = []; // Cache the fetched photos from backend
+                    const PHOTO_FILE_NO = '{{ file_no }}'; // Baked in at render time — always available
+
+                    document.addEventListener("DOMContentLoaded", function () {
+                        // Auto-load photos from P folder
+                        if (PHOTO_FILE_NO && PHOTO_FILE_NO !== 'TEMP' && PHOTO_FILE_NO !== 'Unknown' && PHOTO_FILE_NO.trim() !== '') {
+                            fetchPhotosFromServer(8);
+                        } else {
+                            generatePhotoGrid(8, []);
+                        }
+                    });
+
+                    async function fetchPhotosFromServer(numImages) {
+                        try {
+                            console.log("Fetching photos for:", PHOTO_FILE_NO);
+                            const res = await fetch(`/coreapi/api/get-property-photos/?file_no=${PHOTO_FILE_NO}`);
+                            const data = await res.json();
+                            console.log("Photo API response:", data);
+                            if (data.success && data.photos && data.photos.length > 0) {
+                                // Reserved filenames — excluded from property photo grid
+                                const RESERVED = ['geo_map.', 'eb.'];
+                                const isReserved = (p) => RESERVED.some(r => p.filename.toLowerCase().startsWith(r));
+
+                                // Separate geo_map
+                                const geoMapPhoto = data.photos.find(p => p.filename.toLowerCase().startsWith('geo_map.'));
+                                // Separate EB
+                                const ebPhoto = data.photos.find(p => p.filename.toLowerCase().startsWith('eb.'));
+                                // Property photos only
+                                loadedPhotoUrls = data.photos.filter(p => !isReserved(p));
+
+                                // Auto-restore map image
+                                if (geoMapPhoto) {
+                                    const mapImg = document.getElementById('map-preview');
+                                    const mapPlaceholder = document.getElementById('map-placeholder');
+                                    if (mapImg) {
+                                        mapImg.src = geoMapPhoto.url;
+                                        mapImg.style.display = 'block';
+                                        document.getElementById('map-upload-box').classList.add('has-image');
+                                    }
+                                    if (mapPlaceholder) mapPlaceholder.style.display = 'none';
+                                }
+
+                                // Auto-restore EB image
+                                if (ebPhoto) {
+                                    const ebImg = document.getElementById('eb-preview');
+                                    const ebPlaceholder = document.getElementById('eb-placeholder');
+                                    if (ebImg) {
+                                        ebImg.src = ebPhoto.url;
+                                        ebImg.style.display = 'block';
+                                        document.getElementById('eb-upload-box').classList.add('has-image');
+                                    }
+                                    if (ebPlaceholder) ebPlaceholder.style.display = 'none';
+                                }
+                            } else {
+                                loadedPhotoUrls = [];
+                            }
+                        } catch (e) {
+                            console.warn("Could not load photos from server:", e);
+                            loadedPhotoUrls = [];
+                        }
+                        generatePhotoGrid(numImages, loadedPhotoUrls);
+                    }
+
+                    function generatePhotoGrid(numImages, photos) {
+                        const grid = document.getElementById("photo-grid");
+                        if (!grid) return;
+
+                        grid.innerHTML = ''; // Clear existing
+
+                        for (let i = 1; i <= numImages; i++) {
+                            const box = document.createElement('div');
+                            box.className = 'photo-upload-box';
+                            if (photos && photos[i - 1]) box.classList.add('has-image');
+                            box.style.cssText = 'width: 16cm; height: 12cm; border: 2px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(0,0,0,0.1); border-radius: 8px; padding: 10px;';
+
+                            const photo = photos && photos[i - 1]; // Match photo to slot
+
+                            box.innerHTML = `
+                                <input type="text" class="photo-caption-input" placeholder="Enter Caption..." value="${photo?.caption || ''}" 
+                                    style="width: 90%; margin-bottom: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 4px; border-radius: 4px; text-align: center; font-size: 0.75rem;">
+                                <div style="position: relative; width: 100%; flex-grow: 1;">
+                                    <div class="placeholder-content" style="text-align: center; color: var(--text-dim); ${photo ? 'display:none;' : ''}">
+                                        <i class="fas fa-camera" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                        <div style="font-size: 0.75rem;">Click to upload</div>
+                                    </div>
+                                    <input type="file" accept="image/*" onchange="previewImage(this)" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; z-index: 2;">
+                                    <img class="photo-preview" src="${photo ? photo.url : ''}" style="position: absolute; width: 100%; height: 100%; object-fit: contain; display: ${photo ? 'block' : 'none'}; top: 0; left: 0; background: #fff;">
+                                </div>
+                            `;
+                            grid.appendChild(box);
+                        }
+
+                        // Add the "+" button at the end
+                        appendAddMoreButton(grid, numImages, photos);
+                    }
+
+                    function appendAddMoreButton(grid, count, photos) {
+                        const addBox = document.createElement('div');
+                        addBox.id = 'add-more-btn';
+                        addBox.style.cssText = 'width: 16cm; height: 12cm; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: transparent; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;';
+                        addBox.onmouseover = function () { this.style.background = 'rgba(255,255,255,0.05)'; };
+                        addBox.onmouseout = function () { this.style.background = 'transparent'; };
+                        addBox.onclick = function () { addSinglePhotoBox(photos); };
+                        addBox.innerHTML = `
+                            <div style="text-align: center; color: var(--text-dim);">
+                                <i class="fas fa-plus" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                                <div style="font-size: 1rem; font-weight: bold;">Add More</div>
+                            </div>
+                        `;
+                        grid.appendChild(addBox);
+                    }
+
+                    function addSinglePhotoBox(photos) {
+                        const grid = document.getElementById("photo-grid");
+                        const currentBoxes = grid.querySelectorAll('.photo-upload-box').length;
+                        const i = currentBoxes + 1;
+                        const photo = photos && photos[i - 1];
+
+                        const box = document.createElement('div');
+                        box.className = 'photo-upload-box';
+                        if (photo) box.classList.add('has-image');
+                        box.style.cssText = 'width: 16cm; height: 12cm; border: 2px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(0,0,0,0.1); border-radius: 8px; padding: 10px;';
+                        box.innerHTML = `
+                            <input type="text" class="photo-caption-input" placeholder="Enter Caption..." value="${photo?.caption || ''}" 
+                                style="width: 90%; margin-bottom: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 4px; border-radius: 4px; text-align: center; font-size: 0.75rem;">
+                            <div style="position: relative; width: 100%; flex-grow: 1;">
+                                <div class="placeholder-content" style="text-align: center; color: var(--text-dim); ${photo ? 'display:none;' : ''}">
+                                    <i class="fas fa-camera" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                    <div style="font-size: 0.75rem;">Click to upload</div>
+                                </div>
+                                <input type="file" accept="image/*" onchange="previewImage(this)" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; z-index: 2;">
+                                <img class="photo-preview" src="${photo ? photo.url : ''}" style="position: absolute; width: 100%; height: 100%; object-fit: contain; display: ${photo ? 'block' : 'none'}; top: 0; left: 0; background: #fff;">
+                            </div>
+                        `;
+
+                        // Insert before the "+" button
+                        grid.insertBefore(box, grid.lastElementChild);
+                    }
+
+                    // Override the buttons to also fetch from server
+                    function handleUploadButton(numImages) {
+                        if (loadedPhotoUrls.length > 0) {
+                            generatePhotoGrid(numImages, loadedPhotoUrls);
+                        } else {
+                            fetchPhotosFromServer(numImages);
+                        }
+                    }
+
+                    function previewImage(input) {
+                        if (input.files && input.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                const box = input.parentElement;
+                                const img = box.querySelector('.photo-preview');
+                                const placeholder = box.querySelector('.placeholder-content');
+                                img.src = e.target.result;
+                                img.style.display = 'block';
+                                box.classList.add('has-image');
+                                placeholder.style.display = 'none';
+                            }
+                            reader.readAsDataURL(input.files[0]);
+                        }
+                    }
+                </script>
+
+                <!-- SECTION 17: LOCATION MAP -->
+                <div class="report-section" style="margin-top: 50px; padding-bottom: 60px;">
+                    <h3
+                        style="font-size: 1rem; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 1px; text-transform: uppercase;">
+                        Location Map</h3>
+
+                    <!-- Geo Coordinates Row -->
+                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+                        <span style="font-weight: bold; font-size: 0.9rem; white-space: nowrap;">Geo Coordinates:</span>
+
+                        <!-- Single combined input: "lat, long" -->
+                        <span class="value-cell" id="val_geo_coords"
+                            style="min-width: 260px; display: inline-block; padding: 4px 10px; background: rgba(0,0,0,0.15); border-radius: 4px; font-size: 0.85rem; font-family: monospace;"
+                            oninput="convertGeoCoords()" placeholder="e.g. 9.711089, 76.357271"></span>
+
+                        <!-- Read-only DMS output -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label
+                                style="font-size: 0.82rem; color: var(--text-dim); white-space: nowrap; font-weight: bold;">Degrees:</label>
+                            <div id="geo_converted"
+                                style="font-size: 0.85rem; color: var(--text-main); padding: 4px 12px; background: rgba(0,0,0,0.08); border-radius: 4px; font-family: monospace; min-width: 280px; border: 1px solid var(--border); opacity: 0.85;">
+                                &mdash;
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Screenshot Upload Box -->
+                    <div style="display: flex; justify-content: center;">
+                        <div id="map-upload-box"
+                            style="width: 30cm; height: 20cm; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                            <div id="map-placeholder" style="text-align: center; color: var(--text-dim);">
+                                <i class="fas fa-map-marked-alt" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
+                                <div style="font-size: 0.9rem; font-weight: bold;">Click to upload Google Maps
+                                    screenshot</div>
+                                <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.6;">Landscape screenshot
+                                    with coordinates</div>
+                            </div>
+                            <input type="file" accept="image/*" onchange="previewMapImage(this)"
+                                style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; z-index: 2;">
+                            <img id="map-preview"
+                                style="position: absolute; width: 100%; height: 100%; object-fit: contain; display: none; top: 0; left: 0; background: #fff;">
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function decimalToDMS(decimal, isLat) {
+                        const dir = decimal >= 0 ? (isLat ? 'N' : 'E') : (isLat ? 'S' : 'W');
+                        const abs = Math.abs(decimal);
+                        const deg = Math.floor(abs);
+                        const minFull = (abs - deg) * 60;
+                        const min = Math.floor(minFull);
+                        const sec = ((minFull - min) * 60).toFixed(3);
+                        return `${dir} ${deg}° ${min}' ${sec}"`;
+                    }
+
+                    function convertGeoCoords() {
+                        const coordEl = document.getElementById('val_geo_coords');
+                        const out = document.getElementById('geo_converted');
+                        const raw = coordEl.innerText.trim();
+
+                        // Accept "lat, long" or "lat long"
+                        const parts = raw.split(/[\s,]+/).filter(p => p.length > 0);
+                        if (parts.length < 2) {
+                            out.innerHTML = '&mdash;';
+                            return;
+                        }
+
+                        const lat = parseFloat(parts[0]);
+                        const lon = parseFloat(parts[1]);
+
+                        if (isNaN(lat) || isNaN(lon)) {
+                            out.innerHTML = '&mdash;';
+                            return;
+                        }
+
+                        const latDMS = decimalToDMS(lat, true);
+                        const lonDMS = decimalToDMS(lon, false);
+                        out.textContent = `${latDMS}, ${lonDMS}`;
+                    }
+
+                    // Re-run conversion after DB fields are restored
+                    document.addEventListener('DOMContentLoaded', function () {
+                        setTimeout(convertGeoCoords, 1200);
+                    });
+
+                    async function previewMapImage(input) {
+                        if (!input.files || !input.files[0]) return;
+                        const file = input.files[0];
+
+                        // Show preview immediately
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.getElementById('map-preview');
+                            const placeholder = document.getElementById('map-placeholder');
+                            img.src = e.target.result;
+                            img.style.display = 'block';
+                            document.getElementById('map-upload-box').classList.add('has-image');
+                            placeholder.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+
+                        // Upload to server → saves as geo_map.{ext} in P folder
+                        try {
+                            const formData = new FormData();
+                            formData.append('file_no', PHOTO_FILE_NO);
+                            formData.append('map_image', file);
+
+                            const csrfToken = document.cookie.split('; ')
+                                .find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+
+                            const res = await fetch('/coreapi/api/upload-geo-map/', {
+                                method: 'POST',
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                console.log('Map image saved to P folder:', data.url);
+                            } else {
+                                console.warn('Map image upload failed:', data.error);
+                            }
+                        } catch (e) {
+                            console.warn('Could not upload map image:', e);
+                        }
+                    }
+                </script>
+
+                <!-- SECTION 18: ELECTRICITY BOX VERIFICATION IMAGE -->
+                <div class="report-section" style="margin-top: 50px; padding-bottom: 60px;">
+                    <h3
+                        style="font-size: 1rem; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 1px; text-transform: uppercase;">
+                        Verification Image of Electricity Box</h3>
+
+                    <div style="display: flex; justify-content: center;">
+                        <div id="eb-upload-box"
+                            style="width: 16cm; height: 12cm; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(0,0,0,0.1); ">
+                            <div id="eb-placeholder" style="text-align: center; color: var(--text-dim);">
+                                <i class="fas fa-bolt" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
+                                <div style="font-size: 0.9rem; font-weight: bold;">Click to upload Electricity Box photo
+                                </div>
+                                <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.6;">Verification image from
+                                    site visit</div>
+                            </div>
+                            <input type="file" accept="image/*" onchange="uploadEbImage(this)"
+                                style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; z-index: 2;">
+                            <img id="eb-preview"
+                                style="position: absolute; width: 100%; height: 100%; object-fit: contain; display: none; top: 0; left: 0; background: #fff;">
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    async function uploadEbImage(input) {
+                        if (!input.files || !input.files[0]) return;
+                        const file = input.files[0];
+
+                        // Show preview immediately
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.getElementById('eb-preview');
+                            const placeholder = document.getElementById('eb-placeholder');
+                            img.src = e.target.result;
+                            img.style.display = 'block';
+                            document.getElementById('eb-upload-box').classList.add('has-image');
+                            placeholder.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+
+                        // Upload to server → saves as eb.{ext} in P folder
+                        try {
+                            const formData = new FormData();
+                            formData.append('file_no', PHOTO_FILE_NO);
+                            formData.append('eb_image', file);
+
+                            const csrfToken = document.cookie.split('; ')
+                                .find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+
+                            const res = await fetch('/coreapi/api/upload-eb-image/', {
+                                method: 'POST',
+                                headers: { 'X-CSRFToken': csrfToken },
+                                body: formData
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                console.log('EB image saved to P folder:', data.url);
+                            } else {
+                                console.warn('EB image upload failed:', data.error);
+                            }
+                        } catch (e) {
+                            console.warn('Could not upload EB image:', e);
+                        }
+                    }
+                </script>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 100px;">
                 <div style="font-size: 4rem; color: var(--border); margin-bottom: 20px;">
                     <i class="fas fa-tools"></i>
                 </div>
                 <h2 style="color: var(--text-main);">Drafting Workspace Ready</h2>
-                <p style="color: var(--text-dim); max-width: 400px; margin: 0 auto;">This workspace is ready to build the {{ bank_name }} report. We will now integrate the specific fields and formatting required for this bank.</p>
+                <p style="color: var(--text-dim); max-width: 400px; margin: 0 auto;">This workspace is ready to build
+                    the {{ bank_name }} report. We will now integrate the specific fields and formatting required for
+                    this bank.</p>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <style>
+    .report-workspace {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+    }
+
+    .chola-sme-format {
+        color: var(--text-main);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .report-main-title {
+        text-align: center;
+        text-decoration: underline;
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        text-decoration: underline;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        margin-top: 30px;
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        /* Strictly enforces column widths, preventing horizontal stretch */
+        margin-bottom: 20px;
+        border: 1px solid #ffffff;
+        /* White borders like in screenshot */
+    }
+
+    .report-table td {
+        border: 1px solid #ffffff;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        vertical-align: top;
+    }
+
+    .label-cell {
+        background: rgba(255, 255, 255, 0.03);
+        width: 30%;
+        font-weight: 600;
+        color: var(--text-dim);
+    }
+
+    .value-cell {
+        background: rgba(255, 255, 255, 0.02);
+        box-shadow: inset 0 0 0 1px rgba(31, 34, 42, 0.6) !important;
+        /* Inset shadow is immune to table clipping */
+        cursor: text;
+        transition: all 0.2s;
+        /* Responsive wrapping: height increases, width stays fixed */
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+
+    .value-cell:hover {
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 4px rgba(39, 58, 112, 0.7) !important;
+    }
+
+    .value-cell:focus {
+        background: rgba(43, 110, 245, 0.1) !important;
+        box-shadow: inset 0 0 0 4px rgba(39, 58, 112, 0.7) !important;
+        outline: none !important;
+    }
+
+    .report-list {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .report-list li {
+        margin-bottom: 8px;
+    }
+
+    /* Dark mode adjustments for report table */
+    [data-theme='dark'] .report-table {
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    [data-theme='dark'] .report-table td {
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
     .portal-layout {
         padding: 40px;
         max-width: 1400px;
         margin: 0 auto;
     }
+
     .main-panel {
         width: 100%;
     }
+
     .btn-portal-secondary {
         background: var(--bg-input);
         border: 1px solid var(--border);
@@ -53,9 +1255,693 @@
         align-items: center;
         gap: 10px;
     }
-    .btn-portal-secondary:hover {
-        background: var(--border);
-        transform: translateY(-2px);
+
+    .sync-indicator {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .sync-indicator.active {
+        color: var(--success);
+        border-color: var(--success);
+    }
+
+    .sync-indicator.saving {
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    .sync-indicator.disconnected {
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    .toast-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+    }
+
+    .vadrida-toast {
+        background: var(--bg-card);
+        border-left: 4px solid var(--accent);
+        color: var(--text-main);
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideInRight 0.3s ease-out;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* =========================================
+       PRINT STYLES (A4, 1.27cm margins)
+       ========================================= */
+    @media print {
+
+        /* Hide everything by default */
+        body * {
+            visibility: hidden;
+        }
+
+        /* Show only the report container */
+        .report-container,
+        .report-container * {
+            visibility: visible;
+        }
+
+        .report-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1000px !important;
+            /* This locks the page scale to standard A4 */
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+
+        /* Page Layout: A4 with 1.27cm margins */
+        @page {
+            size: A4;
+            margin: 1.27cm;
+        }
+
+        /* Hide interactive UI elements */
+        .btn-portal,
+        .btn-portal-secondary,
+        .content-header,
+        .sidebar,
+        #add-more-btn,
+        .placeholder-content,
+        input[type="file"],
+        #syncStatus,
+        #photo-upload-controls,
+        #floating-print-btn,
+        #floating-save-btn {
+            display: none !important;
+        }
+
+        /* Hide Empty Image Upload Boxes robustly using class */
+        .photo-upload-box:not(.has-image),
+        #map-upload-box:not(.has-image),
+        #eb-upload-box:not(.has-image) {
+            display: none !important;
+        }
+
+        /* Clean up borders and backgrounds for printing, and prevent page breaking */
+        .photo-upload-box,
+        #map-upload-box,
+        #eb-upload-box {
+            border: none !important;
+            background: transparent !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            box-shadow: none !important;
+        }
+
+        .photo-caption-input {
+            border: none !important;
+            background: transparent !important;
+            color: black !important;
+            text-align: center !important;
+            font-weight: bold !important;
+            padding: 0 !important;
+            margin-bottom: 10px !important;
+        }
+
+        .photo-caption-input:placeholder-shown {
+            display: none !important;
+        }
+
+        #geo_converted {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        /* This targets only the property photo boxes */
+        .photo-upload-box {
+            width: 500px !important;
+            /* Narrower so 2 can fit side-by-side on A4 */
+            height: 400px !important;
+            /* Maintains 4:3 Landscape ratio */
+            margin: 5px !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .value-cell,
+        .report-table th,
+        .report-table td {
+            background: transparent !important;
+            color: black !important;
+            border: 1pt solid black !important;
+        }
+
+        #val_site_address,
+        #val_decl_fmv_num,
+        #val_decl_fmv_words,
+        #val_decl_fmv_ref,
+        #val_decl_distress_num,
+        #val_decl_inspect_date,
+        #val_sign_date,
+        #val_sign_place {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .report-table {
+            border: 1pt solid black !important;
+            border-collapse: collapse !important;
+        }
+
+        /* Ensure sections don't break awkwardly across pages */
+        .report-section {
+            page-break-inside: avoid;
+        }
+
+        /* The main title should have appropriate spacing */
+        .report-main-title {
+            color: black !important;
+            border-bottom-color: black !important;
+        }
     }
 </style>
+
+<script>
+    // Global Context from Django
+    const GLOBAL_FILE_NO = '{{ file_no }}';
+    const GLOBAL_BANK_CODE = '{{ bank_code }}';
+    const GLOBAL_BANK_NAME = '{{ bank_name|escapejs }}';
+
+    let reportSocket = null;
+    let fieldValues = {}; // Keep track of old values for audit logging
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initWebsocket();
+        autoFillCholaSMEReport();
+        setupFieldTracking();
+
+        // Manual Sync Shortcut (Ctrl+S)
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                syncAllFields();
+                showToast("Syncing all fields...");
+            }
+        });
+    });
+
+    function initWebsocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // Passing bank details in query string so consumer can capture them
+        const wsUrl = `${protocol}//${window.location.host}/ws/report-drafting/${GLOBAL_FILE_NO}/?bank_code=${GLOBAL_BANK_CODE}&bank_name=${encodeURIComponent(GLOBAL_BANK_NAME)}`;
+
+        reportSocket = new WebSocket(wsUrl);
+
+        reportSocket.onopen = function (e) {
+            console.log("Real-time sync active");
+            updateSyncStatus('active');
+
+            // Initial sync: Send all current field values to ensure report_data is full
+            syncAllFields();
+        };
+
+        reportSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data); // Fixed: was json.loads
+            if (data.type === 'field_update') {
+                updateFieldUI(data.field_id, data.value);
+            }
+        };
+
+        reportSocket.onclose = function (e) {
+            console.error("Sync disconnected. Retrying...");
+            updateSyncStatus('disconnected');
+            setTimeout(initWebsocket, 2000);
+        };
+    }
+
+    function syncAllFields() {
+        // This function scrapes every value-cell and sends an update to the server
+        // to ensure the DraftingReport.report_data is fully populated on first load.
+        const valueCells = document.querySelectorAll('.value-cell');
+        valueCells.forEach(cell => {
+            if (cell.id && cell.innerText.trim() !== '' && cell.innerText !== '--') {
+                sendFieldUpdate(cell.id, cell.innerText, 'initial_sync');
+            }
+        });
+    }
+
+    function setupFieldTracking() {
+        // Find all value cells and make them editable
+        const valueCells = document.querySelectorAll('.value-cell');
+        valueCells.forEach(cell => {
+            // Only make editable if it's NOT marked as read-only
+            if (cell.id && cell.getAttribute('data-readonly') !== 'true') {
+                cell.contentEditable = "true";
+
+                // Store initial value
+                fieldValues[cell.id] = cell.innerText;
+
+                let saveTimeout = null;
+                cell.addEventListener('input', function () {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        const newValue = cell.innerText;
+                        const oldValue = fieldValues[cell.id];
+                        if (newValue !== oldValue) {
+                            sendFieldUpdate(cell.id, newValue, oldValue);
+                            fieldValues[cell.id] = newValue;
+                        }
+                    }, 1000); // Save after 1s of no typing
+                });
+
+                // Send update on blur (when user clicks away)
+                cell.addEventListener('blur', function () {
+                    const newValue = cell.innerText;
+                    const oldValue = fieldValues[cell.id];
+
+                    if (newValue !== oldValue) {
+                        sendFieldUpdate(cell.id, newValue, oldValue);
+                        fieldValues[cell.id] = newValue;
+                    }
+                });
+
+                // Excel-like Arrow Key Navigation
+                cell.addEventListener('keydown', function (e) {
+                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                        const allCells = Array.from(document.querySelectorAll('.value-cell[contenteditable="true"]'));
+                        const currentIndex = allCells.indexOf(cell);
+                        if (currentIndex === -1) return;
+
+                        let targetCell = null;
+
+                        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                            const sel = window.getSelection();
+                            let isAtStart = false;
+                            let isAtEnd = false;
+
+                            if (sel.rangeCount > 0) {
+                                const range = sel.getRangeAt(0);
+                                if (range.startContainer === range.endContainer && range.startOffset === range.endOffset) {
+                                    const node = range.startContainer;
+                                    const len = node.nodeType === Node.TEXT_NODE ? node.length : node.childNodes.length;
+                                    isAtStart = (range.startOffset === 0);
+                                    isAtEnd = (range.startOffset === len);
+                                }
+                            }
+                            if (cell.innerText.trim() === '') {
+                                isAtStart = true;
+                                isAtEnd = true;
+                            }
+
+                            if (e.key === 'ArrowRight' && isAtEnd) {
+                                targetCell = allCells[currentIndex + 1];
+                            } else if (e.key === 'ArrowLeft' && isAtStart) {
+                                targetCell = allCells[currentIndex - 1];
+                            }
+                        } else {
+                            // Up / Down - use visual grid detection
+                            const rect = cell.getBoundingClientRect();
+                            const cellCenterX = rect.left + (rect.width / 2);
+                            let bestMatch = null;
+                            let minDistance = Infinity;
+                            const isDown = e.key === 'ArrowDown';
+
+                            for (let i = 0; i < allCells.length; i++) {
+                                if (i === currentIndex) continue;
+                                const other = allCells[i];
+                                const oRect = other.getBoundingClientRect();
+
+                                const isVerticalMatch = isDown ? (oRect.top >= rect.bottom - 5) : (oRect.bottom <= rect.top + 5);
+
+                                if (isVerticalMatch) {
+                                    const verticalDist = Math.abs(oRect.top - rect.top);
+                                    if (verticalDist > 200) continue; // Skip elements too far away
+
+                                    const oCenterX = oRect.left + (oRect.width / 2);
+                                    const horizontalDist = Math.abs(oCenterX - cellCenterX);
+
+                                    if (horizontalDist < rect.width) {
+                                        const totalScore = verticalDist + (horizontalDist * 2);
+                                        if (totalScore < minDistance) {
+                                            minDistance = totalScore;
+                                            bestMatch = other;
+                                        }
+                                    }
+                                }
+                            }
+                            targetCell = bestMatch;
+                        }
+
+                        if (targetCell) {
+                            e.preventDefault();
+                            targetCell.focus();
+
+                            // Highlight text exactly like Excel
+                            const range = document.createRange();
+                            range.selectNodeContents(targetCell);
+                            const selection = window.getSelection();
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    }
+                });
+
+                // Also track "input" for instant feedback (optional, but good for real-time feel)
+                cell.addEventListener('input', function () {
+                    // We don't send audit logs on every keystroke (too noisy), 
+                    // but we could broadcast the "typing" status if needed.
+                });
+            }
+        });
+    }
+
+    function sendFieldUpdate(fieldId, newValue, oldValue) {
+        if (reportSocket && reportSocket.readyState === WebSocket.OPEN) {
+            updateSyncStatus('saving');
+            reportSocket.send(JSON.stringify({
+                'type': 'field_update',
+                'field_id': fieldId,
+                'value': newValue,
+                'old_value': oldValue
+            }));
+
+            setTimeout(() => updateSyncStatus('active'), 500);
+        }
+    }
+
+    function updateFieldUI(fieldId, value) {
+        const cell = document.getElementById(fieldId);
+        // Only update if the value is different AND the user is NOT currently focused on this cell
+        if (cell && cell.innerText !== value && document.activeElement !== cell) {
+            cell.innerText = value;
+            fieldValues[fieldId] = value;
+            // Add a brief highlight
+            cell.style.backgroundColor = 'rgba(43, 110, 245, 0.1)';
+            setTimeout(() => cell.style.backgroundColor = 'transparent', 1000);
+        }
+    }
+
+    function updateSyncStatus(status) {
+        const indicator = document.getElementById('syncStatus');
+        if (!indicator) return;
+
+        const icon = indicator.querySelector('i');
+        const text = indicator.querySelector('span');
+
+        indicator.className = 'sync-indicator ' + status;
+
+        if (status === 'active') {
+            icon.className = 'fas fa-check-circle';
+            text.innerText = 'Connected & Synced';
+        } else if (status === 'saving') {
+            icon.className = 'fas fa-sync fa-spin';
+            text.innerText = 'Saving changes...';
+        } else if (status === 'disconnected') {
+            icon.className = 'fas fa-exclamation-triangle';
+            text.innerText = 'Offline - Reconnecting...';
+        }
+    }
+
+    async function manualSaveDraftingData() {
+        updateSyncStatus('saving');
+
+        const reportData = {};
+        const valueCells = document.querySelectorAll('.value-cell');
+        valueCells.forEach(cell => {
+            if (cell.id) {
+                reportData[cell.id] = cell.innerText;
+            }
+        });
+
+        // 1. Save Locally (Offline First)
+        const pageKey = `drafting_${GLOBAL_FILE_NO || 'draft'}`;
+        await VadridaSync.save(pageKey, reportData);
+
+        try {
+            const response = await fetch('/coreapi/api/save-drafting-data/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    file_no: GLOBAL_FILE_NO,
+                    report_data: reportData
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showToast("Report Saved Successfully!");
+                updateSyncStatus('active');
+                VadridaSync.setStatus('online');
+            } else {
+                showToast("Save Failed: " + result.error);
+                updateSyncStatus('disconnected');
+                VadridaSync.setStatus('offline');
+            }
+        } catch (err) {
+            console.error("Manual save error - Data is safe locally:", err);
+            showToast("Network Error - Data saved locally");
+            updateSyncStatus('disconnected');
+            VadridaSync.setStatus('offline');
+        }
+    }
+
+    function showToast(msg) {
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'vadrida-toast';
+        toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${msg}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(20px)';
+            toast.style.transition = 'all 0.3s';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    /* ----- DECLARATION DYNAMIC HELPERS ----- */
+    function numberToIndianWords(num) {
+        if (!num || isNaN(num)) return "";
+        let n = parseInt(num);
+        if (n === 0) return "Zero";
+
+        const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+        const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+        function g(n) {
+            if (n < 20) return a[n];
+            let s = b[Math.floor(n / 10)];
+            if (n % 10 > 0) s += "-" + a[n % 10];
+            return s;
+        }
+
+        let words = "";
+        let crore = Math.floor(n / 10000000);
+        n %= 10000000;
+        if (crore > 0) words += g(crore) + "Crore ";
+
+        let lakh = Math.floor(n / 100000);
+        n %= 100000;
+        if (lakh > 0) words += g(lakh) + "Lakh ";
+
+        let thousand = Math.floor(n / 1000);
+        n %= 1000;
+        if (thousand > 0) words += g(thousand) + "Thousand ";
+
+        let hundred = Math.floor(n / 100);
+        n %= 100;
+        if (hundred > 0) words += g(hundred) + "Hundred ";
+
+        if (n > 0) {
+            if (words !== "") words += "and ";
+            words += g(n);
+        }
+
+        return words.trim().replace(/\s+/g, ' ') + " Only";
+    }
+
+    function updateDeclarationDynamicFields(fmv, distress, visitDate) {
+        // IDs in Declaration: val_decl_fmv_num, val_decl_fmv_words, val_decl_fmv_ref, val_decl_distress_num, val_decl_inspect_date
+        const fmvNum = document.getElementById('val_decl_fmv_num');
+        const fmvWords = document.getElementById('val_decl_fmv_words');
+        const fmvRef = document.getElementById('val_decl_fmv_ref');
+        const distressNum = document.getElementById('val_decl_distress_num');
+        const inspectDate = document.getElementById('val_decl_inspect_date');
+
+        // Only update if not currently being edited by the user
+        if (fmvNum && document.activeElement !== fmvNum) fmvNum.innerText = fmv !== '--' ? `₹ ${fmv}` : '₹ --';
+        if (fmvRef && document.activeElement !== fmvRef) fmvRef.innerText = fmv;
+        if (fmvWords && document.activeElement !== fmvWords) {
+            const cleanNum = String(fmv).replace(/[^0-9]/g, '');
+            fmvWords.innerText = cleanNum ? "Rupees " + numberToIndianWords(cleanNum) : "--";
+        }
+        if (distressNum && document.activeElement !== distressNum) distressNum.innerText = distress;
+        if (inspectDate && document.activeElement !== inspectDate) inspectDate.innerText = visitDate;
+    }
+
+    // Observer to keep Declaration in sync with Summary
+    document.addEventListener('DOMContentLoaded', function () {
+        const observer = new MutationObserver(() => {
+            const fmv = document.getElementById('val_val_fmv_total')?.innerText || '--';
+            const distress = document.getElementById('val_val_distress')?.innerText || '--';
+            const visitDate = document.getElementById('val_visit_date')?.innerText || '--';
+            updateDeclarationDynamicFields(fmv, distress, visitDate);
+        });
+
+        const targetNodes = [
+            document.getElementById('val_val_fmv_total'),
+            document.getElementById('val_val_distress'),
+            document.getElementById('val_visit_date')
+        ].filter(n => n !== null);
+
+        targetNodes.forEach(node => {
+            observer.observe(node, { characterData: true, childList: true, subtree: true });
+        });
+    });
+
+    let megaPayload = null; // Global store for all file data
+
+    async function autoFillCholaSMEReport() {
+        if (!GLOBAL_FILE_NO || GLOBAL_FILE_NO === 'TEMP' || GLOBAL_FILE_NO === 'Unknown') return;
+
+        try {
+            const response = await fetch(`/coreapi/api/get-drafting-payload/?file_no=${GLOBAL_FILE_NO}`);
+            if (!response.ok) return;
+            const data = await response.json();
+
+            if (data.success) {
+                megaPayload = data; // Store it for mapping
+                console.log("Mega-Payload loaded:", megaPayload);
+
+                // Map initial critical fields
+                mapInitialFields();
+
+                // After mapping, sync to server to ensure report_data is populated
+                setTimeout(syncAllFields, 500);
+            }
+        } catch (err) {
+            console.error("Auto-fill error:", err);
+        }
+    }
+
+    function mapInitialFields() {
+        if (!megaPayload) return;
+
+        const sv_checklist = megaPayload.site_visit?.form_data?.Valuers_Checklist || {};
+        const ver = megaPayload.verification || {};
+        const cf = megaPayload.client_folder || {};
+        const draft = megaPayload.drafting?.report_data || {};
+
+        // Generate Today's Date
+        const now = new Date();
+        const todayStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+
+        // Mapping Logic (Prioritizing Draft -> Verification -> Site Visit)
+        const fallbacks = {
+            'val_applicant': ver.applicant_name || sv_checklist.applicant_name || cf.applicant_name || '--',
+            'val_branch': sv_checklist.branch_name || '--',
+            'val_visit_date': sv_checklist.inspection_date || sv_checklist.inspectionDate || ver.inspection_date || '--',
+            'val_person_met': sv_checklist.person_met || sv_checklist.personMetAtSite || ver.person_met || '--',
+            'val_site_address': ver.survey_notes || sv_checklist.survey_notes || '--',
+            'val_report_date': todayStr,
+            'val_sign_date': todayStr,
+            'val_sign_place': 'Kollam',
+            'val_bank_code': GLOBAL_BANK_CODE || '--',
+            'val_loan_type': sv_checklist.product || cf.product || '--',
+            'val_contact': '--',
+            'val_owner_legal': ver.database?.Narratives?.ownership || '--',
+            'val_owner_revenue': ver.database?.Narratives?.ownership || '--',
+            'val_boundary_north': ver.database?.BoundaryAnalysis?.north || '--',
+            'val_boundary_south': ver.database?.BoundaryAnalysis?.south || '--',
+            'val_boundary_east': ver.database?.BoundaryAnalysis?.east || '--',
+            'val_boundary_west': ver.database?.BoundaryAnalysis?.west || '--'
+        };
+
+        // 1. Apply fallbacks ONLY for fields that do not have a saved value in the draft
+        for (const [id, val] of Object.entries(fallbacks)) {
+            const el = document.getElementById(id);
+            if (el && val !== undefined && draft[id] === undefined) {
+                el.innerText = val;
+                fieldValues[id] = val; // Synchronize local tracker
+            }
+        }
+
+        // 2. Map Declaration Dynamic Fields
+        const fmv = draft['val_val_fmv_total'] || '--';
+        const distress = draft['val_val_distress'] || '--';
+        const visitDate = draft['val_visit_date'] || fallbacks['val_visit_date'] || '--';
+
+        updateDeclarationDynamicFields(fmv, distress, visitDate);
+
+        // 2. Apply ALL saved data from the draft. 
+        // This ensures every editable field we added (e.g., val_file_no, val_locality_type) is fully restored.
+        for (const [id, val] of Object.entries(draft)) {
+            const el = document.getElementById(id);
+            if (el && val !== undefined) {
+                el.innerText = val;
+                fieldValues[id] = val; // Synchronize local tracker
+            }
+        }
+    }
+
+    /* ----- PRINT REPORT LOGIC ----- */
+    function printValuationReport() {
+        // Construct the exact filename requested by user
+        const fileNo = '{{ file_no }}';
+        const bankRef = document.getElementById('val_bank_ref_no')?.innerText.trim() || 'BankRef';
+        const applicant = document.getElementById('val_applicant_name')?.innerText.trim() || 'Applicant';
+
+        // Format: filenumber_bankfileno_applicantname_valuation_report
+        // (Browser automatically adds .pdf when user selects Save as PDF)
+        const filename = `${fileNo}_${bankRef}_${applicant}_valuation_report`.replace(/[^a-zA-Z0-9_\-]/g, '_');
+
+        // Temporarily set document title so 'Save as PDF' uses it
+        const originalTitle = document.title;
+        document.title = filename;
+
+        // Trigger the native print dialog
+        window.print();
+
+        // Restore title
+        setTimeout(() => { document.title = originalTitle; }, 1500);
+    }
+</script>
 {% endblock %}

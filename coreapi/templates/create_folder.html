@@ -217,6 +217,7 @@
                             <option value="12" data-name="Chola SME">12. Chola SME</option>
                             <option value="13" data-name="Axis Finance">13. Axis Finance</option>
                             <option value="14" data-name="L & T Finance">14. L & T Finance</option>
+                            <option value="15" data-name="Mahindra Home Finance">15. Mahindra Home Finance</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -434,7 +435,13 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn-submit" onclick="submitFolderCreation()">
+                <!-- Vadrida Sync: Offline Protection Message -->
+                <div id="offline_notice" class="hidden" style="margin-bottom: 20px; padding: 12px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; display: flex; align-items: center; gap: 10px; color: #991b1b; font-size: 14px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Server is offline. Data is saved locally, but you must wait for connection to create the folder.</span>
+                </div>
+
+                <button type="button" id="submitBtn" class="btn-submit" onclick="submitFolderCreation()">
                     <i class="fas fa-folder-plus"></i> Create Folder
                 </button>
             </form>
@@ -515,7 +522,7 @@
         const persistentFields = [
             'bank_select', 'district_select', 'local_body_select', 'muthoot_branch_select',
             'product_select', 'product_manual', 'site_code_select', 'site_code_manual', 'office_code_select',
-            'sib_branch', 'sib_region', 'village_select'
+            'sib_branch', 'sib_region', 'village_select', 'applicant_name', 'bank_ref'
         ];
         persistentFields.forEach(id => {
             const el = document.getElementById(id);
@@ -524,6 +531,28 @@
                 el.addEventListener('input', saveFormState);
             }
         });
+
+        // --- NEW: Vadrida Sync Monitoring ---
+        function checkSyncState() {
+            const isOffline = (window.VadridaSync && window.VadridaSync.status === 'offline');
+            const btn = document.getElementById('submitBtn');
+            const notice = document.getElementById('offline_notice');
+            
+            if (isOffline) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+                notice.classList.remove('hidden');
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                notice.classList.add('hidden');
+            }
+        }
+        
+        // Check every second for connectivity changes
+        setInterval(checkSyncState, 1000);
 
         restoreFormState();
         fetchNextSequence(); // toggleExtraFields is now called inside restore or at start
@@ -804,7 +833,7 @@
         const officeCode = document.getElementById('office_code_select').value;
 
         const d = new Date();
-        const dateStr = ("0" + d.getDate()).slice(-2) + ("0" + (get_month_val(d))).slice(-2) + d.getFullYear();
+        const dateStr = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear();
 
         function get_month_val(date) { return date.getMonth() + 1; }
 
@@ -919,7 +948,7 @@
         const offCode = document.getElementById('office_code_select').value;
 
         const d = new Date();
-        const dateStr = ("0" + d.getDate()).slice(-2) + ("0" + (d.getMonth() + 1)).slice(-2) + d.getFullYear();
+        const dateStr = ("0" + d.getDate()).slice(-2) + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + d.getFullYear();
 
         fetch('/coreapi/api/create-folder/', {
             method: 'POST',

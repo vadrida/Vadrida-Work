@@ -110,4 +110,32 @@ class VerificationReport(models.Model):
 
     def __str__(self):
         return f"Verification for {self.office_file_no}"
+
+# --- NEW MODEL FOR REAL-TIME REPORT DRAFTING & AUDIT LOGS ---
+class DraftingReport(models.Model):
+    # Primary Key is the File Number
+    office_file_no = models.CharField(max_length=50, primary_key=True, db_index=True)
+    bank_code = models.CharField(max_length=10, blank=True, null=True)
+    bank_name = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Collaborators
+    site_visitor = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='drafting_site_visits')
+    office_verifier = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='drafting_verifications')
+    report_drafter = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='drafting_current_work')
+
+    # Status
+    status = models.CharField(max_length=20, default='drafting') # drafting, completed, archived
+    
+    # Core Data
+    report_data = models.JSONField(default=dict) # The latest state of all fields
+    
+    # Audit Log (Movement Tracking)
+    # Structure: [{"user": "id", "name": "name", "field": "field_id", "old": "...", "new": "...", "timestamp": "..."}]
+    audit_log = models.JSONField(default=list)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Drafting Report: {self.office_file_no} ({self.bank_name})"
 

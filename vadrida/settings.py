@@ -72,8 +72,11 @@ PWA_APP_ICONS = [
         'type': 'image/png'
     }
 ]
+BASE_DIR=Path(__file__).resolve().parent.parent
 # Location where the manifest.json will be stored
 PWA_APP_DIR = 'ltr'
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'js', 'serviceworker.js')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -91,7 +94,7 @@ MIDDLEWARE+= [
     'core.middleware.ActiveUserMiddleware'
 ]
 ROOT_URLCONF = 'vadrida.urls'
-BASE_DIR=Path(__file__).resolve().parent.parent
+
 ALLOWED_FILE_EXTENSIONS = [
     '.pdf', '.doc', '.docx', 
     '.xls', '.xlsx', '.csv',
@@ -122,6 +125,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,  # Wait up to 20s before raising "database is locked"
+        }
     }
 }
 # Password validation

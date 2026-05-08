@@ -227,11 +227,13 @@
         gap: 8px;
         box-shadow: 0 4px 15px rgba(43, 110, 245, 0.2);
     }
+
     .btn-portal-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(43, 110, 245, 0.3);
         filter: brightness(1.1);
     }
+
     .btn-portal-primary:active {
         transform: translateY(0);
     }
@@ -250,12 +252,13 @@
         justify-content: center;
         gap: 8px;
     }
+
     .btn-portal-secondary:hover {
         background: var(--border);
         color: var(--text-main);
     }
 
-    
+
     .panel-header {
         background: rgba(255, 255, 255, 0.02);
         padding: 14px 20px;
@@ -1124,7 +1127,8 @@
         right: 0;
         top: 60%;
         transform: translateY(-50%);
-        z-index: 999; /* Highest priority */
+        z-index: 999;
+        /* Highest priority */
         display: flex;
         align-items: center;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1139,7 +1143,7 @@
         display: flex;
         flex-direction: column;
         gap: 12px;
-        box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
         transform: translateX(100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         backdrop-filter: blur(10px);
@@ -1161,7 +1165,7 @@
         border: 1px solid var(--border);
         border-right: none;
         border-radius: 8px 0 0 8px;
-        box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
         transition: all 0.2s;
     }
 
@@ -1195,8 +1199,13 @@
         background: rgba(43, 110, 245, 0.05);
     }
 
-    .fab-item.ai-item { color: #6366f1; }
-    .fab-item.utility-item { color: #3b82f6; }
+    .fab-item.ai-item {
+        color: #6366f1;
+    }
+
+    .fab-item.utility-item {
+        color: #3b82f6;
+    }
 
     .fab-label {
         position: absolute;
@@ -1219,14 +1228,22 @@
         transform: translateX(0);
     }
 
-    .fab-item.ai-item { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
-    .fab-item.utility-item { background: #3b82f6; color: white; }
+    .fab-item.ai-item {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+    }
+
+    .fab-item.utility-item {
+        background: #3b82f6;
+        color: white;
+    }
 
     .fab-label {
         position: absolute;
-        bottom: -25px; /* Label below the item for horizontal layout */
+        bottom: -25px;
+        /* Label below the item for horizontal layout */
         right: 0;
-        background: rgba(0,0,0,0.8);
+        background: rgba(0, 0, 0, 0.8);
         color: white;
         padding: 4px 10px;
         border-radius: 4px;
@@ -2405,10 +2422,13 @@
                                     Select Local Body Type in Schedule to initialize building analysis...
                                 </div>
                             </div>
-                            
+
                             <!-- MAKE REPORT ACTION -->
-                            <div style="margin-top: 40px; text-align: center; border-top: 1px solid var(--border); padding-top: 30px;">
-                                <button type="button" class="btn-portal-primary" style="padding: 12px 30px; font-size: 1.1rem; border-radius: 50px; box-shadow: 0 4px 20px rgba(180, 190, 209, 0.3); border: none; cursor: pointer; color: #ffffff;" onclick="ReportSystem.openBankSelection()">
+                            <div
+                                style="margin-top: 40px; text-align: center; border-top: 1px solid var(--border); padding-top: 30px;">
+                                <button type="button" class="btn-portal-primary"
+                                    style="padding: 12px 30px; font-size: 1.1rem; border-radius: 50px; box-shadow: 0 4px 20px rgba(180, 190, 209, 0.3); border: none; cursor: pointer; color: #ffffff;"
+                                    onclick="ReportSystem.openBankSelection()">
                                     <i class="fas fa-file-invoice" style="margin-right: 10px;"></i> Make Report
                                 </button>
                             </div>
@@ -2423,18 +2443,28 @@
 <!-- BANK SELECTION MODAL -->
 <div id="bankSelectionModal" class="vadrida-modal" style="display: none;">
     <div class="vadrida-modal-overlay" onclick="ReportSystem.closeBankSelection()"></div>
-    <div class="vadrida-modal-content" style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-        <div class="vadrida-modal-header" style="padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; color: var(--text-main); font-weight: 700;"><i class="fas fa-university" style="margin-right: 10px; color: var(--accent);"></i> Select Bank for Report</h3>
-            <button type="button" style="background: transparent; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-dim)'" onclick="ReportSystem.closeBankSelection()">&times;</button>
+    <div class="vadrida-modal-content"
+        style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+        <div class="vadrida-modal-header"
+            style="padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: var(--text-main); font-weight: 700;"><i class="fas fa-university"
+                    style="margin-right: 10px; color: var(--accent);"></i> Select Bank for Report</h3>
+            <button type="button"
+                style="background: transparent; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; transition: color 0.2s;"
+                onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-dim)'"
+                onclick="ReportSystem.closeBankSelection()">&times;</button>
         </div>
         <div class="vadrida-modal-body" style="padding: 30px;">
-            <p style="color: var(--text-dim); margin-bottom: 25px; font-size: 0.95rem; line-height: 1.5;">Choose the bank template you want to use for this report drafting session.</p>
-            
+            <p style="color: var(--text-dim); margin-bottom: 25px; font-size: 0.95rem; line-height: 1.5;">Choose the
+                bank template you want to use for this report drafting session.</p>
+
             <div class="form-group" style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 12px; color: var(--text-main); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Bank Template</label>
+                <label
+                    style="display: block; margin-bottom: 12px; color: var(--text-main); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Bank
+                    Template</label>
                 <div style="position: relative;">
-                    <select id="bank_select" class="form-select trigger-preview" style="width: 100%; padding: 12px 15px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); font-size: 1rem; appearance: none; outline: none; cursor: pointer; transition: all 0.2s;">
+                    <select id="bank_select" class="form-select trigger-preview"
+                        style="width: 100%; padding: 12px 15px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); font-size: 1rem; appearance: none; outline: none; cursor: pointer; transition: all 0.2s;">
                         <option value="01" data-name="HDFC">01. HDFC</option>
                         <option value="02" data-name="Muthoot">02. Muthoot</option>
                         <option value="03" data-name="Bajaj">03. Bajaj</option>
@@ -2449,46 +2479,78 @@
                         <option value="12" data-name="Chola SME">12. Chola SME</option>
                         <option value="13" data-name="Axis Finance">13. Axis Finance</option>
                         <option value="14" data-name="L & T Finance">14. L & T Finance</option>
+                        <option value="15" data-name="Mahindra Home Finance">15. Mahindra Home Finance</option>
                     </select>
-                    <i class="fas fa-chevron-down" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; font-size: 0.8rem;"></i>
+                    <i class="fas fa-chevron-down"
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; font-size: 0.8rem;"></i>
                 </div>
             </div>
-            
+
             <div style="margin-top: 35px; display: flex; gap: 15px;">
-                <button type="button" class="btn-portal-secondary" style="flex: 1; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--bg-input)'" onclick="ReportSystem.closeBankSelection()">Cancel</button>
-                <button type="button" class="btn-portal-primary" style="flex: 2; padding: 12px; border-radius: 10px; background: var(--accent); border: none; color: #ffffff; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(43, 110, 245, 0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(43, 110, 245, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(43, 110, 245, 0.2)';" onclick="ReportSystem.continueWithBank(event)">Continue</button>
+                <button type="button" class="btn-portal-secondary"
+                    style="flex: 1; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.background='var(--border)'"
+                    onmouseout="this.style.background='var(--bg-input)'"
+                    onclick="ReportSystem.closeBankSelection()">Cancel</button>
+                <button type="button" class="btn-portal-primary"
+                    style="flex: 2; padding: 12px; border-radius: 10px; background: var(--accent); border: none; color: #ffffff; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(43, 110, 245, 0.2);"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(43, 110, 245, 0.3)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(43, 110, 245, 0.2)';"
+                    onclick="ReportSystem.continueWithBank(event)">Continue</button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.vadrida-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease-out;
-}
-.vadrida-modal-overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-}
-.vadrida-modal-content {
-    position: relative;
-    width: 90%;
-    animation: slideUp 0.3s ease-out;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .vadrida-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .vadrida-modal-overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+    }
+
+    .vadrida-modal-content {
+        position: relative;
+        width: 90%;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
 </style>
 
 <!-- Hidden Datalist for Road Materials -->
@@ -2623,6 +2685,24 @@
     /* REPORT SYSTEM LOGIC */
     const ReportSystem = {
         openBankSelection() {
+            // Auto-select bank based on current folder info
+            const currentBankCode = "{{ report.target_folder|slice:':2' }}" || ""; // Assuming bank code is first 2 chars of folder path or similar
+            // Better yet, let's look for a hidden input or global variable if available
+            const bankSelect = document.getElementById('bank_select');
+
+            // If we have a bank code available in the template context (e.g. from ClientFolder)
+            const autoCode = "{{ report.office_file_no|slice:'4:6' }}"; // Example: 062604... usually 06 is district, but let's check
+
+            // Standard Vadrida logic: bank code is often passed or can be inferred
+            // I'll add logic to try and match the bank code from the page context
+            if (bankSelect) {
+                // First 2 digits are the bank code (e.g. 06 for SBI in 0626040001)
+                const detectedBankCode = document.getElementById('officeFileNo')?.value?.substring(0, 2);
+                if (detectedBankCode) {
+                    bankSelect.value = detectedBankCode;
+                }
+            }
+
             document.getElementById('bankSelectionModal').style.display = 'flex';
             document.body.style.overflow = 'hidden'; // prevent scroll
         },
@@ -2650,7 +2730,7 @@
             // Redirect to the drafting page
             // Format: /coreapi/report-drafting/?file_no=XYZ&bank=Chola%20SME
             const url = `/coreapi/report-drafting/?file_no=${encodeURIComponent(fileNo)}&bank_code=${encodeURIComponent(bankValue)}&bank_name=${encodeURIComponent(bankName)}`;
-            
+
             setTimeout(() => {
                 window.location.href = url;
             }, 800);
@@ -2888,7 +2968,23 @@
             SurveyNotes: document.getElementById('SurveyNotes')?.value || '',
             SynthesisCheckboxes: collectSynthesisCheckboxData(),
             MasterSynthesis: document.getElementById('masterSynthesisOutput')?.value || '',
-            SynthesisManualLock: document.getElementById('masterSynthesisOutput')?.getAttribute('data-manual') === 'true'
+            SynthesisManualLock: document.getElementById('masterSynthesisOutput')?.getAttribute('data-manual') === 'true',
+
+            // INDIVIDUAL NARRATIVES FOR REPORT DRAFTING
+            Narratives: {
+                doc_summary: document.getElementById('dynamicLabelOutput')?.innerText || '',
+                ownership: document.getElementById('ownershipLabelOutput')?.innerText || '',
+                agreement: document.getElementById('agreementLabelOutput')?.innerText || '',
+                agreement_otr: document.getElementById('agreementLabelOutputOTR')?.innerText || '',
+                deed: document.getElementById('deedLabelOutput')?.innerText || '',
+                deed_otr: document.getElementById('deedLabelOutputOTR')?.innerText || '',
+                land_tax: document.getElementById('landTaxLabelOutput')?.innerText || '',
+                land_tax_otr: document.getElementById('landTaxLabelOutputOTR')?.innerText || '',
+                land_classification: document.getElementById('landClassificationOutput')?.innerText || '',
+                boundary_summary: document.getElementById('boundaryAnalysisOutput')?.innerText || '',
+                demarcation_summary: document.getElementById('demarcationSummaryLabel')?.innerText || '',
+                access_alignment: document.querySelector('.summary-card-text')?.innerText || ''
+            }
         };
     }
 
@@ -3009,6 +3105,10 @@
                     return;
                 }
 
+                // 1. Save Locally (Offline First)
+                const pageKey = `vetting_${data.file_no || 'draft'}`;
+                await VadridaSync.save(pageKey, data);
+
                 // Persist search state to localStorage
                 localStorage.setItem('last_verification_file_no', data.file_no);
                 localStorage.setItem('search_bank', data.searchBank);
@@ -3026,13 +3126,16 @@
                 const resData = await response.json();
 
                 if (resData.success) {
+                    VadridaSync.setStatus('online');
                     showAutoSaveBadge('Draft Protected', 'var(--accent)');
                     console.log("Auto-save successful at " + new Date().toLocaleTimeString());
                 } else {
+                    VadridaSync.setStatus('offline');
                     showAutoSaveBadge('Sync Warning', 'var(--warning)');
                 }
             } catch (err) {
-                console.error("Autosave Error:", err);
+                console.error("Autosave Error - Data is safe locally:", err);
+                VadridaSync.setStatus('offline');
                 showAutoSaveBadge('Draft Offline', 'var(--danger)');
             }
         }, 1000);
@@ -5619,10 +5722,10 @@
                     }
 
                     const baSetbacks = {
-                        front: { provided: { min: ba.front_yard_min || '', max: ba.front_yard_max || '', mean: (ba.front_yard_min || ba.front_yard_max) ? ((parseFloat(ba.front_yard_min||0) + parseFloat(ba.front_yard_max||0))/2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } },
-                        rear: { provided: { min: ba.rear_yard_min || '', max: ba.rear_yard_max || '', mean: (ba.rear_yard_min || ba.rear_yard_max) ? ((parseFloat(ba.rear_yard_min||0) + parseFloat(ba.rear_yard_max||0))/2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } },
-                        side1: { provided: { min: ba.side1_yard_min || '', max: ba.side1_yard_max || '', mean: (ba.side1_yard_min || ba.side1_yard_max) ? ((parseFloat(ba.side1_yard_min||0) + parseFloat(ba.side1_yard_max||0))/2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } },
-                        side2: { provided: { min: ba.side2_yard_min || '', max: ba.side2_yard_max || '', mean: (ba.side2_yard_min || ba.side2_yard_max) ? ((parseFloat(ba.side2_yard_min||0) + parseFloat(ba.side2_yard_max||0))/2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } }
+                        front: { provided: { min: ba.front_yard_min || '', max: ba.front_yard_max || '', mean: (ba.front_yard_min || ba.front_yard_max) ? ((parseFloat(ba.front_yard_min || 0) + parseFloat(ba.front_yard_max || 0)) / 2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } },
+                        rear: { provided: { min: ba.rear_yard_min || '', max: ba.rear_yard_max || '', mean: (ba.rear_yard_min || ba.rear_yard_max) ? ((parseFloat(ba.rear_yard_min || 0) + parseFloat(ba.rear_yard_max || 0)) / 2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } },
+                        side1: { provided: { min: ba.side1_yard_min || '', max: ba.side1_yard_max || '', mean: (ba.side1_yard_min || ba.side1_yard_max) ? ((parseFloat(ba.side1_yard_min || 0) + parseFloat(ba.side1_yard_max || 0)) / 2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } },
+                        side2: { provided: { min: ba.side2_yard_min || '', max: ba.side2_yard_max || '', mean: (ba.side2_yard_min || ba.side2_yard_max) ? ((parseFloat(ba.side2_yard_min || 0) + parseFloat(ba.side2_yard_max || 0)) / 2).toFixed(2) : '' }, rule: { min: '', max: '', mean: '' } }
                     };
 
                     if (floors.length > 0) {
@@ -5680,9 +5783,9 @@
                     });
                     renderBuildingTable();
                 }
-                
+
                 const fmtYrd = (min, max) => min && max ? `${min}m - ${max}m` : (min || max ? `${min || max}m` : '-');
-                
+
                 if (document.getElementById('disp_front_yard')) {
                     document.getElementById('disp_front_yard').innerText = fmtYrd(sData.front_yard_min, sData.front_yard_max);
                     document.getElementById('disp_rear_yard').innerText = fmtYrd(sData.rear_yard_min, sData.rear_yard_max);
@@ -5697,7 +5800,7 @@
                 if (rulesContainer) {
                     if (fullUseStr.includes('a1') || fullUseStr.includes('a2') || fullUseStr.includes('group f') || fullUseStr.includes('residential')) {
                         rulesContainer.style.display = 'block';
-                        
+
                         const fMin = parseFloat(sData.front_yard_min) || 0;
                         const fMax = parseFloat(sData.front_yard_max) || 0;
                         const rMin = parseFloat(sData.rear_yard_min) || 0;
@@ -6145,14 +6248,14 @@
             if (field === 'min' || field === 'max') {
                 const minVal = parseFloat(window.vadridaBuildings[bIdx].setbacks[yard][type].min) || 0;
                 const maxVal = parseFloat(window.vadridaBuildings[bIdx].setbacks[yard][type].max) || 0;
-                
+
                 let meanVal = "";
                 if (minVal > 0 || maxVal > 0) {
                     meanVal = ((minVal + maxVal) / 2).toFixed(2);
                 }
-                
+
                 window.vadridaBuildings[bIdx].setbacks[yard][type].mean = meanVal;
-                
+
                 // Update the UI element directly to avoid full re-render (losing focus)
                 const meanEl = document.getElementById(`b${bIdx}_${yard}_${type}_mean`);
                 if (meanEl) meanEl.value = meanVal;
@@ -6164,13 +6267,13 @@
 
     function updateBuildingFloorData(bIdx, fIdx, key, val) {
         if (!window.vadridaBuildings[bIdx] || !window.vadridaBuildings[bIdx].floors[fIdx]) return;
-        
+
         // Strip commas
         let cleanVal = val;
         if (typeof val === 'string' && (key === 'value' || key === 'bupSqm' || key === 'bupSqft' || key === 'reconstructionRate' || key === 'depreciatedRate')) {
             cleanVal = val.replace(/,/g, '');
         }
-        
+
         const f = window.vadridaBuildings[bIdx].floors[fIdx];
         f[key] = cleanVal;
 
@@ -6268,7 +6371,7 @@
         if (typeof collectSurveyAnalysisData !== 'function') return 0;
         const data = collectSurveyAnalysisData();
         const priority = ['agreement', 'land tax', 'location sketch', 'title deed'];
-        
+
         for (const docType of priority) {
             for (let key in data) {
                 const slot = data[key];
@@ -6410,7 +6513,7 @@
             const minEl = document.getElementById(`b${bIdx}_${yk}_rule_min`);
             const maxEl = document.getElementById(`b${bIdx}_${yk}_rule_max`);
             const meanEl = document.getElementById(`b${bIdx}_${yk}_rule_mean`);
-            
+
             if (minEl) minEl.value = req[yk].min || '';
             if (maxEl) maxEl.value = req[yk].max || '';
             if (meanEl) meanEl.value = req[yk].mean || '';
@@ -6441,7 +6544,7 @@
         bldgs.forEach((b, bIdx) => {
             const totalBUA = b.floors ? b.floors.reduce((sum, f) => sum + (parseFloat(f.bupSqm) || 0), 0) : 0;
             const occupancy = b.occupancy || '';
-            
+
             // Console log for current step (Staging variables for conditional logic)
             console.log(`Building ${b.no} Analysis Context:`, {
                 occupancy: occupancy,
@@ -6605,15 +6708,15 @@
                         </thead>
                         <tbody>
                             ${(() => {
-                                const lbType = (document.getElementById('sched_local_body_type')?.value || '').toLowerCase();
-                                const rulePrefix = lbType.includes('panchayat') ? 'KPBR' : 'KMBR';
-                                const yardKeys = ['front', 'rear', 'side1', 'side2'];
+                    const lbType = (document.getElementById('sched_local_body_type')?.value || '').toLowerCase();
+                    const rulePrefix = lbType.includes('panchayat') ? 'KPBR' : 'KMBR';
+                    const yardKeys = ['front', 'rear', 'side1', 'side2'];
 
-                                const renderInputs = (type) => {
-                                    return yardKeys.map((yk, idx) => {
-                                        const s = b.setbacks ? b.setbacks[yk][type] : {};
-                                        const isLast = idx === yardKeys.length - 1;
-                                        return `
+                    const renderInputs = (type) => {
+                        return yardKeys.map((yk, idx) => {
+                            const s = b.setbacks ? b.setbacks[yk][type] : {};
+                            const isLast = idx === yardKeys.length - 1;
+                            return `
                                             <td style="padding: 0; border: 1px solid var(--border);">
                                                 <input type="text" class="input-cell" style="text-align: center; height: 35px; background: transparent; color: var(--text-main);" value="${s.min || ''}" 
                                                        oninput="updateBuildingSetback(${bIdx}, '${yk}', '${type}', 'min', this.value)" placeholder="-">
@@ -6627,10 +6730,10 @@
                                                        value="${s.mean || ''}" readonly>
                                             </td>
                                         `;
-                                    }).join('');
-                                };
+                        }).join('');
+                    };
 
-                                return `
+                    return `
                                     <tr>
                                         <td style="padding: 10px 15px; border: 1px solid var(--border); background: var(--bg-page); font-weight: 700; color: var(--text-main); font-size: 0.7rem;">As per site (Provided)</td>
                                         ${renderInputs('provided')}
@@ -6638,15 +6741,15 @@
                                     <tr>
                                         <td style="padding: 10px 15px; border: 1px solid var(--border); background: var(--bg-page); font-weight: 700; color: var(--text-main); font-size: 0.7rem;">As per ${rulePrefix} (Required)</td>
                                         ${(() => {
-                                            const req = getRequiredSetbacks(occupancy, totalBUA, plotAreaSqm);
-                                            return yardKeys.map((yk, idx) => {
-                                                const r = req[yk];
-                                                const s = b.setbacks ? b.setbacks[yk].rule : {};
-                                                const valMin = s.min || r.min || '';
-                                                const valMean = s.mean || r.mean || '';
-                                                const isLast = idx === yardKeys.length - 1;
+                            const req = getRequiredSetbacks(occupancy, totalBUA, plotAreaSqm);
+                            return yardKeys.map((yk, idx) => {
+                                const r = req[yk];
+                                const s = b.setbacks ? b.setbacks[yk].rule : {};
+                                const valMin = s.min || r.min || '';
+                                const valMean = s.mean || r.mean || '';
+                                const isLast = idx === yardKeys.length - 1;
 
-                                                return `
+                                return `
                                                     <td style="padding: 0; border: 1px solid var(--border);">
                                                         <input type="text" id="b${bIdx}_${yk}_rule_min" class="input-cell" style="text-align: center; height: 35px; background: transparent; color: var(--text-main); font-weight: 700;" 
                                                                value="${valMin}" readonly placeholder="-">
@@ -6660,11 +6763,11 @@
                                                                value="${valMean}" readonly>
                                                     </td>
                                                 `;
-                                            }).join('');
-                                        })()}
+                            }).join('');
+                        })()}
                                     </tr>
                                 `;
-                            })()}
+                })()}
                         </tbody>
                     </table>
                 </div>
@@ -8083,8 +8186,8 @@
     if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
     }
-    
-    window.addEventListener("beforeunload", function() {
+
+    window.addEventListener("beforeunload", function () {
         sessionStorage.setItem('vadrida_scrollpos', window.scrollY);
     });
 </script>
@@ -8098,13 +8201,16 @@
 
     <div class="fab-drawer">
         <!-- Friday AI Item -->
-        <div class="fab-item ai-item" onclick="AIChat.toggle(); document.getElementById('fabMenu').classList.remove('open')" title="Friday AI">
+        <div class="fab-item ai-item"
+            onclick="AIChat.toggle(); document.getElementById('fabMenu').classList.remove('open')" title="Friday AI">
             <span class="fab-label">Friday AI</span>
             <span style="font-weight: 800;">✨</span>
         </div>
-        
+
         <!-- Area Converter Item -->
-        <div class="fab-item utility-item" onclick="UtilityHub.open(); document.getElementById('fabMenu').classList.remove('open')" title="Area Converter">
+        <div class="fab-item utility-item"
+            onclick="UtilityHub.open(); document.getElementById('fabMenu').classList.remove('open')"
+            title="Area Converter">
             <span class="fab-label">Area Converter</span>
             <i class="fas fa-ruler-combined"></i>
         </div>
@@ -8179,11 +8285,12 @@
     body {
         transition: padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     body.ai-split-active {
         padding-right: 400px;
     }
-    
-    
+
+
     .ai-sidebar {
         position: fixed;
         top: 0;
@@ -8192,45 +8299,149 @@
         height: 100vh;
         background: var(--bg-card);
         border-left: 1px solid var(--border);
-        box-shadow: -5px 0 25px rgba(0,0,0,0.2);
+        box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2);
         z-index: 1000;
         display: flex;
         flex-direction: column;
         transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-family: 'Inter', sans-serif;
     }
-    .ai-sidebar.open { right: 0; }
-    .ai-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(43, 110, 245, 0.05); }
-    .ai-close-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.2rem; padding: 5px; transition: 0.2s; }
-    .ai-close-btn:hover { color: var(--danger); transform: rotate(90deg); }
-    .ai-history { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-    .ai-msg { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 0.85rem; line-height: 1.5; word-wrap: break-word; position: relative; }
-    .ai-msg.user { align-self: flex-end; background: #2b6ef5; color: white; border-bottom-right-radius: 2px; }
-    .ai-msg.model { align-self: flex-start; background: var(--bg-page); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-    .ai-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: var(--bg-header); }
-    .ai-input-area textarea { flex: 1; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 10px; padding: 12px; resize: none; height: 50px; font-size: 0.85rem; font-family: inherit; transition: 0.2s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-    .ai-input-area textarea:focus { outline: none; border-color: #2b6ef5; box-shadow: 0 0 0 3px rgba(43, 110, 245, 0.2); }
-    .ai-send-btn { width: 50px; height: 50px; background: #2b6ef5; color: white; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s; }
-    .ai-send-btn:hover { background: var(--accent); transform: scale(1.05); }
+
+    .ai-sidebar.open {
+        right: 0;
+    }
+
+    .ai-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(43, 110, 245, 0.05);
+    }
+
+    .ai-close-btn {
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+        transition: 0.2s;
+    }
+
+    .ai-close-btn:hover {
+        color: var(--danger);
+        transform: rotate(90deg);
+    }
+
+    .ai-history {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .ai-msg {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+        position: relative;
+    }
+
+    .ai-msg.user {
+        align-self: flex-end;
+        background: #2b6ef5;
+        color: white;
+        border-bottom-right-radius: 2px;
+    }
+
+    .ai-msg.model {
+        align-self: flex-start;
+        background: var(--bg-page);
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        border-bottom-left-radius: 2px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    }
+
+    .ai-input-area {
+        padding: 15px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        background: var(--bg-header);
+    }
+
+    .ai-input-area textarea {
+        flex: 1;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        border-radius: 10px;
+        padding: 12px;
+        resize: none;
+        height: 50px;
+        font-size: 0.85rem;
+        font-family: inherit;
+        transition: 0.2s;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .ai-input-area textarea:focus {
+        outline: none;
+        border-color: #2b6ef5;
+        box-shadow: 0 0 0 3px rgba(43, 110, 245, 0.2);
+    }
+
+    .ai-send-btn {
+        width: 50px;
+        height: 50px;
+        background: #2b6ef5;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: 0.2s;
+    }
+
+    .ai-send-btn:hover {
+        background: var(--accent);
+        transform: scale(1.05);
+    }
 </style>
 
 
 <div id="aiChatSidebar" class="ai-sidebar">
     <div class="ai-header">
         <div style="display:flex; align-items:center; gap:8px;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: #2b6ef5; display: flex; align-items: center; justify-content: center; color: white;">
+            <div
+                style="width: 32px; height: 32px; border-radius: 8px; background: #2b6ef5; display: flex; align-items: center; justify-content: center; color: white;">
                 <i class="fas fa-user-astronaut"></i>
             </div>
             <div>
-                <span style="font-weight:700; font-size:0.95rem; color: var(--text-main); display: block;">Friday AI</span>
-                <span style="font-size:0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Digital Assistant</span>
+                <span style="font-weight:700; font-size:0.95rem; color: var(--text-main); display: block;">Friday
+                    AI</span>
+                <span
+                    style="font-size:0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Digital
+                    Assistant</span>
             </div>
         </div>
         <button class="ai-close-btn" onclick="AIChat.toggle()"><i class="fas fa-times"></i></button>
     </div>
     <div id="aiChatHistory" class="ai-history"></div>
     <div class="ai-input-area">
-        <textarea id="aiChatInput" placeholder="Ask AI about this verification file..." onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); AIChat.sendMessage(); }"></textarea>
+        <textarea id="aiChatInput" placeholder="Ask AI about this verification file..."
+            onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); AIChat.sendMessage(); }"></textarea>
         <button class="ai-send-btn" onclick="AIChat.sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
@@ -8279,7 +8490,7 @@
         renderMessage(role, content) {
             const histEl = document.getElementById('aiChatHistory');
             if (histEl.innerHTML.includes('How can I help')) histEl.innerHTML = '';
-            
+
             // Format content: convert newlines to <br>, bold to <strong>
             let formattedContent = content
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -8313,9 +8524,9 @@
 
             inputEl.value = '';
             this.renderMessage('user', text);
-            
+
             const history = JSON.parse(localStorage.getItem(this.getHistoryKey()) || '[]');
-            history.push({role: 'user', content: text});
+            history.push({ role: 'user', content: text });
             this.saveHistory(history);
 
             const loadingId = 'loading-' + Date.now();
@@ -8330,16 +8541,16 @@
                     body: JSON.stringify({
                         message: text,
                         context: this.getPageContext(),
-                        history: history.slice(-10) 
+                        history: history.slice(-10)
                     })
                 });
-                
+
                 const data = await response.json();
                 document.getElementById(loadingId)?.remove();
 
                 if (response.ok && data.reply) {
                     this.renderMessage('model', data.reply);
-                    history.push({role: 'model', content: data.reply});
+                    history.push({ role: 'model', content: data.reply });
                     this.saveHistory(history);
                 } else {
                     this.renderMessage('model', '⚠️ Error: ' + (data.error || 'Failed to get response.'));
@@ -8352,10 +8563,10 @@
     };
 
     // "Explain with AI" Selection Popup
-    document.addEventListener('mouseup', function(e) {
+    document.addEventListener('mouseup', function (e) {
         let selectedText = window.getSelection().toString().trim();
         let btn = document.getElementById('aiExplainBtn');
-        
+
         if (selectedText.length > 0 && selectedText.length < 500) {
             // Check if we are selecting inside the chat itself to avoid loops
             if (e.target.closest('#aiChatSidebar')) return;
@@ -8379,13 +8590,13 @@
                 btn.style.gap = '5px';
                 btn.style.alignItems = 'center';
                 document.body.appendChild(btn);
-                
-                btn.onmousedown = function(e) {
+
+                btn.onmousedown = function (e) {
                     e.preventDefault(); // prevent selection clear
                 };
-                btn.onclick = function() {
+                btn.onclick = function () {
                     const text = window.getSelection().toString().trim();
-                    if(text) {
+                    if (text) {
                         if (!AIChat.isOpen) AIChat.toggle();
                         const inputEl = document.getElementById('aiChatInput');
                         inputEl.value = "Explain this value/text from the page: " + text;
@@ -8395,7 +8606,7 @@
                     window.getSelection().removeAllRanges();
                 };
             }
-            
+
             btn.style.display = 'flex';
             btn.style.top = (e.pageY - 45) + 'px';
             btn.style.left = (e.pageX + 5) + 'px';
