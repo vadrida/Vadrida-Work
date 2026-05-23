@@ -1,57 +1,92 @@
-const CACHE_NAME = 'vadrida-v1';
+const CACHE_NAME = 'vadrida-v6'; // Force update for API fix
 const ASSETS_TO_CACHE = [
     '/',
     '/coreapi/login/',
     '/static/js/vadrida_offline.js',
+    '/static/offline.html',
+    '/coreapi/dashboard/',
+    '/coreapi/office/',
+    '/coreapi/office-dash/',
+    '/coreapi/office-verification/',
+    '/coreapi/status-viewer/',
+    '/coreapi/report-drafting/',
+    '/coreapi/digital-signer/',
+    '/coreapi/feedback/',
+    // REMOVED /admin/ from pre-cache. It's too dynamic.
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css',
-    'https://cdn.tailwindcss.com'
+    'https://cdn.tailwindcss.com',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 ];
 
-// 1. Install Event: Cache essential assets
+// 1. Install Event
 self.addEventListener('install', (event) => {
+    console.log('[SW] Installing version:', CACHE_NAME);
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
-});
-
-// 2. Activate Event: Cleanup old caches
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map((cache) => {
-                    if (cache !== CACHE_NAME) {
-                        return caches.delete(cache);
-                    }
+                ASSETS_TO_CACHE.map(url => {
+                    return fetch(url).then(response => {
+                        if (response.ok) return cache.put(url, response);
+                    }).catch(err => console.error('[SW] Pre-cache failed:', url));
                 })
             );
         })
     );
 });
 
-// 3. Fetch Event: Network-first for dynamic content, cache-fallback for assets
-self.addEventListener('fetch', (event) => {
-    // Only handle GET requests for caching
-    if (event.request.method !== 'GET') return;
+// 2. Activate Event
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keys) => {
+            return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+        })
+    );
+});
 
-    // Skip Chrome extensions and other non-http schemes
+// 3. Fetch Event
+self.addEventListener('fetch', (event) => {
+    if (event.request.method !== 'GET') return;
+    
+    const url = new URL(event.request.url);
+
+    // CRITICAL: Do NOT intercept or cache Admin, API, or Signing requests
+    if (url.pathname.startsWith('/admin/') || 
+        url.pathname.startsWith('/coreapi/api/') ||
+        url.pathname.includes('/digital-sign/')) {
+        return;
+    }
+
+    // Only handle same-origin or specific CDNs
     if (!event.request.url.startsWith('http')) return;
 
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // If network works, clone it to cache
-                const responseClone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseClone);
-                });
+                if (response.ok) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                    return response;
+                }
+                
+                // If 5xx error, try EXACT match in cache (No ignoreSearch for HTML)
+                if (response.status >= 500) {
+                    return caches.match(event.request).then((cachedResponse) => {
+                        if (cachedResponse) return cachedResponse;
+                        if (event.request.mode === 'navigate') return caches.match('/static/offline.html');
+                        return response;
+                    });
+                }
                 return response;
             })
             .catch(() => {
-                // If network fails, try cache
-                return caches.match(event.request);
+                // Network failure
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) return cachedResponse;
+                    if (event.request.mode === 'navigate') return caches.match('/static/offline.html');
+                });
             })
     );
 });

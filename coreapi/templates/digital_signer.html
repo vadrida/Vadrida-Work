@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Digital PDF Signer | Vadrida{% endblock %}
+
+{% block extra_head %}
+<!-- PDF.js for rendering PDFs in the browser -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary: #1e293b;
+        --accent: #10b981;
+        --accent-glow: rgba(16, 185, 129, 0.15);
+        --bg-signer: #0f172a;
+        --panel-bg: #1e293b;
+        --border: #334155;
+    }
+
+    body {
+        background-color: var(--bg-signer);
+        font-family: 'Outfit', sans-serif;
+        color: #f1f5f9;
+        margin: 0;
+        overflow: hidden; /* We want a full-screen app feel */
+    }
+
+    /* --- LAYOUT --- */
+    .signer-wrapper {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        height: calc(100vh - 112px); /* Subtract header height */
+        width: 100vw;
+    }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+        background: var(--panel-bg);
+        border-right: 1px solid var(--border);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        z-index: 10;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+        overflow-y: auto; /* Enable scrolling for long notes */
+    }
+
+    .brand-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--accent);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: #fff;
+        box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .brand-text h2 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .brand-text p {
+        font-size: 11px;
+        color: #94a3b8;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* --- DROP ZONE --- */
+    #upload-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        padding: 30px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: rgba(255,255,255,0.02);
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        transform: scale(1.02);
+    }
+
+    .drop-zone i {
+        font-size: 32px;
+        color: var(--accent);
+        margin-bottom: 12px;
+    }
+
+    .drop-zone p {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    /* --- CONTROLS --- */
+    .control-panel {
+        background: rgba(0,0,0,0.2);
+        border-radius: 12px;
+        padding: 16px;
+        display: none; /* Shown after upload */
+    }
+
+    .control-item {
+        margin-bottom: 16px;
+    }
+
+    .control-item:last-child { margin-bottom: 0; }
+
+    .control-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .btn-sign {
+        width: 100%;
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-sign:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+    }
+
+    .btn-sign:active { transform: translateY(0); }
+
+    /* --- VIEWER AREA --- */
+    .viewer-area {
+        background: #0b0e14;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        padding: 40px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+
+    #pdf-canvas-container {
+        position: relative;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        background: white;
+        line-height: 0;
+    }
+
+    /* --- SIGNATURE BOX --- */
+    #sig-box {
+        position: absolute;
+        width: 160px;
+        height: 60px;
+        border: 2px dashed #3b82f6;
+        background: rgba(59, 130, 246, 0.15);
+        cursor: crosshair;
+        z-index: 100;
+        display: none;
+        box-sizing: border-box;
+    }
+
+    #sig-box::after {
+        content: 'SIGNATURE AREA';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10px;
+        font-weight: 800;
+        color: #3b82f6;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    /* Corner handles for resizing if needed later */
+    .resize-handle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: white;
+        border: 1px solid var(--accent);
+        bottom: -4px;
+        right: -4px;
+        cursor: nwse-resize;
+    }
+
+    /* --- PAGE NAVIGATION --- */
+    .page-nav {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border);
+        padding: 8px 16px;
+        border-radius: 100px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 100;
+    }
+
+    .nav-btn {
+        background: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 5px;
+        font-size: 16px;
+        transition: opacity 0.2s;
+    }
+
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    #page-info {
+        font-size: 14px;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signer-wrapper">
+    <!-- Sidebar Controls -->
+    <div class="sidebar">
+        <div class="brand-section">
+            <div class="brand-icon">
+                <i class="fas fa-file-signature"></i>
+            </div>
+            <div class="brand-text">
+                <h2>Digital Signer</h2>
+                <p>Vadrida Secure</p>
+            </div>
+        </div>
+
+        <div id="upload-section">
+            <div class="drop-zone" id="drop-zone">
+                <input type="file" id="file-input" hidden accept=".pdf">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p><strong>Click or Drag</strong> to upload the PDF report you want to sign.</p>
+            </div>
+        </div>
+
+        <div class="control-panel" id="controls">
+            <div class="control-item">
+                <span class="control-label">File Details</span>
+                <div id="file-name-display" style="font-size: 13px; font-weight: 600; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
+                <div id="file-size-display" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">0 KB</div>
+            </div>
+            <div class="control-item" style="margin-top: 15px;">
+                <span class="control-label">Authorized Signing Password</span>
+                <div style="position: relative;">
+                    <input type="password" id="signing-password" placeholder="Enter System Password" 
+                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px; padding-right: 40px; color: white; font-size: 14px; outline: none;">
+                    <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 5px;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="control-item" style="margin-top: 15px; display: none;" id="sign-action-wrap">
+                <button class="btn-sign" id="btn-start-sign">
+                    <i class="fas fa-pen-nib"></i> Sign & Download
+                </button>
+            </div>
+            
+            <p style="font-size: 11px; color: #64748b; margin-top: 20px; line-height: 1.4;">
+                <i class="fas fa-info-circle"></i> Use the "Place Signature Box" button to enable the placement area. Drag the blue box to the required spot.
+                <br><br>
+                <i class="fas fa-shield-alt"></i> <strong>Note:</strong> Ensure your DSC USB token is plugged in and the InnaIT driver is installed at the default path.
+            </p>
+        </div>
+
+        <div style="margin-top: auto;">
+            <a href="{% url 'coreapi:office' %}" style="color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 500;">
+                <i class="fas fa-arrow-left"></i> Back to Office
+            </a>
+        </div>
+    </div>
+
+    <!-- Viewer Area -->
+    <div class="viewer-area">
+        <div id="pdf-canvas-container">
+            <canvas id="pdf-canvas"></canvas>
+            <!-- Draggable Signature Box -->
+            <div id="sig-box">
+                <div class="resize-handle"></div>
+            </div>
+        </div>
+
+        <!-- Floating Nav -->
+        <div class="page-nav" id="page-nav" style="display: none;">
+            <button class="nav-btn" id="prev-page"><i class="fas fa-chevron-left"></i></button>
+            <span id="page-info">Page 1 of 1</span>
+            <button class="nav-btn" id="next-page"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.5;
+    const canvas = document.getElementById('pdf-canvas');
+    const ctx = canvas.getContext('2d');
+    const sigBox = document.getElementById('sig-box');
+    const container = document.getElementById('pdf-canvas-container');
+
+    // --- FILE UPLOAD ---
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.onclick = () => fileInput.click();
+
+    fileInput.onchange = (e) => {
+        if (e.target.files.length) loadPDF(e.target.files[0]);
+    };
+
+    dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    };
+
+    dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) loadPDF(e.dataTransfer.files[0]);
+    };
+
+    function loadPDF(file) {
+        document.getElementById('file-name-display').innerText = file.name;
+        document.getElementById('file-size-display').innerText = (file.size / 1024).toFixed(1) + ' KB';
+        
+        const reader = new FileReader();
+        reader.onload = function() {
+            const typedarray = new Uint8Array(this.result);
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                pdfDoc = pdf;
+                document.getElementById('page-info').innerText = `Page 1 of ${pdf.numPages}`;
+                document.getElementById('controls').style.display = 'block';
+                document.getElementById('page-nav').style.display = 'flex';
+                
+                // sigBox is NOT shown yet
+                renderPage(1);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function renderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+            return;
+        }
+        pageRendering = true;
+        
+        pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({scale: scale});
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            const renderTask = page.render(renderContext);
+
+            renderTask.promise.then(function() {
+                pageRendering = false;
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+        document.getElementById('page-info').innerText = `Page ${num} of ${pdfDoc.numPages}`;
+        pageNum = num;
+        sigBox.style.display = 'none';
+        document.getElementById('sign-action-wrap').style.display = 'none';
+    }
+
+    document.getElementById('prev-page').onclick = () => {
+        if (pageNum <= 1) return;
+        renderPage(pageNum - 1);
+    };
+
+    document.getElementById('next-page').onclick = () => {
+        if (pageNum >= pdfDoc.numPages) return;
+        renderPage(pageNum + 1);
+    };
+
+    // --- OPTIMIZED DRAWING WITH requestAnimationFrame ---
+    let isDrawing = false;
+    let startX, startY;
+    let rafId = null;
+
+    canvas.onmousedown = (e) => {
+        if (!pdfDoc) return;
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+
+        sigBox.style.display = 'block';
+        sigBox.style.left = startX + 'px';
+        sigBox.style.top = startY + 'px';
+        sigBox.style.width = '0px';
+        sigBox.style.height = '0px';
+        document.getElementById('sign-action-wrap').style.display = 'none';
+    };
+
+    window.onmousemove = (e) => {
+        if (!isDrawing) return;
+        
+        // Use requestAnimationFrame for smooth, non-laggy updates
+        if (rafId) cancelAnimationFrame(rafId);
+        
+        rafId = requestAnimationFrame(() => {
+            const rect = canvas.getBoundingClientRect();
+            let currentX = e.clientX - rect.left;
+            let currentY = e.clientY - rect.top;
+
+            currentX = Math.max(0, Math.min(currentX, canvas.width));
+            currentY = Math.max(0, Math.min(currentY, canvas.height));
+
+            const width = currentX - startX;
+            const height = currentY - startY;
+
+            sigBox.style.width = Math.abs(width) + 'px';
+            sigBox.style.height = Math.abs(height) + 'px';
+            sigBox.style.left = (width > 0 ? startX : currentX) + 'px';
+            sigBox.style.top = (height > 0 ? startY : currentY) + 'px';
+        });
+    };
+
+    window.onmouseup = () => {
+        if (isDrawing) {
+            isDrawing = false;
+            // Only show sign button if a meaningful area was drawn
+            if (parseInt(sigBox.style.width) > 10 && parseInt(sigBox.style.height) > 10) {
+                document.getElementById('sign-action-wrap').style.display = 'block';
+            } else {
+                sigBox.style.display = 'none';
+            }
+        }
+    };
+
+    // --- SIGNING ACTION ---
+    document.getElementById('btn-start-sign').onclick = async function() {
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+        
+        try {
+            const x = parseInt(sigBox.style.left);
+            const y = parseInt(sigBox.style.top);
+            const w = parseInt(sigBox.style.width);
+            const h = parseInt(sigBox.style.height);
+            const password = document.getElementById('signing-password').value;
+            
+            if (!password) {
+                alert("Please enter the Authorized Signing Password");
+                return;
+            }
+
+            // Calculate relative position for the backend (PDF Points)
+            // PDF points are usually 72 dpi, bottom-left origin
+            // Canvas is scaled (1.5x), so we must un-scale it
+            const pdfX = x / scale; 
+            // Invert Y because PDF origin is bottom-left, canvas is top-left
+            const pdfY = (canvas.height - y - h) / scale; 
+            const pdfW = w / scale;
+            const pdfH = h / scale;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing...';
+
+            const formData = new FormData();
+            formData.append('pdf', fileInput.files[0]);
+            formData.append('x', pdfX);
+            formData.append('y', pdfY);
+            formData.append('w', pdfW);
+            formData.append('h', pdfH);
+            formData.append('page', pageNum);
+            formData.append('password', password);
+
+            const response = await fetch('/coreapi/api/digital-sign/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Signed_${fileInput.files[0].name}`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                
+                alert("PDF Signed Successfully!");
+            } else {
+                const errData = await response.json();
+                alert("Signing Failed: " + (errData.error || "Unknown Error"));
+            }
+        } catch (error) {
+            console.error(error);
+            alert("An error occurred during signing.");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    };
+
+    // --- PASSWORD TOGGLE ---
+    const passInput = document.getElementById('signing-password');
+    const toggleBtn = document.getElementById('toggle-password');
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            const isPass = passInput.type === 'password';
+            passInput.type = isPass ? 'text' : 'password';
+            toggleBtn.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        };
+    }
+</script>
+{% endblock %}

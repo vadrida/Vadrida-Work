@@ -2264,6 +2264,12 @@
                                                 data-path="land_inspection_details.pincode" class="form-input"
                                                 style="height: 40px;" placeholder="e.g. 682024">
                                         </div>
+                                        <div style="flex: 1; min-width: 120px;">
+                                            <label class="text-xs text-gray-500 font-bold">House Name</label>
+                                            <input type="text" id="input_house_name"
+                                                data-path="land_inspection_details.house_name" class="form-input"
+                                                style="height: 40px;" placeholder="e.g. Dream House">
+                                        </div>
                                         <div style="flex: 2; min-width: 200px; position: relative;">
                                             <label class="text-xs text-gray-500 font-bold">Search Location</label>
                                             <div style="position: relative;">
@@ -5493,7 +5499,11 @@
     }
 
     function getNestedValue(obj, path) {
-        if (!path) return undefined;
+        if (!path || !obj) return undefined;
+        // 1. Try direct access (in case the key itself contains dots, which happens with some flat auto-saves)
+        if (obj[path] !== undefined) return obj[path];
+        
+        // 2. Try nested reduction
         return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : undefined, obj);
     }
 
@@ -7383,33 +7393,49 @@
     }
 
     function parseTimelineString(str) {
+        console.log("🏗️ Parsing Construction Timeline:", str);
         const rowPercent = document.getElementById('row_percent');
         const rowYear = document.getElementById('row_year');
 
-        // CLEANUP LOGIC CHANGED due to row swap:
+        if (!rowPercent || !rowYear) {
+            console.error("❌ Timeline rows not found in DOM");
+            return;
+        }
 
-        // Year Row (Top): Label is index 0. Button is lastChild.
-        // Keep removing children between Label and Button
+        // Cleanup existing columns
         while (rowYear.children.length > 2) {
             rowYear.removeChild(rowYear.children[1]);
         }
-
-        // Percent Row (Bottom): Label is index 0. No buttons here anymore.
-        // Keep removing everything after label
         while (rowPercent.children.length > 1) {
             rowPercent.removeChild(rowPercent.children[1]);
         }
 
-        if (!str) { createColumnAtIndex(0, ""); return; }
+        if (!str || str === "--") { 
+            console.log("ℹ️ No timeline data, creating empty column");
+            createColumnAtIndex(0, "", ""); 
+            return; 
+        }
 
         const parts = str.split(', ');
+        console.log("🧩 Parts to process:", parts);
         parts.forEach((part, idx) => {
-            // Improved regex: Handle cases where year or percent might be empty strings in the encoded format
-            const match = part.match(/(\d*)\s*\((\d*)%\)/);
-            if (match) {
-                createColumnAtIndex(idx, match[2], match[1]); // Percent, Year
-            } else {
-                createColumnAtIndex(idx, "", "");
+            // 1. Try full format: "2021 (100%)"
+            const fullMatch = part.match(/(\d+)\s*\((\d*)%\)/);
+            if (fullMatch) {
+                console.log(`✅ Matched Full Format: ${fullMatch[1]} at ${fullMatch[2]}%`);
+                createColumnAtIndex(idx, fullMatch[2], fullMatch[1]);
+            } 
+            // 2. Try simple year format: "2021"
+            else if (part.trim().match(/^\d{4}$/)) {
+                console.log(`✅ Matched Simple Year: ${part.trim()}`);
+                createColumnAtIndex(idx, "100", part.trim());
+            }
+            // 3. Fallback: try to extract any numbers
+            else {
+                const yearMatch = part.match(/\b(19|20)\d{2}\b/);
+                const percMatch = part.match(/(\d+)%/);
+                console.log(`⚠️ Matched Fallback: Year=${yearMatch ? yearMatch[0] : '?'}, Perc=${percMatch ? percMatch[1] : '?'}`);
+                createColumnAtIndex(idx, percMatch ? percMatch[1] : "", yearMatch ? yearMatch[0] : "");
             }
         });
     }

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import load_dotenv # Triggering reload
 load_dotenv()
 import mimetypes
 SECRET_KEY = 'django-insecure-_ig@9s8_3u#jib24eap(oydc$olvq)=)#4pb@9%u^=2)y8!6*$'
@@ -126,10 +126,17 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
         'OPTIONS': {
-            'timeout': 20,  # Wait up to 20s before raising "database is locked"
+            'timeout': 20,
         }
     }
 }
+
+# 🚨 CRITICAL: Fix for MySQL 1055 Error (ONLY_FULL_GROUP_BY) in Production
+# If you use MySQL, this ensures Group By queries in Django Admin don't crash.
+for db in DATABASES.values():
+    if db['ENGINE'] == 'django.db.backends.mysql':
+        db.setdefault('OPTIONS', {})
+        db['OPTIONS']['init_command'] = "SET sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'"
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [

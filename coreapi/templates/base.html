@@ -2,16 +2,19 @@
 {% load pwa %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <base target="_self">
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Vadrida Property Valuations{% endblock %}</title>
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap"
+        rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -42,10 +45,13 @@
     </script>
 
     <style>
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+        }
 
         .glass-effect {
-            background: var(--bg-card); /* Fallback if variables not loaded yet */
+            background: var(--bg-card);
+            /* Fallback if variables not loaded yet */
             background: var(--bg-header);
             backdrop-filter: blur(18px);
             border-bottom: 1px solid var(--border);
@@ -67,6 +73,7 @@
             background: #FFD700;
             transition: width .3s ease;
         }
+
         .nav-link:hover::after,
         .nav-link.active::after {
             width: 100%;
@@ -78,7 +85,7 @@
             transition: transform 0.5s ease-in-out;
         }
     </style>
-<link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -93,14 +100,16 @@
 
             <div class="flex items-center gap-5">
                 <!-- Vadrida Global Sync Indicator -->
-                <div id="vadridaSyncIndicator" class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold transition-all duration-300" title="System Online & Synced">
+                <div id="vadridaSyncIndicator"
+                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold transition-all duration-300"
+                    title="System Online & Synced">
                     <i id="vadridaSyncIcon" class="fas fa-cloud"></i>
                     <span id="vadridaSyncText" class="hidden md:inline">Online</span>
                 </div>
 
-                <a href="javascript:location.reload()" 
-                   class="text-xl text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-all hover:rotate-180 duration-500 flex items-center" 
-                   title="Reload Page">
+                <a href="javascript:location.reload()"
+                    class="text-xl text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-all hover:rotate-180 duration-500 flex items-center"
+                    title="Reload Page">
                     <i class="fas fa-sync-alt"></i>
                 </a>
 
@@ -111,8 +120,7 @@
                     <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
                 </ul>
 
-                <button id="mobileMenuBtn"
-                        class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
+                <button id="mobileMenuBtn" class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -121,7 +129,7 @@
     </nav>
 
     <div id="mobileMenu"
-         class="hidden fixed top-20 left-0 w-full bg-white shadow-lg border-t border-gray-100 py-6 z-40 animate-slideDown">
+        class="hidden fixed top-20 left-0 w-full bg-white shadow-lg border-t border-gray-100 py-6 z-40 animate-slideDown">
 
         <div class="flex flex-col text-lg px-6 font-montserrat">
             <div class="py-3 border-b border-gray-100 text-sm text-gray-500 font-medium">
@@ -133,7 +141,8 @@
             <a href="javascript:location.reload()" class="py-4 border-b border-gray-100 flex items-center gap-3">
                 <i class="fas fa-sync-alt text-royal-blue-600"></i> Reload Page
             </a>
-            <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3" onclick="return confirmLogout(event)">
+            <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3"
+                onclick="return confirmLogout(event)">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
@@ -164,10 +173,10 @@
     <script>
         /* 0. Service Worker Registration */
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/serviceworker.js').then(function(registration) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
                     // console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(err) {
+                }, function (err) {
                     // console.log('ServiceWorker registration failed: ', err);
                 });
             });
@@ -185,41 +194,42 @@
 
         // --- FULLSCREEN LOGIC REMOVED ---
     </script>
-{% if request.session.user_id %}
-<script>
-    (function() {
-        // 1. Auto-detect WebSocket Protocol (ws:// or wss://)
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const presenceWs = new WebSocket(`${protocol}://${window.location.host}/ws/presence/`);
+    {% if request.session.user_id %}
+    <script>
+        (function () {
+            // 1. Auto-detect WebSocket Protocol (ws:// or wss://)
+            const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            const presenceWs = new WebSocket(`${protocol}://${window.location.host}/ws/presence/`);
 
-        // 2. Determine Current Page Name
-        let pageName = "Browsing";
-        const path = window.location.pathname;
+            // 2. Determine Current Page Name
+            let pageName = "Browsing";
+            const path = window.location.pathname;
 
-        if (path.includes('office')) {
-            pageName = "Office Dashboard";
-        } else if (path.includes('feedback')) {
-            pageName = "Feedback Form";
-        } else if (path.includes('admin')) {
-            pageName = "Admin Dashboard";
-        } else if (path.includes('report-detail')) {
-            pageName = "Viewing Report";
-        } else {
-            pageName = document.title || "Vadrida App";
-        }
+            if (path.includes('office')) {
+                pageName = "Office Dashboard";
+            } else if (path.includes('feedback')) {
+                pageName = "Feedback Form";
+            } else if (path.includes('admin')) {
+                pageName = "Admin Dashboard";
+            } else if (path.includes('report-detail')) {
+                pageName = "Viewing Report";
+            } else {
+                pageName = document.title || "Vadrida App";
+            }
 
-        // 3. Connect & Report Location
-        presenceWs.onopen = () => {
-            // console.log("🟢 Presence Active: " + pageName);
-            presenceWs.send(JSON.stringify({ "page": pageName }));
-        };
+            // 3. Connect & Report Location
+            presenceWs.onopen = () => {
+                // console.log("🟢 Presence Active: " + pageName);
+                presenceWs.send(JSON.stringify({ "page": pageName }));
+            };
 
-        // 4. Handle Disconnect (Optional cleanup)
-        presenceWs.onclose = () => {
-            // console.log("🔴 Presence Disconnected");
-        };
-    })();
-</script>
-{% endif %}
+            // 4. Handle Disconnect (Optional cleanup)
+            presenceWs.onclose = () => {
+                // console.log("🔴 Presence Disconnected");
+            };
+        })();
+    </script>
+    {% endif %}
 </body>
+
 </html>

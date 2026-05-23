@@ -309,7 +309,7 @@
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <div class="card-info">
-                    <h3>Vetting Portal</h3>
+                    <h3>Valuation Report Drafter</h3>
                     <p>Perform deep analysis and verification of document credentials and site data.</p>
                 </div>
                 <div class="card-footer">
@@ -338,7 +338,7 @@
                     <i class="fas fa-comment-alt"></i>
                 </div>
                 <div class="card-info">
-                    <h3>Feedback Hub</h3>
+                    <h3>Site Inspection and Verification Report</h3>
                     <p>Access specialized feedback forms and automated report generation tools.</p>
                 </div>
                 <div class="card-footer">
@@ -346,6 +346,20 @@
                 </div>
             </a>
             {% endif %}
+
+            <!-- Digital PDF Signer (New Feature) -->
+            <a href="{% url 'coreapi:digital_signer' %}" class="action-card">
+                <div class="icon-box" style="background: rgba(16, 185, 129, 0.08); color: #10b981;">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Digital Signer</h3>
+                    <p>Apply secure digital signatures (DSC) to PDF reports with precision placement.</p>
+                </div>
+                <div class="card-footer" style="color: #10b981;">
+                    Launch Signer <i class="fas fa-chevron-right"></i>
+                </div>
+            </a>
         </div>
     </div>
 

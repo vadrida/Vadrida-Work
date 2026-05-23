@@ -438,6 +438,7 @@ def get_drafting_mega_payload(request):
         payload['client_folder'] = {
             'applicant_name': folder.applicant_name,
             'product': folder.product,
+            'bank_ref_no': folder.bank_ref_no,
             'bank_code': folder.bank_code,
             'year': folder.year,
             'district': folder.district_code
@@ -729,8 +730,13 @@ def create_folder_api(request):
                 bank_name = bank_map.get(bank_code)
 
                 if bank_name:
+                    # --- CUSTOM LOGIC FOR MAHINDRA: Use Chola Template ---
+                    lookup_name = bank_name
+                    if bank_name == "Mahindra Home Finance":
+                        lookup_name = "Chola"
+
                     # 2. Check for template in static/excels/
-                    template_filename = f"{bank_name}.xlsm"
+                    template_filename = f"{lookup_name}.xlsm"
                     template_src = os.path.join(settings.BASE_DIR, 'static', 'excels', template_filename)
 
                     if os.path.exists(template_src):
@@ -2373,7 +2379,8 @@ def save_verification_data(request):
                         'PersonMet': data.get('personMetAtSite', ''),
                         'MasterSynthesis': data.get('MasterSynthesis', ''),
                         'SynthesisManualLock': data.get('SynthesisManualLock', False),
-                        'BuildingDetails': data.get('BuildingDetails', {})
+                        'BuildingDetails': data.get('BuildingDetails', {}),
+                        'Narratives': data.get('Narratives', {})
                     }
                 }
             )
@@ -2403,6 +2410,7 @@ BANKS = [
     {'code': '12', 'name': 'Chola SME'},
     {'code': '13', 'name': 'Axis Finance'},
     {'code': '14', 'name': 'L & T Finance'},
+    {'code': '15', 'name': 'Mahindra Home Finance'},
 ]
 
 DISTRICTS = [
@@ -2624,10 +2632,13 @@ def report_drafting(request):
     file_no = request.GET.get('file_no', 'Unknown')
     bank_name = request.GET.get('bank_name', 'Unknown Bank')
     bank_code = request.GET.get('bank_code', '00')
+    from datetime import datetime
+    today_date = datetime.now().strftime('%d.%m.%Y')
     return render(request, 'report_drafting.html', {
         'file_no': file_no,
         'bank_name': bank_name,
-        'bank_code': bank_code
+        'bank_code': bank_code,
+        'today_date': today_date
     })
 
 @csrf_exempt
@@ -2650,17 +2661,8 @@ def save_drafting_data(request):
             defaults={'report_data': report_data}
         )
 
-        # 2. Save to File System (Case Folder)
-        folder = ClientFolder.objects.filter(unique_file_no=file_no).first()
-        if folder and folder.full_folder_path:
-            # Save in the 'P' (Photos/Project) subfolder
-            target_dir = os.path.join(folder.full_folder_path, 'P')
-            os.makedirs(target_dir, exist_ok=True)
-            
-            json_path = os.path.join(target_dir, 'drafting_data.json')
-            with open(json_path, 'w', encoding='utf-8') as f:
-                json.dump(report_data, f, indent=4)
-            print(f"DRAFTING: Saved report_data to {json_path}")
+        # 2. Database handles persistence; removing local JSON file save as requested
+        return JsonResponse({'success': True})
 
         return JsonResponse({'success': True})
 
@@ -2813,3 +2815,190 @@ def upload_eb_image_api(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def digital_signer(request):
+    if request.session.get("user_role") not in ["office", "IT"]: return redirect("coreapi:login_page")
+    return render(request, "digital_signer.html")
+
+@csrf_exempt
+@require_POST
+def digital_sign_pdf_api(request):
+    """
+    Performs digital signing using a Hardware DSC Token.
+    """
+    try:
+        from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
+        from pyhanko.sign import signers
+        import io, os
+
+        pdf_file = request.FILES.get('pdf')
+        x, y, w, h = float(request.POST.get('x', 0)), float(request.POST.get('y', 0)), float(request.POST.get('w', 100)), float(request.POST.get('h', 50))
+        page = int(request.POST.get('page', 1))
+        user_password = request.POST.get('password')
+
+        # Security check: Password from UI
+        if user_password != os.environ.get('SIGNING_PASSWORD'): 
+            return JsonResponse({'success': False, 'error': 'Invalid Password'}, status=403)
+
+        # Token Configuration
+        # (Forced bypassing os.environ to ignore the old cached .env value without requiring a server restart)
+        PKCS11_LIB = r"C:\Windows\System32\eps2003csp11v2.dll"
+        USER_PIN = os.environ.get('DSC_PIN', '12345678')
+
+        # Use the original uploaded PDF stream directly
+        pdf_file.seek(0)
+        clean_pdf = io.BytesIO(pdf_file.read())
+        clean_pdf.seek(0)
+
+        # 2. Use strict=False to handle malformed or hybrid PDFs
+        w_writer = IncrementalPdfFileWriter(clean_pdf, strict=False)
+        
+        # Initialize the PKCS#11 Signer
+        from pyhanko.sign.pkcs11 import PKCS11Signer
+        import pkcs11
+        
+        try:
+            # Manually load the PKCS#11 library
+            lib = pkcs11.lib(PKCS11_LIB)
+            
+            # 🚨 CRITICAL FIX: Some token drivers (InnaIT) falsely report token_present=False
+            # We must get ALL slots and manually test them instead of relying on token_present=True
+            all_slots = lib.get_slots()
+            active_token = None
+            
+            for slot in all_slots:
+                try:
+                    # If this succeeds, the token is physically accessible here
+                    token = slot.get_token()
+                    active_token = token
+                    break
+                except Exception:
+                    continue
+                    
+            if not active_token:
+                raise Exception("No token detected in any slot. Please ensure the USB token is plugged in securely.")
+            
+            # Open a session on the active token
+            session = active_token.open(user_pin=USER_PIN)
+            signer = PKCS11Signer(pkcs11_session=session)
+        except Exception as dsc_err:
+            import traceback
+            traceback.print_exc()
+            # 🚨 CRITICAL: Return 400 so the frontend knows this is an error, not a PDF!
+            return JsonResponse({
+                'success': False, 
+                'error': f"Driver/Token Error: {repr(dsc_err)}. IMPORTANT: You must install the DSC driver (DLL) on this computer to use the USB token."
+            }, status=400)
+
+        # Apply the signature using in-place modification on the clean_pdf buffer
+        import random
+        from pyhanko.sign.fields import SigFieldSpec
+        from pyhanko.sign.signers.pdf_signer import PdfSigner
+        from pyhanko.stamp import TextStampStyle
+        from pyhanko.pdf_utils.text import TextBoxStyle
+        from pyhanko.pdf_utils.font import basic
+        
+        sig_id = f"Signature_{random.randint(1000, 9999)}"
+        
+        from pyhanko.pdf_utils.images import PdfImage
+        from django.conf import settings
+        import os
+        from PIL import Image, ImageDraw, ImageFont
+        import datetime
+        
+        # Extract signer name dynamically from the hardware certificate
+        try:
+            cert = signer.signing_cert
+            signer_name = cert.subject.native.get('common_name', 'Authorized Signatory')
+        except Exception:
+            signer_name = 'Authorized Signatory'
+            
+        # Format the exact Adobe-style timestamp
+        ts_formatted = datetime.datetime.now().strftime("%Y.%m.%d\n%H:%M:%S +05'30'")
+        
+        # Create a dynamic 400x150 signature image canvas
+        img = Image.new('RGBA', (400, 150), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(img)
+        
+        try:
+            font_large = ImageFont.truetype('arial.ttf', 44)
+            font_small = ImageFont.truetype('arial.ttf', 16)
+        except IOError:
+            font_large = ImageFont.load_default()
+            font_small = ImageFont.load_default()
+            
+        # 1. Apply the Vadrida Logo Watermark
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'VADRIDA LOGO.png')
+        if os.path.exists(logo_path):
+            logo = Image.open(logo_path).convert('RGBA')
+            logo.thumbnail((400, 150), Image.Resampling.LANCZOS)
+            alpha = logo.split()[3]
+            alpha = alpha.point(lambda p: p * 0.50) # 50% opacity (stronger visibility)
+            logo.putalpha(alpha)
+            img.paste(logo, (200 - logo.width//2, 75 - logo.height//2), logo)
+            
+        # 2. Draw HUGE Name on the Left Side
+        name_parts = signer_name.split()
+        left_text = "\n".join(name_parts[:2]) if len(name_parts) >= 2 else signer_name
+        draw.text((20, 25), left_text, font=font_large, fill=(0, 0, 0, 255))
+        
+        # 3. Draw Small Details on the Right Side
+        right_text = f"Digitally signed by\n{signer_name}\nDate: {ts_formatted}"
+        draw.text((200, 30), right_text, font=font_small, fill=(0, 0, 0, 255))
+        
+        bg_img = PdfImage(img)
+        
+        # Configure PyHanko to just render our custom generated dual-panel graphic
+        stamp_style = TextStampStyle(
+            stamp_text=" ", # Empty text since it's all baked into the image
+            background=bg_img,
+            background_opacity=1.0,
+            border_width=0,
+            text_box_style=TextBoxStyle(font_size=10)
+        )
+        
+        # Use PdfSigner directly to apply the visual style
+        pdf_signer = PdfSigner(
+            signature_meta=signers.PdfSignatureMetadata(
+                field_name=sig_id
+            ),
+            signer=signer,
+            new_field_spec=SigFieldSpec(
+                sig_field_name=sig_id,
+                on_page=page - 1,
+                box=(x, y, x + w, y + h)
+            ),
+            stamp_style=stamp_style
+        )
+        
+        try:
+            pdf_signer.sign_pdf(
+                w_writer,
+                in_place=True
+            )
+        finally:
+            # 🚨 EXTREMELY IMPORTANT: Explicitly close the cryptographic session 
+            # so the hardware token doesn't lock up after 10-20 consecutive signatures.
+            try:
+                session.close()
+            except Exception:
+                pass
+        
+        clean_pdf.seek(0)
+        final_data = clean_pdf.read()
+
+        if not final_data or len(final_data) < 100:
+            raise Exception("Signing produced an empty or corrupted file. Check your USB Token.")
+
+        response = HttpResponse(final_data, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Signed_{pdf_file.name}"'
+        # 🚨 Prevent browser/SW from caching the result
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        return response
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': f"Critical Error: {str(e)}"}, status=500)

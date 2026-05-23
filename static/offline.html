@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vadrida | Interstellar Reconnection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.86/build/spline-viewer.js"></script>
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --accent-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass: rgba(15, 23, 42, 0.7);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+        }
+
+        .error-card {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 50px;
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
+            animation: cardEntrance 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SPLINE CONTAINER */
+        .spline-wrapper {
+            width: 100%;
+            height: 350px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* HARD PATCH FOR LOGO */
+        .logo-patch {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 150px;
+            height: 48px;
+            background: #2c2626; 
+            z-index: 100;
+            pointer-events: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-box {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--accent-blue);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .dot-loader { display: flex; gap: 4px; }
+        .dot {
+            width: 6px; height: 6px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            animation: dotWave 1.5s infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotWave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        h1 { font-size: 1.8rem; margin-bottom: 15px; font-weight: 800; }
+        .reconnect-msg { color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; font-size: 1rem; }
+        strong { color: #fff; border-bottom: 1px dashed var(--accent-blue); }
+
+        .hint {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* RESPONSIVE ENGINE */
+        @media (max-width: 768px) {
+            .error-card {
+                padding: 40px 25px;
+                max-width: 95%;
+                border-radius: 30px;
+            }
+            .spline-wrapper {
+                height: 280px;
+                margin-bottom: 20px;
+            }
+            h1 { font-size: 1.4rem; }
+            .reconnect-msg { font-size: 0.9rem; }
+            .logo-patch {
+                width: 145px;
+                height: 37px;
+                font-size: 0.55rem;
+                bottom: 19px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .error-card {
+                padding: 30px 20px;
+            }
+            .spline-wrapper {
+                height: 220px;
+            }
+            h1 { font-size: 1.2rem; }
+            .status-box { font-size: 0.65rem; margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div class="error-card">
+        <div class="spline-wrapper">
+            <!-- CACHE BUSTER ADDED (?v=1.1) TO ENSURE YOUR NEW EDITS SHOW UP -->
+            <spline-viewer url="https://prod.spline.design/DzX6uL-kg5ABZWp8/scene.splinecode?v=1.1"></spline-viewer>
+            <div class="logo-patch">Vadrida (OPC) Private Limited</div>
+        </div>
+
+        <div class="status-box">
+            <span>Please Wait</span>
+            <div class="dot-loader">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <h1 id="headline">Connection Interrupted</h1>
+        <div class="reconnect-msg" id="message">
+            Our <strong>Developer</strong> is currently patching the server uplink. Vadrida will be back in orbit shortly. In case of urgency, please contact the developer.
+        </div>
+
+        <div class="hint">Interact with the object above to explore</div>
+    </div>
+
+    <script>
+        /* STARFIELD BACKGROUND (Subtle) */
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        function initStars() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < 300; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    size: Math.random() * 1.5,
+                    speed: Math.random() * 0.3 + 0.1
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                s.x -= s.speed;
+                if (s.x < 0) s.x = width;
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        initStars();
+        drawStars();
+        window.onresize = initStars;
+
+        /* STATUS MESSAGES */
+        const msgs = [
+            "Our <strong>Developer</strong> is fixing the connection. Vadrida will be back soon.",
+            "Site maintenance in progress. The <strong>Developer</strong> is on it!",
+            "Uplink repair in sequence. Our <strong>Developer</strong> is restoring access.",
+            "Experiencing a signal drop. The <strong>Developer</strong> will restore it shortly."
+        ];
+        let idx = Math.floor(Math.random() * msgs.length);
+        document.getElementById('message').innerHTML = msgs[idx];
+
+        /* HIDE SPLINE WATERMARK */
+        window.onload = () => {
+            const spline = document.querySelector('spline-viewer');
+            const shadowObserver = setInterval(() => {
+                if (spline && spline.shadowRoot) {
+                    const logo = spline.shadowRoot.querySelector('#logo');
+                    if (logo) {
+                        logo.style.display = 'none';
+                        clearInterval(shadowObserver);
+                    }
+                }
+            }, 10);
+            // Stop trying after 5 seconds to save resources
+            setTimeout(() => clearInterval(shadowObserver), 5000);
+        };
+    </script>
+</body>
+</html>

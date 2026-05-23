@@ -988,6 +988,7 @@
             <div class="field-box" contenteditable="true" data-path="land_inspection_details.railway_distance"></div>
         </div>
 
+
         <div class="row" style="margin-top: 10px;">
             <label>Encroachment (Subject to Prop):</label>
             <input type="checkbox" data-bind-radio="land_inspection_details.enroachment_subject_to_prop" value="Yes">
@@ -1056,6 +1057,7 @@
         <div style="margin-top: 5px; font-size: 12px; color: #666;">
             <strong>GPS Coordinates:</strong> <span id="display_lat_lng">Not Selected</span>
             <strong style="margin-left: 20px;">Pincode:</strong> <span class="labelMap" data-path="land_inspection_details.pincode"></span>
+            <strong style="margin-left: 20px;">House Name:</strong> <span class="labelMap" data-path="land_inspection_details.house_name"></span>
         </div>
 
         <br><br><br><br><br><br>
@@ -1291,6 +1293,17 @@
         document.querySelectorAll('[data-path]').forEach(el => {
             const path = el.getAttribute('data-path');
             let val = getNested(reportData, path);
+            if (val && typeof val === 'string' && val.trim().startsWith('[') && val.trim().endsWith(']')) {
+                try {
+                    const cleanStr = val.trim().replace(/'/g, '"');
+                    const parsed = JSON.parse(cleanStr);
+                    if (Array.isArray(parsed)) {
+                        val = parsed;
+                    }
+                } catch (e) {
+                    val = val.trim().replace(/[\[\]']/g, '').trim();
+                }
+            }
             if (Array.isArray(val)) {
                 val = val.join(', ');
             }

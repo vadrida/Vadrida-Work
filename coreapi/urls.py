@@ -66,4 +66,8 @@ urlpatterns = [
     path('api/get-property-photos/', views.get_property_photos_api, name='get_property_photos'),
     path('api/upload-geo-map/', views.upload_geo_map_api, name='upload_geo_map'),
     path('api/upload-eb-image/', views.upload_eb_image_api, name='upload_eb_image'),
+    
+    # Digital Signer
+    path('digital-signer/', views.digital_signer, name='digital_signer'),
+    path('api/digital-sign/', views.digital_sign_pdf_api, name='digital_sign_pdf_api'),
 ]
