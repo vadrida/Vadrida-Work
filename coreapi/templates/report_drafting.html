@@ -27,7 +27,7 @@
         </div>
 
         <div id="reportWorkspace" class="report-workspace">
-            {% if bank_code == '12' or bank_code == '08' or bank_code == '15' %}
+            {% if bank_code == '12' or bank_code == '15' %}
             <!-- CHOLA SME FORMAT -->
             <div class="report-container chola-sme-format">
 
@@ -1075,6 +1075,875 @@
                             </div>
                         </div>
                     </div>
+
+                </div>
+
+                {% elif bank_code == '06' %}
+                <!-- ========================================= -->
+                <!-- SBI FORMAT (BANK CODE 06)                 -->
+                <!-- ========================================= -->
+                <div class="report-container sbi-format">
+
+                    <!-- LETTERHEAD (No Logo, Er. Sanjay Babu) -->
+                    <div class="print-letterhead"
+                        style="text-align: right; color: #005A9C; font-family: 'Times New Roman', Times, serif; margin-bottom: 25px; border-bottom: 3px solid #005A9C; padding-bottom: 12px; display: flex; justify-content: flex-end;">
+                        <div style="text-align: right;">
+                            <h1 style="font-size: 28px; margin: 0 0 5px 0; font-weight: 800; letter-spacing: 0.5px;">Er. Sanjay Babu CEng(I)</h1>
+                            <div style="font-size: 14px; line-height: 1.5; font-weight: 500;">
+                                B.E, Mtech (NITK), A.M.I.E<br>
+                                Registered Valuer with Insolvency and Bankruptcy<br>
+                                Board of India (IBBI)[Under Companies Act-2013,<br>
+                                Reg.No. IBBI/RV/11/2022/15183]<br>
+                                Chartered Engineer (India)[Reg.No. AM-1997338]<br>
+                                Engineer-A[Reg.No. E-11153/19/EA-4212/KLM]<br>
+                                <span style="font-weight: bold;">GSTIN:32BXZPB7614J1Z5</span><br>
+                                <span style="font-weight: bold;">HSN/SAC Code: 997224</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REPORT TITLE -->
+                    <div style="text-align: center; font-family: 'Times New Roman', Times, serif; margin-bottom: 20px;">
+                        <h2 style="font-size: 1.2rem; font-weight: bold; text-decoration: underline; margin: 0 0 5px 0;">Format-A/1</h2>
+                        <h2 style="font-size: 1.1rem; font-weight: bold; text-decoration: underline; text-transform: uppercase; margin: 0 0 5px 0;">FORMAT OF VALUATION REPORT</h2>
+                        <div style="font-size: 0.9rem;">(To be used for all properties of value above Rs.5 crores)</div>
+                    </div>
+
+                    <!-- BRANCH & CUSTOMER DETAILS -->
+                    <div style="font-family: 'Times New Roman', Times, serif; font-size: 0.9rem; margin-bottom: 15px; display: grid; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 35% 65%;">
+                            <div style="padding-left: 20px;">Name and address of Branch:</div>
+                            <div class="value-cell" contenteditable="true" id="sbi_branch_address" style="border: none; white-space: pre-wrap; text-align: left;">SBI RACPC-II,
+Panampally Nagar,Ernakulam- 682036.</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 35% 65%; margin-top: 15px;">
+                            <div style="padding-left: 20px;">Name of Customer (s)/ Borrowal unit:<br>(For which valuation report is sought)</div>
+                            <div class="value-cell" contenteditable="true" id="sbi_customer_name" style="border: none; display: flex; align-items: center; text-align: left;">Deepu N D and Meenu P</div>
+                        </div>
+                    </div>
+
+                    <!-- 1. Introduction Table -->
+                    <table class="report-table" style="width: 100%; border-collapse: collapse; border: 2px solid #000; font-family: 'Times New Roman', Times, serif; font-size: 0.9rem; margin-bottom: 20px;">
+                        <tr>
+                            <td colspan="3" style="font-weight: bold; border: 1px solid #000; padding: 5px;">1.Introduction</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 5%; border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="width: 45%; border: 1px solid #000; padding: 5px;">Name of the Property Owner<br>(with address & phone nos.)</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_owner_address" style="width: 50%; border: 1px solid #000; padding: 5px; text-align: center; white-space: pre-wrap;">Deepu N D and Meenu P,
+Door no. 11/290 A, Panagadu P.O, Kumbalam Grama Panchayat, Kumbalam Village, Kanayannur Taluk, Ernakulam District. - 682506. ,</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;">b)</td>
+                            <td style="border: 1px solid #000; padding: 5px;">Purpose of Valuation</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_purpose" style="border: 1px solid #000; padding: 5px; text-align: center;">To determine the fair market value of property allotted for valuation.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;">c)</td>
+                            <td style="border: 1px solid #000; padding: 5px;">Date of Inspection of Property</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_inspection_date" style="border: 1px solid #000; padding: 5px; text-align: center;">08 April 2026</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;">d)</td>
+                            <td style="border: 1px solid #000; padding: 5px;">Date of Valuation Report</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_report_date" style="border: 1px solid #000; padding: 5px; text-align: center;">08 April 2026</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;">e)</td>
+                            <td style="border: 1px solid #000; padding: 5px;">Name of the Developer of Property (in case of developer built propertis)</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_developer_name" style="border: 1px solid #000; padding: 5px; text-align: center;">NIL</td>
+                        </tr>
+
+                        <!-- 2. Physical Characteristics of the Property -->
+                        <tr>
+                            <td colspan="3" style="font-weight: bold; border: 1px solid #000; padding: 5px;">2. Physical Characteristics of the Property</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" style="border: 1px solid #000; padding: 5px; text-align: center; vertical-align: top;">a)</td>
+                            <td style="border: 1px solid #000; border-bottom: none; border-right: 1px solid #000; padding: 5px;">Location of the property</td>
+                            <td style="border: 1px solid #000; border-bottom: none; border-left: 1px solid #000; padding: 5px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: none; border-bottom: none; padding: 5px;">i. Nearby landmark</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_nearby_landmark" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: none; border-bottom: none; padding: 5px; text-align: center;">Naduthuruthy road</td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: none; border-bottom: none; padding: 5px;">ii. Postal address of the Property</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_postal_address" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: none; border-bottom: none; padding: 5px; text-align: center; white-space: pre-wrap;">Door no. 11/290 A, Panagadu P.O, Kumbalam Grama Panchayat, Kumbalam Village, Kanayannur Taluk, Ernakulam District. - 682506.</td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: none; border-bottom: 1px solid #000; padding: 5px;">iii. Area of the plot/land<br>(supported by a plan)</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_plot_area" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: none; border-bottom: 1px solid #000; padding: 5px; text-align: center; white-space: pre-wrap;">206 SqM
+(2217 SqFt) (5.09 Cents)</td>
+                        </tr>
+                        
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">iv. Type of Land</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_land_type" style="border: 1px solid #000; padding: 5px; text-align: center;">The Land is classified as Dry Land as per title deed, Dry Land as per land tax receipt, Regularised dry land as per possession certificate.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">v. Independent access/approach to the property etc.</td>
+                            <td class="value-cell toggle-cell" contenteditable="true" id="sbi_independent_access" onclick="toggleText(this, ['Yes', 'No'])" style="border: 1px solid #000; padding: 5px; text-align: center;">Yes</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">vi.Google Map Location of the Property with a neighborhood layout map</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_google_map" style="border: 1px solid #000; padding: 5px; text-align: center; white-space: pre-wrap;">9° 53' 40.73" N, 76° 19' 15.04" E
+(9.894648, 76.320845)</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">Directions to the property</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_directions" style="border: 1px solid #000; padding: 5px; text-align: center;">From Palarivattom Junction, take the bus towards High Court Junction - Vytilla Circle. Continue to High Court Junction, then take the bus from H.M.T. Junction to Panangad. Get off at Naduthuruthy Road and walk about 200 meters. The property is on the left side.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">vii. Details of roads abutting the property</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_abutting_roads" style="border: 1px solid #000; padding: 5px; text-align: center;">Plot has Pvt road Access.This road is used by the owner and three other user.Pvt road is demarcated with Compound Wall, (3.2 Metre  (10.5 Ft) )</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">viii. Description of adjoining property</td>
+                            <td class="value-cell toggle-cell" contenteditable="true" id="sbi_adjoining_property" onclick="toggleText(this, ['Residential', 'Commercial', 'Mixed'])" style="border: 1px solid #000; padding: 5px; text-align: center;">Residential</td>
+                        </tr>
+
+                        <!-- Sub-items for location details -->
+                        <tr>
+                            <td rowspan="4" style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">ix. Plot No./ Survey No.</td>
+                            <td rowspan="4" class="value-cell" contenteditable="true" id="sbi_sub_registry_details" style="border: 1px solid #000; padding: 5px; text-align: center;">2.06 ares in Re-Sy Block No.16, Re-Sy No.208/19, Kumbalam Village, Kumbalam Grama Panchayat, Kanayannur Taluk, Maradu SRO, Ernakulam District.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px;">x. Ward/Village/Taluka</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px;">xi. Sub-Registry/Block</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px;">xii. District</td>
+                        </tr>
+
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
+                            <td style="border: 1px solid #000; padding: 5px;">xiii. Any other aspect</td>
+                            <td class="value-cell" contenteditable="true" id="sbi_any_other_aspect" style="border: 1px solid #000; padding: 5px; text-align: center;">North side is demarcated with compound wall, East side is demarcated with compound wall, South side is demarcated with compound wall, West side is demarcated with compound wall.</td>
+                        </tr>
+                    </table>
+
+                </div>
+                {% elif bank_code == '08' %}
+                <!-- ========================================= -->
+                <!-- CHOLA HOME LOAN FORMAT (BANK CODE 08)    -->
+                <!-- ========================================= -->
+                <div class="report-container chola-hl-format">
+
+                    <!-- LETTERHEAD (Same as Chola SME - Er. Sanjay Babu) -->
+                    <div class="print-letterhead"
+                        style="text-align: right; color: #005A9C; font-family: 'Times New Roman', Times, serif; margin-bottom: 25px; border-bottom: 3px solid #005A9C; padding-bottom: 12px; display: flex; justify-content: flex-end;">
+                        <div style="text-align: right;">
+                            <h1 style="font-size: 28px; margin: 0 0 5px 0; font-weight: 600; letter-spacing: 0.5px;">Er. Sanjay Babu CEng(I)</h1>
+                            <div style="font-size: 14px; line-height: 1.5; font-weight: 500;">
+                                B.E, Mtech (NITK), A.M.I.E<br>
+                                Registered Valuer with Insolvency and Bankruptcy<br>
+                                Board of India (IBBI)[Under Companies Act-2013,<br>
+                                Reg.No. IBBI/RV/11/2022/15183]<br>
+                                Chartered Engineer (India)[Reg.No. AM-1997338]<br>
+                                Engineer-A[Reg.No. E-11153/19/EA-4212/KLM]<br>
+                                <span style="font-weight: bold;">GSTIN:32BXZPB7614J1Z5</span><br>
+                                <span style="font-weight: bold;">HSN/SAC Code: 997224</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MAIN TITLE -->
+                    <div style="margin-bottom: 0;">
+                        <h2 style="text-align: center; font-size: 13px; font-weight: 600; text-transform: uppercase; border: 1px solid #000; padding: 10px 6px; margin: 0; font-family: Arial, sans-serif; letter-spacing: 0.5px;">
+                            CHOLAMANDALAM TECHNICAL SCRUTINY REPORT HOME LOANS
+                        </h2>
+                    </div>                    <!-- ===== CHOLA HOME LOAN: UNIFIED TABLE (Part 1) ===== -->
+                    <div class="report-section" style="margin-top: 0; margin-bottom: 0;">
+                        <table class="report-table" style="font-size: 0.85rem; border-collapse: collapse; width: 100%; border: 1px solid #000; font-family: Arial, sans-serif;">
+
+                            <!-- LOAN APPLICATION DETAILS -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    LOAN APPLICATION DETAILS
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="width: 16%; font-weight: 700; border: 1px solid #000; padding: 6px;">BRANCH</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_branch" style="width: 18%; border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="width: 16%; font-weight: 700; border: 1px solid #000; padding: 6px;">APPLICATION ID</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_app_id" style="width: 16%; border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="width: 10%; font-weight: 700; border: 1px solid #000; padding: 6px;">DATE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_date" style="width: 24%; border: 1px solid #000; padding: 6px;">{{ today_date }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">APPLICANT NAME</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_applicant" colspan="2" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">PRODUCT</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_product" colspan="2" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">CO-APPLICANT NAME</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_co_applicant" colspan="2" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">CONTACT NO.</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_contact" colspan="2" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+
+                            <!-- ADDRESS DETAILS -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    ADDRESS DETAILS
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px; width: 20%;">ADDRESS AS PER SITE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_addr_site" colspan="2" style="border: 1px solid #000; padding: 6px; vertical-align: top; min-height: 50px;">--</td>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px; width: 20%;">ADDRESS AS PER DOCUMENT</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_addr_doc" colspan="2" style="border: 1px solid #000; padding: 6px; vertical-align: top; min-height: 50px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">LANDMARK</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_landmark" colspan="5" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">NEAREST CHOLA BRANCH</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_nearest_branch" colspan="2" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 700; border: 1px solid #000; padding: 6px;">DISTANCE FROM NEAREST CHOLA BRANCH</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_dist_branch" colspan="2" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+
+                            <!-- BOUNDARIES -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    BOUNDARIES
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">DIRECTIONS</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">EAST</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">WEST</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">SOUTH</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">NORTH</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">AS PER PLAN/DEED/LAYOUT</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_east_doc" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_west_doc" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_south_doc" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_north_doc" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">AS PER ACTUAL SITE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_east_site" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_west_site" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_south_site" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bound_north_site" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" colspan="3" style="font-weight: 600; border: 1px solid #000; padding: 6px;">WHETHER BOUNDARIES MATCHING?</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_bound_matching" style="border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['YES', 'NO'])">YES</td>
+                                <td colspan="2" style="border: 1px solid #000;"></td>
+                            </tr>
+
+                            <!-- SPACER ROW -->
+                            <tr><td colspan="6" style="height: 25px; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td></tr>
+
+                            <!-- GEO CO-ORDINATES -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    GEO CO-ORDINATES
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">LATITUDE VALUE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_lat_value" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">LATITUDE DIRECTION</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_lat_dir" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">LONGITUDE VALUE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_lon_value" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">LONGITUDE DIRECTION</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_lon_dir" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+
+                            <!-- SPACER ROW -->
+                            <tr><td colspan="6" style="height: 25px; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td></tr>
+
+                            <!-- GENERAL DETAILS -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    GENERAL DETAILS
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">Authority LIMIT</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_auth_limit" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">APPROVING AUTHORITY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_app_auth" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">AGE OF PROPERTY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_prop_age" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">SELLER NAME/OWNER NAME *</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_owner_name" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">OCCUPANCY STATUS</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_occ_status" style="border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['NA', 'Occupied', 'Vacant'])">NA</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">OCCUPANT NAME</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_occ_name" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">PERSON MET AT SITE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_person_met" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">PROPERTY/DWELLING UNIT TYPE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_prop_type" style="border: 1px solid #000; padding: 6px;">--</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">APPROACH ROAD TO PROPERTY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_approach_road" style="border: 1px solid #000; padding: 6px;">--</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="3">RESIDUAL AGE OF PROPERTY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_residual_age" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="3">--</td>
+                            </tr>
+
+                            <!-- SURROUNDING EXTERNAL AMENITIES -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    SURROUNDING EXTERNAL AMENITIES
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px; width: 10%;">S.NO</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">PREMISES LIST</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px; width: 25%;">APPROX DISTANCE FROM PROPERTY (IN KMS)</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">NAME OF THE PREMISES</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; border: 1px solid #000; padding: 6px;">1</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">NEAREST BUS STOP</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_bus" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_name_bus" style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; border: 1px solid #000; padding: 6px;">2</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">NEAREST RAILWAY STATION</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_rail" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Above 5 KM</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_name_rail" style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; border: 1px solid #000; padding: 6px;">3</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">NEAREST SCHOOL/COLLEGE</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_school" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_name_school" style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; border: 1px solid #000; padding: 6px;">4</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">NEAREST HIGHWAY/MAJOR ROAD</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_hwy" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_name_hwy" style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; border: 1px solid #000; padding: 6px;">5</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">NEAREST HOSPITAL</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_hosp" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_name_hosp" style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="3">SURROUNDING DEVELOPMENT IN %</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_surround_dev" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="3" onclick="toggleText(this, ['95', '90', '85', '80', '75'])">95</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">TYPE OF LAND</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_land_type" style="border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['Dry land/Freehold', 'Wet land', 'Leasehold'])">Dry land/Freehold</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">USAGE OF PROPERTY</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_prop_usage" style="border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['RESIDENTIAL', 'COMMERCIAL', 'MIXED'])">RESIDENTIAL</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; font-size: 0.8rem;">IF MIXED USAGE :<br>RESIDENTIAL/COMMERCIAL BREAK UP</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_mixed_usage" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <!-- SPACER ROW -->
+                            <tr><td colspan="6" style="height: 25px; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td></tr>
+
+                            <!-- AREA DETAILS HEADER -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    AREA DETAILS
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">AREA TYPE</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">AS PER PLAN /<br>DRAFT (IN SQ.FT.)</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">AS PER SITE (IN<br>SQFT)</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">RATE / SQ. FT.</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">VALUATION AS PER<br>PLAN</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">VALUATION AS PER<br>SITE</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">Land</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land_plan" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land_site" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land_rate" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land_val_plan" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land_val_site" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">Ground floor</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf_plan" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf_site" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf_rate" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf_val_plan" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf_val_site" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">Built up Area</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua_plan" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua_site" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td style="border: 1px solid #000;"></td>
+                                <td style="border: 1px solid #000;"></td>
+                                <td style="border: 1px solid #000;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">FSI PERMITTED</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_fsi_perm" style="text-align: center; border: 1px solid #000; padding: 6px;">0.37</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">FSI_ACHIEVED</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_fsi_achv" style="text-align: center; border: 1px solid #000; padding: 6px;">0.37</td>
+                            </tr>
+                            
+                            <!-- SECOND AREA SUBTABLE -->
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">AREA TYPE*</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">AREA (SQ FEET)*</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">RATE / SQ. FT.</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">VALUATION</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">Land</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land2_area" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land2_rate" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land2_val" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">Ground floor</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf2_area" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf2_rate" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_gf2_val" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;" colspan="2">Built up Area</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua2_area" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                                <td style="border: 1px solid #000;"></td>
+                                <td style="border: 1px solid #000;"></td>
+                            </tr>
+
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="5">TOTAL MARKET VALUE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_total_market_val" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+
+                            <!-- AMENITIES -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    AMENITIES
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">S.NO</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">DESCRIPTION</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">AREA/QUANTITY</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">UNIT (LOV)</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">AMOUNT</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">1</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_am_desc" style="border: 1px solid #000; padding: 6px;" colspan="2">0</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_am_qty" style="border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()">0</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_am_unit" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()">0</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_am_amt" style="text-align: center; border: 1px solid #000; padding: 6px;">0</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="5">TOTAL AMENITIES VALUE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_total_am_val" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">0</td>
+                            </tr>
+
+                            <!-- REMARKS ON AREA OF PROPERTY -->
+                            <tr>
+                                <td colspan="6" style="text-align: left; font-weight: 600; font-size: 0.8rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    REMARKS ON AREA OF PROPERTY
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="value-cell" contenteditable="true" id="chola08_area_remarks" style="height: 30px; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="5">TOTAL VALUE (TOTAL MARKET VALUE + TOTAL AMENITIES VALUE)</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_grand_total" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="5">GUIDELINE VALUE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_guideline_val" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">0</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="5">DISTRESS VALUE</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_distress_val" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="5">NUMBER OF UNITS TOTAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_units_total" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">1</td>
+                            </tr>
+
+                            <!-- SPACER ROW -->
+                            <tr><td colspan="6" style="height: 25px; border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td></tr>
+
+                            <!-- RENTAL INFORMATION -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    RENTAL INFORMATION
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="4">GROSS MONTHLY RENTAL FOR SIMILAR PROPERTIES IN LOCALITY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_rental_val" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">0</td>
+                                <td style="border: 1px solid #000;"></td>
+                            </tr>
+
+                            <!-- TECHNICAL DOCUMENT DETAILS -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    TECHNICAL DOCUMENT DETAILS
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">DOCUMENT NAME</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">RECD TYPE</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">REF NO</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">REF DATE</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">DETAILS OF APPROVAL</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">APPROVED LAYOUT PLAN</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc1_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">ORIGINAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc1_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc1_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc1_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">APPROVED FLOOR PLAN</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc2_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">COPY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc2_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc2_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc2_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">CONSTRUCTION PERMISSION / BUILDING PERMISSION / COMMENCEMENT CERTIFICATE</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc3_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">COPY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc3_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc3_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc3_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">BUILDING COMPLETION CERTIFICATE / OCCUPATION PERMISSION / USE PERMISSION / POSSESSION CERTIFICATE</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc4_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">ORIGINAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc4_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc4_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc4_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">NON-AGRICULTURAL PERMISSION / LAND CONVERSION / DIVERSION ORDER</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc5_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">ORIGINAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc5_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc5_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc5_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">LOCATION SKETCH/ CERTIFICATE</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc6_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">COPY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc6_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc6_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc6_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">AGREEMENT FOR SALE / SALE DEED</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc7_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">COPY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc7_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc7_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc7_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">PROPERTY TAX RECIEPTS</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc8_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">COPY</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc8_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc8_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc8_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">AUTHORITY ALLOTMENT LETTER</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc9_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">ORIGINAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc9_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc9_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc9_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">CONSTRUCTION ESTIMATE FROM REGISTERED ENGINEER/ARCHITECT</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc10_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">ORIGINAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc10_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc10_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc10_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">IMPROVEMENT/EXTENSION ESTIMATE FROM REGISTERED ENGINEER/ARCHITECT</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_doc11_type" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['ORIGINAL', 'COPY', 'NA'])">ORIGINAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc11_ref" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc11_date" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_doc11_details" style="border: 1px solid #000; padding: 6px;"></td>
+                            </tr>
+
+                            <!-- SITE INVESTIGATION -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    SITE INVESTIGATION
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">S.NO</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">ACTIVITY</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">STAGE OF CONSTRUCTION IN(%)</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">REMARKS ON PROGRESS</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">1</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">PLINTH</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si1_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">100% COMPLETED</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_si_remarks" style="border: 1px solid #000; padding: 6px; vertical-align: top;" colspan="2" rowspan="9"></td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">2</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">R.C.C ABOVE GROUND</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si2_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">100% COMPLETED</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">3</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">BRICKWORK</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si3_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">100% COMPLETED</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">4</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">INTERNAL PLASTER</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si4_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">-</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">5</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">EXTERNAL PLASTER</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si5_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">-</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">6</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">FLOORING</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si6_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">-</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">7</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">PLUMBING AND ELECTRICAL</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si7_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">-</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">8</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">DOOR,WINDOW &amp; PAINT</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si8_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">-</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">9</td>
+                                <td class="label-cell" style="border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">FINISHING AND POSSESSION</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_si9_pct" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['100% COMPLETED', '-', 'WORK IN PROGRESS'])">-</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">TOTAL COMPLETION</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_si_total" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                                <td style="border: 1px solid #000;" colspan="2"></td>
+                            </tr>
+
+                            <!-- TECHNICAL ACCEPTABILITY -->
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">IS THE PROPERTY TECHNICALLY ACCEPTABLE?</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_tech_acc" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['YES', 'NO'])">YES</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;">MARKETABILITY OF PROPERTY</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_marketability" style="text-align: center; border: 1px solid #000; padding: 6px;" onclick="toggleText(this, ['GOOD', 'AVERAGE', 'POOR'])">GOOD</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">ELECTRICITY METER NO.</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_elec_meter" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">ELECTRICITY CONNECTION NAME</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_elec_name" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="3"></td>
+                            </tr>
+
+                            <!-- REMARKS ON THE PROPERTY -->
+                            <tr>
+                                <td colspan="6" style="text-align: left; font-weight: 600; font-size: 0.9rem; background: #f9f9f9; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    REMARKS ON THE PROPERTY
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="value-cell" contenteditable="true" id="chola08_prop_remarks" style="vertical-align: top; min-height: 250px; border: 1px solid #000; padding: 10px; white-space: pre-wrap; font-size: 0.8rem; line-height: 1.4;"></td>
+                            </tr>
+
+                            <!-- PROPERTY OTHER REMARKS AND OBSERVATION -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    PROPERTY OTHER REMARKS AND OBSERVATION
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;">S.NO</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="3">PARTICULARS</td>
+                                <td class="label-cell" style="font-weight: 600; text-align: center; border: 1px solid #000; padding: 6px;" colspan="2">OBSERVATIONS</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">1</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">ANY DEMOLITION RISK INVOLVED</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_obs1" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onclick="toggleText(this, ['LOW', 'MEDIUM', 'HIGH', 'NIL'])">LOW</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">2</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">WHETHER BUILDING CONSTRUCTED AS PER BY LAWS</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_obs2" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onclick="toggleText(this, ['YES', 'NO'])">YES</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">3</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">RATE GIVEN FOR THE PROPERTY IN THE SAME LOCALITY IN LAST 3 MONTHS</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_obs3" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">4</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">VIOLATION / DEVIATIONS OBSERVED IF ANY :</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_obs4" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onclick="toggleText(this, ['YES', 'NO', 'NIL'])">YES</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">5</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">ARE BASIC AMENITIES SUCH AS DRAINAGE / SEPTIC TANK ETC AVAILABLE</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_obs5" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onclick="toggleText(this, ['YES', 'NO'])">YES</td>
+                            </tr>
+                            <tr>
+                                <td class="value-cell" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">6</td>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="3">NATURE OF DEVIATION</td>
+                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_obs6" style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2" onclick="toggleText(this, ['LOW', 'MINOR', 'MAJOR', 'NIL'])">LOW</td>
+                            </tr>
+
+                            <!-- TECH MANAGER REMARKS -->
+                            <tr>
+                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; text-transform: uppercase;" colspan="2">TECH MANAGER REMARKS</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_tech_mgr_remarks" style="border: 1px solid #000; padding: 6px;" colspan="4"></td>
+                            </tr>
+                        </table>
+
+                        <div style="height: 30px;"></div>
+
+                        <table class="report-table" style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 0.8rem; border: 1px solid #000;">
+                            <!-- DECLARATION -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; border-top: 1px solid #000; text-transform: uppercase;">
+                                    DECLARATION
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" style="vertical-align: top; border: 1px solid #000; padding: 15px; font-size: 0.8rem; line-height: 1.6; text-align: justify;">
+                                    <ul style="margin: 0; padding-left: 20px; text-align: left; list-style-type: none;">
+                                        <li>1. I have no direct or indirect interest in the property valued</li>
+                                        <li>2. Information furnished in the report is true and correct to the best of my knowledge and belief</li>
+                                        <li>3. Ownership papers / Sale deed may please be verified at your end to ascertain the right title & areas</li>
+                                        <li>4. Fair market value indicated in the report is an opinion of the value prevailing on the date of the said report and is based on market feedback on values of similar properties. Client is free to obtain other independent opinions on the same. Fair, market value of such properties / localities may increase or decrease, depending on the future market conditions & scenarios. Report does not certify or confirm any ownership or title of the property that has been valued.</li>
+                                        <li>5. No structural survey was conducted by us</li>
+                                        <li>6. Validity of this report is for 90 days from date</li>
+                                        <li>7. Based on my appraisal and analysis, it is my considered opinion that the current market value of the aforesaid property, considering its prevailing condition and the specified specifications, is </li>
+                                        <li style="text-align: center; margin-top: 15px;">
+                                            <div id="val_decl_fmv_num" class="value-cell" contenteditable="true" style="font-weight: 600; font-size: 1.3rem; outline: none; border: none; background: transparent; box-shadow: none !important;">₹ --</div>
+                                            <div id="val_decl_fmv_words" class="value-cell" contenteditable="true" style="font-weight: 700; font-size: 1rem; margin-top: 5px; text-transform: uppercase; outline: none; border: none; background: transparent; box-shadow: none !important;">--</div>
+                                        </li>
+                                        <li style="margin-top: 15px;">8. The distress sale value of the property is assessed to be <span id="val_decl_distress_percent" class="value-cell" contenteditable="true" style="outline: none; border: none; box-shadow: none !important;">80%</span> of Rs. <span id="val_decl_fmv_ref" class="value-cell" contenteditable="true" style="outline: none; border: none; box-shadow: none !important;">--</span> equals to Rs. <span id="val_decl_distress_num" class="value-cell" contenteditable="true" style="outline: none; border: none; box-shadow: none !important;">--</span></li>
+                                        <li>9. I have deputed my representative Mr. Sanjay Babu, Asst. Valuer to inspect the property, who has personally inspected the property on <span id="val_decl_inspect_date" class="value-cell" contenteditable="true" style="outline: none; border: none; box-shadow: none !important;">--</span></li>
+                                        <li>10. I hereby declare that I am not affiliated with the client/owner or any associated companies, nor have I had any direct or indirect involvement with the borrower in the past or present. I assert that this report has been prepared by me with the utmost professional integrity.</li>
+                                        <li>11. The value of a property is influenced by the specific purpose of its valuation. Therefore, the client is advised to utilize this report solely for the specified purpose.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <!-- SIGNATURE BLOCK -->
+                        <div class="report-section" style="margin-top: 40px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                    <span style="font-weight: bold; width: 45px;">Date:</span>
+                                    <span class="value-cell" id="val_sign_date" style="min-width: 200px; display: inline-block; padding: 2px 5px; border: none; background: transparent;"></span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 100px;">
+                                    <span style="font-weight: bold; width: 45px;">Place:</span>
+                                    <span class="value-cell" id="val_sign_place" style="min-width: 200px; display: inline-block; padding: 2px 5px; border: none; background: transparent;"></span>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold; margin-bottom: 180px; margin-top: 20px;">For Seal with Signature</div>
+                            </div>
+                        </div>
+
+                        <!-- PROPERTY PHOTOS -->
+                        <div class="report-section photo-section" style="margin-top: 30px; font-size: 0.9rem;">
+                            <h3 style="text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 1rem;">Property Photos</h3>
+
+                            <div id="photo-upload-controls" class="no-print" style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;">
+                                <button onclick="handleUploadButton()" style="padding: 12px 25px; border-radius: 8px; background-color: blue; color: white; border: none; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 4px 15px rgba(255, 184, 0, 0.2);">
+                                    <i class="fas fa-file-import" style="margin-right: 8px;"></i>Import All Photos from Folder
+                                </button>
+                            </div>
+
+                            <div id="photo-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; justify-items: center;">
+                                <!-- Photos will be injected here via JS -->
+                            </div>
+                        </div>
+
+                        <!-- LOCATION MAP -->
+                        <div class="report-section" style="margin-top: 50px; padding-bottom: 60px;">
+                            <h3 style="font-size: 1rem; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 1px; text-transform: uppercase;">
+                                Location Map</h3>
+
+                            <!-- Geo Coordinates Row -->
+                            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+                                <span style="font-weight: bold; font-size: 0.9rem; white-space: nowrap;">Geo Coordinates:</span>
+
+                                <!-- Single combined input: "lat, long" -->
+                                <span class="value-cell" id="val_geo_coords"
+                                    style="min-width: 260px; display: inline-block; padding: 4px 10px; background: rgba(0,0,0,0.15); border-radius: 4px; font-size: 0.85rem; font-family: monospace;"
+                                    oninput="convertGeoCoords()" placeholder="e.g. 9.711089, 76.357271"></span>
+
+                                <!-- Read-only DMS output -->
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 0.82rem; color: var(--text-dim); white-space: nowrap; font-weight: bold;">Degrees:</label>
+                                    <div id="geo_converted" style="font-size: 0.85rem; color: var(--text-main); padding: 4px 12px; background: rgba(0,0,0,0.08); border-radius: 4px; font-family: monospace; min-width: 280px; border: 1px solid var(--border); opacity: 0.85;">
+                                        &mdash;
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Map Screenshot Upload Box -->
+                            <div style="display: flex; justify-content: center;">
+                                <div id="map-upload-box" style="width: 100%; max-width: 100%; aspect-ratio: 16/10; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                                    <div id="map-placeholder" style="text-align: center; color: var(--text-dim);">
+                                        <i class="fas fa-map-marked-alt" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
+                                        <div style="font-size: 0.9rem; font-weight: bold;">Click to upload Google Maps screenshot</div>
+                                        <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.6;">Landscape screenshot with coordinates</div>
+                                    </div>
+                                    <input type="file" accept="image/*" onchange="previewMapImage(this)" style="position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; top: 0; left: 0; z-index: 2;">
+                                    <img id="map-preview" style="position: absolute; width: 100%; height: 100%; object-fit: contain; display: none; top: 0; left: 0; background: #fff;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MORE SECTIONS COMING... -->
 
                 </div>
                 {% elif bank_code == '11' %}
@@ -3375,9 +4244,15 @@
 
             /* The big sections (Sections I-V in one table) can flow naturally */
             .lnt-finance-format>.report-container>table.lnt-table,
-            .lnt-finance-format table.lnt-table:first-of-type {
+            .lnt-finance-format table.lnt-table:first-of-type,
+            .chola-hl-format .report-section {
                 page-break-inside: auto !important;
                 break-inside: auto !important;
+            }
+
+            .chola-hl-format td {
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
             }
 
             /* Letterhead: keep together, no page break after */
@@ -4274,6 +5149,104 @@
             }
         }
 
+        function calcChola08() {
+            if (GLOBAL_BANK_CODE !== '08') return;
+
+            const parseVal = (id) => {
+                const el = document.getElementById(id);
+                if (!el) return 0;
+                const txt = el.innerText.trim().replace(/,/g, '');
+                if (txt === '--' || txt === '') return 0;
+                return parseFloat(txt) || 0;
+            };
+
+            const formatVal = (val) => val ? Math.round(val).toString() : '';
+
+            const updateText = (id, val) => {
+                const el = document.getElementById(id);
+                if (el && el.innerText !== val) {
+                    el.innerText = val;
+                    fieldValues[id] = val; // Store in audit
+                }
+            };
+
+            // Land Calculation
+            const landAreaPlan = parseVal('chola08_land_plan');
+            const landAreaSite = parseVal('chola08_land_site');
+            const landRate = parseVal('chola08_land_rate');
+            const landValPlan = landAreaPlan * landRate;
+            const landValSite = landAreaSite * landRate;
+
+            updateText('chola08_land_val_plan', formatVal(landValPlan));
+            updateText('chola08_land_val_site', formatVal(landValSite));
+
+            // GF Calculation
+            const gfAreaPlan = parseVal('chola08_gf_plan');
+            const gfAreaSite = parseVal('chola08_gf_site');
+            const gfRate = parseVal('chola08_gf_rate');
+            const gfValPlan = gfAreaPlan * gfRate;
+            const gfValSite = gfAreaSite * gfRate;
+
+            updateText('chola08_gf_val_plan', formatVal(gfValPlan));
+            updateText('chola08_gf_val_site', formatVal(gfValSite));
+
+            // Second Area Table Sync & Calc
+            const land2Val = parseVal('chola08_land2_area') * parseVal('chola08_land2_rate');
+            const gf2Val = parseVal('chola08_gf2_area') * parseVal('chola08_gf2_rate');
+            
+            updateText('chola08_land2_val', formatVal(land2Val));
+            updateText('chola08_gf2_val', formatVal(gf2Val));
+
+            const totalMarket = land2Val + gf2Val;
+            updateText('chola08_total_market_val', formatVal(totalMarket));
+
+            // Amenities
+            const amQty = parseVal('chola08_am_qty');
+            const amUnit = parseVal('chola08_am_unit');
+            const amAmt = amQty * amUnit;
+            updateText('chola08_am_amt', formatVal(amAmt));
+            updateText('chola08_total_am_val', formatVal(amAmt));
+
+            // Grand Total
+            const grandTotal = totalMarket + amAmt;
+            updateText('chola08_grand_total', formatVal(grandTotal));
+
+            // Distress
+            const distressVal = grandTotal * 0.8;
+            updateText('chola08_distress_val', distressVal ? distressVal.toFixed(1) : '');
+        }
+
+        function generateChola08Summary(sv, bld, cf) {
+            let product = sv.Valuers_Checklist?.product || cf.product || 'Residential - Self-construction';
+            let summary = `Its a ${product} case. Boundaries are verified with location sketch, its matching with actual site. EB check is positive, EB ownership in the name of property owner.\n`;
+            
+            summary += `Property located in ${sv.Neighborhood_property_details?.location_type || 'normal'} area. Building permit and approved plan produced. `;
+            
+            let gf_plan = bld.GF_approved_plan_area || '';
+            let gf_site = bld.GF_Builtup_area || '';
+            if (gf_plan) {
+                summary += `As per permit built up area is GF ${gf_plan}sqft, `;
+            }
+            if (gf_site) {
+                summary += `but at site customer construct only ${gf_site}sqft. `;
+            }
+            summary += (sv.Building_details?.construction_status || sv.Building_analysis?.remarks || 'Construction in progress.') + '\n';
+            return summary;
+        }
+
+        function generateChola08Declaration(sv, cf, dateStr, branch) {
+            let engName = sv.Valuers_Checklist?.engineer_name || 'Engineer';
+            let place = branch || 'COCHIN HL';
+            let dec = `DECLARATION :\nI/We hereby Confirm and declares as that :\n`;
+            dec += `1. The property was inspected by ${engName} on ${dateStr} by Engineer :.\n`;
+            dec += `2. I/We have no direct or indirect Interest in the property valued.\n`;
+            dec += `3. The information furnished above are true and correct to my/our best of knowledge.\n\n`;
+            dec += `DISCAIMER: I / we are merely acting in the capacity of a valuer and does not undertake any responsibility for aspects other than valuation of property as mentioned in the report. All assistance is provided on a best effort basis only. The valuation report are based on the location of the property, infrastructure available, overall development of the vicinity and prevailing market rates for similar properties and on the facts and confirmation provided obtained by us, We will not provide any professional advice and or any other party on our behalf as on date of assessment, we represents that we will complete report with accuracy in all respects. The Report contains on representations or warranties of any kind. We ensure appropriate exercise on due diligence with respect to the property, including approval status, legal and tax diligence, prior to taking of any decision and also Compliance with statutory requirements applicable for construction is not our responsibility for any undertaking on the construction activity. I / we does not have any role in construction and pricing of the project / Property. I/we not undertaken any investigation into the title of the property and the valuation is made on the presumption that the property possesses a good and marketable title and is free from encumbrances. The contents of this Report are strictly confidential and sole responsible on us and are intended for the exclusive use of our Client M/s Cholamandalam Investment and Finance Company Limited. This document may not be altered in any way, transmitted, copied or distributed, in part or in whole, to any other person or to the media or reproduced in any form, without prior written consent from Cholamandalam Investment and Finance Company Limited. Cholamandalam Investment and Finance Company Limited accepts no responsibility or liability to any third party for whole or any part of the Report. Cholamandalam Investment and Finance Company Limited specifically excludes from any liability with respect to any losses due to any act or omission of the developer or any other third party and any consequences thereof in any total aggregate liability for any reason, whatsoever, shall not be liable for any direct or indirect on consequential losses which arise out of or in connection with services (Report) provided under this engagement by us. This is to certify that the said report done/issued by us through online platform of Cholamandalam Investment and Finance Company Limited hence, signature is not required.\n\n`;
+            dec += `PLACE : ${place.toUpperCase()}\n`;
+            dec += `DATE : ${dateStr}`;
+            return dec;
+        }
+
         function syncAllFields() {
             manualSaveDraftingData();
         }
@@ -5085,6 +6058,8 @@
             // Render L&T Configuration dynamic rows first
             const countVal = draft['val_lnt_num_floors_act'] || draft['val_lnt_num_floors'] || sv_checklist.land_inspection_details?.total_floors || 2;
             handleLntFloorsChange(countVal, draft);
+            
+            setTimeout(calcChola08, 200); // Trigger Chola calculations after mappings
 
             // Generate Today's Date
             const now = new Date();
@@ -5507,6 +6482,141 @@
                 // Section IX: Deviations & Remarks Specific Mappings
                 'val_lnt_deviations': sv_checklist.verification_details?.deviations || 'No deviations observed',
                 'val_lnt_remarks': sv_checklist.verification_details?.remarks || generateDynamicLntRemarks(sv_checklist, cf),
+
+                // ============================================
+                // CHOLA HOME LOAN (08) SPECIFIC MAPPINGS
+                // ============================================
+                'chola08_branch': sv_checklist.Valuers_Checklist?.branch_name || extractedBranch || '--',
+                'chola08_app_id': cf.bank_ref_no || '--',
+                'chola08_date': formattedVisitDate || todayStr,
+                'chola08_applicant': ver.applicant_name || sv_checklist.Valuers_Checklist?.applicant_name || cf.applicant_name || '--',
+                'chola08_product': sv_checklist.Valuers_Checklist?.product || cf.product || 'Residential - Self-construction',
+                'chola08_co_applicant': cf.co_applicant_name || '--',
+                'chola08_contact': cf.contact_number || '--',
+
+                'chola08_addr_site': constructedSiteAddress,
+                'chola08_addr_doc': ver.database?.Narratives?.deed || constructedSiteAddress,
+                'chola08_landmark': sv_checklist.Neighborhood_property_details?.landmark || '--',
+                'chola08_nearest_branch': sv_checklist.Valuers_Checklist?.branch_name || extractedBranch || '--',
+                'chola08_dist_branch': '--', // Placeholder if not available
+
+                'chola08_bound_east_doc': checkedBoundary?.East || '--',
+                'chola08_bound_west_doc': checkedBoundary?.West || '--',
+                'chola08_bound_south_doc': checkedBoundary?.South || '--',
+                'chola08_bound_north_doc': checkedBoundary?.North || '--',
+
+                'chola08_bound_east_site': siteBoundary.East || '--',
+                'chola08_bound_west_site': siteBoundary.West || '--',
+                'chola08_bound_south_site': siteBoundary.South || '--',
+                'chola08_bound_north_site': siteBoundary.North || '--',
+
+                'chola08_lat_value': sv_checklist.Neighborhood_property_details?.lat || cf.lat || '--',
+                'chola08_lat_dir': '--', // Added logic or manual entry
+                'chola08_lon_value': sv_checklist.Neighborhood_property_details?.lon || cf.lon || '--',
+                'chola08_lon_dir': '--', // Added logic or manual entry
+
+                'chola08_auth_limit': sv_checklist.Neighborhood_property_details?.local_authority_name || '--',
+                'chola08_app_auth': sv_checklist.Building_details?.approved_plan || '--',
+                'chola08_prop_age': sv_checklist.Building_details?.age_of_building || propAgeMapping || '0/0',
+                'chola08_owner_name': ownerNames || ver.applicant_name || sv_checklist.Valuers_Checklist?.applicant_name || '--',
+                'chola08_occ_status': sv_checklist.occupant_details?.occupancy_status || 'NA',
+                'chola08_occ_name': sv_checklist.occupant_details?.occupied_by || '',
+                'chola08_person_met': sv_checklist.Valuers_Checklist?.person_met || sv_checklist.Valuers_Checklist?.personMetAtSite || ver.person_met || '--',
+                'chola08_prop_type': sv_checklist.land_inspection_details?.property_type || 'Independent house',
+                'chola08_approach_road': roadWidthDisplay || 'Plot has 3m wide Private road Access.',
+                'chola08_residual_age': sv_checklist.Building_details?.residual_age || residualAgeMapping || '50',
+
+                'chola08_dist_bus': sv_checklist.Neighborhood_property_details?.distance_bus_stand || 'Below 1 KM',
+                'chola08_name_bus': sv_checklist.Neighborhood_property_details?.bus_stop_name || '',
+                'chola08_dist_rail': sv_checklist.Neighborhood_property_details?.distance_railway || 'Above 5 KM',
+                'chola08_name_rail': sv_checklist.Neighborhood_property_details?.railway_station_name || '',
+                'chola08_dist_school': 'Below 1 KM',
+                'chola08_name_school': '',
+                'chola08_dist_hwy': 'Below 1 KM',
+                'chola08_name_hwy': '',
+                'chola08_dist_hosp': sv_checklist.Neighborhood_property_details?.distance_hospital || 'Below 1 KM',
+                'chola08_name_hosp': sv_checklist.Neighborhood_property_details?.hospital_name || '',
+
+                'chola08_surround_dev': '95',
+                'chola08_land_type': sv_checklist.land_inspection_details?.land_classification || 'Dry land/Freehold',
+                'chola08_prop_usage': sv_checklist.land_inspection_details?.approved_usage || 'RESIDENTIAL',
+                'chola08_mixed_usage': '',
+
+                // Section 3 Area Mapping Values
+                'chola08_land_plan': sv_checklist.land_inspection_details?.extent_of_land_document || sv_checklist.land_inspection_details?.extent_of_land_actual || '1442',
+                'chola08_land_site': sv_checklist.land_inspection_details?.extent_of_land_actual || '1442',
+                'chola08_land_rate': '919',
+                'chola08_gf_plan': bld.GF_approved_plan_area || bld.GF_Builtup_area || '529',
+                'chola08_gf_site': bld.GF_Builtup_area || '529',
+                'chola08_gf_rate': '2000',
+                'chola08_bua_plan': bld.total_approved_plan_area || bld.total_builtup_area || '529',
+                'chola08_bua_site': bld.total_builtup_area || '529',
+                'chola08_fsi_perm': '0.37',
+                'chola08_fsi_achv': '0.37',
+
+                'chola08_land2_area': sv_checklist.land_inspection_details?.extent_of_land_actual || '1442',
+                'chola08_land2_rate': '919',
+                'chola08_gf2_area': bld.GF_Builtup_area || '529',
+                'chola08_gf2_rate': '2000',
+                'chola08_bua2_area': bld.total_builtup_area || '529',
+
+                'chola08_am_desc': '0',
+                'chola08_am_qty': '0',
+                'chola08_am_unit': '0',
+                'chola08_area_remarks': '',
+                'chola08_guideline_val': '0',
+                'chola08_units_total': '1',
+
+                // Section 4 Document and Site Investigation Mappings
+                'chola08_rental_val': '0',
+                
+                // Doc 2 (Floor Plan/Approved Plan)
+                'chola08_doc2_ref': sv_checklist.Building_details?.approved_plan_no || '',
+                'chola08_doc2_date': sv_checklist.Building_details?.approved_plan_date || '',
+                'chola08_doc2_details': sv_checklist.Building_details?.approved_plan || '',
+                
+                // Doc 3 (Building Permit)
+                'chola08_doc3_ref': sv_checklist.Building_details?.building_permit_no || '',
+                'chola08_doc3_date': sv_checklist.Building_details?.building_permit_date || '',
+                'chola08_doc3_details': sv_checklist.Building_details?.approved_plan || '',
+
+                // Doc 6 (Location Sketch)
+                'chola08_doc6_ref': '', // We'd need to extract from survey values if present
+                'chola08_doc6_date': '',
+                'chola08_doc6_details': 'Village office',
+
+                // Doc 7 (Deed)
+                'chola08_doc7_ref': '',
+                'chola08_doc7_date': '',
+                'chola08_doc7_details': 'SRO',
+
+                // Doc 8 (Tax)
+                'chola08_doc8_ref': '',
+                'chola08_doc8_date': '',
+                'chola08_doc8_details': 'Village office',
+
+                'chola08_si_remarks': sv_checklist.Building_analysis?.remarks || sv_checklist.Building_details?.construction_status || '',
+                'chola08_si_total': bld.GF_Prog_Per || bld.first_flr_Prog_Per || '75',
+
+                // Section 5
+                'chola08_tech_acc': 'YES',
+                'chola08_marketability': 'GOOD',
+                'chola08_elec_meter': sv_checklist.verification_details?.electricity_meter || '',
+                'chola08_elec_name': '',
+                'chola08_prop_remarks': generateDynamicLntRemarks(sv_checklist, cf) || '',
+                'chola08_obs1': 'LOW',
+                'chola08_obs2': (sv_checklist.Building_details?.approved_plan === 'Yes' ? 'YES' : 'NO') || 'YES',
+                'chola08_obs3': '',
+                'chola08_obs4': 'YES',
+                'chola08_obs5': 'YES',
+                'chola08_obs6': 'LOW',
+
+                // Section 6
+                'chola08_tech_mgr_remarks': '',
+                'chola08_summary_para': generateChola08Summary(sv_checklist, bld, cf),
+                'chola08_declaration': generateChola08Declaration(sv_checklist, cf, todayStr, extractedBranch),
+
+                // ============================================
 
                 'val_approach_road': roadWidthDisplay,
                 'val_bank_ref_no': cf.bank_ref_no || '--',
