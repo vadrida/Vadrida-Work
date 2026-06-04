@@ -1,6 +1,6 @@
 import requests
-
-api_key = "AIzaSyB9m159uZTlWI-R75j3wRRsponZc16BOW4"
+import os
+api_key = os.environ.get("GEMINI_API_KEY")
 url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
 resp = requests.get(url)
 print(resp.status_code)

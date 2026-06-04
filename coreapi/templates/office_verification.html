@@ -1484,8 +1484,12 @@
             <span class="ts-value" id="sumApplicantName">--</span>
         </div>
         <div class="ts-item">
-            <span class="ts-label">Date:</span>
+            <span class="ts-label">Created:</span>
             <span class="ts-value" id="sumInspDate">--</span>
+        </div>
+        <div class="ts-item">
+            <span class="ts-label">District:</span>
+            <span class="ts-value" id="sumDistrict">--</span>
         </div>
         <div class="ts-item">
             <span class="ts-label">Product:</span>
@@ -2102,6 +2106,9 @@
 
                                 <!-- Demarcation Summary Label injected here -->
                                 <div id="demarcationSummaryLink" style="min-width: 0; display: contents;"></div>
+                                
+                                <!-- FSI Summary Label injected here -->
+                                <div id="fsiSummaryLink" style="min-width: 0; display: contents;"></div>
 
                             </div>
                             <!-- END OF NEW SUMMARIES GRID -->
@@ -2672,6 +2679,7 @@
     <option value="Engineer's Plan"></option>
     <option value="TIR/Legal Report"></option>
     <option value="Sale Declaration"></option>
+    <option value="Building Tax Receipt"></option>
 </datalist>
 
 <!-- Hidden Datalist for Access Types -->
@@ -3274,10 +3282,10 @@
         const isoDate = toISODate(date);
 
         row.innerHTML = `
-            <input type="text" class="doc-input col-type" placeholder="e.g. Title Deed" value="${type}" list="docTypes">
-            <input type="text" class="col-no doc-input" placeholder="No." value="${no}">
+            <input type="text" class="doc-input col-type" placeholder="e.g. Title Deed" value="${type}" list="docTypes" oninput="updateDynamicLabels(); triggerAutoSave();">
+            <input type="text" class="col-no doc-input" placeholder="No." value="${no}" oninput="updateDynamicLabels(); triggerAutoSave();">
             <input type="text" class="doc-input col-date flatpickr-date" placeholder="DD/MM/YYYY" value="${isoDate}">
-            <input type="text" class="doc-input col-year" placeholder="Year" value="${year}">
+            <input type="text" class="doc-input col-year" placeholder="Year" value="${year}" oninput="updateDynamicLabels(); triggerAutoSave();">
             <button type="button" class="btn-remove" onclick="removeDocRow('${rowId}')">
                 <i class="fas fa-times"></i>
             </button>
@@ -4081,7 +4089,7 @@
                             ${data.docNo ? `<div style="font-size: 0.55rem; font-weight: 600; color: var(--text-dim); white-space: nowrap; margin-bottom:6px;">No.${data.docNo}</div>` : ''}
                             ${ares > 0 ?
                     `<div>
-                                     <div class="square-extent-ares" style="font-size: 1.1rem; line-height: 1;">${data.area} <span style="font-size:0.5rem; text-transform:uppercase; color:var(--text-dim);">Ares</span></div>
+                                     <div class="square-extent-ares" style="font-size: 1.1rem; line-height: 1;">${ares.toFixed(2)} <span style="font-size:0.5rem; text-transform:uppercase; color:var(--text-dim);">Ares</span></div>
                                      <div style="font-size: 0.65rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">${cents} <span style="font-size:0.45rem; text-transform:uppercase; color:var(--text-dim);">Cents</span></div>
                                  </div>` : ''
                 }
@@ -5152,10 +5160,10 @@
             if (!docName) return;
 
             boundaries[docName] = {
-                "North": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-north`)?.value || "",
-                "East": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-east`)?.value || "",
-                "South": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-south`)?.value || "",
-                "West": document.querySelector(`td[data-col-id="${colId}"] .boundary-input-west`)?.value || ""
+                "North": document.querySelector(`td[data-col="${colId}"] .boundary-input-north`)?.value || "",
+                "East": document.querySelector(`td[data-col="${colId}"] .boundary-input-east`)?.value || "",
+                "South": document.querySelector(`td[data-col="${colId}"] .boundary-input-south`)?.value || "",
+                "West": document.querySelector(`td[data-col="${colId}"] .boundary-input-west`)?.value || ""
             };
         });
         return boundaries;
@@ -5251,12 +5259,12 @@
                         <select class="doc-input analysis-input cls-select" data-slot="${slotNum}" data-col="${colId}" 
                             style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: var(--accent); font-weight: bold; height: 32px;">
                             <option value="">-- Class --</option>
-                            <option value="dry">Dry</option>
-                            <option value="wet">Wet</option>
-                            <option value="sthirapunja">Sthirapunja</option>
-                            <option value="asthirapunja">Asthirapunja</option>
-                            <option value="thottam">Thottam</option>
-                            <option value="others">Others</option>
+                            <option value="Dry Land">Dry Land</option>
+                            <option value="Wet Land">Wet Land</option>
+                            <option value="Sthirapunja">Sthirapunja</option>
+                            <option value="Asthirapunja">Asthirapunja</option>
+                            <option value="Thottam">Thottam</option>
+                            <option value="Others">Others</option>
                         </select>
                         <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" 
                             placeholder="Specify..." 
@@ -5984,11 +5992,11 @@
         row.innerHTML = `
             <div style="flex: 2;">
                 <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Owner Name</label>
-                <input type="text" class="doc-input owner-name-input" placeholder="Enter owner name..." value="${initialData.name || ''}" style="width: 100%;">
+                <input type="text" class="doc-input owner-name-input" placeholder="Enter owner name..." value="${initialData.name || ''}" style="width: 100%;" oninput="updateDynamicLabels(); triggerAutoSave();">
             </div>
             <div style="flex: 2;">
                 <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Basis Document</label>
-                <select class="doc-input basis-doc-select" style="width: 100%; height: 40px;">
+                <select class="doc-input basis-doc-select" style="width: 100%; height: 40px;" onchange="updateDynamicLabels(); triggerAutoSave();">
                     <option value="">-- Select Basis Document --</option>
                     ${currentBasisDocs.map(d => {
             // Resilient Matching: Check full doc string, doc_no, or doc_id for backward compatibility
@@ -6083,7 +6091,7 @@
             }
         });
 
-        ['sumFileNo', 'sumApplicantName', 'sumInspDate', 'sumProduct'].forEach(id => {
+        ['sumFileNo', 'sumApplicantName', 'sumInspDate', 'sumDistrict', 'sumProduct'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.innerText = '- ';
         });
@@ -6122,6 +6130,14 @@
         window.currentIndividualStates = {};
         window.currentGroupStates = {};
         window.currentBoundaryGroups = {};
+
+        // RESET BUILDING DETAILS
+        window.vadridaBuildings = [];
+        if (typeof renderBuildingTable === 'function') {
+            renderBuildingTable();
+        }
+        const summaryGrid = document.getElementById('buildingSummariesGrid');
+        if (summaryGrid) summaryGrid.innerHTML = '';
 
         window.currentSitePayload = null;
     }
@@ -6247,8 +6263,21 @@
                         const input = document.getElementById(id);
                         const disp = document.getElementById('disp_' + id);
                         if (input) input.value = val;
-                        if (disp) disp.innerText = val || '--';
+                        // Show 'NA' for product if empty, '--' for others
+                        if (disp) disp.innerText = val || (id === 'product' ? 'NA' : '--');
                     });
+
+                    // Show case registration date (from ClientFolder) in the top Date bar
+                    const sumInspDate = document.getElementById('sumInspDate');
+                    if (sumInspDate) {
+                        sumInspDate.innerText = vc.case_created_at || vc.inspection_date || '--';
+                    }
+
+                    // Show district name from ClientFolder
+                    const sumDistrict = document.getElementById('sumDistrict');
+                    if (sumDistrict) {
+                        sumDistrict.innerText = vc.district_name || '--';
+                    }
                 }
 
                 // --- BROWSER MEMORY STORAGE ---
@@ -6299,8 +6328,9 @@
 
                 // --- POPULATE SCHEDULE ---
                 const sched = payload.schedule_data || {};
+                const vc = payload.Valuers_Checklist || {};
                 if (document.getElementById('sched_district')) {
-                    document.getElementById('sched_district').value = sched.district || '';
+                    document.getElementById('sched_district').value = sched.district || vc.district_name || '';
                     document.getElementById('sched_sro').value = sched.sro || '';
                     document.getElementById('sched_taluk').value = sched.taluk || '';
                     document.getElementById('sched_village').value = sched.village || '';
@@ -7289,6 +7319,9 @@
 
     function getRequiredSetbacks(occupancy, totalBUA, plotAreaSqm) {
         const occ = (occupancy || '').toUpperCase();
+        const lbType = (document.getElementById('sched_local_body_type')?.value || '').toLowerCase();
+        const isGramapanchayat = lbType.includes('panchayat');
+
         const results = {
             front: { min: '', max: '', mean: '' },
             rear: { min: '', max: '', mean: '' },
@@ -7340,7 +7373,7 @@
         // Case 7: Groups B, C, E (BUA > 500)
         else if ((occ.includes('B EDUCATIONAL') || occ.includes('C MEDICAL') || occ.includes('E OFFICE')) && totalBUA > 500) {
             results.front = { min: '4.50', max: '4.50', mean: '6.00' };
-            results.rear = { min: '1.50', max: '1.50', mean: '3.00' };
+            results.rear = { min: '1.50', max: '1.50', mean: isGramapanchayat ? '3.00' : '2.00' };
             results.side1 = { min: '1.50', max: '1.50', mean: '2.00' };
             results.side2 = { min: '1.50', max: '1.50', mean: '2.00' };
         }
@@ -7560,7 +7593,7 @@
         const plotAreaAres = getPlotAreaFromDocuments();
         const plotAreaSqm = plotAreaAres * 100;
 
-        const coveragePct = plotAreaSqm > 0 ? Math.floor((sumMaxFloorBUA / plotAreaSqm) * 100) : 0;
+        const coveragePct = plotAreaSqm > 0 ? (sumMaxFloorBUA / plotAreaSqm) * 100 : 0;
 
         bldgs.forEach((b, bIdx) => {
             const container = document.getElementById(`b${bIdx}_coverage_synthesis_container`);
@@ -7627,15 +7660,158 @@
             const lbString = type === 'Gramapanchayat' ? `Gramapanchayat Category ${grade.replace('Grade ', '')}` : type;
 
             let msg = "";
+            // Strictly truncate to 2 decimal places without rounding up (e.g. 35.00566 -> 35.00)
+            const preciseCoverage = Math.floor(coveragePct * 100) / 100;
             
-            if (coveragePct > limit) {
-                msg = `Coverage violation has been observed for ${occLabelClean} building under ${lbString}, the maximum covered area ${areaDetailsStr}, which exceeds the maximum permissible coverage limit of ${limit}% as per KPBR rules.`;
+            if (preciseCoverage > limit) {
+                msg = `Coverage violation has been observed for type ${occLabelClean} building under ${lbString}, the maximum covered area ${areaDetailsStr} which is ${preciseCoverage}% of the plot area, which exceeds the maximum permissible coverage limit of ${limit}% as per KPBR rules.`;
             } else {
-                msg = `No coverage violation has been observed for ${occLabelClean} building under ${lbString}, the maximum covered area ${areaDetailsStr}, which falls within the maximum permissible coverage limit of ${limit}% as per KPBR rules.`;
+                msg = `No coverage violation has been observed for type ${occLabelClean} building under ${lbString}, the maximum covered area ${areaDetailsStr} which is ${preciseCoverage}% of the plot area, which falls within the maximum permissible coverage limit of ${limit}% as per KPBR rules.`;
             }
 
             output.innerText = msg;
         });
+
+        if (typeof updateFSISynthesis === 'function') {
+            updateFSISynthesis();
+        } else if (typeof updateMasterSynthesis === 'function') {
+            updateMasterSynthesis();
+        }
+    }
+
+    function updateFSISynthesis() {
+        const bldgs = window.vadridaBuildings || [];
+        if (bldgs.length === 0) return;
+
+        const plotAreaAres = getPlotAreaFromDocuments();
+        const plotAreaSqm = plotAreaAres * 100;
+        
+        let overallBUA = 0;
+        bldgs.forEach(b => {
+            if (b.floors) {
+                b.floors.forEach(f => {
+                    overallBUA += (parseFloat(f.bupSqm) || 0);
+                });
+            }
+        });
+
+        const lbType = document.getElementById('sched_local_body_type')?.value || '';
+        let lbGrade = document.getElementById('sched_lb_grade')?.value || '';
+
+        // Auto-resolve grade if it is empty but type is Gramapanchayat
+        if (!lbGrade && lbType === 'Gramapanchayat') {
+            const nameSelect = document.getElementById('sched_local_body_name');
+            const manualInput = document.getElementById('sched_lb_name_manual');
+            const name = nameSelect ? nameSelect.value : '';
+            const manual = manualInput ? manualInput.value : '';
+            const gradeInput = document.getElementById('sched_lb_grade');
+
+            if (name === 'OTHERS' && manual.trim() !== '') {
+                lbGrade = 'Grade 2';
+            } else if (name !== 'OTHERS' && name !== '') {
+                lbGrade = 'Grade 1';
+            }
+            if (gradeInput && lbGrade) {
+                gradeInput.value = lbGrade;
+            }
+        }
+
+        const isGrade2 = (lbType === 'Gramapanchayat' && lbGrade === 'Grade 2');
+        const isPanchayat = (lbType || '').toLowerCase().includes('panchayat');
+
+        const getFSILimits = (occ, isG2, isPanchayat) => {
+            if (!occ) return { fsi1: isG2 ? 2.5 : 3, fsi2: isG2 ? null : 4, label: "A1 Residential" }; // fallback
+            const upperOcc = occ.toUpperCase();
+            
+            if (upperOcc.includes('A1')) return { fsi1: isG2 ? 2.5 : 3, fsi2: isG2 ? null : 4, label: "A1 Residential" };
+            if (upperOcc.includes('A2')) return { fsi1: isG2 ? 1.5 : 2.5, fsi2: isG2 ? 1.75 : 4, label: "A2 Lodging Houses & Special Residential" };
+            if (upperOcc.includes('B EDUCATIONAL HIGHER SECONDARY')) return { fsi1: isG2 ? 1.5 : 2.5, fsi2: isG2 ? 1.75 : 3, label: "B Educational (Higher Secondary)" };
+            if (upperOcc.includes('B EDUCATIONAL')) return { fsi1: isG2 ? 1.5 : 2.5, fsi2: isG2 ? 1.75 : 3, label: "B Educational" };
+            if (upperOcc.includes('C MEDICAL') || upperOcc.includes('C HOSPITAL')) return { fsi1: 2.5, fsi2: isG2 ? null : 3.5, label: "C Medical/Hospital" };
+            if (upperOcc.includes('D ASSEMBLY')) return { fsi1: isG2 ? 0.7 : 1.5, fsi2: isG2 ? 1.25 : 2.5, label: "D Assembly" };
+            if (upperOcc.includes('E OFFICE')) return { fsi1: 3, fsi2: isG2 ? null : 4, label: "E Office" };
+            if (upperOcc.includes('F MERCHANTILE') || upperOcc.includes('F COMMERCIAL') || upperOcc.match(/\bF\b/)) return { fsi1: isG2 ? 2.75 : 3, fsi2: isG2 ? 3.5 : 4, label: "F Mercantile/Commercial" };
+            if (upperOcc.includes('G1 INDUSTRIAL - I') || upperOcc.includes('G1 INDUSTRIAL-I') || upperOcc.includes('G1')) return { fsi1: isG2 ? 2.75 : 3.5, fsi2: null, label: "G1 Industrial I" };
+            if (upperOcc.includes('G2 INDUSTRIAL - II') || upperOcc.includes('G2 INDUSTRIAL-II') || upperOcc.includes('G2')) return { fsi1: !isPanchayat ? 3 : (isG2 ? 2.5 : 3), fsi2: null, label: "G2 Industrial II" };
+            if (upperOcc.includes('H STORAGE')) return { fsi1: isG2 ? 2.75 : 3, fsi2: isG2 ? 3.75 : 4, label: "H Storage" };
+            if (upperOcc.includes('I HAZARDOUS')) return { fsi1: !isPanchayat ? 2 : 2, fsi2: null, label: "I Hazardous" };
+            if (upperOcc.includes('J MULTIPLEX')) return { fsi1: !isPanchayat ? 3.5 : (isG2 ? 2.5 : 3), fsi2: isG2 ? 3 : 3.5, label: "J Multiplex Complex" };
+            
+            return { fsi1: isG2 ? 2.5 : 3, fsi2: isG2 ? null : 4, label: "A1 Residential" }; // default fallback
+        };
+
+        let primaryOcc = bldgs[0].occupancy || '';
+        let limits = getFSILimits(primaryOcc, isGrade2, isPanchayat);
+        let fsi1 = limits.fsi1;
+        let fsi2 = limits.fsi2;
+        let occType = limits.label;
+
+        let res1 = plotAreaSqm * fsi1;
+        let bua = overallBUA;
+        let msg = "";
+        
+        if (fsi2 === null) {
+            // One value rule
+            if (bua <= res1) {
+                let conditionText = bua < res1 ? "lesser than" : "equal to";
+                msg = `No FSI violations have been observed as the maximum permissible FSI area for type ${occType} building is ${res1.toFixed(2)} sqm and the observed BUA is ${bua.toFixed(2)} sqm, which is ${conditionText} the permissible area.`;
+            } else {
+                let extraArea = bua - res1;
+                msg = `FSI violations have been observed as the absolute maximum permissible area for type ${occType} building is ${res1.toFixed(2)} sqm and the observed value is ${bua.toFixed(2)} sqm which is ${extraArea.toFixed(2)} sqm more than the permissible area.`;
+            }
+        } else {
+            // Two value rule (with fees)
+            let res2 = plotAreaSqm * fsi2;
+            if (bua <= res1) {
+                let conditionText = bua < res1 ? "lesser than" : "equal to";
+                msg = `No FSI violations have been observed as the maximum permissible FSI area for type ${occType} building is ${res2.toFixed(2)} sqm and the observed BUA is ${bua.toFixed(2)} sqm, which is ${conditionText} the permissible area.`;
+            } else if (bua > res1 && bua <= res2) {
+                let extraArea = bua - res1;
+                let fee = extraArea * 5000;
+                let feeStr = fee.toLocaleString('en-IN');
+                msg = `FSI violations have been observed as the maximum permissible FSI area without additional fees for type ${occType} building is ${res1.toFixed(2)} sqm and the observed value is ${bua.toFixed(2)} sqm which is ${extraArea.toFixed(2)} sqm more than the permissible area. An additional fee of Rs 5000 per sq.metre for the additional area will be charged which will be Rs ${feeStr}.`;
+            } else {
+                let extraArea = bua - res2;
+                msg = `FSI violations have been observed as the absolute maximum permissible area for type ${occType} building is ${res2.toFixed(2)} sqm and the observed value is ${bua.toFixed(2)} sqm which is ${extraArea.toFixed(2)} sqm more than the permissible area.`;
+            }
+        }
+
+        const container = document.getElementById('fsiSummaryLink');
+        if (container) {
+            let html = `
+                <!-- FSI Violation Summary Card -->
+                <div class="panel" style="min-width: 100%; border-left: 3px solid #ff9800; border-radius: 10px; display: flex; flex-direction: column; margin-top: 15px;">
+                    <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(255, 152, 0, 0.02);">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="background: rgba(255, 152, 0, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-building" style="color: #ff9800; font-size: 0.8rem;"></i>
+                            </div>
+                            <div>
+                                <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">FSI Summary</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button type="button" onclick="copyDynamicLabel(this, 'fsi_synthesis_output')"
+                                class="btn-portal"
+                                style="padding: 4px 10px; font-size: 0.65rem; background: #ff9800; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox" class="synthesis-checkbox" data-target="fsi_synthesis_output" checked onchange="updateMasterSynthesis()" 
+                                    style="width: 12px; height: 12px; cursor: pointer; accent-color: #ff9800;">
+                                <span style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add to Report</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card); flex: 1;">
+                        <div id="fsi_synthesis_output" class="summary-card-text" style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word; min-height: 80px; max-height: 200px; overflow-y: auto;">
+                            ${msg}
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
 
         if (typeof updateMasterSynthesis === 'function') {
             updateMasterSynthesis();
@@ -7893,37 +8069,6 @@
 
             if (summaryGrid) {
                 summaryGrid.insertAdjacentHTML('beforeend', `
-                    <!-- Setback Violation Summary Card -->
-                    <div class="panel" style="min-width: 100%; border-left: 3px solid #795548; border-radius: 10px; display: flex; flex-direction: column;">
-                        <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(121, 85, 72, 0.02);">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <div style="background: rgba(121, 85, 72, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-file-signature" style="color: #795548; font-size: 0.8rem;"></i>
-                                </div>
-                                <div>
-                                    <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">Setback Summary (B${b.no})</span>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <button type="button" onclick="copyDynamicLabel(this, 'b${bIdx}_setback_synthesis')"
-                                    class="btn-portal"
-                                    style="padding: 4px 10px; font-size: 0.65rem; background: #795548; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fas fa-copy"></i> Copy
-                                </button>
-                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                                    <input type="checkbox" class="synthesis-checkbox" data-target="b${bIdx}_setback_synthesis" checked onchange="updateMasterSynthesis()" 
-                                        style="width: 12px; height: 12px; cursor: pointer; accent-color: #795548;">
-                                    <span style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add to Report</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card); flex: 1;">
-                            <div id="b${bIdx}_setback_synthesis" class="summary-card-text" style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word; min-height: 80px; max-height: 200px; overflow-y: auto;">
-                                Synthesis will appear here...
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Coverage Violation Summary Card -->
                     <div class="panel" id="b${bIdx}_coverage_synthesis_container" style="min-width: 100%; border-left: 3px solid #8bc34a; border-radius: 10px; display: none; flex-direction: column;">
                         <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(139, 195, 74, 0.02);">
@@ -7954,6 +8099,37 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Setback Violation Summary Card -->
+                    <div class="panel" style="min-width: 100%; border-left: 3px solid #795548; border-radius: 10px; display: flex; flex-direction: column;">
+                        <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(121, 85, 72, 0.02);">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="background: rgba(121, 85, 72, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-file-signature" style="color: #795548; font-size: 0.8rem;"></i>
+                                </div>
+                                <div>
+                                    <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">Setback Summary (B${b.no})</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <button type="button" onclick="copyDynamicLabel(this, 'b${bIdx}_setback_synthesis')"
+                                    class="btn-portal"
+                                    style="padding: 4px 10px; font-size: 0.65rem; background: #795548; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="synthesis-checkbox" data-target="b${bIdx}_setback_synthesis" checked onchange="updateMasterSynthesis()" 
+                                        style="width: 12px; height: 12px; cursor: pointer; accent-color: #795548;">
+                                    <span style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add to Report</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card); flex: 1;">
+                            <div id="b${bIdx}_setback_synthesis" class="summary-card-text" style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word; min-height: 80px; max-height: 200px; overflow-y: auto;">
+                                Synthesis will appear here...
+                            </div>
+                        </div>
+                    </div>
                 `);
             }
         });
@@ -7963,6 +8139,7 @@
             generateSetbackSynthesis(bIdx);
         });
         updateCoverageSynthesis();
+        updateFSISynthesis();
         calculateBuildingTotals();
         initBuildingNavigation();
     }
@@ -8426,6 +8603,20 @@
             }
         }
 
+        // 10. FSI Summary Label
+        const fsiCheckbox = document.querySelector(`.synthesis-checkbox[data-target="fsi_synthesis_output"]`);
+        if (!fsiCheckbox || fsiCheckbox.checked) {
+            const fsiOutput = document.getElementById('fsi_synthesis_output');
+            if (fsiOutput) {
+                let fsiText = fsiOutput.innerText.trim();
+                const isPlaceholder = !fsiText || fsiText === "..." || fsiText.toLowerCase().includes("will appear here");
+                if (fsiText && !isPlaceholder) {
+                    const title = "FSI Analysis";
+                    synthesis += `${title}\n${'-'.repeat(title.length)}\n${fsiText}\n\n`;
+                }
+            }
+        }
+
         // 8. Access Note (Dynamic Cards)
         const accessPanel = document.getElementById('accessSummaryPanel');
         if (accessPanel) {
@@ -8591,7 +8782,7 @@
                 } else {
                     narr += " comprises of ";
                     let segs = details.map(d => {
-                        let s = `${d.area} Ares in `;
+                        let s = `${Number(d.area).toFixed(2)} Ares in `;
                         if (d.block) s += `Re Survey Block No.${d.block}, `;
                         if (d.rsFull) s += `Re Survey No. ${d.rsFull}`;
                         return s;
@@ -8619,7 +8810,7 @@
                     if (d.surveyFull) parts.push(`Survey No. ${d.surveyFull}`);
                     if (d.surveyDesham) parts.push(`Survey Desham No. ${d.surveyDesham}`);
                     if (d.rsFull) parts.push(`Re Survey No. ${d.rsFull}`);
-                    return `${d.area} Ares in ` + parts.join(", ");
+                    return `${Number(d.area).toFixed(2)} Ares in ` + parts.join(", ");
                 });
                 if (segs.length === 1) narr += segs[0];
                 else {
@@ -8691,7 +8882,7 @@
                 } else {
                     narr += " comprises of ";
                     let segs = details.map(d => {
-                        let s = `${d.area} Ares in `;
+                        let s = `${Number(d.area).toFixed(2)} Ares in `;
                         if (d.block) s += `Re Survey Block No.${d.block}, `;
                         if (d.rsFull) s += `Re Survey No. ${d.rsFull}`;
                         return s;
@@ -8719,7 +8910,7 @@
                     if (d.surveyFull) parts.push(`Survey No. ${d.surveyFull}`);
                     if (d.surveyDesham) parts.push(`Survey Desham No. ${d.surveyDesham}`);
                     if (d.rsFull) parts.push(`Re Survey No. ${d.rsFull}`);
-                    return `${d.area} Ares in ` + parts.join(", ");
+                    return `${Number(d.area).toFixed(2)} Ares in ` + parts.join(", ");
                 });
                 if (segs.length === 1) narr += segs[0];
                 else {
@@ -8767,7 +8958,7 @@
                     cls: entry.land_classification
                 });
                 cats[cat].totalArea += area;
-                if (cls === 'wet') cats[cat].wetArea += area;
+                if (cls === 'wet' || cls === 'wet land') cats[cat].wetArea += area;
             };
 
             processEntry(slot.initial);
@@ -8816,7 +9007,11 @@
                 const last = docs.pop();
                 docStr = docs.join(", ") + " and " + last;
             }
-            phrases.push(`${cls} land as per ${docStr}`);
+            let clsText = cls;
+            if (!clsText.endsWith("land")) {
+                clsText += " land";
+            }
+            phrases.push(`${clsText} as per ${docStr}`);
         }
 
         if (phrases.length === 0) {
@@ -8892,7 +9087,7 @@
                 } else {
                     narrNormal += ", comprises of ";
                     let segs = details.map(d => {
-                        let s = `${d.area} Ares in `;
+                        let s = `${Number(d.area).toFixed(2)} Ares in `;
                         if (d.block) s += `Re Survey Block No.${d.block}, `;
                         if (d.rsFull) s += `Re Survey No. ${d.rsFull}`;
                         return s;
@@ -8915,7 +9110,7 @@
                     if (d.surveyFull) parts.push(`Survey No. ${d.surveyFull}`);
                     if (d.surveyDesham) parts.push(`Survey Desham No. ${d.surveyDesham}`);
                     if (d.rsFull) parts.push(`Re Survey No. ${d.rsFull}`);
-                    return `${d.area} Ares in ` + parts.join(", ");
+                    return `${Number(d.area).toFixed(2)} Ares in ` + parts.join(", ");
                 });
                 if (segs.length === 1) narrOTR += segs[0];
                 else {
@@ -9064,7 +9259,8 @@
 
             // --- THE CRITICAL FIX: Restore Active Case ---
             if (f.active_file) {
-                console.log("ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â»ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â Restoring Active Case:", f.active_file);
+                console.log("[VADRIDA] Restoring Active Case:", f.active_file);
+
                 // Call selection without unhiding search results
                 selectVerificationFolder(f.active_name, f.active_file, f.active_applicant);
             }
@@ -9158,7 +9354,7 @@
             const trgEl = document.getElementById(bind.target);
             if (srcEl && trgEl) {
                 ['input', 'change'].forEach(evt => {
-                    srcEl.addEventListener(evt, () => { trgEl.innerText = srcEl.value || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'; });
+                    srcEl.addEventListener(evt, () => { trgEl.innerText = srcEl.value || 'NA'; });
                 });
             }
         });

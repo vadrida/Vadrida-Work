@@ -367,10 +367,29 @@ def get_site_report_data(request):
             
             if 'Valuers_Checklist' not in site_data:
                 site_data['Valuers_Checklist'] = {}
-            
-            site_data['Valuers_Checklist']['applicant_name'] = verification_data.get('ApplicantName', '')
-            site_data['Valuers_Checklist']['product'] = verification_data.get('Product', '')
+
+            # Kerala official district code → name mapping
+            KERALA_DISTRICTS = {
+                '01': 'Thiruvananthapuram', '02': 'Kollam', '03': 'Pathanamthitta',
+                '04': 'Alappuzha', '05': 'Kottayam', '06': 'Idukki',
+                '07': 'Ernakulam', '08': 'Thrissur', '09': 'Palakkad',
+                '10': 'Malappuram', '11': 'Kozhikode', '12': 'Wayanad',
+                '13': 'Kannur', '14': 'Kasaragod',
+            }
+
+            # Pull product & applicant_name from ClientFolder as the authoritative source
+            client_folder = ClientFolder.objects.filter(unique_file_no=report.office_file_no).first()
+            cf_product = client_folder.product if client_folder else ''
+            cf_applicant = client_folder.applicant_name if client_folder else ''
+            cf_created_at = client_folder.created_at.strftime('%d-%b-%Y') if client_folder else ''
+            cf_district_code = client_folder.district_code if client_folder else ''
+            cf_district_name = KERALA_DISTRICTS.get(cf_district_code, cf_district_code)
+
+            site_data['Valuers_Checklist']['applicant_name'] = cf_applicant or verification_data.get('ApplicantName', '') or report.applicant_name or ''
+            site_data['Valuers_Checklist']['product'] = cf_product or verification_data.get('Product', '')
             site_data['Valuers_Checklist']['person_met'] = verification_data.get('PersonMet', '')
+            site_data['Valuers_Checklist']['case_created_at'] = cf_created_at
+            site_data['Valuers_Checklist']['district_name'] = cf_district_name
             
             # Keep legacy key for compatibility during transition if needed
             site_data['Verification_Database'] = verification_data
@@ -392,6 +411,60 @@ def get_site_report_data(request):
             'real_file_no': report.office_file_no
         })
     else:
+        # --- FALLBACK: No SiteVisitReport, but check if a VerificationReport exists directly ---
+        # This handles files created purely via the office verification page (no site visit yet)
+        if file_no:
+            try:
+                v_report = VerificationReport.objects.get(office_file_no=file_no)
+                vdb = v_report.verification_database or {}
+
+                site_data = {
+                    'DynamicDocuments': vdb.get('DynamicDocuments', []),
+                    'owners_data': vdb.get('OwnersData', []),
+                    'schedule_data': vdb.get('ScheduleData', {}),
+                    'survey_land_extend': vdb.get('SurveyAnalysis', {}),
+                    'Boundary': vdb.get('BoundaryAnalysis', {}),
+                    'BoundaryVerifiedWith': vdb.get('BoundaryVerifiedWith', ''),
+                    'BoundaryMatches': vdb.get('BoundaryMatches', ''),
+                    'SurveyNotes': vdb.get('SurveyNotes', ''),
+                    'MasterSynthesis': vdb.get('MasterSynthesis', ''),
+                    'SynthesisManualLock': vdb.get('SynthesisManualLock', False),
+                    'BuildingDetails': vdb.get('BuildingDetails', {}),
+                    'Verification': {
+                        'Demarcation': vdb.get('Demarcation', {}),
+                        'RightOfAccess': vdb.get('RightOfAccess', {}),
+                    },
+                    'Valuers_Checklist': {
+                        'Office_file_no': file_no,
+                        'applicant_name': (ClientFolder.objects.filter(unique_file_no=file_no).values_list('applicant_name', flat=True).first() or v_report.applicant_name or vdb.get('ApplicantName', '')),
+                        'inspection_date': v_report.inspection_date or '',
+                        'person_met': v_report.person_met_at_site or vdb.get('PersonMet', ''),
+                        'product': (ClientFolder.objects.filter(unique_file_no=file_no).values_list('product', flat=True).first() or v_report.product or vdb.get('Product', '')),
+                        'case_created_at': (lambda cf: cf.created_at.strftime('%d-%b-%Y') if cf else '')(ClientFolder.objects.filter(unique_file_no=file_no).first()),
+                        'district_name': (lambda cf: {'01':'Thiruvananthapuram','02':'Kollam','03':'Pathanamthitta','04':'Alappuzha','05':'Kottayam','06':'Idukki','07':'Ernakulam','08':'Thrissur','09':'Palakkad','10':'Malappuram','11':'Kozhikode','12':'Wayanad','13':'Kannur','14':'Kasaragod'}.get(cf.district_code, cf.district_code) if cf else '')(ClientFolder.objects.filter(unique_file_no=file_no).first()),
+                    },
+                    'Verification_Database': vdb,
+                }
+
+                meta = {
+                    'user': v_report.verified_by.user_name if v_report.verified_by else 'Unknown',
+                    'office_file_no': file_no,
+                    'applicant_name': v_report.applicant_name or '',
+                    'target_folder': '',
+                    'created_at': v_report.created_at.strftime('%d-%b-%Y %I:%M %p'),
+                    'generated_pdf_name': 'Not Generated',
+                    'completion_score': 0,
+                }
+
+                return JsonResponse({
+                    'found': True,
+                    'data': site_data,
+                    'meta': meta,
+                    'real_file_no': file_no,
+                })
+            except VerificationReport.DoesNotExist:
+                pass
+
         return JsonResponse({'found': False, 'message': 'Report not found'})
 
 @require_http_methods(["GET"])
@@ -634,6 +707,7 @@ def create_folder_api(request):
             
             # --- DETERMINE WHICH EXTRA STRING TO USE ---
             local_body = meta.get('local_body', '')
+            chola_lb = meta.get('chola_lb', '')
             muthoot_branch = meta.get('muthoot_branch', '')
             sib_branch = meta.get('sib_branch', '')
             sib_region = meta.get('sib_region', '')
@@ -641,8 +715,11 @@ def create_folder_api(request):
             extra_str = ""
             if local_body:
                 extra_str = f"_{local_body}"
+            
+            if chola_lb:
+                extra_str += f"_{chola_lb}"
             elif muthoot_branch:
-                extra_str = f"_{muthoot_branch}"
+                extra_str += f"_{muthoot_branch}"
             elif sib_branch and sib_region:
                 # Add Branch and Region for SIB
                 extra_str = f"_{sib_branch}_{sib_region}"
@@ -2817,9 +2894,8 @@ def upload_eb_image_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required
 def digital_signer(request):
-    if request.session.get("user_role") not in ["office", "IT"]: return redirect("coreapi:login_page")
+    if not request.session.get("user_id"): return redirect("coreapi:login_page")
     return render(request, "digital_signer.html")
 
 @csrf_exempt
@@ -2844,8 +2920,8 @@ def digital_sign_pdf_api(request):
 
         # Token Configuration
         # (Forced bypassing os.environ to ignore the old cached .env value without requiring a server restart)
-        PKCS11_LIB = r"C:\Windows\System32\eps2003csp11v2.dll"
-        USER_PIN = os.environ.get('DSC_PIN', '12345678')
+        PKCS11_LIB = os.environ.get('PKCS11_LIB')
+        USER_PIN = os.environ.get('DSC_PIN')
 
         # Use the original uploaded PDF stream directly
         pdf_file.seek(0)
@@ -2929,16 +3005,7 @@ def digital_sign_pdf_api(request):
             font_large = ImageFont.load_default()
             font_small = ImageFont.load_default()
             
-        # 1. Apply the Vadrida Logo Watermark
-        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'VADRIDA LOGO.png')
-        if os.path.exists(logo_path):
-            logo = Image.open(logo_path).convert('RGBA')
-            logo.thumbnail((400, 150), Image.Resampling.LANCZOS)
-            alpha = logo.split()[3]
-            alpha = alpha.point(lambda p: p * 0.50) # 50% opacity (stronger visibility)
-            logo.putalpha(alpha)
-            img.paste(logo, (200 - logo.width//2, 75 - logo.height//2), logo)
-            
+        # No background watermark, keep it clean
         # 2. Draw HUGE Name on the Left Side
         name_parts = signer_name.split()
         left_text = "\n".join(name_parts[:2]) if len(name_parts) >= 2 else signer_name

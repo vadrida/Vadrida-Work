@@ -1,18 +1,8 @@
-const CACHE_NAME = 'vadrida-v6'; // Force update for API fix
+const CACHE_NAME = 'vadrida-v8'; // Bumped: fixed navigate mode Request constructor
 const ASSETS_TO_CACHE = [
     '/',
-    '/coreapi/login/',
     '/static/js/vadrida_offline.js',
     '/static/offline.html',
-    '/coreapi/dashboard/',
-    '/coreapi/office/',
-    '/coreapi/office-dash/',
-    '/coreapi/office-verification/',
-    '/coreapi/status-viewer/',
-    '/coreapi/report-drafting/',
-    '/coreapi/digital-signer/',
-    '/coreapi/feedback/',
-    // REMOVED /admin/ from pre-cache. It's too dynamic.
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css',
     'https://cdn.tailwindcss.com',
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
@@ -60,8 +50,10 @@ self.addEventListener('fetch', (event) => {
     // Only handle same-origin or specific CDNs
     if (!event.request.url.startsWith('http')) return;
 
+    let fetchRequest = event.request;
+
     event.respondWith(
-        fetch(event.request)
+        fetch(fetchRequest)
             .then((response) => {
                 if (response.ok) {
                     const responseClone = response.clone();

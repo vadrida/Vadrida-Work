@@ -99,13 +99,7 @@
             </a>
 
             <div class="flex items-center gap-5">
-                <!-- Vadrida Global Sync Indicator -->
-                <div id="vadridaSyncIndicator"
-                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold transition-all duration-300"
-                    title="System Online & Synced">
-                    <i id="vadridaSyncIcon" class="fas fa-cloud"></i>
-                    <span id="vadridaSyncText" class="hidden md:inline">Online</span>
-                </div>
+
 
                 <a href="javascript:location.reload()"
                     class="text-xl text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-all hover:rotate-180 duration-500 flex items-center"
@@ -171,14 +165,12 @@
     <script src="{% static 'js/vadrida_offline.js' %}"></script>
 
     <script>
-        /* 0. Service Worker Registration */
+        /* 0. Service Worker Unregistration (Removed to fix offline routing errors) */
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
-                    // console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function (err) {
-                    // console.log('ServiceWorker registration failed: ', err);
-                });
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
             });
         }
 

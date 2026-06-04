@@ -297,6 +297,15 @@
                         <option value="PAN">Panchayat (PAN)</option>
                     </select>
                 </div>
+                
+                <div class="form-group hidden" id="chola_lb_container">
+                    <label class="form-label">Local Body Type <span style="color:var(--brand-accent);">(Required for Chola)</span></label>
+                    <select id="chola_lb_select" class="form-select trigger-preview">
+                        <option value="PAN">Panchayat (PAN)</option>
+                        <option value="MUN">Municipal (MUN)</option>
+                        <option value="COR">Corporation (COR)</option>
+                    </select>
+                </div>
 
                 <div class="form-group hidden" id="muthoot_branch_container">
                     <label class="form-label">Muthoot Branch <span style="color:var(--brand-accent);">(Required for
@@ -406,7 +415,6 @@
                             <option value="125RAV">125RAV(RAVAS)</option>
                             <option value="123HAR">123HAR(HARI)</option>
                             <option value="121SND">121SND(SANDU)</option>
-                            <option value="132SUJ">132SUJ(SUJITH)</option>
                             <option value="133ASH">133ASH(ASHIK)</option>
                             <option value="136AJY">136AJY(AJAY)</option>
                             <!-- <option value="OTHR">Other...</option> -->
@@ -629,6 +637,7 @@
         const sibContainer = document.getElementById('sib_extra_container');
         const villageContainer = document.getElementById('village_container');
         const dcbContainer = document.getElementById('dcb_officer_container');
+        const cholaLbContainer = document.getElementById('chola_lb_container');
 
         // Reset all to hidden
         lbContainer.classList.add('hidden');
@@ -636,6 +645,7 @@
         sibContainer.classList.add('hidden');
         villageContainer.classList.add('hidden');
         if (dcbContainer) dcbContainer.classList.add('hidden');
+        if (cholaLbContainer) cholaLbContainer.classList.add('hidden');
 
         // DCB (04)
         if (bankCode === "04") {
@@ -653,6 +663,9 @@
         // Chola (08) & Chola SME (12) - BRANCH SPECIFIC
         if (["08", "12"].includes(bankCode)) {
             lbContainer.classList.remove('hidden');
+            if (bankCode === '08' && cholaLbContainer) {
+                cholaLbContainer.classList.remove('hidden');
+            }
             if (lbLabel) lbLabel.innerHTML = 'Branch <span style="color:var(--brand-accent);">(Required for Chola)</span>';
             if (lbSelect) {
                 lbSelect.innerHTML = `
@@ -774,6 +787,7 @@
         let sibRegionValue = "";
         let villageValue = "";
         let dcbOfficerValue = "";
+        let cholaLbValue = "";
 
         const dcbCont = document.getElementById('dcb_officer_container');
         if (dcbCont && !dcbCont.classList.contains('hidden')) {
@@ -791,6 +805,11 @@
         if (!document.getElementById('local_body_container').classList.contains('hidden')) {
             localBodyValue = document.getElementById('local_body_select').value;
             extraPart = `_${localBodyValue}`;
+        }
+        
+        if (document.getElementById('chola_lb_container') && !document.getElementById('chola_lb_container').classList.contains('hidden')) {
+            cholaLbValue = document.getElementById('chola_lb_select').value;
+            extraPart += `_${cholaLbValue}`;
         }
         else if (!document.getElementById('muthoot_branch_container').classList.contains('hidden')) {
             const mSelect = document.getElementById('muthoot_branch_select');
@@ -877,6 +896,7 @@
             distName,
             cleanName,
             localBodyValue,
+            cholaLbValue,
             muthootBranchValue,
             sibBranchValue,
             sibRegionValue,
@@ -971,6 +991,7 @@
                     dist_name: data.distName,
                     date_str: dateStr,
                     local_body: data.localBodyValue,
+                    chola_lb: data.cholaLbValue,
                     muthoot_branch: data.muthootBranchValue,
                     sib_branch: data.sibBranchValue,
                     sib_region: data.sibRegionValue,

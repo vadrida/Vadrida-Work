@@ -2951,10 +2951,20 @@
                 <td><input type="number" data-path="Building_analysis.${key}_Kitchen_no" class="table-input" value="${getVal('Kitchen_no')}"></td>
                 <td><input type="number" data-path="Building_analysis.${key}_Bathrooms_no" class="table-input" value="${getVal('Bathrooms_no')}"></td>
                 <td>
-                    <div class="radio-cell-group">
-                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Residential" ${getChecked('Usage', 'Residential')}> Res</label>
-                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Commercial" ${getChecked('Usage', 'Commercial')}> Com</label>
-                      <label class="radio-cell-label"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="Industrial" ${getChecked('Usage', 'Industrial')}> Ind</label>
+                    <div class="radio-cell-group" style="max-height: 50px; overflow-y: auto; overflow-x: hidden; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; font-size: 0.8rem; min-width: 250px;">
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="A1 Residential" ${getChecked('Usage', 'A1 Residential')}> A1 Residential</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="A2 Lodging" ${getChecked('Usage', 'A2 Lodging')}> A2 Lodging</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="B Educational Higher Secondary" ${getChecked('Usage', 'B Educational Higher Secondary')}> B Edu High Sec</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="B Educational Others" ${getChecked('Usage', 'B Educational Others')}> B Edu Others</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="C Medical" ${getChecked('Usage', 'C Medical')}> C Medical</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="D Assembly" ${getChecked('Usage', 'D Assembly')}> D Assembly</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="E Office" ${getChecked('Usage', 'E Office')}> E Office</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="F Mercantile" ${getChecked('Usage', 'F Mercantile')}> F Mercantile</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="G1 Industrial-I" ${getChecked('Usage', 'G1 Industrial-I')}> G1 Industrial-I</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="G2 Industrial-II" ${getChecked('Usage', 'G2 Industrial-II')}> G2 Industrial-II</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="H Storage" ${getChecked('Usage', 'H Storage')}> H Storage</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="I Hazardous" ${getChecked('Usage', 'I Hazardous')}> I Hazardous</label>
+                      <label class="radio-cell-label" style="white-space: nowrap; flex-shrink: 0;"><input type="checkbox" data-array="Building_analysis.${key}_Usage" value="J Multiplex" ${getChecked('Usage', 'J Multiplex')}> J Multiplex</label>
                     </div>
                 </td>
                 <td>
