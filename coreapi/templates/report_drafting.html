@@ -4,6 +4,13 @@
 {% block title %}Report Drafting - {{ bank_name }}{% endblock %}
 
 {% block content %}
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
 <div class="portal-layout">
     <div class="main-panel">
         <div class="content-header" style="margin-bottom: 30px;">
@@ -2853,7 +2860,17 @@
                             </tr>
                             <tr>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
-                                    colspan="2">AS PER PLAN/DEED/LAYOUT</td>
+                                    colspan="2">
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                        <span>AS PER PLAN/DEED/LAYOUT</span>
+                                        <select id="chola08_boundary_doc_select" class="drafting-input no-print"
+                                            onchange="updateChola08DocBoundaries()"
+                                            style="flex: 1; min-width: 120px; padding: 4px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ccc; font-weight: normal;">
+                                            <option value="">(Select Document...)</option>
+                                        </select>
+                                    </div>
+                                </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_bound_east_doc"
                                     style="border: 1px solid #000; padding: 6px;">--</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_bound_west_doc"
@@ -2879,9 +2896,18 @@
                                 <td class="label-cell" colspan="3"
                                     style="font-weight: 600; border: 1px solid #000; padding: 6px;">WHETHER BOUNDARIES
                                     MATCHING?</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_bound_matching"
-                                    style="border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['YES', 'NO'])">YES</td>
+                                <td class="value-cell"
+                                    style="text-align: center; padding: 5px; border: 1px solid #000;">
+                                    <div class="toggle-switch-3d" id="ts_chola08_bound_matching" data-value="YES"
+                                        onclick="toggleSwitch3D('ts_chola08_bound_matching', 'chola08_bound_matching')"
+                                        style="width: 80px; margin: 0 auto;">
+                                        <div class="toggle-slider"></div>
+                                        <div class="toggle-option active" data-option="YES" style="font-size: 0.6rem;">
+                                            YES</div>
+                                        <div class="toggle-option" data-option="NO" style="font-size: 0.6rem;">NO</div>
+                                    </div>
+                                    <div id="chola08_bound_matching" class="print-only-value">YES</div>
+                                </td>
                                 <td colspan="2" style="border: 1px solid #000;"></td>
                             </tr>
 
@@ -2903,7 +2929,8 @@
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
                                     colspan="2">LATITUDE VALUE</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_lat_value"
-                                    style="border: 1px solid #000; padding: 6px;">--</td>
+                                    style="border: 1px solid #000; padding: 6px;" onkeyup="syncChola08GeoCoords()">--
+                                </td>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
                                     colspan="2">LATITUDE DIRECTION</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_lat_dir"
@@ -2913,7 +2940,8 @@
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
                                     colspan="2">LONGITUDE VALUE</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_lon_value"
-                                    style="border: 1px solid #000; padding: 6px;">--</td>
+                                    style="border: 1px solid #000; padding: 6px;" onkeyup="syncChola08GeoCoords()">--
+                                </td>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
                                     colspan="2">LONGITUDE DIRECTION</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_lon_dir"
@@ -2955,9 +2983,15 @@
                                     style="border: 1px solid #000; padding: 6px;">--</td>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">
                                     OCCUPANCY STATUS</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_occ_status"
-                                    style="border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['NA', 'Occupied', 'Vacant'])">NA</td>
+                                <td class="value-cell" style="border: 1px solid #000; padding: 0;">
+                                    <select id="chola08_occ_status" class="drafting-input" onchange="triggerAutoSave()">
+                                        <option value="Applicant">Applicant</option>
+                                        <option value="lease">lease</option>
+                                        <option value="Owner">Owner</option>
+                                        <option value="Vacant">Vacant</option>
+                                        <option value="Rent">Rent</option>
+                                    </select>
+                                </td>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">
                                     OCCUPANT NAME</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_occ_name"
@@ -3012,9 +3046,8 @@
                                 <td class="label-cell"
                                     style="border: 1px solid #000; padding: 6px; text-transform: uppercase;"
                                     colspan="2">NEAREST BUS STOP</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_bus"
-                                    style="text-align: center; border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM
+                                <td class="value-cell" contenteditable="true" id="chola08_dist_bus"
+                                    style="text-align: center; border: 1px solid #000; padding: 6px;">--
                                 </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_name_bus"
                                     style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
@@ -3038,9 +3071,8 @@
                                 <td class="label-cell"
                                     style="border: 1px solid #000; padding: 6px; text-transform: uppercase;"
                                     colspan="2">NEAREST SCHOOL/COLLEGE</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_school"
-                                    style="text-align: center; border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM
+                                <td class="value-cell" contenteditable="true" id="chola08_dist_school"
+                                    style="text-align: center; border: 1px solid #000; padding: 6px;">--
                                 </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_name_school"
                                     style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
@@ -3051,9 +3083,8 @@
                                 <td class="label-cell"
                                     style="border: 1px solid #000; padding: 6px; text-transform: uppercase;"
                                     colspan="2">NEAREST HIGHWAY/MAJOR ROAD</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_hwy"
-                                    style="text-align: center; border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM
+                                <td class="value-cell" contenteditable="true" id="chola08_dist_hwy"
+                                    style="text-align: center; border: 1px solid #000; padding: 6px;">--
                                 </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_name_hwy"
                                     style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
@@ -3064,9 +3095,8 @@
                                 <td class="label-cell"
                                     style="border: 1px solid #000; padding: 6px; text-transform: uppercase;"
                                     colspan="2">NEAREST HOSPITAL</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_dist_hosp"
-                                    style="text-align: center; border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['Below 1 KM', '1 To 5 KM', 'Above 5 KM'])">Below 1 KM
+                                <td class="value-cell" contenteditable="true" id="chola08_dist_hosp"
+                                    style="text-align: center; border: 1px solid #000; padding: 6px;">--
                                 </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_name_hosp"
                                     style="border: 1px solid #000; padding: 6px;" colspan="2"></td>
@@ -3081,15 +3111,12 @@
                             <tr>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">
                                     TYPE OF LAND</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_land_type"
-                                    style="border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['Dry land/Freehold', 'Wet land', 'Leasehold'])">Dry
-                                    land/Freehold</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_land_type"
+                                    style="text-align: center; border: 1px solid #000; padding: 6px;">Dry Land</td>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">
                                     USAGE OF PROPERTY</td>
-                                <td class="value-cell toggle-cell" contenteditable="true" id="chola08_prop_usage"
-                                    style="border: 1px solid #000; padding: 6px;"
-                                    onclick="toggleText(this, ['RESIDENTIAL', 'COMMERCIAL', 'MIXED'])">RESIDENTIAL</td>
+                                <td class="value-cell" contenteditable="true" id="chola08_prop_usage"
+                                    style="border: 1px solid #000; padding: 6px;">RESIDENTIAL</td>
                                 <td class="label-cell"
                                     style="font-weight: 600; border: 1px solid #000; padding: 6px; font-size: 0.8rem;">
                                     IF MIXED USAGE :<br>RESIDENTIAL/COMMERCIAL BREAK UP</td>
@@ -3164,16 +3191,25 @@
                                 <td class="value-cell" contenteditable="true" id="chola08_gf_val_site"
                                     style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
                             </tr>
-                            <tr>
-                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;">
-                                    Built up Area</td>
+                            <tr id="chola08_t1_total_row">
+                                <td class="label-cell"
+                                    style="font-weight: 600; border: 1px solid #000; padding: 6px; position: relative;">
+                                    Built up Area
+                                    <button class="btn btn-sm btn-outline-success no-print"
+                                        style="position: absolute; left: -25px; top: 4px; padding: 0px 4px;"
+                                        onclick="addChola08Floor(1)" tabindex="-1">+</button>
+                                </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_bua_plan"
                                     style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
                                 <td class="value-cell" contenteditable="true" id="chola08_bua_site"
                                     style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
-                                <td style="border: 1px solid #000;"></td>
-                                <td style="border: 1px solid #000;"></td>
-                                <td style="border: 1px solid #000;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua_rate"
+                                    style="border: 1px solid #000; padding: 6px; text-align: center;"
+                                    onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua_val_plan"
+                                    style="border: 1px solid #000; padding: 6px; text-align: center;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua_val_site"
+                                    style="border: 1px solid #000; padding: 6px; text-align: center;"></td>
                             </tr>
                             <tr>
                                 <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
@@ -3225,13 +3261,21 @@
                                 <td class="value-cell" contenteditable="true" id="chola08_gf2_val"
                                     style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
                             </tr>
-                            <tr>
-                                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px;"
-                                    colspan="2">Built up Area</td>
+                            <tr id="chola08_t2_total_row">
+                                <td class="label-cell"
+                                    style="font-weight: 600; border: 1px solid #000; padding: 6px; position: relative;"
+                                    colspan="2">Built up Area
+                                    <button class="btn btn-sm btn-outline-success no-print"
+                                        style="position: absolute; left: -25px; top: 4px; padding: 0px 4px;"
+                                        onclick="addChola08Floor(2)" tabindex="-1">+</button>
+                                </td>
                                 <td class="value-cell" contenteditable="true" id="chola08_bua2_area"
                                     style="text-align: center; border: 1px solid #000; padding: 6px;" colspan="2"></td>
-                                <td style="border: 1px solid #000;"></td>
-                                <td style="border: 1px solid #000;"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua2_rate"
+                                    style="border: 1px solid #000; padding: 6px; text-align: center;"
+                                    onkeyup="calcChola08()"></td>
+                                <td class="value-cell" contenteditable="true" id="chola08_bua2_val"
+                                    style="border: 1px solid #000; padding: 6px; text-align: center;"></td>
                             </tr>
 
                             <tr>
@@ -3246,8 +3290,11 @@
                             <!-- AMENITIES -->
                             <tr>
                                 <td colspan="6"
-                                    style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase;">
+                                    style="text-align: center; font-weight: 600; font-size: 0.9rem; background: #fff; padding: 8px; border: 1px solid #000; text-transform: uppercase; position: relative;">
                                     AMENITIES
+                                    <button class="btn btn-sm btn-outline-success no-print"
+                                        style="position: absolute; left: -25px; top: 4px; padding: 0px 4px;"
+                                        onclick="addChola08Amenity()" tabindex="-1">+</button>
                                 </td>
                             </tr>
                             <tr>
@@ -3268,7 +3315,7 @@
                                     AMOUNT</td>
                             </tr>
                             <tr>
-                                <td class="value-cell"
+                                <td class="value-cell am-sno"
                                     style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px;">
                                     1</td>
                                 <td class="value-cell" contenteditable="true" id="chola08_am_desc"
@@ -3281,7 +3328,7 @@
                                 <td class="value-cell" contenteditable="true" id="chola08_am_amt"
                                     style="text-align: center; border: 1px solid #000; padding: 6px;">0</td>
                             </tr>
-                            <tr>
+                            <tr id="chola08_total_am_row">
                                 <td class="label-cell"
                                     style="font-weight: 600; text-align: right; border: 1px solid #000; padding: 6px; text-transform: uppercase;"
                                     colspan="5">TOTAL AMENITIES VALUE</td>
@@ -3815,7 +3862,7 @@
 
                         <div style="height: 30px;"></div>
 
-                        <table class="report-table"
+                        <table class="report-table" id="chola08-declaration"
                             style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 0.8rem; border: 1px solid #000;">
                             <!-- DECLARATION -->
                             <tr>
@@ -3923,7 +3970,7 @@
                         </div>
 
                         <!-- LOCATION MAP -->
-                        <div class="report-section" style="margin-top: 50px; padding-bottom: 60px;">
+                        <div class="report-section" id="chola08-location-map" style="margin-top: 50px; padding-bottom: 60px;">
                             <h3
                                 style="font-size: 1rem; font-weight: bold; text-align: center; margin-bottom: 25px; letter-spacing: 1px; text-transform: uppercase;">
                                 Location Map</h3>
@@ -6264,12 +6311,14 @@
                         </tr>
                         <tr>
                             <td>Property Demarcation at Site :</td>
-                            <td colspan="3" class="value-cell" contenteditable="true" id="axis_property_demarcation"></td>
+                            <td colspan="3" class="value-cell" contenteditable="true" id="axis_property_demarcation">
+                            </td>
                         </tr>
                     </table>
 
                     <!-- Four Boundaries Section -->
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid;">
+                    <table
+                        style="width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid;">
                         <colgroup>
                             <col style="width: 20%;">
                             <col style="width: 20%;">
@@ -6289,8 +6338,11 @@
                         </tr>
                         <tr>
                             <td style="text-align: center; height: 80px; vertical-align: middle;">
-                                <span style="display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px;">As Per</span>
-                                <select id="axis_deed_boundary_selector" class="drafting-input" onchange="updateAxisDeedBoundaries(); triggerAutoSave()" style="width: 95%; font-size: 11px; padding: 2px; text-align: center;">
+                                <span style="display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px;">As
+                                    Per</span>
+                                <select id="axis_deed_boundary_selector" class="drafting-input"
+                                    onchange="updateAxisDeedBoundaries(); triggerAutoSave()"
+                                    style="width: 95%; font-size: 11px; padding: 2px; text-align: center;">
                                     <option value="">Document</option>
                                 </select>
                             </td>
@@ -6313,9 +6365,11 @@
                         <tr>
                             <td>Width of the abutting Road</td>
                             <td style="text-align: right; border-right: none;">Road 1 :</td>
-                            <td class="value-cell" contenteditable="true" id="axis_road_1_val" style="border-left: none;"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_road_1_val"
+                                style="border-left: none;"></td>
                             <td style="text-align: right; border-right: none;">Road 2 :</td>
-                            <td class="value-cell" contenteditable="true" id="axis_road_2_val" style="border-left: none;"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_road_2_val"
+                                style="border-left: none;"></td>
                         </tr>
                         <tr>
                             <td colspan="2">Latitude & Longitude :</td>
@@ -6387,7 +6441,9 @@
                         </tr>
                         <tr>
                             <td>Plot Area for Bungalow / Rowhouse (Sq Ft)<br class="no-print">
-                                <select id="axis_plot_area_doc_selector" class="drafting-input no-print" onchange="updateAxisPlotArea(); triggerAutoSave()" style="width: 95%; font-size: 11px; padding: 2px; text-align: center; margin-top: 4px;">
+                                <select id="axis_plot_area_doc_selector" class="drafting-input no-print"
+                                    onchange="updateAxisPlotArea(); triggerAutoSave()"
+                                    style="width: 95%; font-size: 11px; padding: 2px; text-align: center; margin-top: 4px;">
                                     <option value="">-- Document --</option>
                                 </select>
                             </td>
@@ -6404,20 +6460,30 @@
                         </tr>
                         <tr>
                             <td>As per Approval</td>
-                            <td class="value-cell" contenteditable="true" id="axis_app_gf" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_app_ff1" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_app_sf" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_app_tf" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_app_ff2" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_app_gf"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_app_ff1"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_app_sf"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_app_tf"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_app_ff2"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
                             <td class="value-cell" contenteditable="true" id="axis_app_total"></td>
                         </tr>
                         <tr>
                             <td>Actual at Site</td>
-                            <td class="value-cell" contenteditable="true" id="axis_act_gf" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_act_ff1" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_act_sf" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_act_tf" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_act_ff2" oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_act_gf"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_act_ff1"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_act_sf"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_act_tf"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_act_ff2"
+                                oninput="calculateAxisFloorTotals(); triggerAutoSave()"></td>
                             <td class="value-cell" contenteditable="true" id="axis_act_total"></td>
                         </tr>
                         <tr>
@@ -6444,18 +6510,26 @@
                         </tr>
                         <tr>
                             <td>As per Approval</td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_app_front" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_app_left" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_app_right" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_app_rear" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_app_front"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_app_left"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_app_right"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_app_rear"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()">NA</td>
                             <td colspan="2" class="value-cell" contenteditable="true" id="axis_margin_app_remarks"></td>
                         </tr>
                         <tr>
                             <td>Actual at Site</td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_act_front" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_act_left" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_act_right" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_margin_act_rear" oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_act_front"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_act_left"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_act_right"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_margin_act_rear"
+                                oninput="calculateAxisMarginDeviations('axis_margin'); triggerAutoSave()"></td>
                             <td colspan="2" class="value-cell" contenteditable="true" id="axis_margin_act_remarks"></td>
                         </tr>
                         <tr>
@@ -6469,7 +6543,8 @@
                     </table>
 
                     <!-- Unit Details for multiunit property -->
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid;">
+                    <table
+                        style="width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid;">
                         <colgroup>
                             <col style="width: 30%;">
                             <col style="width: 14%;">
@@ -6484,13 +6559,17 @@
                         </tr>
                         <tr>
                             <td colspan="2">Measure Carpet Area :</td>
-                            <td colspan="2" class="value-cell" contenteditable="true" id="axis_unit_measure_carpet" oninput="calculateAxisCarpetDeviation(); triggerAutoSave()"></td>
+                            <td colspan="2" class="value-cell" contenteditable="true" id="axis_unit_measure_carpet"
+                                oninput="calculateAxisCarpetDeviation(); triggerAutoSave()"></td>
                             <td>Saleable Area :</td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_saleable_area" oninput="calculateAxisCarpetArea('axis_unit_saleable_area', 'axis_unit_measure_carpet', 'axis_unit_app_carpet'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_saleable_area"
+                                oninput="calculateAxisCarpetArea('axis_unit_saleable_area', 'axis_unit_measure_carpet', 'axis_unit_app_carpet'); triggerAutoSave()">
+                            </td>
                         </tr>
                         <tr>
                             <td colspan="2">Approved Carpet Area :</td>
-                            <td colspan="4" class="value-cell" contenteditable="true" id="axis_unit_app_carpet" oninput="calculateAxisCarpetDeviation(); triggerAutoSave()"></td>
+                            <td colspan="4" class="value-cell" contenteditable="true" id="axis_unit_app_carpet"
+                                oninput="calculateAxisCarpetDeviation(); triggerAutoSave()"></td>
                         </tr>
                         <tr>
                             <td colspan="2">Deviation % :</td>
@@ -6506,18 +6585,26 @@
                         </tr>
                         <tr>
                             <td>As per Approval</td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_front" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_left" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_right" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_rear" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_front"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_left"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_right"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_rear"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()">NA</td>
                             <td class="value-cell" contenteditable="true" id="axis_unit_margin_app_remarks"></td>
                         </tr>
                         <tr>
                             <td>Actual at Site</td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_front" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_left" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_right" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_rear" oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_front"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_left"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_right"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_rear"
+                                oninput="calculateAxisMarginDeviations('axis_unit_margin'); triggerAutoSave()"></td>
                             <td class="value-cell" contenteditable="true" id="axis_unit_margin_act_remarks"></td>
                         </tr>
                         <tr>
@@ -6559,33 +6646,53 @@
                         </tr>
                         <tr>
                             <td>Land Area If Applicable</td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_land_area" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_land_rate" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_land_amount" oninput="calculateAxisValuationProperty(); triggerAutoSave()" style="text-align: right;">0</td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_land_area"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_land_rate"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_land_amount"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"
+                                style="text-align: right;">0</td>
                         </tr>
                         <tr>
                             <td>Carpet area (mandatory)</td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_carpet_area" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_carpet_rate" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_carpet_amount" oninput="calculateAxisValuationProperty(); triggerAutoSave()" style="text-align: right;"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_carpet_area"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_carpet_rate"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_carpet_amount"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"
+                                style="text-align: right;"></td>
                         </tr>
                         <tr>
                             <td>Built up RCC</td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_rcc_area" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_rcc_rate" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_rcc_amount" oninput="calculateAxisValuationProperty(); triggerAutoSave()" style="text-align: right;">0</td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_rcc_area"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_rcc_rate"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_rcc_amount"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"
+                                style="text-align: right;">0</td>
                         </tr>
                         <tr>
                             <td>BUilt up ACC</td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_acc_area" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_acc_rate" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_acc_amount" oninput="calculateAxisValuationProperty(); triggerAutoSave()" style="text-align: right;"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_acc_area"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_acc_rate"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_acc_amount"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"
+                                style="text-align: right;"></td>
                         </tr>
                         <tr>
                             <td>common Amneties</td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_amenities_area" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_amenities_rate" oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
-                            <td class="value-cell" contenteditable="true" id="axis_val_amenities_amount" oninput="calculateAxisValuationProperty(); triggerAutoSave()" style="text-align: right;"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_amenities_area"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_amenities_rate"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_val_amenities_amount"
+                                oninput="calculateAxisValuationProperty(); triggerAutoSave()"
+                                style="text-align: right;"></td>
                         </tr>
                         <tr>
                             <td style="font-weight: bold;">Total Value of the unit</td>
@@ -6646,7 +6753,9 @@
                             <td>Loading Adopted for Valuation (%) :</td>
                             <td class="value-cell" contenteditable="true" id="axis_market_loading"></td>
                             <td>Saleable Area of Unit (Sq ft) :</td>
-                            <td class="value-cell" contenteditable="true" id="axis_market_saleable" oninput="calculateAxisCarpetArea('axis_market_saleable', 'axis_market_measured_carpet', 'axis_market_app_carpet'); triggerAutoSave()"></td>
+                            <td class="value-cell" contenteditable="true" id="axis_market_saleable"
+                                oninput="calculateAxisCarpetArea('axis_market_saleable', 'axis_market_measured_carpet', 'axis_market_app_carpet'); triggerAutoSave()">
+                            </td>
                         </tr>
                         <tr>
                             <td>Market Rate : Rs.</td>
@@ -6800,7 +6909,7 @@
                                 dmsEl.innerText = "--";
                             };
                             setTimeout(window.updateAxisGeoDms, 500); // Initialize on load
-                            
+
                             window.updateAxisDeedBoundaries = function () {
                                 if (typeof megaPayload === 'undefined' || !megaPayload) return;
                                 const selector = document.getElementById('axis_deed_boundary_selector');
@@ -6812,31 +6921,31 @@
                                 if (typeof sv_checklist === 'string') {
                                     try { sv_checklist = JSON.parse(sv_checklist); } catch (e) { sv_checklist = {}; }
                                 }
-                                const boundaryData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.BoundaryAnalysis || {};
-                                
+                                const boundaryData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
+
                                 const docBoundary = boundaryData[docName] || {};
-                                
+
                                 const n = document.getElementById('axis_north_deed');
                                 const s = document.getElementById('axis_south_deed');
                                 const e = document.getElementById('axis_east_deed');
                                 const w = document.getElementById('axis_west_deed');
-                                
+
                                 if (n) { n.innerText = docBoundary.North || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_north_deed'] = n.innerText; }
                                 if (s) { s.innerText = docBoundary.South || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_south_deed'] = s.innerText; }
                                 if (e) { e.innerText = docBoundary.East || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_east_deed'] = e.innerText; }
                                 if (w) { w.innerText = docBoundary.West || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_west_deed'] = w.innerText; }
                             }
-                            
-                            window.updateAxisPlotArea = function() {
+
+                            window.updateAxisPlotArea = function () {
                                 if (typeof megaPayload === 'undefined' || !megaPayload) return;
                                 const selector = document.getElementById('axis_plot_area_doc_selector');
                                 if (!selector || !selector.value) return;
-                                
+
                                 const docNameKeyword = selector.value.toLowerCase();
                                 const ver = megaPayload.verification || {};
                                 const surveyAnalysisData = ver.database?.SurveyAnalysis || {};
                                 const surveyValues = Object.values(surveyAnalysisData);
-                                
+
                                 let aggregatedArea = 0;
                                 for (const doc of surveyValues) {
                                     const docNameLower = (doc.doc_name || '').toLowerCase();
@@ -6851,7 +6960,7 @@
                                         }
                                     }
                                 }
-                                
+
                                 const plotAreaEl = document.getElementById('axis_plot_area');
                                 if (plotAreaEl) {
                                     if (aggregatedArea > 0) {
@@ -6862,32 +6971,32 @@
                                     if (typeof fieldValues !== 'undefined') fieldValues['axis_plot_area'] = plotAreaEl.innerText;
                                 }
                             };
-                            
-                            window.calculateAxisFloorTotals = function() {
+
+                            window.calculateAxisFloorTotals = function () {
                                 const getVal = (id) => parseFloat(document.getElementById(id)?.innerText.replace(/,/g, '')) || 0;
-                                
+
                                 const appTotal = getVal('axis_app_gf') + getVal('axis_app_ff1') + getVal('axis_app_sf') + getVal('axis_app_tf') + getVal('axis_app_ff2');
                                 const actTotal = getVal('axis_act_gf') + getVal('axis_act_ff1') + getVal('axis_act_sf') + getVal('axis_act_tf') + getVal('axis_act_ff2');
-                                
+
                                 const elAppTot = document.getElementById('axis_app_total');
-                                if (elAppTot) { 
-                                    elAppTot.innerText = appTotal > 0 ? appTotal : '--'; 
-                                    if (typeof fieldValues !== 'undefined') fieldValues['axis_app_total'] = elAppTot.innerText; 
+                                if (elAppTot) {
+                                    elAppTot.innerText = appTotal > 0 ? appTotal : '--';
+                                    if (typeof fieldValues !== 'undefined') fieldValues['axis_app_total'] = elAppTot.innerText;
                                 }
-                                
+
                                 const elActTot = document.getElementById('axis_act_total');
-                                if (elActTot) { 
-                                    elActTot.innerText = actTotal > 0 ? actTotal : '--'; 
-                                    if (typeof fieldValues !== 'undefined') fieldValues['axis_act_total'] = elActTot.innerText; 
+                                if (elActTot) {
+                                    elActTot.innerText = actTotal > 0 ? actTotal : '--';
+                                    if (typeof fieldValues !== 'undefined') fieldValues['axis_act_total'] = elActTot.innerText;
                                 }
-                                
+
                                 const diff = Math.abs(appTotal - actTotal);
                                 const elDevSqft = document.getElementById('axis_dev_sqft');
                                 if (elDevSqft) {
                                     elDevSqft.innerText = (diff > 0 ? diff.toFixed(2) : '0') + ' Sq ft';
                                     if (typeof fieldValues !== 'undefined') fieldValues['axis_dev_sqft'] = elDevSqft.innerText;
                                 }
-                                
+
                                 const devPercent = appTotal > 0 ? ((diff / appTotal) * 100).toFixed(2) : 0;
                                 const elDevPerc = document.getElementById('axis_dev_percent');
                                 if (elDevPerc) {
@@ -6896,38 +7005,38 @@
                                 }
                             };
 
-                            window.calculateAxisCarpetArea = function(saleableId, measureId, appId) {
+                            window.calculateAxisCarpetArea = function (saleableId, measureId, appId) {
                                 const saleable = parseFloat(document.getElementById(saleableId)?.innerText.replace(/,/g, '')) || 0;
                                 if (saleable > 0) {
                                     const measured = Number((saleable * 0.8).toFixed(2));
-                                    
+
                                     const mEl = document.getElementById(measureId);
-                                    if (mEl) { 
-                                        mEl.innerText = measured; 
-                                        if (typeof fieldValues !== 'undefined') fieldValues[measureId] = measured; 
+                                    if (mEl) {
+                                        mEl.innerText = measured;
+                                        if (typeof fieldValues !== 'undefined') fieldValues[measureId] = measured;
                                     }
-                                    
+
                                     const aEl = document.getElementById(appId);
-                                    if (aEl) { 
-                                        aEl.innerText = measured; 
-                                        if (typeof fieldValues !== 'undefined') fieldValues[appId] = measured; 
+                                    if (aEl) {
+                                        aEl.innerText = measured;
+                                        if (typeof fieldValues !== 'undefined') fieldValues[appId] = measured;
                                     }
-                                    
+
                                     if (measureId === 'axis_unit_measure_carpet' && typeof window.calculateAxisCarpetDeviation === 'function') {
                                         window.calculateAxisCarpetDeviation();
                                     }
                                 }
                             };
 
-                            window.calculateAxisCarpetDeviation = function() {
+                            window.calculateAxisCarpetDeviation = function () {
                                 const measured = parseFloat(document.getElementById('axis_unit_measure_carpet')?.innerText.replace(/,/g, '')) || 0;
                                 const approved = parseFloat(document.getElementById('axis_unit_app_carpet')?.innerText.replace(/,/g, '')) || 0;
-                                
+
                                 let devPercent = 0;
                                 if (approved > 0) {
                                     devPercent = ((Math.abs(approved - measured) / approved) * 100).toFixed(2);
                                 }
-                                
+
                                 const devEl = document.getElementById('axis_unit_app_deviation');
                                 if (devEl) {
                                     devEl.innerText = (devPercent > 0 ? devPercent : '0') + ' %';
@@ -6935,15 +7044,15 @@
                                 }
                             };
 
-                            window.calculateAxisMarginDeviations = function(prefix) {
+                            window.calculateAxisMarginDeviations = function (prefix) {
                                 const sides = ['front', 'left', 'right', 'rear'];
                                 sides.forEach(side => {
                                     const appStr = document.getElementById(`${prefix}_app_${side}`)?.innerText.trim();
                                     const actStr = document.getElementById(`${prefix}_act_${side}`)?.innerText.trim();
-                                    
+
                                     const appVal = parseFloat(appStr);
                                     const actVal = parseFloat(actStr);
-                                    
+
                                     const devEl = document.getElementById(`${prefix}_dev_${side}`);
                                     if (devEl) {
                                         if (isNaN(appVal) || isNaN(actVal)) {
@@ -6957,20 +7066,20 @@
                                 });
                             };
 
-                            window.calculateAxisValuationProperty = function() {
+                            window.calculateAxisValuationProperty = function () {
                                 const rows = ['land', 'carpet', 'rcc', 'acc', 'amenities'];
                                 let totalArea = 0;
                                 let totalRate = 0;
                                 let totalAmount = 0;
-                                
+
                                 rows.forEach(prefix => {
                                     const areaStr = document.getElementById(`axis_val_${prefix}_area`)?.innerText.replace(/,/g, '') || '';
                                     const rateStr = document.getElementById(`axis_val_${prefix}_rate`)?.innerText.replace(/,/g, '') || '';
-                                    
+
                                     const area = parseFloat(areaStr) || 0;
                                     const rate = parseFloat(rateStr) || 0;
                                     let amount = 0;
-                                    
+
                                     if (area > 0 && rate > 0) {
                                         amount = area * rate;
                                         const amtEl = document.getElementById(`axis_val_${prefix}_amount`);
@@ -6981,16 +7090,16 @@
                                     } else {
                                         amount = parseFloat(document.getElementById(`axis_val_${prefix}_amount`)?.innerText.replace(/,/g, '')) || 0;
                                     }
-                                    
+
                                     totalArea += area;
                                     totalRate += rate;
                                     totalAmount += amount;
                                 });
-                                
+
                                 const tAreaEl = document.getElementById('axis_val_total_area');
                                 const tRateEl = document.getElementById('axis_val_total_rate');
                                 const tAmtEl = document.getElementById('axis_val_total_amount');
-                                
+
                                 if (tAreaEl) {
                                     tAreaEl.innerText = totalArea > 0 ? parseFloat(totalArea.toFixed(2)).toString() : '';
                                     if (typeof fieldValues !== 'undefined') fieldValues['axis_val_total_area'] = tAreaEl.innerText;
@@ -7002,7 +7111,7 @@
                                 if (tAmtEl) {
                                     tAmtEl.innerText = Math.round(totalAmount).toLocaleString('en-IN');
                                     if (typeof fieldValues !== 'undefined') fieldValues['axis_val_total_amount'] = tAmtEl.innerText;
-                                    
+
                                     const mvEl = document.getElementById('axis_val_market_unit_val');
                                     if (mvEl) {
                                         mvEl.innerText = tAmtEl.innerText;
@@ -7194,6 +7303,12 @@
             break-inside: auto !important;
         }
 
+        /* Keep "Property Photos" heading glued to the first row of photos */
+        .photo-section > h3 {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+        }
+
         /* Tables: keep together if possible, but allow break if too long */
         .report-table,
         .rbl-table {
@@ -7220,10 +7335,38 @@
             break-inside: avoid;
         }
 
-        /* Map section: never split */
-        #map-upload-box {
+        /* Map & EB sections: flexible height to prevent blank gaps & bad page breaks */
+        #map-upload-box,
+        #eb-upload-box {
             page-break-inside: avoid;
             break-inside: avoid;
+            aspect-ratio: auto !important;
+            height: auto !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        /* Chola 08 Location Map: always start on a new page */
+        #chola08-location-map {
+            page-break-before: always !important;
+            break-before: page !important;
+        }
+
+        /* Chola 08 Declaration: keep heading + content together */
+        #chola08-declaration {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        #map-upload-box img,
+        #eb-upload-box img {
+            position: static !important;
+            height: auto !important;
+            max-height: 350px !important;
+            width: 100% !important;
+            object-fit: contain !important;
+            box-shadow: none !important;
+            background: transparent !important;
         }
 
         /* Signature block: always start fresh if needed */
@@ -8423,77 +8566,179 @@
 
         const formatVal = (val) => val ? Math.round(val).toString() : '';
 
+        window.lastCalculatedValues = window.lastCalculatedValues || {};
+
         const updateText = (id, val) => {
-            if (editedMappedFields.has(id)) return;
             const el = document.getElementById(id);
-            if (el && el.innerText !== val) {
-                el.innerText = val;
+            if (!el) return;
+
+            // If the theoretical calculated value has shifted since the last run, 
+            // the parent variables must have changed. Unfreeze the cell!
+            if (lastCalculatedValues[id] !== undefined && lastCalculatedValues[id] !== val) {
+                editedMappedFields.delete(id);
+            }
+            lastCalculatedValues[id] = val;
+
+            if (editedMappedFields.has(id)) return;
+
+            if (el.innerText !== val && el.innerHTML !== val) {
+                if (String(val).includes('<span') || String(val).includes('<br') || String(val).includes('&')) {
+                    el.innerHTML = val;
+                } else {
+                    el.innerText = val;
+                }
                 fieldValues[id] = val; // Store in audit
             }
         };
+
+        const syncRawText = (targetId, sourceId) => {
+            const srcEl = document.getElementById(sourceId);
+            if (srcEl) {
+                updateText(targetId, srcEl.innerText);
+            }
+        };
+
+        // Sync Plan Area to Site Area initially
+        syncRawText('chola08_land_plan', 'chola08_land_site');
+        syncRawText('chola08_gf_plan', 'chola08_gf_site');
 
         // Land Calculation
         const landAreaPlan = parseVal('chola08_land_plan');
         const landAreaSite = parseVal('chola08_land_site');
         const landRate = parseVal('chola08_land_rate');
+
         const landValPlan = landAreaPlan * landRate;
         const landValSite = landAreaSite * landRate;
 
-        updateText('chola08_land_val_plan', formatVal(landValPlan));
         updateText('chola08_land_val_site', formatVal(landValSite));
+        updateText('chola08_land_val_plan', formatVal(landValPlan));
 
         // GF Calculation
         const gfAreaPlan = parseVal('chola08_gf_plan');
         const gfAreaSite = parseVal('chola08_gf_site');
         const gfRate = parseVal('chola08_gf_rate');
+
         const gfValPlan = gfAreaPlan * gfRate;
         const gfValSite = gfAreaSite * gfRate;
 
-        updateText('chola08_gf_val_plan', formatVal(gfValPlan));
         updateText('chola08_gf_val_site', formatVal(gfValSite));
+        updateText('chola08_gf_val_plan', formatVal(gfValPlan));
+
+        // SYNC GF & LAND TO TABLE 2
+        updateText('chola08_gf2_area', formatVal(gfAreaSite));
+        updateText('chola08_land2_area', formatVal(parseVal('chola08_land_site')));
+
+        let totalT1PlanArea = gfAreaPlan;
+        let totalT1SiteArea = gfAreaSite;
+
+        // Dynamic Floors Table 1 Calc & Sync
+        document.querySelectorAll('.chola08-dyn-row-1').forEach(tr => {
+            const fId = tr.id.split('_')[2]; // e.g. f1
+            syncRawText(`chola08_t1_${fId}_plan`, `chola08_t1_${fId}_site`);
+
+            const pArea = parseVal(`chola08_t1_${fId}_plan`);
+            const sArea = parseVal(`chola08_t1_${fId}_site`);
+            const rt = parseVal(`chola08_t1_${fId}_rate`);
+
+            const valPlan = pArea * rt;
+            const valSite = sArea * rt;
+
+            updateText(`chola08_t1_${fId}_val_site`, formatVal(valSite));
+            updateText(`chola08_t1_${fId}_val_plan`, formatVal(valPlan));
+
+            // Sync to Table 2
+            updateText(`chola08_t2_${fId}_area`, formatVal(sArea));
+            syncRawText(`chola08_t2_${fId}_label`, `chola08_t1_${fId}_label`);
+            syncRawText(`chola08_t2_${fId}_rate`, `chola08_t1_${fId}_rate`);
+
+            totalT1PlanArea += pArea;
+            totalT1SiteArea += sArea;
+        });
+
+        // BUA Calculation Table 1 (Forced Sums for Area, Product for Value)
+        const buaRate = parseVal('chola08_bua_rate');
+        const buaValPlan = totalT1PlanArea * buaRate;
+        const buaValSite = totalT1SiteArea * buaRate;
+
+        updateText('chola08_bua_plan', formatVal(totalT1PlanArea));
+        updateText('chola08_bua_site', formatVal(totalT1SiteArea));
+        updateText('chola08_bua_val_site', formatVal(buaValSite));
+        updateText('chola08_bua_val_plan', formatVal(buaValPlan));
+
+        // Sync Static Rates to Table 2
+        syncRawText('chola08_land2_rate', 'chola08_land_rate');
+        syncRawText('chola08_gf2_rate', 'chola08_gf_rate');
+        syncRawText('chola08_bua2_rate', 'chola08_bua_rate');
 
         // Second Area Table Sync & Calc
-        const land2Val = parseVal('chola08_land2_area') * parseVal('chola08_land2_rate');
-        const gf2Val = parseVal('chola08_gf2_area') * parseVal('chola08_gf2_rate');
-
-        updateText('chola08_land2_val', formatVal(land2Val));
+        const gf2Area = parseVal('chola08_gf2_area');
+        const gf2Rate = parseVal('chola08_gf2_rate');
+        const gf2Val = gf2Area * gf2Rate;
         updateText('chola08_gf2_val', formatVal(gf2Val));
 
-        const totalMarket = land2Val + gf2Val;
+        let totalT2Area = gf2Area;
+        let totalT2FloorsVal = gf2Val;
+
+        // Dynamic Floors Table 2 Calc
+        document.querySelectorAll('.chola08-dyn-row-2').forEach(tr => {
+            const fId = tr.id.split('_')[2]; // e.g. f1
+            const area = parseVal(`chola08_t2_${fId}_area`);
+            const rt = parseVal(`chola08_t2_${fId}_rate`);
+            const val = area * rt;
+
+            updateText(`chola08_t2_${fId}_val`, formatVal(val));
+
+            totalT2Area += area;
+            totalT2FloorsVal += val;
+        });
+
+        // BUA Calculation Table 2
+        const bua2Rate = parseVal('chola08_bua2_rate');
+        const bua2Val = totalT2Area * bua2Rate;
+
+        updateText('chola08_bua2_area', formatVal(totalT2Area));
+        updateText('chola08_bua2_val', formatVal(bua2Val));
+
+        const land2Val = parseVal('chola08_land2_area') * parseVal('chola08_land2_rate');
+        updateText('chola08_land2_val', formatVal(land2Val));
+
+        const totalMarket = land2Val + totalT2FloorsVal;
         updateText('chola08_total_market_val', formatVal(totalMarket));
 
-        // Amenities
+        // Amenities Base Row
         const amQty = parseVal('chola08_am_qty');
         const amUnit = parseVal('chola08_am_unit');
         const amAmt = amQty * amUnit;
         updateText('chola08_am_amt', formatVal(amAmt));
-        updateText('chola08_total_am_val', formatVal(amAmt));
+
+        let totalAmVal = amAmt;
+
+        // Amenities Dynamic Rows
+        document.querySelectorAll('.chola08-dyn-am-row').forEach(tr => {
+            const aId = tr.id.split('_')[2]; // e.g. a1
+            const qty = parseVal(`chola08_am_${aId}_qty`);
+            const unit = parseVal(`chola08_am_${aId}_unit`);
+            const amt = qty * unit;
+
+            updateText(`chola08_am_${aId}_amt`, formatVal(amt));
+            totalAmVal += amt;
+        });
+
+        updateText('chola08_total_am_val', formatVal(totalAmVal));
 
         // Grand Total
-        const grandTotal = totalMarket + amAmt;
-        updateText('chola08_grand_total', formatVal(grandTotal));
+        const grandTotal = totalMarket + totalAmVal;
+        const roundedGrandTotal = Math.round(grandTotal);
+        updateText('chola08_grand_total', formatVal(roundedGrandTotal));
 
         // Distress
-        const distressVal = grandTotal * 0.8;
-        updateText('chola08_distress_val', distressVal ? distressVal.toFixed(1) : '');
-    }
+        const distressVal = roundedGrandTotal * 0.8;
+        updateText('chola08_distress_val', formatVal(distressVal));
 
-    function generateChola08Summary(sv, bld, cf) {
-        let product = sv.Valuers_Checklist?.product || cf.product || 'Residential - Self-construction';
-        let summary = `Its a ${product} case. Boundaries are verified with location sketch, its matching with actual site. EB check is positive, EB ownership in the name of property owner.\n`;
-
-        summary += `Property located in ${sv.Neighborhood_property_details?.location_type || 'normal'} area. Building permit and approved plan produced. `;
-
-        let gf_plan = bld.GF_approved_plan_area || '';
-        let gf_site = bld.GF_Builtup_area || '';
-        if (gf_plan) {
-            summary += `As per permit built up area is GF ${gf_plan}sqft, `;
+        // Lively update Declaration FMV & Words
+        if (typeof updateDeclarationDynamicFields === 'function') {
+            updateDeclarationDynamicFields(formatVal(roundedGrandTotal), formatVal(distressVal));
         }
-        if (gf_site) {
-            summary += `but at site customer construct only ${gf_site}sqft. `;
-        }
-        summary += (sv.Building_details?.construction_status || sv.Building_analysis?.remarks || 'Construction in progress.') + '\n';
-        return summary;
     }
 
     function generateChola08Declaration(sv, cf, dateStr, branch) {
@@ -8527,6 +8772,7 @@
                     if (!cell.dataset.tracked) {
                         cell.dataset.tracked = 'true';
                         cell.addEventListener('input', () => {
+                            editedMappedFields.add(cell.id); // Explicitly track ANY manual typing
                             checkMappedFieldEdit(cell.id, cell.innerText);
                             if (cell.id === 'val_lnt_floor_no' || cell.id === 'val_lnt_num_floors_act' || cell.id === 'val_lnt_num_floors') {
                                 handleLntFloorsChange(cell.innerText);
@@ -8543,6 +8789,14 @@
                             triggerAutoSave();
                         });
                         cell.addEventListener('blur', () => {
+                            // Unfreeze entirely cleared cells only when the user clicks away
+                            if (cell.innerText.trim() === '') {
+                                editedMappedFields.delete(cell.id);
+                                if (typeof calcChola08 === 'function' && typeof GLOBAL_BANK_CODE !== 'undefined' && GLOBAL_BANK_CODE === '08') {
+                                    calcChola08();
+                                }
+                            }
+
                             if (fieldValues[cell.id] !== cell.innerText) {
                                 fieldValues[cell.id] = cell.innerText;
                                 checkMappedFieldEdit(cell.id, cell.innerText);
@@ -8571,11 +8825,23 @@
                 if (!field.dataset.tracked) {
                     field.dataset.tracked = 'true';
                     field.addEventListener('change', () => {
+                        editedMappedFields.add(field.id);
                         fieldValues[field.id] = field.value;
                         checkMappedFieldEdit(field.id, field.value);
                         manualSaveDraftingData();
                     });
-                    field.addEventListener('input', () => triggerAutoSave());
+                    field.addEventListener('input', () => {
+                        editedMappedFields.add(field.id);
+                        triggerAutoSave();
+                    });
+                    field.addEventListener('blur', () => {
+                        if (field.value.trim() === '') {
+                            editedMappedFields.delete(field.id);
+                            if (typeof calcChola08 === 'function' && typeof GLOBAL_BANK_CODE !== 'undefined' && GLOBAL_BANK_CODE === '08') {
+                                calcChola08();
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -8736,7 +9002,7 @@
         }
     });
 
-    async function manualSaveDraftingData(isManual = false) {
+    async function manualSaveDraftingData(isManual = false, forceStatus = null) {
         updateSyncStatus('saving');
 
         const reportData = {};
@@ -8796,6 +9062,9 @@
                 },
                 body: JSON.stringify({
                     file_no: GLOBAL_FILE_NO,
+                    bank_code: typeof GLOBAL_BANK_CODE !== 'undefined' ? GLOBAL_BANK_CODE : '',
+                    bank_name: typeof GLOBAL_BANK_NAME !== 'undefined' ? GLOBAL_BANK_NAME : '',
+                    status: forceStatus || 'drafting',
                     report_data: reportData
                 })
             });
@@ -8932,7 +9201,9 @@
         if (distressNumRbl && document.activeElement !== distressNumRbl) distressNumRbl.innerText = distress;
 
         // Update Date
-        if (inspectDate && document.activeElement !== inspectDate) inspectDate.innerText = visitDate;
+        if (visitDate !== undefined && inspectDate && document.activeElement !== inspectDate) {
+            inspectDate.innerText = visitDate;
+        }
 
         // Initialize live sync if not already done
         if (!window.declarationLiveSyncInitialized) {
@@ -9231,6 +9502,18 @@
         renderLntConfigurationRows(num, draftData);
     }
 
+    /* SIMPLE TEXT TOGGLE LOGIC */
+    function toggleText(el, options) {
+        if (!el || !options || options.length === 0) return;
+        const currentText = el.innerText.trim();
+        let idx = options.indexOf(currentText);
+        let nextIdx = (idx + 1) % options.length;
+        el.innerText = options[nextIdx];
+        if (typeof triggerAutoSave === 'function') {
+            triggerAutoSave();
+        }
+    }
+
     /* 3D TOGGLE SWITCH LOGIC */
     function toggleSwitch3D(switchId, targetId) {
         const sw = document.getElementById(switchId);
@@ -9268,6 +9551,7 @@
             { sw: 'ts_holding_type_lnt', val: 'val_lnt_prop_holding', def: 'Freehold' },
             { sw: 'ts_boundaries_matching_lnt', val: 'val_lnt_boundaries_matching', def: 'Yes' },
             { sw: 'ts_address_matching', val: 'val_address_matching', def: 'Yes' },
+            { sw: 'ts_chola08_bound_matching', val: 'chola08_bound_matching', def: 'YES' },
             { sw: 'ts_boundaries_matching', val: 'val_boundaries_matching', def: 'Yes' },
             { sw: 'ts_prop_identified', val: 'val_prop_identified', def: 'Yes' },
             { sw: 'ts_sanctioned_plan_provided', val: 'val_sanctioned_plan_provided', def: 'Yes' },
@@ -9317,6 +9601,27 @@
     }
 
     function applyDataToFields(data) {
+        if (GLOBAL_BANK_CODE === '08') {
+            // Check for chola08 dynamic rows in draft
+            let maxT1 = 0; let maxT2 = 0;
+            for (let key in data) {
+                if (key.startsWith('chola08_t1_f') && key.endsWith('_label')) {
+                    let idNum = parseInt(key.split('_')[2].substring(1));
+                    if (idNum > maxT1) maxT1 = idNum;
+                }
+                if (key.startsWith('chola08_t2_f') && key.endsWith('_label')) {
+                    let idNum = parseInt(key.split('_')[2].substring(1));
+                    if (idNum > maxT2) maxT2 = idNum;
+                }
+            }
+            for (let i = 1; i <= maxT1; i++) {
+                if (!document.getElementById(`chola08_t1_f${i}_row`)) window.addChola08Floor(1);
+            }
+            for (let i = 1; i <= maxT2; i++) {
+                if (!document.getElementById(`chola08_t2_f${i}_row`)) window.addChola08Floor(2);
+            }
+        }
+
         if (data['val_lnt_floor_no']) {
             handleLntFloorsChange(data['val_lnt_floor_no'], data);
         } else if (data['val_lnt_num_floors_act']) {
@@ -9335,6 +9640,7 @@
             }
         }
         calculateLntValuation();
+        if (GLOBAL_BANK_CODE === '08' && typeof calcChola08 === 'function') calcChola08();
     }
 
     function generateDynamicLntRemarks(sv, cf) {
@@ -9354,6 +9660,47 @@
         return `NPA case visit. Subject property consists of a single storeyed ${bhk} residential building of BUA ${bua} sqft with in a land extent of ${land} located in ${district} district. Access road is a ${roadWidth} wide ${roadType} road on ${roadDirection} side. Subject residential building is ${age} years old. Maintenance is observed to be ${maint}. BUA as per site is considered for valuation. Front portion of the building occupied by ${occupant} and back side portion is occupied by ${applicantRel}.`;
     }
 
+    function updateChola08DocBoundaries() {
+        if (!megaPayload) return;
+        const sel = document.getElementById('chola08_boundary_doc_select');
+        if (!sel) return;
+        const docName = sel.value;
+
+        const surveyAnalysis = megaPayload.verification?.database?.SurveyAnalysis || {};
+        let bounds = { North: '--', South: '--', East: '--', West: '--' };
+
+        for (const key of Object.keys(surveyAnalysis)) {
+            const docObj = surveyAnalysis[key];
+            if (docObj && docObj.doc_name === docName && docObj.initial) {
+                bounds = {
+                    North: docObj.initial.boundary_north || '--',
+                    South: docObj.initial.boundary_south || '--',
+                    East: docObj.initial.boundary_east || '--',
+                    West: docObj.initial.boundary_west || '--'
+                };
+                break;
+            }
+        }
+
+        // Update the Chola 08 doc boundary cells and trigger unsaved changes highlights
+        const map = {
+            'chola08_bound_east_doc': bounds.East || '--',
+            'chola08_bound_west_doc': bounds.West || '--',
+            'chola08_bound_south_doc': bounds.South || '--',
+            'chola08_bound_north_doc': bounds.North || '--'
+        };
+
+        for (const [id, val] of Object.entries(map)) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerText = val;
+                el.classList.add('mapped-edited');
+                editedMappedFields.add(id);
+            }
+        }
+        triggerAutoSave();
+    }
+
     function mapInitialFields() {
         if (!megaPayload) return;
 
@@ -9361,6 +9708,8 @@
         if (typeof sv_checklist === 'string') {
             try { sv_checklist = JSON.parse(sv_checklist); } catch (e) { sv_checklist = {}; }
         }
+        sv_checklist = sv_checklist || {}; // Prevent null errors
+
         const ver = megaPayload.verification || {};
         const cf = megaPayload.client_folder || {};
         const draft = megaPayload.drafting?.report_data || {};
@@ -9384,25 +9733,18 @@
             }
         }
 
-        // Boundary Logic: Use BoundaryVerifiedWith as primary choice for "As per Legal"
+        // Boundary Logic: Strictly use BoundaryVerifiedWith for "As per Legal"
         const verifiedDocName = ver.database?.BoundaryVerifiedWith;
-        const boundaryData = ver.database?.BoundaryAnalysis || {};
-        const boundaryStates = ver.database?.SynthesisCheckboxes?.boundary || {};
+        const boundaryData = ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
 
         let checkedBoundary = null;
-
         if (verifiedDocName && boundaryData[verifiedDocName]) {
             checkedBoundary = boundaryData[verifiedDocName];
-        } else {
-            // Fallback: Find which document is checked for "As per Legal"
-            for (const [baseType, isChecked] of Object.entries(boundaryStates)) {
-                if (isChecked) {
-                    const matchingKey = Object.keys(boundaryData).find(key => key.startsWith(baseType));
-                    if (matchingKey) {
-                        checkedBoundary = boundaryData[matchingKey];
-                        break;
-                    }
-                }
+        } else if (Object.keys(boundaryData).length > 0) {
+            // Simple fallback if dropdown wasn't saved, grab the first non-site doc
+            const fallbackKeys = Object.keys(boundaryData).filter(k => !k.toLowerCase().includes('site'));
+            if (fallbackKeys.length > 0) {
+                checkedBoundary = boundaryData[fallbackKeys[0]];
             }
         }
 
@@ -9411,15 +9753,42 @@
         const svBoundary = sv_checklist.Boundary_analysis_property_identification || {};
 
         const siteBoundary = {
-            North: verSiteRef.North || svBoundary.Site_North || '--',
-            East: verSiteRef.East || svBoundary.Site_East || '--',
-            South: verSiteRef.South || svBoundary.Site_South || '--',
-            West: verSiteRef.West || svBoundary.Site_West || '--'
+            North: verSiteRef.North || svBoundary.north_site || svBoundary.Site_North || '--',
+            East: verSiteRef.East || svBoundary.east_site || svBoundary.Site_East || '--',
+            South: verSiteRef.South || svBoundary.south_site || svBoundary.Site_South || '--',
+            West: verSiteRef.West || svBoundary.west_site || svBoundary.Site_West || '--'
         };
 
-        // Survey Number Logic (Priority: Title Deed & Land Tax Receipt)
+        // Populate Chola 08 Boundary Dropdown
         const surveyAnalysis = ver.database?.SurveyAnalysis || {};
         const surveyValues = Object.values(surveyAnalysis);
+
+        const cholaDocSelect = document.getElementById('chola08_boundary_doc_select');
+        if (cholaDocSelect) {
+            cholaDocSelect.innerHTML = '<option value="">(Select Document...)</option>';
+            for (const docObj of surveyValues) {
+                if (!docObj || !docObj.doc_name) continue;
+
+                // Only add documents that actually have boundary data
+                const initial = docObj.initial || {};
+                const hasBoundaries = initial.boundary_east || initial.boundary_west || initial.boundary_north || initial.boundary_south;
+
+                if (hasBoundaries) {
+                    const opt = document.createElement('option');
+                    opt.value = docObj.doc_name;
+                    opt.textContent = docObj.doc_name;
+                    if (verifiedDocName === docObj.doc_name) opt.selected = true;
+                    cholaDocSelect.appendChild(opt);
+                }
+            }
+
+            // If there's a selected value, instantly trigger the boundary sync
+            if (cholaDocSelect.value) {
+                setTimeout(updateChola08DocBoundaries, 100);
+            }
+        }
+
+        // Survey Number Logic (Priority: Title Deed & Land Tax Receipt)
         let rblSurveyNoMapping = '--';
         let landClassDeedValue = '--';
 
@@ -9515,6 +9884,15 @@
 
         // BAU Area Details Mapping Logic
         const bld = sv_checklist.Building_analysis || {};
+        const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || sv_checklist?.buildings || sv_checklist?.Building_details?.buildings || [];
+        const dynamicBld = bArr[0] || {};
+        const dynamicFloors = dynamicBld.floors || [];
+        const fGF = dynamicFloors[0] || {};
+        const f1 = dynamicFloors[1] || {};
+        const f2 = dynamicFloors[2] || {};
+        const f3 = dynamicFloors[3] || {};
+        const f4 = dynamicFloors[4] || {};
+
         const getBldVal = (prefix, suffix) => bld[prefix + "_" + suffix] || '--';
         const getBldUsage = (prefix, suffix) => {
             const val = bld[prefix + "_" + suffix];
@@ -9527,45 +9905,45 @@
             'val_bau_kitch_g': bld.GF_Kitchen_no || '--',
             'val_bau_bath_g': bld.GF_Bathrooms_no || '--',
             'val_bau_use_plan_g': getBldUsage('GF', 'Usage'), // Assuming same as actual for plan if not distinct
-            'val_bau_bua_plan_g': bld.GF_approved_plan_area || '--',
+            'val_bau_bua_plan_g': fGF.bupSqft || fGF.bupSqm || bld.GF_approved_plan_area || bld.GF_Builtup_area || '--',
             'val_bau_use_act_g': getBldUsage('GF', 'Usage'),
-            'val_bau_bua_act_g': bld.GF_Builtup_area || '--',
+            'val_bau_bua_act_g': fGF.bupSqft || fGF.bupSqm || bld.GF_Builtup_area || '--',
 
             // First Floor
             'val_bau_rooms_1': bld.first_flr_Rooms_no || '--',
             'val_bau_kitch_1': bld.first_flr_Kitchen_no || '--',
             'val_bau_bath_1': bld.first_flr_Bathrooms_no || '--',
             'val_bau_use_plan_1': getBldUsage('first_flr', 'Usage'),
-            'val_bau_bua_plan_1': bld.first_flr_approved_plan_area || '--',
+            'val_bau_bua_plan_1': f1.bupSqft || f1.bupSqm || bld.first_flr_approved_plan_area || bld.first_flr_Builtup_area || '--',
             'val_bau_use_act_1': getBldUsage('first_flr', 'Usage'),
-            'val_bau_bua_act_1': bld.first_flr_Builtup_area || '--',
+            'val_bau_bua_act_1': f1.bupSqft || f1.bupSqm || bld.first_flr_Builtup_area || '--',
 
             // Second Floor
             'val_bau_rooms_2': bld.second_flr_Rooms_no || '--',
             'val_bau_kitch_2': bld.second_flr_Kitchen_no || '--',
             'val_bau_bath_2': bld.second_flr_Bathrooms_no || '--',
             'val_bau_use_plan_2': getBldUsage('second_flr', 'Usage'),
-            'val_bau_bua_plan_2': bld.second_flr_approved_plan_area || '--',
+            'val_bau_bua_plan_2': f2.bupSqft || f2.bupSqm || bld.second_flr_approved_plan_area || bld.second_flr_Builtup_area || '--',
             'val_bau_use_act_2': getBldUsage('second_flr', 'Usage'),
-            'val_bau_bua_act_2': bld.second_flr_Builtup_area || '--',
+            'val_bau_bua_act_2': f2.bupSqft || f2.bupSqm || bld.second_flr_Builtup_area || '--',
 
             // Third Floor
             'val_bau_rooms_3': bld.third_flr_Rooms_no || '--',
             'val_bau_kitch_3': bld.third_flr_Kitchen_no || '--',
             'val_bau_bath_3': bld.third_flr_Bathrooms_no || '--',
             'val_bau_use_plan_3': getBldUsage('third_flr', 'Usage'),
-            'val_bau_bua_plan_3': bld.third_flr_approved_plan_area || '--',
+            'val_bau_bua_plan_3': f3.bupSqft || f3.bupSqm || bld.third_flr_approved_plan_area || bld.third_flr_Builtup_area || '--',
             'val_bau_use_act_3': getBldUsage('third_flr', 'Usage'),
-            'val_bau_bua_act_3': bld.third_flr_Builtup_area || '--',
+            'val_bau_bua_act_3': f3.bupSqft || f3.bupSqm || bld.third_flr_Builtup_area || '--',
 
             // Fourth Floor
             'val_bau_rooms_4': bld.fourth_flr_Rooms_no || '--',
             'val_bau_kitch_4': bld.fourth_flr_Kitchen_no || '--',
             'val_bau_bath_4': bld.fourth_flr_Bathrooms_no || '--',
             'val_bau_use_plan_4': getBldUsage('fourth_flr', 'Usage'),
-            'val_bau_bua_plan_4': bld.fourth_flr_approved_plan_area || '--',
+            'val_bau_bua_plan_4': f4.bupSqft || f4.bupSqm || bld.fourth_flr_approved_plan_area || bld.fourth_flr_Builtup_area || '--',
             'val_bau_use_act_4': getBldUsage('fourth_flr', 'Usage'),
-            'val_bau_bua_act_4': bld.fourth_flr_Builtup_area || '--',
+            'val_bau_bua_act_4': f4.bupSqft || f4.bupSqm || bld.fourth_flr_Builtup_area || '--',
         };
 
         console.log("BOUNDARY DEBUG - Verified Doc Name:", verifiedDocName);
@@ -9680,14 +10058,14 @@
         let gfConstructionYear = null;
         let gfResidualAgeRaw = null;
         let gfStructureType = null;
-        
+
         // Priority 1: From Office Verification Building Details
         // Priority 1: From Office Verification Building Details
         const vb = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
-        
+
         // Margin Defaults
-        let marginAppFront='NA', marginAppLeft='NA', marginAppRight='NA', marginAppRear='NA';
-        let marginActFront='--', marginActLeft='--', marginActRight='--', marginActRear='--';
+        let marginAppFront = 'NA', marginAppLeft = 'NA', marginAppRight = 'NA', marginAppRear = 'NA';
+        let marginActFront = '--', marginActLeft = '--', marginActRight = '--', marginActRear = '--';
 
         if (vb.length > 0 && vb[0].setbacks) {
             const sb = vb[0].setbacks;
@@ -9696,7 +10074,7 @@
             if (sb.side1?.rule?.mean) marginAppLeft = sb.side1.rule.mean;
             if (sb.side2?.rule?.mean) marginAppRight = sb.side2.rule.mean;
             if (sb.rear?.rule?.mean) marginAppRear = sb.rear.rule.mean;
-            
+
             // Actual (Provided)
             if (sb.front?.provided?.mean) marginActFront = sb.front.provided.mean;
             if (sb.side1?.provided?.mean) marginActLeft = sb.side1.provided.mean;
@@ -9718,7 +10096,7 @@
                 gfStructureType = gf.structureType;
             }
         }
-        
+
         // Calculate max floor / No of Floors for Axis Finance
         let axisNoFloors = '--';
         let axisAppGF = 0, axisAppFF1 = 0, axisAppSF = 0, axisAppTF = 0, axisAppFF2 = 0;
@@ -9728,7 +10106,7 @@
                 const lbl = (f.label || '').toLowerCase();
                 const buaStr = (f.bupSqft || '').toString().replace(/,/g, '');
                 const bua = parseFloat(buaStr) || 0;
-                
+
                 let num = 0;
                 const match = lbl.match(/(\d+)/);
                 if (match) {
@@ -9738,28 +10116,28 @@
                 else if (lbl.includes('third')) num = 3;
                 else if (lbl.includes('fourth')) num = 4;
                 else if (lbl.includes('fifth')) num = 5;
-                
+
                 if (num > maxF) maxF = num;
-                
+
                 let floorType = num;
                 if (lbl.includes('ground') || lbl.includes('stilt') || lbl.includes('basement') || lbl.includes('parking')) {
                     floorType = 0;
                 }
-                
+
                 if (floorType === 0) axisAppGF += bua;
                 else if (floorType === 1) axisAppFF1 += bua;
                 else if (floorType === 2) axisAppSF += bua;
                 else if (floorType === 3) axisAppTF += bua;
                 else if (floorType >= 4) axisAppFF2 += bua;
             });
-            
+
             if (maxF === 0 && vb[0].floors.length > 1) {
                 maxF = vb[0].floors.length - 1; // Fallback for labels without explicit numbers
             }
             axisNoFloors = maxF.toString();
         }
         let axisAppTotal = axisAppGF + axisAppFF1 + axisAppSF + axisAppTF + axisAppFF2;
-        
+
         // Priority 2: Fallback to Site Visit string parsing
         if (!gfConstructionYear) {
             const rawConstYear = bAnalysis.construction_year || "";
@@ -9783,7 +10161,7 @@
         if (gfConstructionYear) {
             const currentYear = new Date().getFullYear();
             propAgeMapping = Math.max(0, currentYear - gfConstructionYear).toString();
-            
+
             // Use explicitly entered Residual Age from Vetting Page if available, else fallback to 50 - age calculation
             if (gfResidualAgeRaw && gfResidualAgeRaw.toString().trim() !== '') {
                 residualAgeMapping = gfResidualAgeRaw.toString();
@@ -9880,7 +10258,7 @@
             'axis_residual_life': residualAgeMapping || '--',
             'axis_type_structure': gfStructureType || '--',
             'axis_no_floors': axisNoFloors || '--',
-            
+
             // Floor-wise Break-up (Approval & Site)
             'axis_app_gf': axisAppGF > 0 ? axisAppGF.toString() : '',
             'axis_app_ff1': axisAppFF1 > 0 ? axisAppFF1.toString() : '',
@@ -9888,14 +10266,14 @@
             'axis_app_tf': axisAppTF > 0 ? axisAppTF.toString() : '',
             'axis_app_ff2': axisAppFF2 > 0 ? axisAppFF2.toString() : '',
             'axis_app_total': axisAppTotal > 0 ? axisAppTotal.toString() : '',
-            
+
             'axis_act_gf': axisAppGF > 0 ? axisAppGF.toString() : '',
             'axis_act_ff1': axisAppFF1 > 0 ? axisAppFF1.toString() : '',
             'axis_act_sf': axisAppSF > 0 ? axisAppSF.toString() : '',
             'axis_act_tf': axisAppTF > 0 ? axisAppTF.toString() : '',
             'axis_act_ff2': axisAppFF2 > 0 ? axisAppFF2.toString() : '',
             'axis_act_total': axisAppTotal > 0 ? axisAppTotal.toString() : '',
-            
+
             // Margins
             'axis_margin_app_front': marginAppFront,
             'axis_margin_app_left': marginAppLeft,
@@ -9916,8 +10294,8 @@
             'axis_unit_margin_act_rear': marginActRear,
 
             // Undertaking & Inspection Date
-            'axis_date_inspection': visitDateRaw && visitDateRaw !== '--' ? 
-                new Date(visitDateRaw).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 
+            'axis_date_inspection': visitDateRaw && visitDateRaw !== '--' ?
+                new Date(visitDateRaw).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) :
                 (formattedVisitDate || '--'),
 
             // Section X & XI Mappings
@@ -10049,7 +10427,7 @@
 
             'chola08_addr_site': constructedSiteAddress,
             'chola08_addr_doc': ver.database?.Narratives?.deed || constructedSiteAddress,
-            'chola08_landmark': sv_checklist.Neighborhood_property_details?.landmark || '--',
+            'chola08_landmark': sv_checklist.Sketch?.landmark_description || sv_checklist.Neighborhood_property_details?.landmark || '--',
             'chola08_nearest_branch': sv_checklist.Valuers_Checklist?.branch_name || extractedBranch || '--',
             'chola08_dist_branch': '--', // Placeholder if not available
 
@@ -10063,55 +10441,108 @@
             'chola08_bound_south_site': siteBoundary.South || '--',
             'chola08_bound_north_site': siteBoundary.North || '--',
 
-            'chola08_lat_value': sv_checklist.Neighborhood_property_details?.lat || cf.lat || '--',
-            'chola08_lat_dir': '--', // Added logic or manual entry
-            'chola08_lon_value': sv_checklist.Neighborhood_property_details?.lon || cf.lon || '--',
-            'chola08_lon_dir': '--', // Added logic or manual entry
+            'chola08_lat_value': sv_checklist.land_inspection_details?.latitude || cf.lat || '--',
+            'chola08_lat_dir': (() => {
+                const val = sv_checklist.land_inspection_details?.latitude || cf.lat || '--';
+                return (val !== '--' && !isNaN(parseFloat(val))) ? decimalToDMS(parseFloat(val), true) : '--';
+            })(),
+            'chola08_lon_value': sv_checklist.land_inspection_details?.longitude || cf.lon || '--',
+            'chola08_lon_dir': (() => {
+                const val = sv_checklist.land_inspection_details?.longitude || cf.lon || '--';
+                return (val !== '--' && !isNaN(parseFloat(val))) ? decimalToDMS(parseFloat(val), false) : '--';
+            })(),
 
-            'chola08_auth_limit': sv_checklist.Neighborhood_property_details?.local_authority_name || '--',
-            'chola08_app_auth': sv_checklist.Building_details?.approved_plan || '--',
-            'chola08_prop_age': sv_checklist.Building_details?.age_of_building || propAgeMapping || '0/0',
+            'chola08_auth_limit': ver.database?.ScheduleData?.lb_type || ver.lb_type || '--',
+            'chola08_app_auth': ver.database?.ScheduleData?.lb_type || ver.lb_type || '--',
+            'chola08_prop_age': propAgeMapping || '--',
             'chola08_owner_name': ownerNames || ver.applicant_name || sv_checklist.Valuers_Checklist?.applicant_name || '--',
-            'chola08_occ_status': sv_checklist.occupant_details?.occupancy_status || 'NA',
-            'chola08_occ_name': sv_checklist.occupant_details?.occupied_by || '',
+            'chola08_occ_status': sv_checklist.occupant_details?.occupancy_status || 'Applicant',
+            'chola08_occ_name': ownerNames || ver.applicant_name || sv_checklist.Valuers_Checklist?.applicant_name || '--',
             'chola08_person_met': sv_checklist.Valuers_Checklist?.person_met || sv_checklist.Valuers_Checklist?.personMetAtSite || ver.person_met || '--',
             'chola08_prop_type': sv_checklist.land_inspection_details?.property_type || 'Independent house',
-            'chola08_approach_road': roadWidthDisplay || 'Plot has 3m wide Private road Access.',
-            'chola08_residual_age': sv_checklist.Building_details?.residual_age || residualAgeMapping || '50',
+            'chola08_approach_road': (() => {
+                const rData = ver.database?.RightOfAccess?.['As per Site'] || {};
+                let w = rData.width || '';
+                let t = rData.type || '';
+                if (!w && !t) return '--';
+                return [w ? w + (w.toLowerCase().includes('m') ? ' wide' : 'm wide') : '', t].filter(Boolean).join(' ');
+            })(),
+            'chola08_residual_age': residualAgeMapping || '50',
 
-            'chola08_dist_bus': sv_checklist.Neighborhood_property_details?.distance_bus_stand || 'Below 1 KM',
-            'chola08_name_bus': sv_checklist.Neighborhood_property_details?.bus_stop_name || '',
-            'chola08_dist_rail': sv_checklist.Neighborhood_property_details?.distance_railway || 'Above 5 KM',
-            'chola08_name_rail': sv_checklist.Neighborhood_property_details?.railway_station_name || '',
-            'chola08_dist_school': 'Below 1 KM',
-            'chola08_name_school': '',
-            'chola08_dist_hwy': 'Below 1 KM',
-            'chola08_name_hwy': '',
-            'chola08_dist_hosp': sv_checklist.Neighborhood_property_details?.distance_hospital || 'Below 1 KM',
-            'chola08_name_hosp': sv_checklist.Neighborhood_property_details?.hospital_name || '',
+            'chola08_dist_bus': (() => { let d = sv_checklist.land_inspection_details?.nearest_busstop; if (!d) return '--'; d = String(d); return d.toLowerCase().includes('km') ? d : d + ' KM'; })(),
+            'chola08_name_bus': '--',
+            'chola08_dist_rail': (() => { let d = sv_checklist.land_inspection_details?.nearest_railway; if (!d) return '--'; d = String(d); return d.toLowerCase().includes('km') ? d : d + ' KM'; })(),
+            'chola08_name_rail': '--',
+            'chola08_dist_school': (() => { let d = sv_checklist.land_inspection_details?.nearest_school; if (!d) return '--'; d = String(d); return d.toLowerCase().includes('km') ? d : d + ' KM'; })(),
+            'chola08_name_school': '--',
+            'chola08_dist_hwy': (() => { let d = sv_checklist.land_inspection_details?.nearest_Highway; if (!d) return '--'; d = String(d); return d.toLowerCase().includes('km') ? d : d + ' KM'; })(),
+            'chola08_name_hwy': '--',
+            'chola08_dist_hosp': (() => { let d = sv_checklist.land_inspection_details?.nearest_hospital; if (!d) return '--'; d = String(d); return d.toLowerCase().includes('km') ? d : d + ' KM'; })(),
+            'chola08_name_hosp': '--',
 
             'chola08_surround_dev': '95',
-            'chola08_land_type': sv_checklist.land_inspection_details?.land_classification || 'Dry land/Freehold',
-            'chola08_prop_usage': sv_checklist.land_inspection_details?.approved_usage || 'RESIDENTIAL',
+            'chola08_land_type': (() => {
+                const survey = ver.database?.SurveyAnalysis || {};
+                let tax = '', sketch = '', deed = '';
+                for (const docKey in survey) {
+                    const doc = survey[docKey] || {};
+                    const docName = (doc.doc_name || '').toLowerCase();
+                    const classification = doc.initial?.land_classification || '';
+                    if (docName.includes('tax')) tax = classification;
+                    else if (docName.includes('sketch')) sketch = classification;
+                    else if (docName.includes('deed')) deed = classification;
+                }
+                let val = tax || sketch || deed || sv_checklist.land_inspection_details?.land_classification || 'Dry Land';
+                return val ? val : 'Dry Land';
+            })(),
+            'chola08_prop_usage': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || sv_checklist?.buildings || sv_checklist?.Building_details?.buildings || [];
+                let occ = bArr[0]?.occupancy || sv_checklist.land_inspection_details?.approved_usage || sv_checklist.Building_details?.occupancy || '';
+                return occ ? occ : 'RESIDENTIAL';
+            })(),
             'chola08_mixed_usage': '',
 
             // Section 3 Area Mapping Values
             'chola08_land_plan': sv_checklist.land_inspection_details?.extent_of_land_document || sv_checklist.land_inspection_details?.extent_of_land_actual || '1442',
             'chola08_land_site': sv_checklist.land_inspection_details?.extent_of_land_actual || '1442',
             'chola08_land_rate': '919',
-            'chola08_gf_plan': bld.GF_approved_plan_area || bld.GF_Builtup_area || '529',
-            'chola08_gf_site': bld.GF_Builtup_area || '529',
+            'chola08_gf_plan': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+                const gf = bArr[0]?.floors?.[0];
+                return (gf?.bupSqft || gf?.bupSqm || bld.GF_approved_plan_area || bld.GF_Builtup_area || '529').toString().replace(/,/g, '');
+            })(),
+            'chola08_gf_site': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+                const gf = bArr[0]?.floors?.[0];
+                return (gf?.bupSqft || gf?.bupSqm || bld.GF_Builtup_area || '529').toString().replace(/,/g, '');
+            })(),
             'chola08_gf_rate': '2000',
-            'chola08_bua_plan': bld.total_approved_plan_area || bld.total_builtup_area || '529',
-            'chola08_bua_site': bld.total_builtup_area || '529',
+            'chola08_bua_plan': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+                const tot = bArr[0]?.totalBupSqft || bArr[0]?.totalBupSqm;
+                return (tot || bld.total_approved_plan_area || bld.total_builtup_area || '529').toString().replace(/,/g, '');
+            })(),
+            'chola08_bua_site': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+                const tot = bArr[0]?.totalBupSqft || bArr[0]?.totalBupSqm;
+                return (tot || bld.total_builtup_area || '529').toString().replace(/,/g, '');
+            })(),
             'chola08_fsi_perm': '0.37',
             'chola08_fsi_achv': '0.37',
 
             'chola08_land2_area': sv_checklist.land_inspection_details?.extent_of_land_actual || '1442',
             'chola08_land2_rate': '919',
-            'chola08_gf2_area': bld.GF_Builtup_area || '529',
+            'chola08_gf2_area': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+                const gf = bArr[0]?.floors?.[0];
+                return (gf?.bupSqft || gf?.bupSqm || bld.GF_Builtup_area || '529').toString().replace(/,/g, '');
+            })(),
             'chola08_gf2_rate': '2000',
-            'chola08_bua2_area': bld.total_builtup_area || '529',
+            'chola08_bua2_area': (() => {
+                const bArr = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+                const tot = bArr[0]?.totalBupSqft || bArr[0]?.totalBupSqm;
+                return (tot || bld.total_builtup_area || '529').toString().replace(/,/g, '');
+            })(),
 
             'chola08_am_desc': '0',
             'chola08_am_qty': '0',
@@ -10122,6 +10553,7 @@
 
             // Section 4 Document and Site Investigation Mappings
             'chola08_rental_val': '0',
+            'chola08_distress_val': '0',
 
             // Doc 2 (Floor Plan/Approved Plan)
             'chola08_doc2_ref': sv_checklist.Building_details?.approved_plan_no || '',
@@ -10156,7 +10588,19 @@
             'chola08_marketability': 'GOOD',
             'chola08_elec_meter': sv_checklist.verification_details?.electricity_meter || '',
             'chola08_elec_name': '',
-            'chola08_prop_remarks': generateDynamicLntRemarks(sv_checklist, cf) || '',
+            'chola08_prop_remarks': (() => {
+                const raw = ver.database?.MasterSynthesis || '';
+                if (!raw) return '--';
+                const blocks = raw.split(/\n\s*\n/);
+                const formatted = blocks.map(block => {
+                    const lines = block.split('\n');
+                    if (lines.length >= 3 && lines[1].match(/^-+$/)) {
+                        return '* ' + lines.slice(2).join(' ').trim();
+                    }
+                    return block.trim();
+                }).filter(b => b).join('\n\n');
+                return formatted || '--';
+            })(),
             'chola08_obs1': 'LOW',
             'chola08_obs2': (sv_checklist.Building_details?.approved_plan === 'Yes' ? 'YES' : 'NO') || 'YES',
             'chola08_obs3': '',
@@ -10166,11 +10610,10 @@
 
             // Section 6
             'chola08_tech_mgr_remarks': '',
-            'chola08_summary_para': generateChola08Summary(sv_checklist, bld, cf),
             'chola08_declaration': generateChola08Declaration(sv_checklist, cf, todayStr, extractedBranch),
 
             // ============================================
-            
+
             // FSI Calculation Logic
             ...(() => {
                 const fsiLbType = ver.database?.ScheduleData?.lb_type || cf.lb_type || '';
@@ -10206,7 +10649,7 @@
                         fsiPermArea = Math.round(numArea * fsiLimit).toString();
                     }
                 }
-                
+
                 let totalBUASqft = 0;
                 fsiBuildings.forEach(b => {
                     if (b.floors) {
@@ -10267,26 +10710,11 @@
             'val_approving_authority': ver.database?.ScheduleData?.lb_type || ver.lb_type || '--',
 
             // Boundary Mappings (As per Legal)
-            ...(() => {
-                let smeBoundary = null;
-                const pKeys = ['title deed', 'survey sketch', 'location sketch', 'agreement'];
-                for (const keyword of pKeys) {
-                    const match = Object.keys(boundaryData).find(key => key.toLowerCase().includes(keyword));
-                    if (match) {
-                        smeBoundary = boundaryData[match];
-                        break;
-                    }
-                }
-                if (!smeBoundary && Object.keys(boundaryData).length > 0) {
-                    smeBoundary = boundaryData[Object.keys(boundaryData)[0]];
-                }
-                return {
-                    'val_boundary_north': smeBoundary?.North || '--',
-                    'val_boundary_south': smeBoundary?.South || '--',
-                    'val_boundary_east': smeBoundary?.East || '--',
-                    'val_boundary_west': smeBoundary?.West || '--'
-                };
-            })(),
+            // Boundary Mappings (As per Legal)
+            'val_boundary_north': checkedBoundary?.North || '--',
+            'val_boundary_south': checkedBoundary?.South || '--',
+            'val_boundary_east': checkedBoundary?.East || '--',
+            'val_boundary_west': checkedBoundary?.West || '--',
 
             // Boundary Mappings (As per Site)
             'val_boundary_north_site': siteBoundary?.North || '--',
@@ -10342,7 +10770,25 @@
             'val_rbl_prop_age': propAgeMapping,
             'val_rbl_residual_age': residualAgeMapping,
             'val_gps': sv_checklist.Valuers_Checklist?.gps_coordinates || sv_checklist.land_inspection_details?.gps_coordinates || '--',
+            'val_geo_coords': sv_checklist.Valuers_Checklist?.gps_coordinates || sv_checklist.land_inspection_details?.gps_coordinates || '--',
         };
+
+        // Build dynamic floors for Chola08 based on Site Visit
+        if (GLOBAL_BANK_CODE === '08') {
+            const fsiBldgs = ver.database?.BuildingDetails?.buildings || window.vadridaBuildings || [];
+            const bldObj = fsiBldgs[0] || {};
+            const floorsArr = bldObj.floors || [];
+            if (floorsArr.length > 1) {
+                for (let i = 1; i < floorsArr.length; i++) {
+                    const fl = floorsArr[i];
+                    const area = (fl.bupSqft || fl.bupSqm || '').toString().replace(/,/g, '');
+                    // Only call once; addChola08Floor now generates a pair for both tables
+                    if (!document.getElementById(`chola08_t1_f${i}_row`)) {
+                        window.addChola08Floor(fl.label, area, area);
+                    }
+                }
+            }
+        }
 
         // --- RENDER AXIS DYNAMIC DOCUMENTS ---
         const axisDocBody = document.getElementById('axis_dynamic_documents');
@@ -10371,7 +10817,7 @@
         // Populate Axis Document Boundary Selector
         const axisBoundarySelector = document.getElementById('axis_deed_boundary_selector');
         if (axisBoundarySelector) {
-            const bData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.BoundaryAnalysis || {};
+            const bData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
             axisBoundarySelector.innerHTML = '<option value="">-- Document --</option>';
             for (const key of Object.keys(bData)) {
                 if (typeof bData[key] === 'object' && !Array.isArray(bData[key]) && bData[key] !== null) {
@@ -10393,28 +10839,28 @@
                 }
             }
         }
-        
+
         // Populate Axis Plot Area Document Selector
         const axisPlotAreaSelector = document.getElementById('axis_plot_area_doc_selector');
         if (axisPlotAreaSelector) {
             const surveyAnalysisData = ver.database?.SurveyAnalysis || {};
             const sDocs = Object.values(surveyAnalysisData);
             axisPlotAreaSelector.innerHTML = '<option value="">-- Document --</option><option value="all">All Documents</option>';
-            
+
             const uniqueDocs = new Set();
             for (const doc of sDocs) {
                 if (doc.doc_name && doc.doc_name.trim() !== '') {
                     uniqueDocs.add(doc.doc_name.trim());
                 }
             }
-            
+
             for (const docName of uniqueDocs) {
                 const opt = document.createElement('option');
                 opt.value = docName;
                 opt.textContent = docName;
                 axisPlotAreaSelector.appendChild(opt);
             }
-            
+
             if (!draft['axis_plot_area_doc_selector']) {
                 if (uniqueDocs.has('Title Deed')) {
                     axisPlotAreaSelector.value = 'Title Deed';
@@ -10425,15 +10871,44 @@
                 }
             }
         }
-        
+
         // Auto-compute floor deviations on initial load if data was dynamically populated
         if (!draft['axis_app_total'] && typeof window.calculateAxisFloorTotals === 'function') {
             window.calculateAxisFloorTotals();
         }
-        
+
         if (!draft['axis_margin_act_front'] && typeof window.calculateAxisMarginDeviations === 'function') {
             window.calculateAxisMarginDeviations('axis_margin');
             window.calculateAxisMarginDeviations('axis_unit_margin');
+        }
+
+        // Rehydrate any missing dynamic floors from draft before applying data
+        if (GLOBAL_BANK_CODE === '08') {
+            let maxF = 0;
+            for (let key in draft) {
+                if (key.startsWith('chola08_t1_f') && key.endsWith('_label')) {
+                    let idNum = parseInt(key.split('_')[2].substring(1));
+                    if (idNum > maxF) maxF = idNum;
+                }
+            }
+            for (let i = 1; i <= maxF; i++) {
+                if (!document.getElementById(`chola08_t1_f${i}_row`)) {
+                    window.addChola08Floor();
+                }
+            }
+
+            let maxA = 0;
+            for (let key in draft) {
+                if (key.startsWith('chola08_am_a') && key.endsWith('_qty')) {
+                    let idNum = parseInt(key.split('_')[2].substring(1));
+                    if (idNum > maxA) maxA = idNum;
+                }
+            }
+            for (let i = 1; i <= maxA; i++) {
+                if (!document.getElementById(`chola08_am_a${i}_row`)) {
+                    window.addChola08Amenity();
+                }
+            }
         }
 
         // 1. Apply ALL saved data from the draft FIRST. 
@@ -10483,6 +10958,11 @@
                 isEmptyish = true;
             }
 
+            // If the user deliberately edited this field (even to clear it), respect their edit!
+            if (editedMappedFields.has(id)) {
+                isEmptyish = false;
+            }
+
             if (el && val !== undefined && isEmptyish) {
                 setFieldValue(el, val, true); // true = this is a mapping call
             }
@@ -10511,10 +10991,14 @@
 
         // Recalculate L&T Valuation after fields mapped
         calculateLntValuation();
+        if (typeof convertGeoCoords === 'function') convertGeoCoords();
+        if (GLOBAL_BANK_CODE === '08' && typeof window.syncChola08GeoCoords === 'function') {
+            window.syncChola08GeoCoords();
+        }
     }
 
     /* ----- PRINT REPORT LOGIC ----- */
-    function printValuationReport() {
+    async function printValuationReport() {
         const fileNo = '{{ file_no }}';
         // Check for bank-specific IDs for filename
         const bankRef = (document.getElementById('val_bank_ref_no') || document.getElementById('val_rbl_app_no'))?.innerText.trim() || 'BankRef';
@@ -10522,11 +11006,27 @@
 
         // Format: filenumber_bankfileno_applicantname_valuation_report
         // (Browser automatically adds .pdf when user selects Save as PDF)
-        const filename = `${fileNo}_${bankRef}_${applicant}_valuation_report`.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        const safeName = `${fileNo}_${bankRef}_${applicant}_valuation_report`.replace(/[^a-zA-Z0-9_\-]/g, '_');
 
         // Temporarily set document title so 'Save as PDF' uses it
         const originalTitle = document.title;
-        document.title = filename;
+        document.title = safeName;
+
+        // Force a final save to mark the report as completed in the database
+        await manualSaveDraftingData(false, 'completed');
+
+        // Copy the exact Client Folder path to clipboard for easy saving
+        const folderPath = megaPayload?.client_folder?.full_folder_path;
+        if (folderPath) {
+            try {
+                // Swap forward slashes to backslashes for Windows Explorer
+                const winPath = folderPath.replace(/\//g, '\\');
+                await navigator.clipboard.writeText(winPath);
+                showToast("Folder path copied! Press Ctrl+V in the Save window.");
+            } catch (e) {
+                console.error("Failed to copy folder path", e);
+            }
+        }
 
         // Trigger the native print dialog
         window.print();
@@ -10863,7 +11363,7 @@
 
         // Use the first one that has text
         let raw = "";
-        coordEls.forEach(el => { if (el.innerText.trim()) raw = el.innerText.trim(); });
+        coordEls.forEach(el => { if (el.textContent.trim()) raw = el.textContent.trim(); });
 
         const parts = raw.split(/[\s,]+/).filter(p => p.length > 0);
         if (parts.length < 2) {
@@ -10887,11 +11387,30 @@
 
         // Also sync text across inputs
         coordEls.forEach(el => {
-            if (el.innerText !== raw) el.innerText = raw;
+            if (el.textContent !== raw) el.textContent = raw;
         });
 
         fieldValues['geo_converted'] = result;
     }
+
+    window.syncChola08GeoCoords = function () {
+        const latText = document.getElementById('chola08_lat_value')?.innerText.trim() || '';
+        const lonText = document.getElementById('chola08_lon_value')?.innerText.trim() || '';
+
+        if (latText && lonText && latText !== '--' && lonText !== '--') {
+            const combined = `${latText}, ${lonText}`;
+            document.querySelectorAll('#val_geo_coords').forEach(el => {
+                el.textContent = combined;
+            });
+            if (typeof convertGeoCoords === 'function') convertGeoCoords();
+
+            // Auto calculate degrees for the top section too!
+            const latDir = document.getElementById('chola08_lat_dir');
+            const lonDir = document.getElementById('chola08_lon_dir');
+            if (latDir && !isNaN(parseFloat(latText))) latDir.innerText = decimalToDMS(parseFloat(latText), true);
+            if (lonDir && !isNaN(parseFloat(lonText))) lonDir.innerText = decimalToDMS(parseFloat(lonText), false);
+        }
+    };
 
     async function previewMapImage(input) {
         if (!input.files || !input.files[0]) return;
@@ -10944,5 +11463,92 @@
             });
         } catch (e) { console.warn('EB upload failed', e); }
     }
+    let chola08_floor_counter = 1;
+    // Overriding definition to add a pair to BOTH tables simultaneously
+    window.addChola08Floor = function (dummyOrLabel = '', planArea = '', siteArea = '') {
+        let floorLabel = '';
+        if (typeof dummyOrLabel === 'number' || dummyOrLabel === 1 || dummyOrLabel === 2) {
+            // Accommodate old button calls that pass tableIndex as first arg
+            floorLabel = typeof planArea === 'string' ? planArea : '';
+        } else {
+            floorLabel = dummyOrLabel;
+        }
+
+        const counter = chola08_floor_counter++;
+        const fId = `f${counter}`;
+        const defaultLabel = `${counter === 1 ? 'First' : counter === 2 ? 'Second' : counter === 3 ? 'Third' : counter + 'th'} floor`;
+        const labelText = floorLabel || defaultLabel;
+
+        // TABLE 1 ROW
+        const row1HTML = `
+            <tr class="chola08-dyn-row-1" id="chola08_t1_${fId}_row">
+                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; position: relative;">
+                    <span contenteditable="true" class="value-cell" id="chola08_t1_${fId}_label" onkeyup="calcChola08()">${labelText}</span>
+                    <button class="btn btn-sm btn-danger no-print" style="position: absolute; left: -25px; top: 4px; padding: 0px 4px;" onclick="document.getElementById('chola08_t1_${fId}_row')?.remove(); document.getElementById('chola08_t2_${fId}_row')?.remove(); calcChola08(); triggerAutoSave();" tabindex="-1">X</button>
+                </td>
+                <td class="value-cell" contenteditable="true" id="chola08_t1_${fId}_plan" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()">${planArea}</td>
+                <td class="value-cell" contenteditable="true" id="chola08_t1_${fId}_site" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()">${siteArea}</td>
+                <td class="value-cell" contenteditable="true" id="chola08_t1_${fId}_rate" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                <td class="value-cell" contenteditable="true" id="chola08_t1_${fId}_val_plan" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+                <td class="value-cell" contenteditable="true" id="chola08_t1_${fId}_val_site" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+            </tr>
+        `;
+        const totalRow1 = document.getElementById('chola08_t1_total_row');
+        if (totalRow1) totalRow1.insertAdjacentHTML('beforebegin', row1HTML);
+
+        // TABLE 2 ROW
+        const row2HTML = `
+            <tr class="chola08-dyn-row-2" id="chola08_t2_${fId}_row">
+                <td class="label-cell" style="font-weight: 600; border: 1px solid #000; padding: 6px; position: relative;" colspan="2">
+                    <span class="value-cell" id="chola08_t2_${fId}_label" style="pointer-events:none;">${labelText}</span>
+                    <button class="btn btn-sm btn-danger no-print" style="position: absolute; left: -25px; top: 4px; padding: 0px 4px;" onclick="document.getElementById('chola08_t1_${fId}_row')?.remove(); document.getElementById('chola08_t2_${fId}_row')?.remove(); calcChola08(); triggerAutoSave();" tabindex="-1">X</button>
+                </td>
+                <td class="value-cell" id="chola08_t2_${fId}_area" style="text-align: center; border: 1px solid #000; padding: 6px; pointer-events:none;" colspan="2">${siteArea}</td>
+                <td class="value-cell" contenteditable="true" id="chola08_t2_${fId}_rate" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()"></td>
+                <td class="value-cell" id="chola08_t2_${fId}_val" style="text-align: center; border: 1px solid #000; padding: 6px; pointer-events:none;"></td>
+            </tr>
+        `;
+        const totalRow2 = document.getElementById('chola08_t2_total_row');
+        if (totalRow2) totalRow2.insertAdjacentHTML('beforebegin', row2HTML);
+
+        if (typeof setupFieldTracking === 'function') setupFieldTracking();
+        calcChola08();
+    }
+
+    let chola08_amenity_counter = 0;
+    window.addChola08Amenity = function (desc = '', qty = '0', unit = '0') {
+        chola08_amenity_counter++;
+        const aId = `a${chola08_amenity_counter}`;
+        const rowHTML = `
+            <tr class="chola08-dyn-am-row" id="chola08_am_${aId}_row">
+                <td class="value-cell am-sno" style="text-align: center; font-weight: 600; border: 1px solid #000; padding: 6px; position: relative;">
+                    <span class="sno-text"></span>
+                    <button class="btn btn-sm btn-danger no-print" style="position: absolute; left: -25px; top: 4px; padding: 0px 4px;" onclick="document.getElementById('chola08_am_${aId}_row').remove(); updateAmenitySNo(); calcChola08(); triggerAutoSave();" tabindex="-1">X</button>
+                </td>
+                <td class="value-cell" contenteditable="true" id="chola08_am_${aId}_desc" style="border: 1px solid #000; padding: 6px;" colspan="2">${desc}</td>
+                <td class="value-cell" contenteditable="true" id="chola08_am_${aId}_qty" style="border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()">${qty}</td>
+                <td class="value-cell" contenteditable="true" id="chola08_am_${aId}_unit" style="text-align: center; border: 1px solid #000; padding: 6px;" onkeyup="calcChola08()">${unit}</td>
+                <td class="value-cell" contenteditable="true" id="chola08_am_${aId}_amt" style="text-align: center; border: 1px solid #000; padding: 6px;"></td>
+            </tr>
+        `;
+        const totalRow = document.getElementById('chola08_total_am_row');
+        if (totalRow) totalRow.insertAdjacentHTML('beforebegin', rowHTML);
+
+        if (typeof setupFieldTracking === 'function') setupFieldTracking();
+        updateAmenitySNo();
+        calcChola08();
+    };
+
+    window.updateAmenitySNo = function () {
+        document.querySelectorAll('.am-sno').forEach((td, index) => {
+            const span = td.querySelector('.sno-text');
+            if (span) {
+                span.innerText = index + 1;
+            } else {
+                td.innerText = index + 1; // For base row
+            }
+        });
+    };
+
 </script>
 {% endblock %}

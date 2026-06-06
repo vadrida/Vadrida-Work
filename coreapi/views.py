@@ -514,7 +514,8 @@ def get_drafting_mega_payload(request):
             'bank_ref_no': folder.bank_ref_no,
             'bank_code': folder.bank_code,
             'year': folder.year,
-            'district': folder.district_code
+            'district': folder.district_code,
+            'full_folder_path': folder.full_folder_path
         }
 
     # 4. Drafting Draft
@@ -2731,14 +2732,70 @@ def save_drafting_data(request):
         if not file_no:
             return JsonResponse({'success': False, 'error': 'Missing file_no'}, status=400)
 
-        from .models import DraftingReport, ClientFolder
-        # 1. Update Database
-        DraftingReport.objects.update_or_create(
-            office_file_no=file_no,
-            defaults={'report_data': report_data}
-        )
+        from .models import DraftingReport, ClientFolder, VerificationReport, UserProfile
+        from django.utils import timezone
 
-        # 2. Database handles persistence; removing local JSON file save as requested
+        # 1. Fetch existing draft for comparison
+        try:
+            draft_obj = DraftingReport.objects.get(office_file_no=file_no)
+            old_data = draft_obj.report_data or {}
+            old_log = draft_obj.audit_log or []
+        except DraftingReport.DoesNotExist:
+            draft_obj = DraftingReport(office_file_no=file_no)
+            old_data = {}
+            old_log = []
+
+        # --- METADATA POPULATION ---
+        if data.get('bank_code'):
+            draft_obj.bank_code = data.get('bank_code')
+        if data.get('bank_name'):
+            draft_obj.bank_name = data.get('bank_name')
+        if data.get('status'):
+            draft_obj.status = data.get('status')
+
+        # Site Visitor mapping
+        if not draft_obj.site_visitor:
+            cf = ClientFolder.objects.filter(unique_file_no=file_no).first()
+            if cf and cf.site_staff_code:
+                sv = UserProfile.objects.filter(user_name=cf.site_staff_code).first()
+                if sv:
+                    draft_obj.site_visitor = sv
+
+        # Office Verifier mapping
+        if not draft_obj.office_verifier:
+            vr = VerificationReport.objects.filter(office_file_no=file_no).first()
+            if vr and vr.verified_by:
+                draft_obj.office_verifier = vr.verified_by
+
+        # Current Drafter mapping
+        user_name = request.session.get('user_name', 'System')
+        user_id = request.session.get('user_id', 'SYS')
+        
+        if user_id != 'SYS':
+            drafter = UserProfile.objects.filter(id=user_id).first()
+            if drafter:
+                draft_obj.report_drafter = drafter
+
+        # --- AUDIT LOGGING ---
+        new_logs = []
+        for key, new_val in report_data.items():
+            old_val = old_data.get(key)
+            if old_val != new_val:
+                new_logs.append({
+                    "user": user_id,
+                    "name": user_name,
+                    "field": key,
+                    "old": str(old_val)[:200] if old_val else "",
+                    "new": str(new_val)[:200] if new_val else "",
+                    "timestamp": timezone.now().isoformat()
+                })
+
+        # Append and keep the latest 500 entries
+        combined_logs = old_log + new_logs
+        draft_obj.report_data = report_data
+        draft_obj.audit_log = combined_logs[-500:]
+        draft_obj.save()
+
         return JsonResponse({'success': True})
 
         return JsonResponse({'success': True})

@@ -1996,14 +1996,19 @@
                                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; width: 100%; margin-top: 15px;">
 
                                 <!-- SMART LABELS PANEL (Document Summary Label) -->
-                                <div class="panel" id="smartLabelsPanel" style="min-width: 100%; border-left: 3px solid #9c27b0; border-radius: 10px; display: flex; flex-direction: column; margin: 0;">
-                                    <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(156, 39, 176, 0.02);">
+                                <div class="panel" id="smartLabelsPanel"
+                                    style="min-width: 100%; border-left: 3px solid #9c27b0; border-radius: 10px; display: flex; flex-direction: column; margin: 0;">
+                                    <div class="panel-header"
+                                        style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(156, 39, 176, 0.02);">
                                         <div style="display:flex; align-items:center; gap:8px;">
-                                            <div style="background: rgba(156, 39, 176, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                            <div
+                                                style="background: rgba(156, 39, 176, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
                                                 <i class="fas fa-magic" style="color: #9c27b0; font-size: 0.8rem;"></i>
                                             </div>
                                             <div>
-                                                <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">Document Summary Label</span>
+                                                <span class="ph-title"
+                                                    style="font-size: 0.8rem; display: block; font-weight: 700;">Document
+                                                    Summary Label</span>
                                             </div>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -2011,87 +2016,128 @@
                                                 style="padding: 4px 10px; font-size: 0.65rem; background: #9c27b0; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                                                 <i class="fas fa-copy"></i> Copy
                                             </button>
-                                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                                                <input type="checkbox" class="synthesis-checkbox" data-target="dynamicLabelOutput" checked onchange="updateMasterSynthesis()"
+                                            <label
+                                                style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                                <input type="checkbox" class="synthesis-checkbox"
+                                                    data-target="dynamicLabelOutput" checked
+                                                    onchange="updateMasterSynthesis()"
                                                     style="width: 12px; height: 12px; cursor: pointer; accent-color: #9c27b0;">
-                                                <span style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add to Report</span>
+                                                <span
+                                                    style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add
+                                                    to Report</span>
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card); flex: 1; display: flex; flex-direction: column;">
+                                    <div class="panel-body summary-card-body"
+                                        style="padding: 12px 15px; background: var(--bg-card); flex: 1; display: flex; flex-direction: column;">
                                         <div id="dynamicLabelOutput" class="summary-card-text"
                                             style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word; min-height: 80px; max-height: 200px; overflow-y: auto; flex: 1;">
                                             The following documents are provided for persual :
                                         </div>
-                                        <div style="margin-top: 10px; text-align: center; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 4px; border-radius: 6px;">
-                                            <i class="fas fa-sync-alt fa-spin" style="font-size: 8px; margin-right: 4px; color: #9c27b0;"></i> Live Preview
+                                        <div
+                                            style="margin-top: 10px; text-align: center; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 4px; border-radius: 6px;">
+                                            <i class="fas fa-sync-alt fa-spin"
+                                                style="font-size: 8px; margin-right: 4px; color: #9c27b0;"></i> Live
+                                            Preview
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Ownership History Label Card -->
-                                <div class="panel" id="ownershipLabelCard" style="min-width: 100%; border-left: 3px solid #00bcd4; border-radius: 10px; display: flex; flex-direction: column; margin: 0;">
-                                    <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(0, 188, 212, 0.02);">
+                                <div class="panel" id="ownershipLabelCard"
+                                    style="min-width: 100%; border-left: 3px solid #00bcd4; border-radius: 10px; display: flex; flex-direction: column; margin: 0;">
+                                    <div class="panel-header"
+                                        style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(0, 188, 212, 0.02);">
                                         <div style="display:flex; align-items:center; gap:8px;">
-                                            <div style="background: rgba(0, 188, 212, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-history" style="color: #00bcd4; font-size: 0.8rem;"></i>
+                                            <div
+                                                style="background: rgba(0, 188, 212, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-history"
+                                                    style="color: #00bcd4; font-size: 0.8rem;"></i>
                                             </div>
                                             <div>
-                                                <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">Ownership Narrative</span>
+                                                <span class="ph-title"
+                                                    style="font-size: 0.8rem; display: block; font-weight: 700;">Ownership
+                                                    Narrative</span>
                                             </div>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 10px;">
-                                            <button type="button" onclick="copyDynamicLabel(this, 'ownershipLabelOutput')" class="btn-portal"
+                                            <button type="button"
+                                                onclick="copyDynamicLabel(this, 'ownershipLabelOutput')"
+                                                class="btn-portal"
                                                 style="padding: 4px 10px; font-size: 0.65rem; background: #00bcd4; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                                                 <i class="fas fa-copy"></i> Copy
                                             </button>
-                                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                                                <input type="checkbox" class="synthesis-checkbox" data-target="ownershipLabelOutput" checked onchange="updateMasterSynthesis()"
+                                            <label
+                                                style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                                <input type="checkbox" class="synthesis-checkbox"
+                                                    data-target="ownershipLabelOutput" checked
+                                                    onchange="updateMasterSynthesis()"
                                                     style="width: 12px; height: 12px; cursor: pointer; accent-color: #00bcd4;">
-                                                <span style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add to Report</span>
+                                                <span
+                                                    style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add
+                                                    to Report</span>
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card); flex: 1; display: flex; flex-direction: column;">
+                                    <div class="panel-body summary-card-body"
+                                        style="padding: 12px 15px; background: var(--bg-card); flex: 1; display: flex; flex-direction: column;">
                                         <div id="ownershipLabelOutput" class="summary-card-text"
                                             style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word; min-height: 80px; max-height: 200px; overflow-y: auto; flex: 1;">
                                             The subject property is owned by...
                                         </div>
-                                        <div style="margin-top: 10px; text-align: center; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 4px; border-radius: 6px;">
-                                            <i class="fas fa-sync-alt fa-spin" style="font-size: 8px; margin-right: 4px; color: #00bcd4;"></i> Live Preview
+                                        <div
+                                            style="margin-top: 10px; text-align: center; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 4px; border-radius: 6px;">
+                                            <i class="fas fa-sync-alt fa-spin"
+                                                style="font-size: 8px; margin-right: 4px; color: #00bcd4;"></i> Live
+                                            Preview
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Boundary card -->
-                                <div class="panel" id="boundaryAnalysisCard" style="min-width: 100%; border-left: 3px solid #009688; border-radius: 10px; display: flex; flex-direction: column; margin: 0;">
-                                    <div class="panel-header" style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(0, 150, 136, 0.02);">
+                                <div class="panel" id="boundaryAnalysisCard"
+                                    style="min-width: 100%; border-left: 3px solid #009688; border-radius: 10px; display: flex; flex-direction: column; margin: 0;">
+                                    <div class="panel-header"
+                                        style="justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--border); background: rgba(0, 150, 136, 0.02);">
                                         <div style="display:flex; align-items:center; gap:8px;">
-                                            <div style="background: rgba(0, 150, 136, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-shield-alt" style="color: #009688; font-size: 0.8rem;"></i>
+                                            <div
+                                                style="background: rgba(0, 150, 136, 0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-shield-alt"
+                                                    style="color: #009688; font-size: 0.8rem;"></i>
                                             </div>
                                             <div>
-                                                <span class="ph-title" style="font-size: 0.8rem; display: block; font-weight: 700;">Boundary Analysis Summary</span>
+                                                <span class="ph-title"
+                                                    style="font-size: 0.8rem; display: block; font-weight: 700;">Boundary
+                                                    Analysis Summary</span>
                                             </div>
                                         </div>
                                         <div style="display: flex; align-items: center; gap: 10px;">
-                                            <button type="button" onclick="copyDynamicLabel(this, 'boundaryAnalysisOutput')" class="btn-portal"
+                                            <button type="button"
+                                                onclick="copyDynamicLabel(this, 'boundaryAnalysisOutput')"
+                                                class="btn-portal"
                                                 style="padding: 4px 10px; font-size: 0.65rem; background: #009688; color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                                                 <i class="fas fa-copy"></i> Copy
                                             </button>
-                                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                                                <input type="checkbox" class="synthesis-checkbox" data-target="boundaryAnalysisOutput" checked onchange="updateMasterSynthesis()"
+                                            <label
+                                                style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                                <input type="checkbox" class="synthesis-checkbox"
+                                                    data-target="boundaryAnalysisOutput" checked
+                                                    onchange="updateMasterSynthesis()"
                                                     style="width: 12px; height: 12px; cursor: pointer; accent-color: #009688;">
-                                                <span style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add to Report</span>
+                                                <span
+                                                    style="font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Add
+                                                    to Report</span>
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="panel-body summary-card-body" style="padding: 12px 15px; background: var(--bg-card); flex: 1; display: flex; flex-direction: column;">
+                                    <div class="panel-body summary-card-body"
+                                        style="padding: 12px 15px; background: var(--bg-card); flex: 1; display: flex; flex-direction: column;">
                                         <div id="boundaryAnalysisOutput" class="summary-card-text"
                                             style="font-size: 0.82rem; color: var(--text-main); line-height: 1.5; word-wrap: break-word; min-height: 80px; max-height: 200px; overflow-y: auto; flex: 1;">
                                             Boundary Analysis summary will be generated here...
                                         </div>
-                                        <div style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 4px; border-radius: 6px;">
+                                        <div
+                                            style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim); font-size: 0.65rem; background: rgba(0,0,0,0.03); padding: 4px; border-radius: 6px;">
                                             <i class="fas fa-sync-alt" style="color: #009688;"></i>
                                             <span>Live boundary verification...</span>
                                         </div>
@@ -2101,12 +2147,12 @@
                                 <!-- Right of access injected here -->
                                 <div id="accessSummaryPanel" style="min-width: 0; display: contents;"></div>
 
+                                <!-- Demarcation Summary Label injected here -->
+                                <div id="demarcationSummaryLink" style="min-width: 0; display: contents;"></div>
+
                                 <!-- Building specific summaries (Setback/Coverage) injected here -->
                                 <div id="buildingSummariesGrid" style="display: contents;"></div>
 
-                                <!-- Demarcation Summary Label injected here -->
-                                <div id="demarcationSummaryLink" style="min-width: 0; display: contents;"></div>
-                                
                                 <!-- FSI Summary Label injected here -->
                                 <div id="fsiSummaryLink" style="min-width: 0; display: contents;"></div>
 
@@ -4517,7 +4563,7 @@
             const m = mat.toLowerCase().trim();
             if (m.includes('tar')) return "tarred ";
             if (m.includes('concrete')) return "concreted ";
-            if (m.includes('paving tile')) return "paving tile paved ";
+            if (m.includes('paving tile')) return "tile paved ";
             if (m.includes('mud')) return "mud ";
             if (m.includes('gravel')) return "gravel ";
             return m.replace(/\s*road\s*$/i, "") + " ";
@@ -4684,7 +4730,12 @@
                     const siteW = formatWidth(asPerSite.width);
                     const siteM = formatMat(asPerSite.material);
                     const siteObs = getSiteObservation(asPerSite).replace(`${siteW}${siteM}${asPerSite.type}`, `${siteW}${siteM}${asPerSite.type}${widthNote}`);
-                    sentenceBlocks.push(`${docPhrase}, which was corroborated during our site visit where ${siteObs}.`);
+                    
+                    if (primaryMatchesSite) {
+                        sentenceBlocks.push(`${docPhrase}, which was corroborated during our site visit where ${siteObs}.`);
+                    } else {
+                        sentenceBlocks.push(`${docPhrase}; however, during our site visit, ${siteObs}.`);
+                    }
                 } else {
                     sentenceBlocks.push(`${docPhrase}.`);
                 }
@@ -5149,14 +5200,17 @@
 
     function collectBoundaryData() {
         const boundaries = {};
-        const headerRow = document.getElementById('boundaryHeaderDocs');
+        const headerRow = document.getElementById('surveyHeaderDocs');
         if (!headerRow) return boundaries;
 
         const ths = headerRow.querySelectorAll('th[data-col-id]:not(.is-pending-delete)');
         ths.forEach(th => {
             const colId = th.dataset.colId;
-            const select = th.querySelector('.boundary-doc-select');
-            const docName = select ? select.value : '';
+            const select = th.querySelector('.survey-doc-select');
+            let docName = select ? select.value : '';
+            if (!docName && th.classList.contains('slot-group-site')) {
+                docName = 'Site';
+            }
             if (!docName) return;
 
             boundaries[docName] = {
@@ -7532,17 +7586,21 @@
 
         const bldgs = window.vadridaBuildings || [];
 
-        const isValidPanchayat = (type === 'Gramapanchayat' && (grade === 'Grade 1' || grade === 'Grade 2'));
+        const isPanchayatType = type === 'Gramapanchayat';
+        const isValidLocalBody = (isPanchayatType && (grade === 'Grade 1' || grade === 'Grade 2')) || !isPanchayatType;
 
         const getCoverageLimit = (occ, lbType, lbGrade) => {
-            if (!occ || lbType !== 'Gramapanchayat') return null;
+            if (!occ || !lbType) return null;
             const upperOcc = occ.toUpperCase();
-            
-            if (lbGrade === 'Grade 1') {
+
+            // Treat anything other than Panchayat as Grade 1 limits
+            const effectiveGrade = (lbType === 'Gramapanchayat') ? lbGrade : 'Grade 1';
+
+            if (effectiveGrade === 'Grade 1') {
                 if (upperOcc.includes('A1')) return 65;
                 if (upperOcc.includes('A2')) return 65;
                 if (upperOcc.includes('B EDUCATIONAL HIGHER SECONDARY')) return 35;
-                if (upperOcc.includes('B EDUCATIONAL OTHERS') || upperOcc.includes('B EDUCATIONAL')) return 50; 
+                if (upperOcc.includes('B EDUCATIONAL OTHERS') || upperOcc.includes('B EDUCATIONAL')) return 50;
                 if (upperOcc.includes('C MEDICAL') || upperOcc.includes('C HOSPITAL')) return 50;
                 if (upperOcc.includes('D ASSEMBLY')) return 40;
                 if (upperOcc.includes('E OFFICE')) return 60;
@@ -7552,11 +7610,11 @@
                 if (upperOcc.includes('I HAZARDOUS')) return 45;
                 if (upperOcc.includes('J MULTIPLEX')) return 65;
                 if (upperOcc.includes('F MERCHANTILE') || upperOcc.includes('F COMMERCIAL') || upperOcc.match(/\bF\b/)) return 65;
-            } else if (lbGrade === 'Grade 2') {
+            } else if (effectiveGrade === 'Grade 2') {
                 if (upperOcc.includes('A1')) return 60;
                 if (upperOcc.includes('A2')) return 55;
                 if (upperOcc.includes('B EDUCATIONAL HIGHER SECONDARY')) return 35;
-                if (upperOcc.includes('B EDUCATIONAL OTHERS') || upperOcc.includes('B EDUCATIONAL')) return 45; 
+                if (upperOcc.includes('B EDUCATIONAL OTHERS') || upperOcc.includes('B EDUCATIONAL')) return 45;
                 if (upperOcc.includes('C MEDICAL') || upperOcc.includes('C HOSPITAL')) return 45;
                 if (upperOcc.includes('D ASSEMBLY')) return 35;
                 if (upperOcc.includes('E OFFICE')) return 50;
@@ -7602,28 +7660,36 @@
 
             const limit = getCoverageLimit(b.occupancy, type, grade);
 
-            if (!isValidPanchayat || limit === null || targetBuildings.length === 0) {
+            if (!isValidLocalBody || limit === null || targetBuildings.length === 0) {
                 container.style.display = 'none';
                 return;
             }
 
             container.style.display = 'flex';
 
-            if (plotAreaSqm <= 0) {
-                output.innerText = `Please enter a valid plot area in documents to calculate coverage.`;
-                return;
+            // Extract and clean the Local Body Name
+            const nameSelect = document.getElementById('sched_local_body_name');
+            const manualInput = document.getElementById('sched_lb_name_manual');
+            const nameVal = nameSelect ? nameSelect.value : '';
+            const manualVal = manualInput ? manualInput.value : '';
+            let localBodyName = nameVal === 'OTHERS' ? manualVal : nameVal;
+            if (localBodyName) {
+                localBodyName = localBodyName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
             }
 
-            // Clean occupancy label (e.g. "B Educational Others" -> "B-Educational")
-            let occLabelClean = (b.occupancy || 'Building')
-                .replace(/\s+Others/i, '')
-                .replace(/\s+Higher Secondary/i, '')
-                .replace(/\s+Lodging Houses & Special/i, '')
-                .trim();
-            occLabelClean = occLabelClean.replace(/^([A-Z0-9]+)\s+/, '$1-');
+            const lbFullName = localBodyName ? `${localBodyName} ${type}` : type;
+
+            // Determine Roman Grade for Category
+            const effectiveGrade = (type === 'Gramapanchayat') ? grade : 'Grade 1';
+            const romanGrade = effectiveGrade === 'Grade 2' ? 'II' : 'I';
+
+            // Clean occupancy label (e.g. "A1 RESIDENTIAL" -> "A1 Residential")
+            let occLabelClean = (b.occupancy || 'Building');
+            occLabelClean = occLabelClean.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 
             // Format the area details string (handles single vs multiple buildings)
-            let areaDetailsStr = "";
+            let floorDesc = "";
+            let areaVal = 0;
             if (targetBuildings.length === 1) {
                 const b1 = targetBuildings[0];
                 let maxBUA = 0;
@@ -7637,36 +7703,25 @@
                         }
                     });
                 }
-                areaDetailsStr = `on ${maxLabel} is ${maxBUA.toFixed(2)}sqm`;
+                floorDesc = `The ${maxLabel.toLowerCase()} coverage is`;
+                areaVal = maxBUA;
             } else {
-                const breakdown = [];
-                targetBuildings.forEach(tb => {
-                    let maxBUA = 0;
-                    let maxLabel = 'Ground floor';
-                    if (tb.floors) {
-                        tb.floors.forEach(f => {
-                            const val = parseFloat(f.bupSqm) || 0;
-                            if (val > maxBUA) {
-                                maxBUA = val;
-                                maxLabel = f.label || 'Ground floor';
-                            }
-                        });
-                    }
-                    breakdown.push(`Building ${tb.no} on ${maxLabel}: ${maxBUA.toFixed(2)}sqm`);
-                });
-                areaDetailsStr = `is ${sumMaxFloorBUA.toFixed(2)}sqm (${breakdown.join(', ')})`;
+                floorDesc = `The overall coverage is`;
+                areaVal = sumMaxFloorBUA;
             }
 
-            const lbString = type === 'Gramapanchayat' ? `Gramapanchayat Category ${grade.replace('Grade ', '')}` : type;
+            const rulePrefix = type === 'Gramapanchayat' ? 'KPBR' : 'KMBR';
 
             let msg = "";
             // Strictly truncate to 2 decimal places without rounding up (e.g. 35.00566 -> 35.00)
             const preciseCoverage = Math.floor(coveragePct * 100) / 100;
-            
+
+            const categoryText = (type === 'Gramapanchayat') ? ` which falls under Category-${romanGrade}` : '';
+
             if (preciseCoverage > limit) {
-                msg = `Coverage violation has been observed for type ${occLabelClean} building under ${lbString}, the maximum covered area ${areaDetailsStr} which is ${preciseCoverage}% of the plot area, which exceeds the maximum permissible coverage limit of ${limit}% as per KPBR rules.`;
+                msg = `A coverage violation has been observed for the Type ${occLabelClean} Building under ${lbFullName}${categoryText}. ${floorDesc} ${areaVal.toFixed(2)} sq.m, which is ${preciseCoverage}% of the plot area and exceeds the maximum permissible limit of ${limit}% under ${rulePrefix}-2019.`;
             } else {
-                msg = `No coverage violation has been observed for type ${occLabelClean} building under ${lbString}, the maximum covered area ${areaDetailsStr} which is ${preciseCoverage}% of the plot area, which falls within the maximum permissible coverage limit of ${limit}% as per KPBR rules.`;
+                msg = `No coverage violation has been observed for the Type ${occLabelClean} Building under ${lbFullName}${categoryText}. ${floorDesc} ${areaVal.toFixed(2)} sq.m, which is ${preciseCoverage}% of the plot area and falls within the maximum permissible limit of ${limit}% under ${rulePrefix}-2019.`;
             }
 
             output.innerText = msg;
@@ -7685,7 +7740,7 @@
 
         const plotAreaAres = getPlotAreaFromDocuments();
         const plotAreaSqm = plotAreaAres * 100;
-        
+
         let overallBUA = 0;
         bldgs.forEach(b => {
             if (b.floors) {
@@ -7722,7 +7777,7 @@
         const getFSILimits = (occ, isG2, isPanchayat) => {
             if (!occ) return { fsi1: isG2 ? 2.5 : 3, fsi2: isG2 ? null : 4, label: "A1 Residential" }; // fallback
             const upperOcc = occ.toUpperCase();
-            
+
             if (upperOcc.includes('A1')) return { fsi1: isG2 ? 2.5 : 3, fsi2: isG2 ? null : 4, label: "A1 Residential" };
             if (upperOcc.includes('A2')) return { fsi1: isG2 ? 1.5 : 2.5, fsi2: isG2 ? 1.75 : 4, label: "A2 Lodging Houses & Special Residential" };
             if (upperOcc.includes('B EDUCATIONAL HIGHER SECONDARY')) return { fsi1: isG2 ? 1.5 : 2.5, fsi2: isG2 ? 1.75 : 3, label: "B Educational (Higher Secondary)" };
@@ -7736,7 +7791,7 @@
             if (upperOcc.includes('H STORAGE')) return { fsi1: isG2 ? 2.75 : 3, fsi2: isG2 ? 3.75 : 4, label: "H Storage" };
             if (upperOcc.includes('I HAZARDOUS')) return { fsi1: !isPanchayat ? 2 : 2, fsi2: null, label: "I Hazardous" };
             if (upperOcc.includes('J MULTIPLEX')) return { fsi1: !isPanchayat ? 3.5 : (isG2 ? 2.5 : 3), fsi2: isG2 ? 3 : 3.5, label: "J Multiplex Complex" };
-            
+
             return { fsi1: isG2 ? 2.5 : 3, fsi2: isG2 ? null : 4, label: "A1 Residential" }; // default fallback
         };
 
@@ -7748,31 +7803,41 @@
 
         let res1 = plotAreaSqm * fsi1;
         let bua = overallBUA;
+        let actualFSI = plotAreaSqm > 0 ? (bua / plotAreaSqm) : 0;
+        let rulePrefix = isPanchayat ? 'KPBR' : 'KMBR';
         let msg = "";
-        
+
         if (fsi2 === null) {
             // One value rule
             if (bua <= res1) {
-                let conditionText = bua < res1 ? "lesser than" : "equal to";
-                msg = `No FSI violations have been observed as the maximum permissible FSI area for type ${occType} building is ${res1.toFixed(2)} sqm and the observed BUA is ${bua.toFixed(2)} sqm, which is ${conditionText} the permissible area.`;
+                msg = `The building has an FSI of ${actualFSI.toFixed(3)}, which is below the maximum permissible FSI of ${fsi1.toFixed(1)} prescribed for a Type ${occType} Building under ${rulePrefix} 2019.`;
             } else {
-                let extraArea = bua - res1;
-                msg = `FSI violations have been observed as the absolute maximum permissible area for type ${occType} building is ${res1.toFixed(2)} sqm and the observed value is ${bua.toFixed(2)} sqm which is ${extraArea.toFixed(2)} sqm more than the permissible area.`;
+                let fsiFmt = parseFloat(actualFSI.toFixed(3));
+                let fsiLimitFmt = parseFloat(fsi1.toFixed(1));
+                let pAreaFmt = parseFloat(plotAreaSqm.toFixed(2));
+                let resLimitFmt = parseFloat(res1.toFixed(2));
+                let buaFmt = parseFloat(bua.toFixed(2));
+                
+                msg = `The building has an FSI of ${fsiFmt}, which exceeds the maximum permissible FSI limit of ${fsiLimitFmt} prescribed for a Type ${occType} Building under ${rulePrefix} 2019 and therefore constitutes an FSI violation. The maximum permissible BUA for the ${pAreaFmt} sq.m plot at an FSI of ${fsiLimitFmt} is ${resLimitFmt} sq.m, whereas the provided BUA is ${buaFmt} sq.m. Accordingly, only ${resLimitFmt} sq.m of BUA has been considered for valuation.`;
             }
         } else {
             // Two value rule (with fees)
             let res2 = plotAreaSqm * fsi2;
             if (bua <= res1) {
-                let conditionText = bua < res1 ? "lesser than" : "equal to";
-                msg = `No FSI violations have been observed as the maximum permissible FSI area for type ${occType} building is ${res2.toFixed(2)} sqm and the observed BUA is ${bua.toFixed(2)} sqm, which is ${conditionText} the permissible area.`;
+                msg = `The building has an FSI of ${actualFSI.toFixed(3)}, which is below the maximum permissible FSI of ${fsi1.toFixed(1)} prescribed for a Type ${occType} Building under ${rulePrefix} 2019.`;
             } else if (bua > res1 && bua <= res2) {
                 let extraArea = bua - res1;
                 let fee = extraArea * 5000;
                 let feeStr = fee.toLocaleString('en-IN');
-                msg = `FSI violations have been observed as the maximum permissible FSI area without additional fees for type ${occType} building is ${res1.toFixed(2)} sqm and the observed value is ${bua.toFixed(2)} sqm which is ${extraArea.toFixed(2)} sqm more than the permissible area. An additional fee of Rs 5000 per sq.metre for the additional area will be charged which will be Rs ${feeStr}.`;
+                msg = `The building has an FSI of ${parseFloat(actualFSI.toFixed(3))}, which falls within the FSI range of ${fsi1.toFixed(1)}–${fsi2.toFixed(1)} prescribed for a Type ${occType} Building under ${rulePrefix} 2019 and attracts additional permit fees. The permissible BUA for the ${parseFloat(plotAreaSqm.toFixed(2))} sq.m plot is ${parseFloat(res1.toFixed(2))} sq.m, while the provided BUA is ${parseFloat(bua.toFixed(2))} sq.m, resulting in an excess area of ${parseFloat(extraArea.toFixed(2))} sq.m. Accordingly, ₹${feeStr} has been deducted from the total value towards the additional fee liability payable to the local body.`;
             } else {
-                let extraArea = bua - res2;
-                msg = `FSI violations have been observed as the absolute maximum permissible area for type ${occType} building is ${res2.toFixed(2)} sqm and the observed value is ${bua.toFixed(2)} sqm which is ${extraArea.toFixed(2)} sqm more than the permissible area.`;
+                let fsiFmt = parseFloat(actualFSI.toFixed(3));
+                let fsiLimitFmt = parseFloat(fsi2.toFixed(1));
+                let pAreaFmt = parseFloat(plotAreaSqm.toFixed(2));
+                let resLimitFmt = parseFloat(res2.toFixed(2));
+                let buaFmt = parseFloat(bua.toFixed(2));
+
+                msg = `The building has an FSI of ${fsiFmt}, which exceeds the maximum permissible FSI limit of ${fsiLimitFmt} prescribed for a Type ${occType} Building under ${rulePrefix} 2019 and therefore constitutes an FSI violation. The maximum permissible BUA for the ${pAreaFmt} sq.m plot at an FSI of ${fsiLimitFmt} is ${resLimitFmt} sq.m, whereas the provided BUA is ${buaFmt} sq.m. Accordingly, only ${resLimitFmt} sq.m of BUA has been considered for valuation.`;
             }
         }
 
@@ -8517,7 +8582,98 @@
         updateAllBoundaryVisuals();
     }
 
+    function applyDynamicCardColors() {
+        const textNodes = document.querySelectorAll('.summary-card-text');
+        textNodes.forEach(textEl => {
+            const panel = textEl.closest('.panel');
+            if (!panel) return;
+            
+            const titleElNode = panel.querySelector('.ph-title');
+            if (!titleElNode) return;
+            
+            const title = titleElNode.innerText.toLowerCase();
+            const text = textEl.innerText.toLowerCase();
+            
+            let targetColor = "#10B981"; // Vibrant Emerald Green
+            
+            if (title.includes('boundary')) {
+                if (text.includes('therefore the property has not been identified')) {
+                    targetColor = "#EF4444"; // Vivid Red
+                }
+            } else if (title.includes('access')) {
+                if (text.includes('landlocked') || text.includes('explicitly')) {
+                    targetColor = "#EF4444";
+                } else if (text.includes('however,')) {
+                    targetColor = "#F59E0B"; // Vivid Amber/Orange
+                }
+            } else if (title.includes('coverage')) {
+                if (text.includes('coverage violation has been observed') && !text.includes('no coverage violation')) {
+                    targetColor = "#EF4444";
+                }
+            } else if (title.includes('setback')) {
+                if (text.includes('setback violations has been observed') && !text.includes('no setback violations')) {
+                    targetColor = "#EF4444";
+                }
+            } else if (title.includes('fsi')) {
+                if (text.includes('attracts additional permit fees')) {
+                    targetColor = "#E67E22";
+                } else if (text.includes('absolute maximum permissible') || (text.includes('only') && text.includes('has been considered for valuation'))) {
+                    targetColor = "#EF4444";
+                }
+            }
+            
+            // The solid rich color for the 'banner' (border-left)
+            panel.style.borderLeft = `4px solid ${targetColor}`;
+            // The soft powdered background for the whole card
+            panel.style.background = targetColor + "14"; // ~8% opacity for a crisp, visible tint
+            
+            const header = panel.querySelector('.panel-header');
+            if (header) {
+                header.style.background = 'transparent'; // Let the card's soft background show
+                header.style.borderBottom = '1px solid ' + targetColor + '33'; // 20% opacity border
+            }
+            
+            titleElNode.style.color = 'inherit';
+            textEl.style.color = 'var(--text-main)';
+            
+            const iconContainer = panel.querySelector('.panel-header > div > div:first-child');
+            if (iconContainer) iconContainer.style.background = targetColor + '26'; // 15% opacity for icon bg
+            
+            const icon = panel.querySelector('i');
+            if (icon) icon.style.color = targetColor;
+            
+            const btn = panel.querySelector('button.btn-portal');
+            if (btn) {
+                btn.style.background = targetColor;
+                btn.style.color = '#FFFFFF';
+                btn.style.boxShadow = `0 2px 6px ${targetColor}40`; // Premium subtle shadow
+                btn.style.fontWeight = '600';
+                const btnIcon = btn.querySelector('i');
+                if (btnIcon) btnIcon.style.color = '#FFFFFF';
+            }
+            
+            const checkbox = panel.querySelector('input[type="checkbox"]');
+            if (checkbox) checkbox.style.accentColor = targetColor;
+            
+            const addRepSpan = panel.querySelector('label span');
+            if (addRepSpan) addRepSpan.style.color = 'var(--text-dim)';
+            
+            const body = panel.querySelector('.panel-body');
+            if (body) body.style.background = 'transparent';
+
+            const liveIcon = panel.querySelector('.panel-body i.fa-sync-alt');
+            if (liveIcon) liveIcon.style.color = targetColor;
+
+            const liveTextArray = panel.querySelectorAll('.panel-body div[style*="margin-top"]'); 
+            liveTextArray.forEach(d => {
+                d.style.color = 'var(--text-dim)';
+                d.style.background = 'rgba(0,0,0,0.03)';
+            });
+        });
+    }
+
     function updateMasterSynthesis() {
+        applyDynamicCardColors();
         saveSynthesisCheckboxState();
         const output = document.getElementById('masterSynthesisOutput');
         if (!output) return;
