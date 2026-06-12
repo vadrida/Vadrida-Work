@@ -4,402 +4,453 @@
 
 {% block extra_head %}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    /* --- ELEGANT MINIMALIST THEME --- */
-    :root {
-        --primary: #1e293b;
-        --primary-light: #334155;
-        --accent: #3b82f6;
-        --accent-soft: rgba(59, 130, 246, 0.08);
-        --bg-main: #f8fafc;
-        --card-bg: #ffffff;
-        --text-main: #334155;
-        --text-muted: #64748b;
-        --border: #e2e8f0;
-        --radius: 16px;
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    }
+    /* Prevent body scrolling since dashboard is fixed */
+    body { overflow: hidden; }
 
-    body {
-        background-color: var(--bg-main);
-        font-family: 'Outfit', sans-serif;
-        color: var(--text-main);
-        line-height: 1.5;
-    }
-
-    /* --- LAYOUT --- */
-    .office-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 24px;
-        display: grid;
-        grid-template-columns: 1fr 360px;
-        gap: 32px;
-    }
-
-    @media (max-width: 1024px) {
-        .office-container {
-            grid-template-columns: 1fr;
-            margin: 20px auto;
-        }
-    }
-
-    /* --- WELCOME SECTION --- */
-    .welcome-header {
-        margin-bottom: 40px;
-    }
-
-    .welcome-header h1 {
-        font-size: 32px;
-        font-weight: 700;
-        color: var(--primary);
-        letter-spacing: -0.02em;
-        margin: 0;
-    }
-
-    .welcome-header p {
-        color: var(--text-muted);
-        font-size: 16px;
-        margin-top: 4px;
-    }
-
-    /* --- ACTION GRID --- */
-    .action-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-    }
-
-    .action-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        position: relative;
-        overflow: hidden;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .action-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: var(--accent);
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
-    }
-
-    .action-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--accent);
-    }
-
-    .action-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .icon-box {
-        width: 48px;
-        height: 48px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        transition: all 0.3s ease;
-    }
-
-    .action-card:hover .icon-box {
-        background: var(--accent);
-        color: #ffffff;
-        transform: scale(1.1) rotate(-5deg);
-    }
-
-    .card-info h3 {
-        font-size: 18px;
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    .royal-blue { color: #003d99; }
+    .bg-royal-blue { background-color: #003d99; }
+    
+    .nav-item { transition: all 0.2s ease; }
+    .nav-item.active {
+        background-color: #e6f0ff;
+        color: #0052cc;
+        border-radius: 8px;
         font-weight: 600;
-        color: var(--primary);
-        margin: 0 0 8px 0;
     }
-
-    .card-info p {
-        font-size: 14px;
-        color: var(--text-muted);
-        margin: 0;
-        line-height: 1.4;
+    .nav-item:hover:not(.active) {
+        background-color: #f0f4f8;
+        border-radius: 8px;
     }
+    
+    .card-shadow { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); border: 1px solid #edf2f7; }
 
-    .card-footer {
-        margin-top: auto;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--accent);
-        opacity: 0;
-        transform: translateX(-10px);
-        transition: all 0.3s ease;
-    }
+    /* Circular Progress */
+    .circular-chart { display: block; margin: 0 auto; max-width: 100%; max-height: 200px; }
+    .circle-bg { fill: none; stroke: #f1f5f9; stroke-width: 3.8; }
+    .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; animation: progress 1s ease-out forwards; }
+    @keyframes progress { 0% { stroke-dasharray: 0 100; } }
+    .percentage { fill: #334155; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.5em; text-anchor: middle; }
+    .subtext { fill: #94a3b8; font-family: 'Outfit', sans-serif; font-size: 0.2em; text-anchor: middle; }
 
-    .action-card:hover .card-footer {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    /* --- PROFILE PANEL --- */
-    .profile-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    .profile-card-minimal {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 32px 24px;
-        text-align: center;
-        box-shadow: var(--shadow-md);
-        position: sticky;
-        top: 100px;
-    }
-
-    .avatar-wrapper {
-        width: 90px;
-        height: 90px;
-        margin: 0 auto 20px;
-        background: linear-gradient(135deg, var(--accent), #60a5fa);
-        border-radius: 50%;
-        padding: 3px;
-        position: relative;
-    }
-
-    .avatar-inner {
-        width: 100%;
-        height: 100%;
-        background: var(--card-bg);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        color: var(--accent);
-        overflow: hidden;
-    }
-
-    .avatar-inner img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .status-badge {
-        position: absolute;
-        bottom: 2px;
-        right: 2px;
-        width: 18px;
-        height: 18px;
-        background: #10b981;
-        border: 3px solid var(--card-bg);
-        border-radius: 50%;
-    }
-
-    .user-meta h2 {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--primary);
-        margin: 0 0 4px 0;
-    }
-
-    .role-pill {
-        display: inline-block;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        padding: 4px 12px;
-        border-radius: 100px;
-        letter-spacing: 0.05em;
-    }
-
-    .profile-details {
-        margin-top: 32px;
-        text-align: left;
-        border-top: 1px solid var(--border);
-        padding-top: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .detail-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .detail-value {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--primary);
-    }
-
-    /* --- MOBILE REFINEMENTS --- */
-    @media (max-width: 640px) {
-        .welcome-header h1 { font-size: 28px; }
-        .action-grid { grid-template-columns: 1fr; }
-        .profile-card-minimal { position: static; }
+    .node-bg {
+        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+        background-size: 20px 20px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="office-container">
-    
-    <!-- Left: Action Hub -->
-    <div class="action-hub">
-        <div class="welcome-header">
-            <h1>Workspace</h1>
-            <p>Welcome back, {{ user_profile.user_name }}. Select a task to continue.</p>
+<!-- FULL VIEWPORT DASHBOARD FRAME (Offset for Top Nav) -->
+<div class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex overflow-hidden font-outfit text-gray-800">
+
+    <!-- LEFT COLUMN: NAVIGATION (FLUSH TO EDGE) -->
+    <aside class="w-[260px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <div class="p-6 pb-4">
+            <h2 class="text-[19px] font-bold royal-blue flex items-center gap-2 tracking-tight">
+               OFFICE 
+            </h2>
+            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Employee Portal</p>
         </div>
-
-        <div class="action-grid">
-            <!-- Create Folder -->
-            <a href="{% url 'coreapi:create_folder' %}" class="action-card">
-                <div class="icon-box">
-                    <i class="fas fa-folder-plus"></i>
-                </div>
-                <div class="card-info">
-                    <h3>File Creation</h3>
-                    <p>Initialize new case folders and structures for property valuation files.</p>
-                </div>
-                <div class="card-footer">
-                    Get Started <i class="fas fa-chevron-right"></i>
-                </div>
+        
+        <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4">NAVIGATION</div>
+        
+        <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto">
+            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                <i class="fas fa-th-large w-5 text-blue-600"></i> Dashboard
             </a>
-
-            <!-- Vetting & Analysis -->
-            <a href="{% url 'coreapi:office_verification' %}" class="action-card">
-                <div class="icon-box">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="card-info">
-                    <h3>Valuation Report Drafter</h3>
-                    <p>Perform deep analysis and verification of document credentials and site data.</p>
-                </div>
-                <div class="card-footer">
-                    Open Portal <i class="fas fa-chevron-right"></i>
-                </div>
+            <a href="{% url 'coreapi:create_folder' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-folder-plus w-5"></i> File Creation
             </a>
-
-            <!-- Status / TAT -->
-            <a href="{% url 'coreapi:status_viewer' %}" class="action-card">
-                <div class="icon-box">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="card-info">
-                    <h3>Monitoring</h3>
-                    <p>Track Turnaround Time (TAT), completion metrics, and real-time case status.</p>
-                </div>
-                <div class="card-footer">
-                    View Stats <i class="fas fa-chevron-right"></i>
-                </div>
+            <a href="{% url 'coreapi:office_verification' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-shield-alt w-5"></i> Val. Report Drafter
             </a>
-
-            <!-- Feedback (Conditional) -->
+            <a href="{% url 'coreapi:status_viewer' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-chart-line w-5"></i> Monitoring
+            </a>
+            
             {% if user_profile.email == "treesaneenu89@gmail.com" or user_profile.email == "maluremya13@gmail.com" or user_profile.email == "sayalsafna1@gmail.com" %}
-            <a href="{% url 'coreapi:feedback' %}" class="action-card">
-                <div class="icon-box">
-                    <i class="fas fa-comment-alt"></i>
-                </div>
-                <div class="card-info">
-                    <h3>Site Inspection and Verification Report</h3>
-                    <p>Access specialized feedback forms and automated report generation tools.</p>
-                </div>
-                <div class="card-footer">
-                    Access Hub <i class="fas fa-chevron-right"></i>
-                </div>
+            <a href="{% url 'coreapi:feedback' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-comment-alt w-5"></i> Site Inspection
             </a>
             {% endif %}
-
-            <!-- Digital PDF Signer (New Feature) -->
-            <a href="{% url 'coreapi:digital_signer' %}" class="action-card">
-                <div class="icon-box" style="background: rgba(16, 185, 129, 0.08); color: #10b981;">
-                    <i class="fas fa-file-signature"></i>
-                </div>
-                <div class="card-info">
-                    <h3>Digital Signer</h3>
-                    <p>Apply secure digital signatures (DSC) to PDF reports with precision placement.</p>
-                </div>
-                <div class="card-footer" style="color: #10b981;">
-                    Launch Signer <i class="fas fa-chevron-right"></i>
-                </div>
+            
+            <a href="{% url 'coreapi:digital_signer' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-file-signature w-5"></i> Sign Documents
             </a>
+        </nav>
+        
+        <div class="mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
+            <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">FY 2025-26 · June 2026</p>
         </div>
-    </div>
+    </aside>
 
-    <!-- Right: Profile Sidebar -->
-    <div class="profile-sidebar">
-        <div class="profile-card-minimal">
-            <div class="avatar-wrapper">
-                <div class="avatar-inner">
-                    <i class="fas fa-user-tie"></i>
+    <!-- MIDDLE COLUMN: DASHBOARD (NO SCROLL) -->
+    <main class="flex-1 h-full overflow-hidden flex flex-col p-4 lg:p-5 gap-3 relative">
+        <!-- Header -->
+        <div class="flex-shrink-0">
+            <h1 class="text-[20px] font-bold text-gray-800 leading-tight">Employee Analysis <span class="text-gray-400 font-medium ml-1">- {% now "j F Y" %}</span></h1>
+        </div>
+        
+        <!-- KEY PERFORMANCE METRICS -->
+        <div class="bg-white rounded-xl p-4 card-shadow border-t-4 border-blue-600 flex-shrink-0">
+            <h3 class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3">Key Performance Metrics</h3>
+            <div class="grid grid-cols-4 gap-3">
+                <!-- Metric 1 -->
+                <div class="flex flex-col items-center">
+                    <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#2563eb" stroke-dasharray="67, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="16.5" class="percentage">67</text>
+                        <text x="18" y="21.5" class="subtext">/100</text>
+                    </svg>
+                    <span class="text-[13px] font-bold text-gray-700">Files Done</span>
+                    <span class="text-[10px] text-gray-400 font-medium">33 remaining</span>
                 </div>
-                <div class="status-badge" title="Online"></div>
+                <!-- Metric 2 -->
+                <div class="flex flex-col items-center">
+                    <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#eab308" stroke-dasharray="58, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="16.5" class="percentage">7</text>
+                        <text x="18" y="21.5" class="subtext">/12</text>
+                    </svg>
+                    <span class="text-[13px] font-bold text-gray-700">Leaves Taken</span>
+                    <span class="text-[10px] text-gray-400 font-medium">5 remaining</span>
+                </div>
+                <!-- Metric 3 -->
+                <div class="flex flex-col items-center">
+                    <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#10b981" stroke-dasharray="84, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="16.5" class="percentage">148</text>
+                        <text x="18" y="21.5" class="subtext">/176</text>
+                    </svg>
+                    <span class="text-[13px] font-bold text-gray-700">Hours Worked</span>
+                    <span class="text-[10px] text-gray-400 font-medium">28h left</span>
+                </div>
+                <!-- Metric 4 -->
+                <div class="flex flex-col items-center">
+                    <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#8b5cf6" stroke-dasharray="60, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="16.5" class="percentage">402</text>
+                        <text x="18" y="21.5" class="subtext">/660</text>
+                    </svg>
+                    <span class="text-[13px] font-bold text-gray-700">Credits Earned</span>
+                    <span class="text-[10px] text-gray-400 font-medium">of 660 target</span>
+                </div>
             </div>
-
-            <div class="user-meta">
-                <h2>{{ user_profile.user_name }}</h2>
-                <span class="role-pill">{{ user_profile.role|default:"Valuer" }}</span>
-            </div>
-
-            <div class="profile-details">
-                <div class="detail-item">
-                    <span class="detail-label">Email Address</span>
-                    <span class="detail-value">{{ user_profile.email }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Office Contact</span>
-                    <span class="detail-value">{{ user_profile.ph_no|default:"Not Set" }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Last Active</span>
-                    <span class="detail-value" style="color: var(--text-muted); font-size: 13px;">
-                        {% if last_login %}{{ last_login }}{% else %}Just Now{% endif %}
-                    </span>
+        </div>
+        
+        <!-- OVERTIME & CREDITS ROW -->
+        <div class="grid grid-cols-2 gap-4 flex-shrink-0">
+            <div class="bg-white rounded-xl p-4 card-shadow flex flex-col justify-center">
+                <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1.5">Overtime Hours</h3>
+                <div class="flex gap-6 items-end">
+                    <div>
+                        <div class="text-[28px] font-bold text-gray-800 leading-none">14.5<span class="text-lg text-orange-500">h</span></div>
+                        <div class="text-[10px] text-gray-400 mt-1 font-medium">This month</div>
+                    </div>
+                    <div>
+                        <div class="text-[18px] font-bold text-gray-600 leading-none">1.5<span class="text-sm text-pink-400">h</span></div>
+                        <div class="text-[10px] text-gray-400 mt-1 font-medium">Today</div>
+                    </div>
                 </div>
             </div>
             
-            <a href="{% url 'coreapi:logout_api' %}" style="display: block; margin-top: 32px; color: #ef4444; font-size: 13px; font-weight: 600; text-decoration: none;">
+            <div class="bg-white rounded-xl p-4 card-shadow flex flex-col justify-center">
+                <h3 class="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1.5">Credits This Month</h3>
+                <div class="flex items-baseline gap-2 mb-1.5">
+                    <div class="text-[28px] font-bold text-purple-600 leading-none">402</div>
+                    <div class="text-[28px] font-bold text-green-400 leading-none">/ {{ target_credits }}</div>
+                    <div class="text-[15px] text-gray-500 ml-1 font-medium">67 files x 6 credits</div>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                </div>
+                <div class="mt-2 flex flex-col gap-1 border-t border-gray-100 pt-2">
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 font-medium">
+                        <span class="flex items-center gap-1"><i class="fas fa-calendar-day text-gray-300"></i> Working Days</span>
+                        <span class="text-gray-600 font-bold">{{ month_working_days }} <span class="font-normal text-gray-400">({{ month_total_days }} days - {{ month_sundays }} Sundays)</span></span>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 font-medium">
+                        <span class="flex items-center gap-1"><i class="fas fa-bullseye text-gray-300"></i> Daily Average</span>
+                        <span class="text-gray-600 font-bold">{{ files_per_day }} files / day</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 font-medium">
+                        <span class="flex items-center gap-1"><i class="fas fa-calculator text-gray-300"></i> Total Target</span>
+                        <span class="text-gray-600 font-bold">{{ target_files }} files × {{ credits_per_file }} cr = {{ target_credits }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW (Fills remaining space) -->
+        <div class="grid grid-cols-3 gap-4 flex-1 min-h-0 pb-1">
+            <!-- Bar Chart -->
+            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
+                <div class="flex justify-between items-center mb-2 flex-shrink-0">
+                    <h3 class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">6 Months Trend</h3>
+                    {% if is_trend_up %}
+                    <div class="bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                        <i class="fas fa-arrow-trend-up"></i> +{{ trend_diff }}
+                    </div>
+                    {% else %}
+                    <div class="bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                        <i class="fas fa-arrow-trend-down"></i> -{{ trend_diff }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="flex items-baseline gap-2 mb-2 flex-shrink-0">
+                    <span class="text-2xl font-bold text-gray-800">{{ current_month_files }}</span>
+                    <span class="text-[10px] text-gray-400 font-medium">vs {{ prev_month_files }} prev</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="reportsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Donut 1 -->
+            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
+                <h3 class="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Case Type Breakdown</h3>
+                <div class="flex-1 min-h-0 relative flex items-center justify-center">
+                    <canvas id="caseTypeChart"></canvas>
+                </div>
+                <div class="grid grid-cols-2 gap-y-1 mt-2 text-[10px] text-gray-600 font-medium flex-shrink-0">
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> PD Cases: 24</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-400"></span> NPA Cases: 9</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span> Project: 19</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Other: 15</div>
+                </div>
+            </div>
+
+            <!-- Donut 2 -->
+            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
+                <h3 class="text-[9px] font-bold text-yellow-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Leave Breakdown</h3>
+                <div class="flex-1 min-h-0 relative flex items-center justify-center">
+                    <canvas id="leaveChart"></canvas>
+                </div>
+                <div class="grid grid-cols-2 gap-y-1 mt-2 text-[10px] text-gray-600 font-medium flex-shrink-0">
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Earned: 4</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-400"></span> Sick: 2</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Casual: 1</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-200"></span> Rem.: 5</div>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- RIGHT COLUMN: PROFILE (FLUSH TO EDGE) -->
+    <aside class="w-[300px] xl:w-[320px] h-full bg-white border-l border-gray-200 flex flex-col relative node-bg flex-shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+        <!-- Header -->
+        <div class="px-5 py-4 flex justify-between items-center bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 flex-shrink-0">
+            <span class="text-[10px] font-bold text-blue-500 tracking-widest">EMPLOYEE DETAILS</span>
+            <span class="text-[10px] text-gray-400 font-bold tracking-wider">2025-26</span>
+        </div>
+        
+        <div class="p-6 pb-2 flex flex-col items-center relative z-10 bg-white/70 backdrop-blur-[2px] flex-shrink-0">
+            <!-- Profile Image -->
+            <div class="relative mb-4 group">
+                <div class="w-20 h-20 rounded-full border-[3px] border-white shadow-md overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-2xl font-bold text-blue-500 relative z-10">
+                    {% if user_profile.user_name %}
+                        {{ user_profile.user_name|make_list|first|upper }}
+                    {% else %}
+                        VP
+                    {% endif %}
+                </div>
+                <!-- Decorative outer rings -->
+                <div class="absolute inset-0 rounded-full border border-blue-200 -m-1.5 transition-transform group-hover:scale-105"></div>
+                <div class="absolute inset-0 rounded-full border border-blue-100 -m-3 transition-transform group-hover:scale-110"></div>
+            </div>
+            
+            <h2 class="text-[17px] font-bold text-gray-800 text-center">{{ user_profile.user_name|default:"Employee Name" }}</h2>
+            <p class="text-[11px] text-gray-500 font-medium mt-0.5 text-center">{% if user_profile.role == 'office' %} Report Analyst {% endif %}</p>
+            
+            <div class="mt-3 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[9px] uppercase tracking-wider font-bold flex items-center gap-1.5 border border-green-100 shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 block"></span> Active
+            </div>
+        </div>
+
+        <div class="px-5 pb-5 pt-3 space-y-2.5 relative z-10 bg-white/80 backdrop-blur-[2px] flex-1 overflow-y-auto">
+            <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+                <div class="text-[8px] uppercase font-bold text-blue-400 mb-0.5 tracking-widest">EMP NO</div>
+                <div class="text-[13px] font-semibold text-gray-700">EMP-{{ user_profile.id|default:"000" }}</div>
+            </div>
+            <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+                <div class="text-[8px] uppercase font-bold text-green-400 mb-0.5 tracking-widest">ROLE</div>
+                <div class="text-[13px] font-semibold text-gray-700">{% if user_profile.role == 'office' %} Report Analyst {% endif %}</div>
+            </div>
+            <!-- <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+                <div class="text-[8px] uppercase font-bold text-purple-400 mb-0.5 tracking-widest">DEPARTMENT</div>
+                <div class="text-[13px] font-semibold text-gray-700">Valuation & Assessment</div>
+            </div> -->
+            <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+                <div class="text-[8px] uppercase font-bold text-orange-400 mb-0.5 tracking-widest">MOBILE</div>
+                <div class="text-[13px] font-semibold text-gray-700">{{ user_profile.ph_no|default:"+91 Not Set" }}</div>
+            </div>
+            <!-- <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+                <div class="text-[8px] uppercase font-bold text-pink-400 mb-0.5 tracking-widest">JOINING DATE</div>
+                <div class="text-[13px] font-semibold text-gray-700">12 Mar 2019</div>
+            </div> -->
+            
+            <a href="{% url 'coreapi:logout_api' %}" class="flex items-center justify-center gap-2 mt-4 text-red-500 hover:text-white hover:bg-red-500 py-2.5 rounded-xl transition-all text-[11px] font-bold uppercase tracking-wider border border-red-100 hover:border-transparent bg-white shadow-sm hover:shadow-md">
                 <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </div>
-    </div>
+        
+        <!-- Bottom barcode decorative -->
+        <div class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0">
+            <div class="flex gap-0.5 h-5 opacity-40 mix-blend-multiply">
+                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
+                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
+                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
+                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
+                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
+                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
+                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
+                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
+                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
+                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
+                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
+                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
+                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
+                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
+                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
+                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
+                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
+                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
+                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
+                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
+                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
+                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
+                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
+                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
+                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
+                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
+                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
+                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
+                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
+                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
+                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
+                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
+                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
+                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
+                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
+                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
+                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
+                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
+                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
+                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
+                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
+                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
+                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
+                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
+                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
+                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
+                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
+                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
+                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
+                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
+                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
+                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
+                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
+                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
+                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
+                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
+                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
+                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
+                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
+                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
+            </div>
+        </div>
+    </aside>
 
 </div>
+
+<script>
+    // Initialize Charts
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+        Chart.defaults.color = '#94a3b8';
+        
+        // Reports Bar Chart
+        const reportsCtx = document.getElementById('reportsChart').getContext('2d');
+        const monthsLabels = JSON.parse('{{ months_labels_json|escapejs }}');
+        const monthsData = JSON.parse('{{ months_data_json|escapejs }}');
+
+        new Chart(reportsCtx, {
+            type: 'bar',
+            data: {
+                labels: monthsLabels,
+                datasets: [{
+                    data: monthsData,
+                    backgroundColor: monthsData.map((val, idx) => 
+                        idx === monthsData.length - 1 ? '#10b981' : '#94a3b8'
+                    ),
+                    borderRadius: 4,
+                    barThickness: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 120, grid: { borderDash: [4, 4], drawBorder: false }, ticks: { font: { size: 9 }, stepSize: 30 } },
+                    x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 9 } } }
+                },
+                layout: { padding: { top: 10 } }
+            }
+        });
+
+        // Case Type Donut
+        const caseTypeCtx = document.getElementById('caseTypeChart').getContext('2d');
+        new Chart(caseTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['PD Cases', 'NPA Cases', 'Project', 'Other'],
+                datasets: [{
+                    data: [24, 9, 19, 15],
+                    backgroundColor: ['#3b82f6', '#f472b6', '#10b981', '#a855f7'],
+                    borderWidth: 0,
+                    hoverOffset: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false } },
+                layout: { padding: 10 }
+            }
+        });
+
+        // Leave Donut
+        const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+        new Chart(leaveCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Earned', 'Sick', 'Casual', 'Remaining'],
+                datasets: [{
+                    data: [4, 2, 1, 5],
+                    backgroundColor: ['#eab308', '#f472b6', '#a855f7', '#e2e8f0'],
+                    borderWidth: 0,
+                    hoverOffset: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false } },
+                layout: { padding: 10 }
+            }
+        });
+    });
+</script>
 {% endblock %}

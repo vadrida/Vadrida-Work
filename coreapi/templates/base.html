@@ -84,6 +84,56 @@
             transform: rotate(180deg);
             transition: transform 0.5s ease-in-out;
         }
+
+        /* Work Timer */
+        .work-timer {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Montserrat', monospace;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.08);
+            color: #2563eb;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            transition: all 0.5s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .work-timer.ot {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .work-timer.exceeded {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border-color: rgba(239, 68, 68, 0.25);
+            animation: pulse-red 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .timer-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
     </style>
     <link rel="manifest" href="/manifest.json">
     {% block extra_head %}{% endblock %}
@@ -111,7 +161,27 @@
                     <li style="color: #FFD700; font-weight: bold;">Welcome</li>
                     <li style="font-weight: bold;">{{ request.session.user_name }}</li>
                     <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
-                    <li><a href="{% url 'coreapi:logout_api' %}" class="nav-link">Logout</a></li>
+                    {% if request.session.work_session_start %}
+                    <li>
+                        <div class="flex items-center gap-3">
+                            <div class="work-timer hidden" id="workTimer"
+                                data-start="{{ request.session.work_session_start }}"
+                                data-role="{{ request.session.user_role|lower }}">
+                                <i class="fas fa-clock" style="font-size: 11px;"></i>
+                                <span id="timerDisplay">00:00:00</span>
+                            </div>
+                            <button id="requestAccessBtn" class="hidden text-[11px] font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded shadow-sm transition-colors" onclick="requestOtAccess()">
+                                Request Access
+                            </button>
+                        </div>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'coreapi:logout_api' %}" class="nav-link text-red-500 hover:text-red-700"
+                            title="Logout" onclick="return confirmLogout(event)">
+                            <i class="fas fa-sign-out-alt text-lg"></i>
+                        </a>
+                    </li>
                 </ul>
 
                 <button id="mobileMenuBtn" class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
@@ -167,8 +237,8 @@
     <script>
         /* 0. Service Worker Unregistration (Removed to fix offline routing errors) */
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
                     registration.unregister();
                 }
             });
@@ -185,6 +255,107 @@
 
 
         // --- FULLSCREEN LOGIC REMOVED ---
+    </script>
+
+    <!-- WORK TIMER SCRIPT -->
+    <script>
+        (function () {
+            const timerEl = document.getElementById('workTimer');
+            const displayEl = document.getElementById('timerDisplay');
+            const reqBtnEl = document.getElementById('requestAccessBtn');
+            if (!timerEl || !displayEl) return;
+
+            const startISO = timerEl.dataset.start;
+            if (!startISO) return;
+
+            const startTime = new Date(startISO).getTime();
+            const NORMAL_LIMIT = 8 * 3600;  // 8 hours in seconds
+            const MAX_LIMIT = 10 * 3600;    // 10 hours in seconds
+            const userRole = timerEl.dataset.role;
+            let maxOTWarned = false;
+
+            function updateTimer() {
+                const now = Date.now();
+                let elapsed = Math.floor((now - startTime) / 1000);
+                if (elapsed < 0) elapsed = 0;
+
+                const hrs = Math.floor(elapsed / 3600);
+                const mins = Math.floor((elapsed % 3600) / 60);
+                const secs = elapsed % 60;
+
+                const pad = (n) => String(n).padStart(2, '0');
+
+                // Color logic
+                timerEl.classList.remove('ot', 'exceeded');
+                let label = '';
+                
+                // Only enforce strict 10hr auto-logout and warnings for 'office' users
+                if (userRole === 'office' && elapsed >= MAX_LIMIT) {
+                    if (!maxOTWarned) {
+                        maxOTWarned = true;
+                        timerEl.classList.remove('hidden');
+                        if (reqBtnEl) reqBtnEl.classList.remove('hidden');
+                        
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Maximum OT Exceeded',
+                                text: 'You have passed the 10-hour limit. Your session will end in 10 minutes unless access is requested.',
+                                confirmButtonColor: '#d33',
+                                confirmButtonText: 'Understood'
+                            });
+                        } else {
+                            alert('Maximum OT has been passed. Going to sign out in 10 minutes.');
+                        }
+                    }
+                    
+                    timerEl.classList.add('exceeded');
+                    
+                    const logoutTime = startTime + (MAX_LIMIT * 1000) + (10 * 60 * 1000);
+                    let timeLeft = Math.floor((logoutTime - now) / 1000);
+                    
+                    if (timeLeft <= 0) {
+                        window.location.href = "{% url 'coreapi:logout_api' %}";
+                        return;
+                    }
+                    
+                    const cMins = Math.floor(timeLeft / 60);
+                    const cSecs = timeLeft % 60;
+                    displayEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;">Logging out in: ${pad(cMins)}:${pad(cSecs)}</span>`;
+                    
+                } else {
+                    if (elapsed >= MAX_LIMIT && userRole !== 'office') {
+                        // Standard display for non-office users over 10 hours
+                        timerEl.classList.add('exceeded');
+                        label = ' <span class="timer-label">MAX</span>';
+                    } else if (elapsed >= NORMAL_LIMIT) {
+                        timerEl.classList.add('ot');
+                        const otSecs = elapsed - NORMAL_LIMIT;
+                        const otH = Math.floor(otSecs / 3600);
+                        const otM = Math.floor((otSecs % 3600) / 60);
+                        label = ` <span class="timer-label">OT +${pad(otH)}:${pad(otM)}</span>`;
+                    }
+                    displayEl.innerHTML = `${pad(hrs)}:${pad(mins)}:${pad(secs)}${label}`;
+                }
+            }
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+            
+            window.requestOtAccess = function() {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Request Sent', 'Your request for extended access has been sent to the Admin.', 'success');
+                } else {
+                    alert('Request for extended access sent.');
+                }
+                if (reqBtnEl) {
+                    reqBtnEl.innerText = 'Requested';
+                    reqBtnEl.disabled = true;
+                    reqBtnEl.classList.replace('bg-yellow-500', 'bg-gray-400');
+                    reqBtnEl.classList.remove('hover:bg-yellow-600');
+                }
+            };
+        })();
     </script>
     {% if request.session.user_id %}
     <script>

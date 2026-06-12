@@ -1551,49 +1551,6 @@
                     </div>
                 </div>
 
-                <!-- Dynamic Document Ledger -->
-                <div
-                    style="display: flex; gap: 24px; align-items: stretch; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); flex-wrap: wrap;">
-                    <div class="docs-container"
-                        style="flex: 1; min-width: 300px; margin-top: 0; padding-top: 0; border-top: none;">
-                        <div class="docs-header-row">
-                            <div class="docs-header-item col-type">Document Type / Description</div>
-                            <div class="docs-header-item col-no">Doc No.</div>
-                            <div class="docs-header-item col-date">Doc Date</div>
-                            <div class="docs-header-item col-year">Year</div>
-                            <div style="width: 32px;"></div>
-                        </div>
-
-                        <div id="docsList" class="docs-list">
-                            <!-- Rows added via JS -->
-                        </div>
-
-                        <button type="button" class="btn-add-row" onclick="addDocumentRow()">
-                            <i class="fas fa-plus"></i> Add New Document Row
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ownership Section -->
-                <div id="ownershipSection"
-                    style="margin-top: 40px; padding-top: 25px; border-top: 1px dashed var(--border);">
-
-                    <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 320px;">
-                            <h4 class="form-section-title"
-                                style="color: var(--accent); margin-bottom: 20px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                                Ownership</h4>
-                            <div id="ownersList" class="docs-list">
-                                <!-- Owner Rows will go here -->
-                            </div>
-                            <button type="button" class="btn-add-row" onclick="addOwnerRow()"
-                                style="border-style: dotted;">
-                                <i class="fas fa-user-plus"></i> Add Owner
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Schedule Section -->
                 <div id="scheduleSection"
                     style="margin-top: 40px; padding-top: 25px; border-top: 1px dashed var(--border);">
@@ -1687,21 +1644,38 @@
                             <table class="analysis-table" id="surveyAnalysisTable"
                                 style="width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.82rem; table-layout: auto; color: var(--text-main);">
                                 <thead>
-                                    <!-- Row 1: Document Selection Dropdowns -->
-                                    <tr id="surveyHeaderDocs" style="background: var(--bg-card); text-align: left;">
+                                    <!-- Row 1: Document Name -->
+                                    <tr id="surveyHeaderDocName" style="background: var(--bg-card); text-align: left;">
                                         <th
                                             style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
-                                            Select Document</th>
-                                        <!-- Document Columns will go here -->
+                                            Document Name</th>
                                     </tr>
-                                    <!-- Row 2: Schedule No. -->
+                                    <!-- Row 2: Document No -->
+                                    <tr id="surveyHeaderDocNo" style="background: var(--bg-card); text-align: left;">
+                                        <th
+                                            style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
+                                            Document No.</th>
+                                    </tr>
+                                    <!-- Row 3: Document Date -->
+                                    <tr id="surveyHeaderDocDate" style="background: var(--bg-card); text-align: left;">
+                                        <th
+                                            style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
+                                            Document Date</th>
+                                    </tr>
+                                    <!-- Row 4: Owner Name -->
+                                    <tr id="surveyHeaderOwnerName" style="background: var(--bg-card); text-align: left;">
+                                        <th
+                                            style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
+                                            Owner Name</th>
+                                    </tr>
+                                    <!-- Row 5: Schedule No. -->
                                     <tr id="surveyHeaderSched" style="background: var(--bg-card); text-align: left;">
                                         <th
                                             style="padding: 10px 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
                                             Schedule No.</th>
                                         <!-- Schedule inputs will go here -->
                                     </tr>
-                                    <!-- Row 3: Sub-Entry Part Labels & Add Button -->
+                                    <!-- Row 6: Sub-Entry Part Labels & Add Button -->
                                     <tr id="surveyHeaderSub" style="background: var(--bg-card); text-align: left;">
                                         <th
                                             style="padding: 10px 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
@@ -1774,8 +1748,8 @@
                                     <tr class="analysis-row" data-field="land_extent"
                                         style="border-bottom: 1px solid var(--border);">
                                         <td
-                                            style="padding: 10px 15px; color: var(--text-main); font-weight: bold; background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
-                                            Land Extend (Ares)</td>
+                                            style="padding: 10px 15px; color: var(--accent); font-weight: bold; background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
+                                            Land Extend (Ares) &amp; Classification</td>
                                     </tr>
                                     <tr class="analysis-row" data-field="boundary_north"
                                         style="border-bottom: 1px solid var(--border);">
@@ -1796,16 +1770,10 @@
                                             South</td>
                                     </tr>
                                     <tr class="analysis-row" data-field="boundary_west"
-                                        style="border-bottom: 1px solid var(--border);">
+                                        style="border-bottom: 2px solid var(--accent);">
                                         <td
                                             style="padding: 10px 15px; color: var(--text-dim); background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
                                             West</td>
-                                    </tr>
-                                    <tr class="analysis-row" data-field="land_classification"
-                                        style="border-bottom: 2px solid var(--accent);">
-                                        <td
-                                            style="padding: 10px 15px; color: var(--accent); font-weight: bold; background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border);">
-                                            Land Classification</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -3002,17 +2970,33 @@
 
     function collectVerificationFormData() {
         const docRows = [];
-        document.querySelectorAll('.doc-row').forEach(row => {
-            const rowType = row.querySelector('.col-type');
-            const rowNo = row.querySelector('.col-no');
-            const rowDate = row.querySelector('.col-date');
-            const rowYear = row.querySelector('.col-year');
-            if (rowType && rowNo && rowDate && rowYear) {
+        const slotNums = new Set();
+        document.querySelectorAll('[data-slot]').forEach(el => {
+            if (el.dataset.slot && el.dataset.slot !== 'Site') slotNums.add(el.dataset.slot);
+        });
+
+        slotNums.forEach(i => {
+            const nameInput = document.querySelector(`.survey-doc-name-input[data-slot="${i}"]`);
+            const noInput = document.querySelector(`.survey-doc-no-input[data-slot="${i}"]`);
+            const dateInput = document.querySelector(`.survey-doc-date-input[data-slot="${i}"]`);
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const no = noInput ? noInput.value.trim() : '';
+            const date = dateInput ? dateInput.value.trim() : '';
+
+            if (name) {
+                let year = '';
+                if (date) {
+                    const parts = date.split('/');
+                    if (parts.length === 3) {
+                        year = parts[2];
+                    }
+                }
                 docRows.push({
-                    type: rowType.value,
-                    no: rowNo.value,
-                    date: rowDate.value,
-                    year: rowYear.value
+                    type: name,
+                    no: no,
+                    date: date,
+                    year: year
                 });
             }
         });
@@ -3097,12 +3081,13 @@
             }
         });
 
-        const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+        const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
         headerThs.forEach(th => {
             const colId = th.dataset.colId;
             if (colId === 'site_ref') return;
-            const select = th.querySelector('.survey-doc-select');
-            const docName = select ? select.value : '';
+            const slotNum = th.dataset.slot;
+            const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+            const docName = docInput ? docInput.value.trim() : '';
             if (!docName) return;
 
             const schedInput = document.querySelector(`#surveyHeaderSched .schedule-no-input[data-col="${colId}"]`);
@@ -3195,15 +3180,37 @@
     }
 
     function collectOwnersData() {
-        const rows = document.querySelectorAll('#ownersList .owner-row');
-        const data = [];
-        rows.forEach(row => {
-            data.push({
-                name: row.querySelector('.owner-name-input')?.value || '',
-                doc_id: row.querySelector('.basis-doc-select')?.value || ''
-            });
+        const ownersData = [];
+        const slotNums = new Set();
+        document.querySelectorAll('[data-slot]').forEach(el => {
+            if (el.dataset.slot && el.dataset.slot !== 'Site') slotNums.add(el.dataset.slot);
         });
-        return data;
+
+        slotNums.forEach(i => {
+            const nameInput = document.querySelector(`.survey-doc-name-input[data-slot="${i}"]`);
+            const noInput = document.querySelector(`.survey-doc-no-input[data-slot="${i}"]`);
+            const dateInput = document.querySelector(`.survey-doc-date-input[data-slot="${i}"]`);
+            const ownerInput = document.querySelector(`.survey-owner-name-input[data-slot="${i}"]`);
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const no = noInput ? noInput.value.trim() : '';
+            const date = dateInput ? dateInput.value.trim() : '';
+            const owner = ownerInput ? ownerInput.value.trim() : '';
+
+            if (owner) {
+                let docDisplay = '';
+                if (name) {
+                    docDisplay = name;
+                    if (no) docDisplay += ` No. ${no}`;
+                    if (date) docDisplay += ` (${date})`;
+                }
+                ownersData.push({
+                    name: owner,
+                    doc_id: docDisplay
+                });
+            }
+        });
+        return ownersData;
     }
 
     function collectSiteReferenceReasons() {
@@ -3311,78 +3318,8 @@
         return '';
     }
 
-    function addDocumentRow(initialData = {}) {
-        const container = document.getElementById('docsList');
-        const rowId = 'doc_' + Date.now() + Math.random().toString(36).substr(2, 5);
-
-        const row = document.createElement('div');
-        row.className = 'doc-row';
-        row.id = rowId;
-
-        const type = initialData.type || '';
-        const no = initialData.document_no || initialData.no || '';
-        let date = initialData.date || '';
-        const year = initialData.year || '';
-
-        // Clean date for input[type="date"]
-        const isoDate = toISODate(date);
-
-        row.innerHTML = `
-            <input type="text" class="doc-input col-type" placeholder="e.g. Title Deed" value="${type}" list="docTypes" oninput="updateDynamicLabels(); triggerAutoSave();">
-            <input type="text" class="col-no doc-input" placeholder="No." value="${no}" oninput="updateDynamicLabels(); triggerAutoSave();">
-            <input type="text" class="doc-input col-date flatpickr-date" placeholder="DD/MM/YYYY" value="${isoDate}">
-            <input type="text" class="doc-input col-year" placeholder="Year" value="${year}" oninput="updateDynamicLabels(); triggerAutoSave();">
-            <button type="button" class="btn-remove" onclick="removeDocRow('${rowId}')">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-        container.appendChild(row);
-
-        // Initialize Flatpickr for this row
-        flatpickr(row.querySelector('.flatpickr-date'), {
-            dateFormat: "Y-m-d",
-            altInput: true,
-            altFormat: "d/m/Y",
-            allowInput: true,
-            onChange: function () {
-                updateDynamicLabels();
-                triggerAutoSave();
-            },
-            onClose: function () {
-                updateDynamicLabels();
-                triggerAutoSave();
-            }
-        });
-
-        row.querySelectorAll('input').forEach(inp => {
-            inp.addEventListener('input', () => {
-                updateDynamicLabels();
-                refreshAllDropdowns(); // Refresh all dependent dropdowns (Basis and Survey)
-                updateAgreementLabels();
-                updateDeedLabels();
-                triggerAutoSave();
-            });
-            inp.addEventListener('change', () => {
-                updateDynamicLabels();
-                refreshAllDropdowns();
-                updateAgreementLabels();
-                updateDeedLabels();
-                renderRightOfAccess(getCurrentDashboardPayload()); // Update Access table
-                triggerAutoSave();
-            });
-        });
-
-        row.querySelector('.btn-remove').addEventListener('click', () => {
-            row.remove();
-            updateDynamicLabels();
-            refreshBasisDropdowns();
-            renderRightOfAccess(getCurrentDashboardPayload()); // Update Access table
-            triggerAutoSave();
-        });
-
-        updateDynamicLabels();
-        refreshAllDropdowns();
+    function refreshAllDropdowns() {
+        refreshAllBoundaryDropdowns();
     }
 
     // Live Preview Listeners for Schedule Location
@@ -3402,36 +3339,56 @@
         });
     });
 
-    function refreshAllDropdowns() {
-        refreshBasisDropdowns();
-        refreshSurveyDropdowns();
-        refreshAllBoundaryDropdowns();
-    }
-
     /* =============================================
        DYNAMIC SURVEY TABLE LOGIC (3-SLOT NESTED REFACTOR)
     ============================================= */
     let surveyColCounter = 0; // Unique ID for each column DOM element
 
     function createSurveySlotHeader(slotNum) {
-        const docOptions = DOCUMENT_TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
         const colId = ++surveyColCounter;
+        const docOptions = DOCUMENT_TYPES.map(t => `<option value="${t}"></option>`).join('');
 
-        // Header Doc Cell
-        const headerDoc = document.createElement('th');
-        headerDoc.className = `survey-col-${colId} slot-root-${slotNum} slot-group-${slotNum}`;
-        headerDoc.dataset.slot = slotNum;
-        headerDoc.dataset.colId = colId;
-        headerDoc.style = "padding: 10px; border-left: 2px solid var(--accent); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); min-width: 180px; width: 180px; background: var(--bg-header); color: var(--text-main); text-align: center;";
-        headerDoc.innerHTML = `
+        function createHeaderTh() {
+            const th = document.createElement('th');
+            th.className = `survey-col-${colId} slot-root-${slotNum} slot-group-${slotNum}`;
+            th.dataset.slot = slotNum;
+            th.dataset.colId = colId;
+            th.style = "padding: 10px; border-left: 2px solid var(--accent); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); min-width: 180px; width: 180px; background: var(--bg-header); color: var(--text-main); text-align: center;";
+            return th;
+        }
+
+        // Document Name input with datalist (formerly select dropdown)
+        const headerDocName = createHeaderTh();
+        headerDocName.innerHTML = `
             <div style="display:flex; align-items:center; justify-content:center; width: 100%;">
-                <select class="survey-doc-select doc-input" data-slot="${slotNum}" data-col="${colId}" 
-                    onchange="syncSlotName(${slotNum}, this.value); renderRightOfAccess(getCurrentDashboardPayload());"
-                    style="width: 100%; border: none; background: transparent; font-size: 0.75rem; font-weight: bold; color: var(--accent);">
-                    <option value="">-- Document ${slotNum} --</option>
+                <input type="text" list="docTypesList_${colId}" class="survey-doc-name-input doc-input" data-slot="${slotNum}" data-col="${colId}" 
+                    placeholder="Document Name"
+                    style="width: 100%; border: none; background: transparent; font-size: 0.75rem; font-weight: bold; color: var(--accent); text-align: center;">
+                <datalist id="docTypesList_${colId}">
                     ${docOptions}
-                </select>
+                </datalist>
             </div>
+        `;
+
+        // Document No
+        const headerDocNo = createHeaderTh();
+        headerDocNo.innerHTML = `
+            <input type="text" class="survey-doc-no-input doc-input" data-slot="${slotNum}" data-col="${colId}" placeholder="Doc No."
+                style="width: 100%; border: none; background: transparent; font-size: 0.75rem; text-align: center;">
+        `;
+
+        // Document Date (with comfortable year/date selector picker)
+        const headerDocDate = createHeaderTh();
+        headerDocDate.innerHTML = `
+            <input type="text" class="survey-doc-date-input doc-input flatpickr-date" data-slot="${slotNum}" data-col="${colId}" placeholder="Doc Date"
+                style="width: 100%; border: none; background: transparent; font-size: 0.75rem; text-align: center;">
+        `;
+
+        // Owner Name
+        const headerOwnerName = createHeaderTh();
+        headerOwnerName.innerHTML = `
+            <input type="text" class="survey-owner-name-input doc-input" data-slot="${slotNum}" data-col="${colId}" placeholder="Owner Name"
+                style="width: 100%; border: none; background: transparent; font-size: 0.75rem; text-align: center;">
         `;
 
         // Header Sched Cell
@@ -3470,23 +3427,46 @@
             </div>
         `;
 
-        return { headerDoc, headerSched, headerSub, colId };
+        // Initialize flatpickr on date inputs
+        setTimeout(() => {
+            const dateInput = headerDocDate.querySelector('.flatpickr-date');
+            if (dateInput && typeof flatpickr !== 'undefined') {
+                flatpickr(dateInput, {
+                    dateFormat: "d/m/Y",
+                    allowInput: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    onChange: () => {
+                        updateDynamicLabels();
+                        updateOwnershipLabels();
+                        refreshAllBoundaryDropdowns();
+                        updateAgreementLabels();
+                        triggerAutoSave();
+                    }
+                });
+            }
+        }, 10);
+
+        return { headerDocName, headerDocNo, headerDocDate, headerOwnerName, headerSched, headerSub, colId };
     }
 
     function createScheduleEntryHTML(slotNum, parentColId) {
         const colId = ++surveyColCounter;
 
-        const headerDoc = document.createElement('th');
-        headerDoc.className = `survey-col-${colId} slot-group-${slotNum} is-schedule-entry`;
-        headerDoc.dataset.slot = slotNum;
-        headerDoc.dataset.colId = colId;
-        headerDoc.style = "padding: 10px; border-left: 1px solid var(--border); min-width: 180px; width: 180px; background: var(--bg-header); color: var(--text-main);";
-        headerDoc.innerHTML = `
-            <select class="survey-doc-select doc-input" data-slot="${slotNum}" data-col="${colId}" style="display: none;">
-                <option value=""></option>
-            </select>
-            <div style="height: 24px; width: 100%;"></div>
-        `;
+        function createEmptyTh() {
+            const th = document.createElement('th');
+            th.className = `survey-col-${colId} slot-group-${slotNum} is-schedule-entry`;
+            th.dataset.slot = slotNum;
+            th.dataset.colId = colId;
+            th.style = "padding: 10px; border-left: 1px solid var(--border); min-width: 180px; width: 180px; background: var(--bg-header); color: var(--text-main);";
+            th.innerHTML = `<div style="height: 24px; width: 100%;"></div>`;
+            return th;
+        }
+
+        const headerDocName = createEmptyTh();
+        const headerDocNo = createEmptyTh();
+        const headerDocDate = createEmptyTh();
+        const headerOwnerName = createEmptyTh();
 
         const headerSched = document.createElement('th');
         headerSched.className = `survey-col-${colId} slot-group-${slotNum} is-schedule-entry`;
@@ -3518,7 +3498,7 @@
         headerSub.style = "padding: 8px 10px; border-left: 1px solid var(--border); min-width: 180px; width: 180px; text-align: center; background: var(--bg-header); color: var(--text-main);";
         headerSub.innerHTML = `<div style="height: 34px; display: flex; align-items: center; justify-content: center;">&nbsp;</div>`;
 
-        return { headerDoc, headerSched, headerSub, colId };
+        return { headerDocName, headerDocNo, headerDocDate, headerOwnerName, headerSched, headerSub, colId };
     }
 
     function createSubEntryHTML(slotNum, parentSchedColId) {
@@ -3526,17 +3506,20 @@
         const partialIdx = countPartsUnderSchedule(slotNum, parentSchedColId) + 2;
         const partLabel = formatSurveyParcelLabel(partialIdx);
 
-        const headerDoc = document.createElement('th');
-        headerDoc.className = `survey-col-${colId} slot-group-${slotNum} is-sub-entry`;
-        headerDoc.dataset.slot = slotNum;
-        headerDoc.dataset.colId = colId;
-        headerDoc.style = "padding: 10px; border-left: 1px solid var(--border); min-width: 160px; width: 160px; background: var(--bg-header); color: var(--text-main);";
-        headerDoc.innerHTML = `
-            <select class="survey-doc-select doc-input" data-slot="${slotNum}" data-col="${colId}" style="display: none;">
-                <option value=""></option>
-            </select>
-            <div style="height: 24px; width: 100%;"></div>
-        `;
+        function createEmptyTh() {
+            const th = document.createElement('th');
+            th.className = `survey-col-${colId} slot-group-${slotNum} is-sub-entry`;
+            th.dataset.slot = slotNum;
+            th.dataset.colId = colId;
+            th.style = "padding: 10px; border-left: 1px solid var(--border); min-width: 160px; width: 160px; background: var(--bg-header); color: var(--text-main);";
+            th.innerHTML = `<div style="height: 24px; width: 100%;"></div>`;
+            return th;
+        }
+
+        const headerDocName = createEmptyTh();
+        const headerDocNo = createEmptyTh();
+        const headerDocDate = createEmptyTh();
+        const headerOwnerName = createEmptyTh();
 
         const headerSched = document.createElement('th');
         headerSched.className = `survey-col-${colId} slot-group-${slotNum} is-sub-entry`;
@@ -3572,17 +3555,23 @@
             </div>
         `;
 
-        return { headerDoc, headerSched, headerSub, colId };
+        return { headerDocName, headerDocNo, headerDocDate, headerOwnerName, headerSched, headerSub, colId };
     }
 
     function initSurveyTable() {
-        const headerDocs = document.getElementById('surveyHeaderDocs');
+        const headerDocName = document.getElementById('surveyHeaderDocName');
+        const headerDocNo = document.getElementById('surveyHeaderDocNo');
+        const headerDocDate = document.getElementById('surveyHeaderDocDate');
+        const headerOwnerName = document.getElementById('surveyHeaderOwnerName');
         const headerSched = document.getElementById('surveyHeaderSched');
         const headerSub = document.getElementById('surveyHeaderSub');
         const bodyRows = document.querySelectorAll('#surveyTableBody .analysis-row');
 
         // Clear everything first
-        headerDocs.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Select Document</th>';
+        headerDocName.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Document Name</th>';
+        headerDocNo.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Document No.</th>';
+        headerDocDate.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Document Date</th>';
+        headerOwnerName.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Owner Name</th>';
         headerSched.innerHTML = '<th style="padding: 10px 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Schedule No.</th>';
         headerSub.innerHTML = '<th style="padding: 10px 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Survey Parcel no.</th>';
         bodyRows.forEach(row => row.innerHTML = `<td style="padding: 10px 15px; color: var(--text-dim); background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border); font-weight: 600;">${row.querySelector('td')?.innerText || ''}</td>`);
@@ -3593,7 +3582,6 @@
             addMasterSlot(i);
             refreshActionButtons(i);
         }
-        refreshSurveyDropdowns();
         updateAgreementLabels();
     }
 
@@ -3765,7 +3753,7 @@
 
     // This should be called whenever Survey table's docs change
     function refreshAllBoundaryDropdowns() {
-        const boundarySelects = document.querySelectorAll('.boundary-doc-select');
+        const boundarySelects = document.querySelectorAll('.boundary-doc-select, #boundaryVerifiedWith');
         boundarySelects.forEach(s => {
             updateBoundarySelectOptions(s);
         });
@@ -3825,12 +3813,13 @@
             const baseType = groupCb.dataset.baseType;
             let anyChecked = false;
 
-            const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+            const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
             headerThs.forEach(th => {
                 const colId = th.dataset.colId;
                 if (colId === 'site_ref') return;
-                const select = th.querySelector('.survey-doc-select');
-                const docName = select ? select.value : '';
+                const slotNum = th.dataset.slot;
+                const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+                const docName = docInput ? docInput.value.trim() : '';
                 if (!docName) return;
                 const colBaseType = docName.split(' No.')[0].split(' (')[0].split(' of ')[0].trim();
 
@@ -3857,15 +3846,16 @@
 
         // 1. Fetch all columns of the survey table
         const allCols = [];
-        const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+        const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
 
         headerThs.forEach(th => {
             const colId = th.dataset.colId;
             if (colId === 'site_ref') return; // Skip Site Reference
 
             // Find document name
-            const select = th.querySelector('.survey-doc-select');
-            const docName = select ? select.value : '';
+            const slotNum = th.dataset.slot;
+            const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+            const docName = docInput ? docInput.value.trim() : '';
             if (!docName) return;
 
             // Find Schedule No
@@ -4058,7 +4048,11 @@
                 liveWest = g.wests.join(' , ') || liveWest;
             }
 
-            const square = createVettingSquare("Site Reference", {
+            let siteTitle = "Site Reference";
+            const bVW = document.getElementById('boundaryVerifiedWith')?.value;
+            if (bVW) siteTitle += ` (${bVW})`;
+
+            const square = createVettingSquare(siteTitle, {
                 north: liveNorth,
                 east: liveEast,
                 south: liveSouth,
@@ -4069,9 +4063,9 @@
                 docEast: docData.East || '',
                 docSouth: docData.South || '',
                 docWest: docData.West || '',
-                area: areaMap[selType] || '',
-                docType: selType,
-                docNo: noMap[selType] || ''
+                area: getLandExtentForDoc('Site') || parseFloat(areaMap[selType]) || 0,
+                docType: '',
+                docNo: ''
             }, true);
             container.appendChild(square);
             hasData = true;
@@ -4916,16 +4910,30 @@
 
         // 1. Fetch all columns of the survey table
         const allCols = [];
-        const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+        const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
 
         headerThs.forEach(th => {
             const colId = th.dataset.colId;
             if (colId === 'site_ref') return; // Skip Site Reference in individual/aggregated diagrams
 
             // Find document name
-            const select = th.querySelector('.survey-doc-select');
-            const docName = select ? select.value : '';
-            if (!docName) return;
+            const slotNum = th.dataset.slot;
+            const nameInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+            const noInput = document.querySelector(`.survey-doc-no-input[data-slot="${slotNum}"]`);
+            const dateInput = document.querySelector(`.survey-doc-date-input[data-slot="${slotNum}"]`);
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const no = noInput ? noInput.value.trim() : '';
+            const date = dateInput ? dateInput.value.trim() : '';
+            if (!name) return;
+
+            let docName = name;
+            if (no) docName += ` No. ${no}`;
+            if (date) {
+                const yearMatch = date.match(/\d{4}/);
+                if (yearMatch) docName += ` /${yearMatch[0]}`;
+                else docName += ` /${date}`;
+            }
 
             // Find Schedule No
             const schedInput = document.querySelector(`#surveyHeaderSched .schedule-no-input[data-col="${colId}"]`);
@@ -5169,6 +5177,10 @@
 
         // SPECIAL CASE: Site Reference
         if (docId === 'Site' || docId === 'Site Reference') {
+            const siteInput = document.querySelector(`.analysis-input[data-col="site_ref"][data-field="land_extent"]`);
+            if (siteInput && siteInput.value) {
+                return parseFloat(siteInput.value.replace(/,/g, '')) || 0;
+            }
             if (window.currentSitePayload) {
                 const vc = window.currentSitePayload.Valuers_Checklist || {};
                 const bld = window.currentSitePayload.Building_details || {};
@@ -5180,10 +5192,13 @@
 
         let totalArea = 0;
         // Find all columns in the SURVEY table matching this docId
-        const surveySelects = document.querySelectorAll('#surveyHeaderDocs .survey-doc-select');
-        surveySelects.forEach(select => {
-            if (select.value === docId) {
-                const colId = select.dataset.col;
+        const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
+        headerThs.forEach(th => {
+            const slotNum = th.dataset.slot;
+            const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+            const docName = docInput ? docInput.value.trim() : '';
+            if (docName === docId) {
+                const colId = th.dataset.colId;
                 // Sum all land_extent inputs for this colId
                 const inputs = document.querySelectorAll(`.analysis-input[data-col="${colId}"][data-field="land_extent"], .analysis-input[data-col="${colId}"]`);
                 inputs.forEach(input => {
@@ -5200,25 +5215,33 @@
 
     function collectBoundaryData() {
         const boundaries = {};
-        const headerRow = document.getElementById('surveyHeaderDocs');
+        const headerRow = document.getElementById('surveyHeaderDocName');
         if (!headerRow) return boundaries;
 
         const ths = headerRow.querySelectorAll('th[data-col-id]:not(.is-pending-delete)');
         ths.forEach(th => {
             const colId = th.dataset.colId;
-            const select = th.querySelector('.survey-doc-select');
-            let docName = select ? select.value : '';
+            const slotNum = th.dataset.slot;
+            const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+            let docName = docInput ? docInput.value.trim() : '';
             if (!docName && th.classList.contains('slot-group-site')) {
                 docName = 'Site';
             }
             if (!docName) return;
 
-            boundaries[docName] = {
-                "North": document.querySelector(`td[data-col="${colId}"] .boundary-input-north`)?.value || "",
-                "East": document.querySelector(`td[data-col="${colId}"] .boundary-input-east`)?.value || "",
-                "South": document.querySelector(`td[data-col="${colId}"] .boundary-input-south`)?.value || "",
-                "West": document.querySelector(`td[data-col="${colId}"] .boundary-input-west`)?.value || ""
-            };
+            const n = document.querySelector(`#surveyTableBody tr[data-field="boundary_north"] td.survey-col-${colId} input`)?.value.trim() || '';
+            const e = document.querySelector(`#surveyTableBody tr[data-field="boundary_east"] td.survey-col-${colId} input`)?.value.trim() || '';
+            const s = document.querySelector(`#surveyTableBody tr[data-field="boundary_south"] td.survey-col-${colId} input`)?.value.trim() || '';
+            const w = document.querySelector(`#surveyTableBody tr[data-field="boundary_west"] td.survey-col-${colId} input`)?.value.trim() || '';
+
+            if (n || e || s || w || docName === 'Site') {
+                boundaries[docName] = {
+                    "North": n,
+                    "East": e,
+                    "South": s,
+                    "West": w
+                };
+            }
         });
         return boundaries;
     }
@@ -5227,7 +5250,7 @@
         if (!boundaryObj) return;
 
         // Populate Site Reference column from boundaryObj['Site'] if empty
-        const siteCol = document.querySelector('#surveyHeaderDocs th.slot-group-site');
+        const siteCol = document.querySelector('#surveyHeaderDocName th.slot-group-site');
         if (siteCol) {
             const siteColId = siteCol.dataset.colId;
             const siteData = boundaryObj['Site'] || (window.currentSitePayload && window.currentSitePayload.Boundary_analysis_property_identification ? {
@@ -5254,10 +5277,13 @@
             const data = boundaryObj[docName];
 
             // Find survey columns matching docName
-            const matchingSelects = document.querySelectorAll(`#surveyHeaderDocs .survey-doc-select`);
-            matchingSelects.forEach(select => {
-                if (select.value === docName) {
-                    const colId = select.dataset.col;
+            const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
+            headerThs.forEach(th => {
+                const slotNum = th.dataset.slot;
+                const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+                const colDocName = docInput ? docInput.value.trim() : '';
+                if (colDocName === docName) {
+                    const colId = th.dataset.colId;
                     ['North', 'East', 'South', 'West'].forEach(dir => {
                         const field = `boundary_${dir.toLowerCase()}`;
                         const input = document.querySelector(`.analysis-input[data-col="${colId}"][data-field="${field}"]`);
@@ -5281,15 +5307,18 @@
 
         addMasterSlot(nextNum);
         refreshActionButtons(nextNum);
-        refreshSurveyDropdowns();
+        refreshAllBoundaryDropdowns();
         updateAgreementLabels();
         updateAllBoundaryVisuals();
         triggerAutoSave();
     }
 
     function addMasterSlot(slotNum) {
-        const { headerDoc, headerSched, headerSub, colId } = createSurveySlotHeader(slotNum);
-        document.getElementById('surveyHeaderDocs').appendChild(headerDoc);
+        const { headerDocName, headerDocNo, headerDocDate, headerOwnerName, headerSched, headerSub, colId } = createSurveySlotHeader(slotNum);
+        document.getElementById('surveyHeaderDocName').appendChild(headerDocName);
+        document.getElementById('surveyHeaderDocNo').appendChild(headerDocNo);
+        document.getElementById('surveyHeaderDocDate').appendChild(headerDocDate);
+        document.getElementById('surveyHeaderOwnerName').appendChild(headerOwnerName);
         document.getElementById('surveyHeaderSched').appendChild(headerSched);
         document.getElementById('surveyHeaderSub').appendChild(headerSub);
 
@@ -5307,39 +5336,53 @@
             else if (field === 'boundary_south') boundaryClass = ' boundary-input-south';
             else if (field === 'boundary_west') boundaryClass = ' boundary-input-west';
 
-            if (field === 'land_classification') {
+            if (field === 'land_extent') {
                 td.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <select class="doc-input analysis-input cls-select" data-slot="${slotNum}" data-col="${colId}" 
-                            style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: var(--accent); font-weight: bold; height: 32px;">
-                            <option value="">-- Class --</option>
-                            <option value="Dry Land">Dry Land</option>
-                            <option value="Wet Land">Wet Land</option>
-                            <option value="Sthirapunja">Sthirapunja</option>
-                            <option value="Asthirapunja">Asthirapunja</option>
-                            <option value="Thottam">Thottam</option>
-                            <option value="Others">Others</option>
-                        </select>
-                        <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" 
-                            placeholder="Specify..." 
-                            style="width: 100%; border: none; background: var(--bg-input); padding: 4px; font-size: 0.7rem; color: var(--accent);">
-                    </div>`;
+                    <div style="display: flex; gap: 4px; flex-direction: column;">
+                        <input type="text" class="doc-input analysis-input" data-slot="${slotNum}" data-col="${colId}" data-field="land_extent" placeholder="Extend (Ares)"
+                            style="width: 100%; border: none; background: var(--bg-input); padding: 6px; text-align: center; color: var(--accent); font-weight: bold;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <select class="doc-input cls-select" data-slot="${slotNum}" data-col="${colId}" data-field="land_classification"
+                                style="width: 100%; border: none; background: var(--bg-input); padding: 4px; color: var(--accent); font-size: 0.7rem; font-weight: bold; height: 26px; text-align: center;">
+                                <option value="">-- Class --</option>
+                                <option value="Dry Land">Dry Land</option>
+                                <option value="Converted Dry Land">Converted Dry Land</option>
+                                <option value="Wet Land">Wet Land</option>
+                                <option value="Sthirapunja">Sthirapunja</option>
+                                <option value="Asthirapunja">Asthirapunja</option>
+                                <option value="Thottam">Thottam</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" data-field="land_classification_manual"
+                                placeholder="Specify..." 
+                                style="width: 100%; border: none; background: var(--bg-input); padding: 4px; font-size: 0.7rem; color: var(--accent); text-align: center;">
+                        </div>
+                    </div>
+                `;
             } else {
                 td.innerHTML = `<input type="text" class="doc-input analysis-input${boundaryClass}" data-slot="${slotNum}" data-col="${colId}" data-field="${field}"
-                    style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: ${field === 'land_extent' ? 'var(--accent)' : 'var(--text-main)'}; font-weight: ${field === 'land_extent' ? 'bold' : 'normal'};">`;
+                    style="width: 100%; border: none; background: var(--bg-input); padding: 6px; text-align: center; color: ${field === 'land_extent' ? 'var(--accent)' : 'var(--text-main)'}; font-weight: ${field === 'land_extent' ? 'bold' : 'normal'};">`;
             }
             row.appendChild(td);
         });
         attachSurveyListeners(colId);
+        refreshDocHeaderMerges(slotNum);
     }
 
     function addScheduleEntry(slotNum, afterColId) {
-        const { headerDoc, headerSched, headerSub, colId } = createScheduleEntryHTML(slotNum, afterColId);
+        const { headerDocName, headerDocNo, headerDocDate, headerOwnerName, headerSched, headerSub, colId } = createScheduleEntryHTML(slotNum, afterColId);
 
-        const headerDocsRow = document.getElementById('surveyHeaderDocs');
+        const headerDocNameRow = document.getElementById('surveyHeaderDocName');
+        const headerDocNoRow = document.getElementById('surveyHeaderDocNo');
+        const headerDocDateRow = document.getElementById('surveyHeaderDocDate');
+        const headerOwnerNameRow = document.getElementById('surveyHeaderOwnerName');
         const headerSchedRow = document.getElementById('surveyHeaderSched');
         const headerSubRow = document.getElementById('surveyHeaderSub');
-        headerDocsRow.querySelector(`.survey-col-${afterColId}`).after(headerDoc);
+
+        headerDocNameRow.querySelector(`.survey-col-${afterColId}`).after(headerDocName);
+        headerDocNoRow.querySelector(`.survey-col-${afterColId}`).after(headerDocNo);
+        headerDocDateRow.querySelector(`.survey-col-${afterColId}`).after(headerDocDate);
+        headerOwnerNameRow.querySelector(`.survey-col-${afterColId}`).after(headerOwnerName);
         headerSchedRow.querySelector(`.survey-col-${afterColId}`).after(headerSched);
         headerSubRow.querySelector(`.survey-col-${afterColId}`).after(headerSub);
 
@@ -5358,49 +5401,49 @@
             else if (field === 'boundary_south') boundaryClass = ' boundary-input-south';
             else if (field === 'boundary_west') boundaryClass = ' boundary-input-west';
 
-            if (field === 'land_classification') {
+            if (field === 'land_extent') {
                 td.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <select class="doc-input analysis-input cls-select" data-slot="${slotNum}" data-col="${colId}" 
-                            style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: var(--accent); font-weight: bold; height: 32px;">
-                            <option value="">-- Class --</option>
-                            <option value="dry">Dry</option>
-                            <option value="wet">Wet</option>
-                            <option value="sthirapunja">Sthirapunja</option>
-                            <option value="asthirapunja">Asthirapunja</option>
-                            <option value="thottam">Thottam</option>
-                            <option value="others">Others</option>
-                        </select>
-                        <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" 
-                            placeholder="Specify..." 
-                            style="width: 100%; border: none; background: var(--bg-input); padding: 4px; font-size: 0.7rem; color: var(--accent);">
-                    </div>`;
+                    <div style="display: flex; gap: 4px; flex-direction: column;">
+                        <input type="text" class="doc-input analysis-input" data-slot="${slotNum}" data-col="${colId}" data-field="land_extent" placeholder="Extend (Ares)"
+                            style="width: 100%; border: none; background: var(--bg-input); padding: 6px; text-align: center; color: var(--accent); font-weight: bold;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <select class="doc-input cls-select" data-slot="${slotNum}" data-col="${colId}" data-field="land_classification"
+                                style="width: 100%; border: none; background: var(--bg-input); padding: 4px; color: var(--accent); font-size: 0.7rem; font-weight: bold; height: 26px; text-align: center;">
+                                <option value="">-- Class --</option>
+                                <option value="Dry Land">Dry Land</option>
+                                <option value="Converted Dry Land">Converted Dry Land</option>
+                                <option value="Wet Land">Wet Land</option>
+                                <option value="Sthirapunja">Sthirapunja</option>
+                                <option value="Asthirapunja">Asthirapunja</option>
+                                <option value="Thottam">Thottam</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" data-field="land_classification_manual"
+                                placeholder="Specify..." 
+                                style="width: 100%; border: none; background: var(--bg-input); padding: 4px; font-size: 0.7rem; color: var(--accent); text-align: center;">
+                        </div>
+                    </div>
+                `;
             } else {
                 td.innerHTML = `<input type="text" class="doc-input analysis-input${boundaryClass}" data-slot="${slotNum}" data-col="${colId}" data-field="${field}"
-                    style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: ${field === 'land_extent' ? 'var(--accent)' : 'var(--text-main)'}; font-weight: ${field === 'land_extent' ? 'bold' : 'normal'};">`;
+                    style="width: 100%; border: none; background: var(--bg-input); padding: 6px; text-align: center; color: ${field === 'land_extent' ? 'var(--accent)' : 'var(--text-main)'}; font-weight: ${field === 'land_extent' ? 'bold' : 'normal'};">`;
             }
 
             parentCell.after(td);
         });
 
         attachSurveyListeners(colId);
-        refreshSurveyDropdowns();
-
-        const rootDoc = document.querySelector(`.survey-doc-select[data-slot="${slotNum}"]:not([style*="display: none"])`);
-        if (rootDoc) {
-            const newSelect = headerDoc.querySelector('select');
-            if (newSelect) newSelect.value = rootDoc.value;
-        }
 
         updateAgreementLabels();
         updateAllBoundaryVisuals();
         relabelParts(slotNum);
+        refreshDocHeaderMerges(slotNum);
         triggerAutoSave();
     }
 
     /** Root + each added schedule column, in document order (1-based schedule index). */
     function getOrderedScheduleColIdsForSlot(slotNum) {
-        const docsRow = document.getElementById('surveyHeaderDocs');
+        const docsRow = document.getElementById('surveyHeaderDocName');
         if (!docsRow) return [];
         return Array.from(docsRow.querySelectorAll(`th.slot-group-${slotNum}`))
             .filter(th => !th.classList.contains('is-pending-delete') && th.style.display !== 'none')
@@ -5415,7 +5458,7 @@
     }
 
     function getActiveSlotColIds(slotNum) {
-        const docsRow = document.getElementById('surveyHeaderDocs');
+        const docsRow = document.getElementById('surveyHeaderDocName');
         if (!docsRow) return [];
         return Array.from(docsRow.querySelectorAll(`th.slot-group-${slotNum}`))
             .filter(th => !th.classList.contains('is-pending-delete'))
@@ -5432,7 +5475,7 @@
         const rootColId = activeCols[0];
         if (!rootColId) return;
 
-        ['boundary_north', 'boundary_east', 'boundary_south', 'boundary_west', 'land_classification'].forEach(field => {
+        ['boundary_north', 'boundary_east', 'boundary_south', 'boundary_west'].forEach(field => {
             const row = document.querySelector(`#surveyTableBody tr[data-field="${field}"]`);
             if (!row) return;
             const cells = Array.from(row.querySelectorAll(`td.slot-group-${slotNum}`))
@@ -5463,7 +5506,7 @@
 
     /** Last column id in this schedule's branch: the schedule itself, or its rightmost consecutive part. */
     function getLastColIdInScheduleBranch(scheduleColId) {
-        const docsRow = document.getElementById('surveyHeaderDocs');
+        const docsRow = document.getElementById('surveyHeaderDocName');
         if (!docsRow) return scheduleColId;
         const start = docsRow.querySelector(`th.survey-col-${scheduleColId}`);
         if (!start) return scheduleColId;
@@ -5484,7 +5527,7 @@
     function addSubEntry(slotNum, afterColId, parentSchedColId = null) {
         if (!parentSchedColId) {
             let tempColId = afterColId;
-            let th = document.querySelector(`#surveyHeaderDocs th.survey-col-${tempColId}`);
+            let th = document.querySelector(`#surveyHeaderDocName th.survey-col-${tempColId}`);
             while (th) {
                 if (th.classList.contains(`slot-root-${slotNum}`) || th.classList.contains('is-schedule-entry')) {
                     parentSchedColId = tempColId;
@@ -5505,12 +5548,19 @@
             }
         }
 
-        const { headerDoc, headerSched, headerSub, colId } = createSubEntryHTML(slotNum, parentSchedColId);
+        const { headerDocName, headerDocNo, headerDocDate, headerOwnerName, headerSched, headerSub, colId } = createSubEntryHTML(slotNum, parentSchedColId);
 
-        const headerDocsRow = document.getElementById('surveyHeaderDocs');
+        const headerDocNameRow = document.getElementById('surveyHeaderDocName');
+        const headerDocNoRow = document.getElementById('surveyHeaderDocNo');
+        const headerDocDateRow = document.getElementById('surveyHeaderDocDate');
+        const headerOwnerNameRow = document.getElementById('surveyHeaderOwnerName');
         const headerSchedRow = document.getElementById('surveyHeaderSched');
         const headerSubRow = document.getElementById('surveyHeaderSub');
-        headerDocsRow.querySelector(`.survey-col-${afterColId}`).after(headerDoc);
+
+        headerDocNameRow.querySelector(`.survey-col-${afterColId}`).after(headerDocName);
+        headerDocNoRow.querySelector(`.survey-col-${afterColId}`).after(headerDocNo);
+        headerDocDateRow.querySelector(`.survey-col-${afterColId}`).after(headerDocDate);
+        headerOwnerNameRow.querySelector(`.survey-col-${afterColId}`).after(headerOwnerName);
         headerSchedRow.querySelector(`.survey-col-${afterColId}`).after(headerSched);
         headerSubRow.querySelector(`.survey-col-${afterColId}`).after(headerSub);
 
@@ -5529,29 +5579,35 @@
             else if (field === 'boundary_south') boundaryClass = ' boundary-input-south';
             else if (field === 'boundary_west') boundaryClass = ' boundary-input-west';
 
-            if (field === 'land_classification') {
+            if (field === 'land_extent') {
                 td.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <select class="doc-input analysis-input cls-select" data-slot="${slotNum}" data-col="${colId}" 
-                            style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: var(--accent); font-weight: bold; height: 32px;">
-                            <option value="">-- Class --</option>
-                            <option value="dry">Dry</option>
-                            <option value="wet">Wet</option>
-                            <option value="sthirapunja">Sthirapunja</option>
-                            <option value="asthirapunja">Asthirapunja</option>
-                            <option value="thottam">Thottam</option>
-                            <option value="others">Others</option>
-                        </select>
-                        <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" 
-                            placeholder="Specify..." 
-                            style="width: 100%; border: none; background: var(--bg-input); padding: 4px; font-size: 0.7rem; color: var(--accent);">
-                    </div>`;
+                    <div style="display: flex; gap: 4px; flex-direction: column;">
+                        <input type="text" class="doc-input analysis-input" data-slot="${slotNum}" data-col="${colId}" data-field="land_extent" placeholder="Extend (Ares)"
+                            style="width: 100%; border: none; background: var(--bg-input); padding: 6px; text-align: center; color: var(--accent); font-weight: bold;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <select class="doc-input cls-select" data-slot="${slotNum}" data-col="${colId}" data-field="land_classification"
+                                style="width: 100%; border: none; background: var(--bg-input); padding: 4px; color: var(--accent); font-size: 0.7rem; font-weight: bold; height: 26px; text-align: center;">
+                                <option value="">-- Class --</option>
+                                <option value="Dry Land">Dry Land</option>
+                                <option value="Converted Dry Land">Converted Dry Land</option>
+                                <option value="Wet Land">Wet Land</option>
+                                <option value="Sthirapunja">Sthirapunja</option>
+                                <option value="Asthirapunja">Asthirapunja</option>
+                                <option value="Thottam">Thottam</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            <input type="text" class="doc-input cls-manual hidden" data-slot="${slotNum}" data-col="${colId}" data-field="land_classification_manual"
+                                placeholder="Specify..." 
+                                style="width: 100%; border: none; background: var(--bg-input); padding: 4px; font-size: 0.7rem; color: var(--accent); text-align: center;">
+                        </div>
+                    </div>
+                `;
             } else {
                 td.innerHTML = `<input type="text" class="doc-input analysis-input${boundaryClass}" data-slot="${slotNum}" data-col="${colId}" data-field="${field}"
-                    style="width: 100%; border: none; background: var(--bg-input); padding: 6px; color: ${field === 'land_extent' ? 'var(--accent)' : 'var(--text-main)'}; font-weight: ${field === 'land_extent' ? 'bold' : 'normal'};">`;
+                    style="width: 100%; border: none; background: var(--bg-input); padding: 6px; text-align: center; color: ${field === 'land_extent' ? 'var(--accent)' : 'var(--text-main)'}; font-weight: ${field === 'land_extent' ? 'bold' : 'normal'};">`;
             }
 
-            if (field.startsWith('boundary_') || field === 'land_classification') {
+            if (field.startsWith('boundary_')) {
                 td.style.display = 'none';
             }
 
@@ -5563,64 +5619,66 @@
         });
 
         attachSurveyListeners(colId);
-        refreshSurveyDropdowns(); // CRITICAL: Populate options so the next line can set the value
-
-        const rootDoc = document.querySelector(`.survey-doc-select[data-slot="${slotNum}"]:not([style*="display: none"])`);
-        if (rootDoc) {
-            const newSelect = headerDoc.querySelector('select');
-            if (newSelect) newSelect.value = rootDoc.value;
-        }
 
         relabelParts(slotNum);
         updateAgreementLabels();
         updateAllBoundaryVisuals();
+        refreshDocHeaderMerges(slotNum);
         triggerAutoSave();
     }
 
     function syncSlotName(slotNum, newVal) {
-        document.querySelectorAll(`.survey-doc-select[data-slot="${slotNum}"]`).forEach(sel => sel.value = newVal);
-        updateSubEntryDocHeaders(slotNum, newVal);
-        updateAgreementLabels();
+        // Obsolete since document names are edited per-slot input, but keeping stub to avoid calls breaking
     }
 
     function updateSubEntryDocHeaders(slotNum, docName) {
-        const safeName = (docName || '').trim() || '--';
-        document.querySelectorAll(`th.slot-group-${slotNum}.is-sub-entry select.survey-doc-select`).forEach(sel => {
-            sel.value = safeName;
-        });
+        // Obsolete stub
     }
 
     function refreshDocHeaderMerges(slotNum) {
-        const docsRow = document.getElementById('surveyHeaderDocs');
+        const docNameRow = document.getElementById('surveyHeaderDocName');
+        const docNoRow = document.getElementById('surveyHeaderDocNo');
+        const docDateRow = document.getElementById('surveyHeaderDocDate');
+        const ownerNameRow = document.getElementById('surveyHeaderOwnerName');
         const schedRow = document.getElementById('surveyHeaderSched');
-        if (!docsRow || !schedRow) return;
+        if (!docNameRow || !schedRow) return;
 
         const activeCols = getActiveSlotColIds(slotNum);
         const visibleCount = activeCols.length || 1;
 
-        const docHeaders = Array.from(docsRow.querySelectorAll(`th.slot-group-${slotNum}`))
-            .filter(th => !th.classList.contains('is-pending-delete'));
+        [docNameRow, docNoRow, docDateRow, ownerNameRow].forEach(row => {
+            if (!row) return;
+            const docHeaders = Array.from(row.querySelectorAll(`th.slot-group-${slotNum}`))
+                .filter(th => !th.classList.contains('is-pending-delete'));
 
-        docHeaders.forEach(th => {
-            if (th.classList.contains(`slot-root-${slotNum}`)) {
-                th.colSpan = visibleCount;
-                th.style.display = '';
-            } else {
-                th.colSpan = 1;
-                th.style.display = 'none';
-            }
+            docHeaders.forEach(th => {
+                if (th.classList.contains(`slot-root-${slotNum}`)) {
+                    th.colSpan = visibleCount;
+                    th.style.display = '';
+                } else {
+                    th.colSpan = 1;
+                    th.style.display = 'none';
+                }
+            });
         });
 
         const schedHeaders = Array.from(schedRow.querySelectorAll(`th.slot-group-${slotNum}`))
             .filter(th => !th.classList.contains('is-pending-delete'));
 
         schedHeaders.forEach(th => {
-            if (th.classList.contains(`slot-root-${slotNum}`)) {
-                th.colSpan = visibleCount;
-                th.style.display = '';
-            } else {
+            if (th.classList.contains('is-sub-entry')) {
                 th.colSpan = 1;
                 th.style.display = 'none';
+            } else {
+                // It's a schedule branch: either slot-root or is-schedule-entry
+                const branchColId = String(th.dataset.colId);
+                // Count active/visible sub-entries under this branch
+                const subEntryCount = schedHeaders.filter(subTh => 
+                    subTh.classList.contains('is-sub-entry') && 
+                    String(subTh.dataset.parentSchedCol) === branchColId
+                ).length;
+                th.colSpan = 1 + subEntryCount;
+                th.style.display = '';
             }
         });
 
@@ -5754,7 +5812,7 @@
             if (id && !colIds.includes(id)) colIds.push(id);
         });
 
-        const docsRow = document.getElementById('surveyHeaderDocs');
+        const docsRow = document.getElementById('surveyHeaderDocName');
 
         // Hide all button groups if slot has no active columns
         if (colIds.length === 0) {
@@ -5787,7 +5845,7 @@
     }
 
     function relabelParts(slotNum) {
-        const docsRow = document.getElementById('surveyHeaderDocs');
+        const docsRow = document.getElementById('surveyHeaderDocName');
         if (!docsRow) return;
 
         const slotHeaders = Array.from(docsRow.querySelectorAll(`th.slot-group-${slotNum}`)).filter(
@@ -5819,15 +5877,43 @@
             }
         });
 
-        const rootDoc = document.querySelector(`.survey-doc-select[data-slot="${slotNum}"]:not([style*="display: none"])`);
+        const rootDoc = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]:not([style*="display: none"])`);
         updateSubEntryDocHeaders(slotNum, rootDoc ? rootDoc.value : '');
         refreshDocHeaderMerges(slotNum);
     }
 
+    function syncBoundariesFromSite(targetColId = null) {
+        ['north', 'east', 'south', 'west'].forEach(dir => {
+            const siteInput = document.querySelector(`.analysis-input[data-col="site_ref"][data-field="boundary_${dir}"]`);
+            if (!siteInput) return;
+            const siteVal = siteInput.value.trim();
+            if (siteVal) {
+                if (targetColId) {
+                    const targetInput = document.querySelector(`.analysis-input[data-col="${targetColId}"][data-field="boundary_${dir}"]`);
+                    if (targetInput && !targetInput.value.trim()) targetInput.value = siteVal;
+                } else {
+                    document.querySelectorAll(`.analysis-input[data-field="boundary_${dir}"]:not([data-col="site_ref"])`).forEach(input => {
+                        if (!input.value.trim()) input.value = siteVal;
+                    });
+                }
+            }
+        });
+    }
+
     function attachSurveyListeners(colId) {
+        if (colId !== 'site_ref') {
+            syncBoundariesFromSite(colId);
+        }
+
         const colFields = document.querySelectorAll(`[data-col="${colId}"]`);
         colFields.forEach(el => {
             el.addEventListener('input', () => {
+                if (colId === 'site_ref' && el.dataset.field && el.dataset.field.startsWith('boundary_')) {
+                    syncBoundariesFromSite();
+                }
+                updateDynamicLabels();
+                updateOwnershipLabels();
+                refreshAllBoundaryDropdowns();
                 updateAgreementLabels();
                 updateAllBoundaryVisuals();
                 // Refresh rules for all buildings since plot area might have changed
@@ -5841,15 +5927,14 @@
                 if (el.classList.contains('cls-select')) {
                     const manual = el.parentElement.querySelector('.cls-manual');
                     if (manual) {
-                        if (el.value === 'others') manual.classList.remove('hidden');
+                        if (el.value.toLowerCase() === 'others') manual.classList.remove('hidden');
                         else manual.classList.add('hidden');
                     }
                 }
 
-                const sel = document.querySelector(`.survey-doc-select[data-col="${colId}"]`);
-                if (sel && !sel.closest('th').classList.contains('is-sub-entry')) {
-                    syncSubEntries(colId, sel.value);
-                }
+                updateDynamicLabels();
+                updateOwnershipLabels();
+                refreshAllBoundaryDropdowns();
                 updateAgreementLabels();
                 updateLandClassificationSummary();
                 updateAllBoundaryVisuals();
@@ -5863,16 +5948,7 @@
         initExcelNavigation();
     }
 
-    function syncSubEntries(parentColId, newVal) {
-        const headerDoc = document.querySelector(`th.survey-col-${parentColId}`);
-        if (!headerDoc) return;
-        let next = headerDoc.nextElementSibling;
-        while (next && next.classList.contains('is-sub-entry')) {
-            const nextSel = next.querySelector('.survey-doc-select');
-            if (nextSel) nextSel.value = newVal;
-            next = next.nextElementSibling;
-        }
-    }
+
 
     function collectSurveyAnalysisData() {
         const data = {};
@@ -5881,25 +5957,25 @@
             if (el.dataset.slot && el.dataset.slot !== 'Site') slotNums.add(el.dataset.slot);
         });
 
-
-
         slotNums.forEach(i => {
             const slotKey = `Document ${i}`;
 
             // 1. Get Root Header for this slot
-            const rootHeader = document.querySelector(`#surveyHeaderDocs .slot-root-${i}:not(.is-pending-delete)`);
+            const rootHeader = document.querySelector(`#surveyHeaderDocName .slot-root-${i}:not(.is-pending-delete)`);
             if (!rootHeader) return;
 
             const rootColId = rootHeader.dataset.colId;
 
-            // 2. Find the visible master dropdown to get the document name
-            let docName = '';
-            const allSelects = document.querySelectorAll(`.survey-doc-select[data-slot="${i}"]`);
-            allSelects.forEach(s => {
-                if (window.getComputedStyle(s).display !== 'none') {
-                    docName = s.value;
-                }
-            });
+            // 2. Get inputs from root header
+            const docNameInput = document.querySelector(`.survey-doc-name-input[data-slot="${i}"]`);
+            const docNoInput = document.querySelector(`.survey-doc-no-input[data-slot="${i}"]`);
+            const docDateInput = document.querySelector(`.survey-doc-date-input[data-slot="${i}"]`);
+            const ownerNameInput = document.querySelector(`.survey-owner-name-input[data-slot="${i}"]`);
+
+            const docName = docNameInput ? docNameInput.value.trim() : '';
+            const docNo = docNoInput ? docNoInput.value.trim() : '';
+            const docDate = docDateInput ? docDateInput.value.trim() : '';
+            const ownerName = ownerNameInput ? ownerNameInput.value.trim() : '';
 
             // 3. Collect Initial Entry Data
             const initialData = {};
@@ -5911,13 +5987,17 @@
                 if (!field) return;
                 const input = row.querySelector(`.analysis-input[data-col="${rootColId}"]`);
                 if (input) {
-                    if (field === 'land_classification') {
-                        const val = input.value;
-                        if (val === 'others') {
-                            const manual = input.parentElement.querySelector('.cls-manual');
-                            initialData[field] = manual ? manual.value : val;
-                        } else {
-                            initialData[field] = val;
+                    if (field === 'land_extent') {
+                        initialData[field] = input.value;
+                        const clsSelect = row.querySelector(`.cls-select[data-col="${rootColId}"]`);
+                        if (clsSelect) {
+                            const val = clsSelect.value;
+                            if (val.toLowerCase() === 'others') {
+                                const manual = clsSelect.parentElement.querySelector('.cls-manual');
+                                initialData['land_classification'] = manual ? manual.value : val;
+                            } else {
+                                initialData['land_classification'] = val;
+                            }
                         }
                     } else {
                         initialData[field] = input.value;
@@ -5927,7 +6007,7 @@
 
             // 4. Collect Parts & Schedules (Sub-entries)
             const partsList = [];
-            const allThs = document.querySelectorAll(`#surveyHeaderDocs .slot-group-${i}:not(.slot-root-${i}):not(.is-pending-delete)`);
+            const allThs = document.querySelectorAll(`#surveyHeaderDocName .slot-group-${i}:not(.slot-root-${i}):not(.is-pending-delete)`);
             allThs.forEach(th => {
                 const subColId = th.dataset.colId;
                 const partData = {};
@@ -5944,13 +6024,17 @@
                     if (!field) return;
                     const input = row.querySelector(`.analysis-input[data-col="${subColId}"]`);
                     if (input) {
-                        if (field === 'land_classification') {
-                            const val = input.value;
-                            if (val === 'others') {
-                                const manual = input.parentElement.querySelector('.cls-manual');
-                                partData[field] = manual ? manual.value : val;
-                            } else {
-                                partData[field] = val;
+                        if (field === 'land_extent') {
+                            partData[field] = input.value;
+                            const clsSelect = row.querySelector(`.cls-select[data-col="${subColId}"]`);
+                            if (clsSelect) {
+                                const val = clsSelect.value;
+                                if (val.toLowerCase() === 'others') {
+                                    const manual = clsSelect.parentElement.querySelector('.cls-manual');
+                                    partData['land_classification'] = manual ? manual.value : val;
+                                } else {
+                                    partData['land_classification'] = val;
+                                }
                             }
                         } else {
                             partData[field] = input.value;
@@ -5962,6 +6046,9 @@
 
             data[slotKey] = {
                 doc_name: docName,
+                doc_no: docNo,
+                doc_date: docDate,
+                owner_name: ownerName,
                 initial: initialData,
                 parts: partsList
             };
@@ -6030,109 +6117,8 @@
         });
     }
 
-    /* OWNERSHIP LOGIC */
-    function addOwnerRow(initialData = {}) {
-        const container = document.getElementById('ownersList');
-        if (!container) return;
-
-        const rowId = 'owner_' + Date.now() + Math.random().toString(36).substr(2, 5);
-        const row = document.createElement('div');
-        row.className = 'owner-row';
-        row.id = rowId;
-        row.style = "display: flex; gap: 12px; align-items: center; margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius: 8px;";
-
-        const currentBasisDocs = getBasisDocuments();
-
-        row.innerHTML = `
-            <div style="flex: 2;">
-                <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Owner Name</label>
-                <input type="text" class="doc-input owner-name-input" placeholder="Enter owner name..." value="${initialData.name || ''}" style="width: 100%;" oninput="updateDynamicLabels(); triggerAutoSave();">
-            </div>
-            <div style="flex: 2;">
-                <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Basis Document</label>
-                <select class="doc-input basis-doc-select" style="width: 100%; height: 40px;" onchange="updateDynamicLabels(); triggerAutoSave();">
-                    <option value="">-- Select Basis Document --</option>
-                    ${currentBasisDocs.map(d => {
-            // Resilient Matching: Check full doc string, doc_no, or doc_id for backward compatibility
-            const savedVal = initialData.doc || initialData.doc_no || initialData.doc_id || '';
-            const isSelected = (savedVal === d.id || savedVal === d.display || (savedVal && d.display.includes(savedVal)));
-            return `<option value="${d.id}" ${isSelected ? 'selected' : ''}>${d.display}</option>`;
-        }).join('')}
-                </select>
-            </div>
-            <button type="button" class="btn-remove" style="margin-top: 18px; height: 40px; width: 40px;">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-        container.appendChild(row);
-
-        // Events
-        row.querySelectorAll('input, select').forEach(el => {
-            el.addEventListener('change', () => { updateOwnershipLabels(); triggerAutoSave(); });
-            el.addEventListener('input', () => { updateOwnershipLabels(); triggerAutoSave(); });
-        });
-
-        row.querySelector('.btn-remove').addEventListener('click', () => {
-            row.remove();
-            updateOwnershipLabels();
-            triggerAutoSave();
-        });
-
-        updateOwnershipLabels();
-    }
-
-    function getBasisDocuments() {
-        const docRows = document.querySelectorAll('#docsList .doc-row');
-        const basisDocs = [];
-        docRows.forEach(row => {
-            const type = row.querySelector('.col-type')?.value || '';
-            const no = row.querySelector('.col-no')?.value || '';
-            const year = row.querySelector('.col-year')?.value || '';
-
-            // Only show Title Deed, Deed, or Sale Certificate
-            const lowerType = type.toLowerCase();
-            if (lowerType.includes('deed') || lowerType.includes('sale certificate')) {
-                let display = type;
-                if (no && year) display += ` No. ${no}/${year}`;
-                else if (no) display += ` No. ${no}`;
-
-                // Use Full Descriptive String as the stable persistent ID (e.g., "Title Deed No. 25/2021")
-                const stableId = display;
-
-                basisDocs.push({
-                    id: stableId,
-                    display: display
-                });
-            }
-        });
-        return basisDocs;
-    }
-
-    function refreshBasisDropdowns() {
-        const basisDocs = getBasisDocuments();
-        const dropdowns = document.querySelectorAll('.basis-doc-select');
-        dropdowns.forEach(dd => {
-            const currentVal = dd.value;
-            dd.innerHTML = `<option value="">-- Select Basis Document --</option>` +
-                basisDocs.map(d => `<option value="${d.id}" ${currentVal == d.id ? 'selected' : ''}>${d.display}</option>`).join('');
-        });
-        updateOwnershipLabels();
-    }
-
-    function removeDocRow(id) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.remove();
-            updateDynamicLabels();
-            refreshAllDropdowns();
-            triggerAutoSave();
-        }
-    }
-
     function resetVerificationForm() {
-        if (document.getElementById('docsList')) document.getElementById('docsList').innerHTML = '';
-        if (document.getElementById('ownersList')) document.getElementById('ownersList').innerHTML = '';
+        initSurveyTable();
 
         ['officeFileNo', 'applicantName', 'inspectionDate', 'personMetAtSite', 'product', 'survey_notes', 'SurveyNotes'].forEach(id => {
             const el = document.getElementById(id);
@@ -6342,43 +6328,7 @@
                 };
                 console.log("Site Visit Data cached in browser memory:", window.siteVisitData);
 
-                // --- CLEAR PRIOR CONTROLS ---
-                const docsList = document.getElementById('docsList');
-                const ownersList = document.getElementById('ownersList');
-                if (docsList) docsList.innerHTML = '';
-                if (ownersList) ownersList.innerHTML = '';
 
-                // Prioritize DynamicDocuments
-                const siteDocs = payload.DynamicDocuments || [];
-                if (siteDocs.length > 0) {
-                    siteDocs.forEach(doc => {
-                        addDocumentRow({
-                            type: doc.type,
-                            document_no: doc.document_no || doc.no || doc.certificate_no || '',
-                            date: doc.date || '',
-                            year: doc.year || ''
-                        });
-                    });
-                } else if (payload.documents_received && Array.isArray(payload.documents_received)) {
-                    // Fallback to old format
-                    payload.documents_received.forEach(doc => {
-                        if (typeof doc === 'string') addDocumentRow({ type: doc });
-                        else {
-                            // Map key variations
-                            addDocumentRow({
-                                type: doc.type,
-                                document_no: doc.document_no || doc.no || doc.certificate_no || '',
-                                date: doc.date || '',
-                                year: doc.year || ''
-                            });
-                        }
-                    });
-                }
-
-                const ownersData = payload.owners_data || [];
-                if (ownersData.length > 0) {
-                    ownersData.forEach(owner => addOwnerRow(owner));
-                }
 
                 // --- POPULATE SCHEDULE ---
                 const sched = payload.schedule_data || {};
@@ -6421,15 +6371,62 @@
                 }
 
                 // --- POPULATE SURVEY ANALYSIS (DYNAMIC REBUILD) ---
-                const surveyData = payload.survey_land_extend || {};
+                let surveyData = payload.survey_land_extend || {};
+
+                // Legacy draft fallback migration
+                if (Object.keys(surveyData).length === 0) {
+                    const legacyDocs = payload.DynamicDocuments || payload.documents_received || [];
+                    if (legacyDocs.length > 0) {
+                        surveyData = {};
+                        legacyDocs.forEach((doc, idx) => {
+                            const sNum = idx + 1;
+                            const dName = typeof doc === 'string' ? doc : (doc.type || '');
+                            const dNo = typeof doc === 'string' ? '' : (doc.document_no || doc.no || doc.certificate_no || '');
+                            const dDate = typeof doc === 'string' ? '' : (doc.date || '');
+
+                            let oName = '';
+                            const ownersData = payload.owners_data || [];
+                            if (ownersData[idx]) {
+                                oName = ownersData[idx].name || '';
+                            } else if (ownersData.length > 0) {
+                                oName = ownersData[0].name || '';
+                            }
+
+                            surveyData[`Document ${sNum}`] = {
+                                doc_name: dName,
+                                doc_no: dNo,
+                                doc_date: dDate,
+                                owner_name: oName,
+                                initial: {
+                                    schedule_no: 'Schedule I',
+                                    land_extent: '',
+                                    land_classification: '',
+                                    boundary_north: '',
+                                    boundary_east: '',
+                                    boundary_south: '',
+                                    boundary_west: ''
+                                },
+                                parts: []
+                            };
+                        });
+                    }
+                }
+
                 const slotKeys = Object.keys(surveyData).filter(k => k.startsWith('Document '));
 
                 // 1. Reset Table Structure
-                const headerDocs = document.getElementById('surveyHeaderDocs');
+                const headerDocName = document.getElementById('surveyHeaderDocName');
+                const headerDocNo = document.getElementById('surveyHeaderDocNo');
+                const headerDocDate = document.getElementById('surveyHeaderDocDate');
+                const headerOwnerName = document.getElementById('surveyHeaderOwnerName');
                 const headerSched = document.getElementById('surveyHeaderSched');
                 const headerSub = document.getElementById('surveyHeaderSub');
                 const bodyRows = document.querySelectorAll('#surveyTableBody .analysis-row');
-                headerDocs.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Select Document</th>';
+
+                headerDocName.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Document Name</th>';
+                headerDocNo.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Document No.</th>';
+                headerDocDate.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Document Date</th>';
+                headerOwnerName.innerHTML = '<th style="padding: 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Owner Name</th>';
                 headerSched.innerHTML = '<th style="padding: 10px 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Schedule No.</th>';
                 headerSub.innerHTML = '<th style="padding: 10px 15px; width: 220px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">Survey Parcel no.</th>';
                 bodyRows.forEach(row => row.innerHTML = `<td style="padding: 10px 15px; color: var(--text-dim); background: var(--bg-card); position: sticky; left: 0; z-index: 5; border-right: 2px solid var(--border); font-weight: 600;">${row.querySelector('td')?.innerText || ''}</td>`);
@@ -6443,14 +6440,27 @@
                         const slotData = surveyData[`Document ${sNum}`];
                         if (!slotData) return;
                         addMasterSlot(sNum);
-                        refreshSurveyDropdowns(); // Populate options for the new slot
 
-                        const rootColId = document.querySelector(`#surveyHeaderDocs .slot-root-${sNum}`)?.dataset.colId;
-                        const rootSelect = document.querySelector(`.survey-doc-select[data-slot="${sNum}"]:not([style*="display: none"])`);
-                        if (rootSelect) { rootSelect.value = slotData.doc_name || ''; syncSlotName(sNum, rootSelect.value); }
+                        const rootColId = document.querySelector(`#surveyHeaderDocName .slot-root-${sNum}`)?.dataset.colId;
 
-                        // Set Schedule No input
-                        if (rootColId && slotData.initial) {
+                        if (rootColId) {
+                            // Populate 4 header fields
+                            const docNameInput = document.querySelector(`.survey-doc-name-input[data-slot="${sNum}"][data-col="${rootColId}"]`);
+                            const docNoInput = document.querySelector(`.survey-doc-no-input[data-slot="${sNum}"][data-col="${rootColId}"]`);
+                            const docDateInput = document.querySelector(`.survey-doc-date-input[data-slot="${sNum}"][data-col="${rootColId}"]`);
+                            const ownerNameInput = document.querySelector(`.survey-owner-name-input[data-slot="${sNum}"][data-col="${rootColId}"]`);
+
+                            if (docNameInput) docNameInput.value = slotData.doc_name || '';
+                            if (docNoInput) docNoInput.value = slotData.doc_no || '';
+                            if (docDateInput) {
+                                docDateInput.value = slotData.doc_date || '';
+                                if (docDateInput._flatpickr) {
+                                    docDateInput._flatpickr.setDate(slotData.doc_date || '');
+                                }
+                            }
+                            if (ownerNameInput) ownerNameInput.value = slotData.owner_name || '';
+
+                            // Set Schedule No input
                             const initialSchedInput = document.querySelector(`#surveyHeaderSched .schedule-no-input[data-col="${rootColId}"]`);
                             if (initialSchedInput) {
                                 initialSchedInput.value = slotData.initial.schedule_no || '';
@@ -6458,23 +6468,27 @@
 
                             document.querySelectorAll('.analysis-row').forEach(row => {
                                 const field = row.dataset.field;
-                                const input = row.querySelector(`.analysis-input[data-col="${rootColId}"]`);
+                                const input = row.querySelector(`.analysis-input[data-col="${rootColId}"][data-field="${field}"]`);
                                 if (input && slotData.initial[field] !== undefined) {
-                                    const val = slotData.initial[field];
-                                    if (field === 'land_classification') {
-                                        const options = Array.from(input.options).map(o => o.value);
+                                    input.value = slotData.initial[field];
+                                }
+
+                                // Handle land classification select & manual inside the land_extent td cell
+                                if (slotData.initial.land_classification !== undefined) {
+                                    const select = row.querySelector(`.cls-select[data-col="${rootColId}"]`);
+                                    if (select) {
+                                        const val = slotData.initial.land_classification;
+                                        const options = Array.from(select.options).map(o => o.value);
                                         if (options.includes(val)) {
-                                            input.value = val;
+                                            select.value = val;
                                         } else if (val) {
-                                            input.value = 'others';
-                                            const manual = input.parentElement.querySelector('.cls-manual');
+                                            select.value = 'Others';
+                                            const manual = select.parentElement.querySelector('.cls-manual');
                                             if (manual) {
                                                 manual.value = val;
                                                 manual.classList.remove('hidden');
                                             }
                                         }
-                                    } else {
-                                        input.value = val;
                                     }
                                 }
                             });
@@ -6488,7 +6502,6 @@
                                 } else {
                                     addSubEntry(sNum, lastColId);
                                 }
-                                refreshSurveyDropdowns(); // Populate options for the new part
 
                                 const newColHeaders = document.querySelectorAll(`th.slot-group-${sNum}`);
                                 const lastTh = Array.from(newColHeaders).pop();
@@ -6504,23 +6517,27 @@
 
                                     document.querySelectorAll('.analysis-row').forEach(row => {
                                         const field = row.dataset.field;
-                                        const input = row.querySelector(`.analysis-input[data-col="${newColId}"]`);
+                                        const input = row.querySelector(`.analysis-input[data-col="${newColId}"][data-field="${field}"]`);
                                         if (input && part[field] !== undefined) {
-                                            const val = part[field];
-                                            if (field === 'land_classification') {
-                                                const options = Array.from(input.options).map(o => o.value);
+                                            input.value = part[field];
+                                        }
+
+                                        // Handle land classification select & manual inside the land_extent td cell
+                                        if (part.land_classification !== undefined) {
+                                            const select = row.querySelector(`.cls-select[data-col="${newColId}"]`);
+                                            if (select) {
+                                                const val = part.land_classification;
+                                                const options = Array.from(select.options).map(o => o.value);
                                                 if (options.includes(val)) {
-                                                    input.value = val;
+                                                    select.value = val;
                                                 } else if (val) {
-                                                    input.value = 'others';
-                                                    const manual = input.parentElement.querySelector('.cls-manual');
+                                                    select.value = 'Others';
+                                                    const manual = select.parentElement.querySelector('.cls-manual');
                                                     if (manual) {
                                                         manual.value = val;
                                                         manual.classList.remove('hidden');
                                                     }
                                                 }
-                                            } else {
-                                                input.value = val;
                                             }
                                         }
                                     });
@@ -6538,7 +6555,7 @@
                 const bVW = document.getElementById('boundaryVerifiedWith');
                 const bM = document.getElementById('boundaryMatches');
                 if (bVW) {
-                    refreshSurveyDropdowns(); // Ensure options are populated
+                    refreshAllBoundaryDropdowns(); // Ensure options are populated
                     bVW.value = payload.BoundaryVerifiedWith || '';
                 }
                 if (bM) bM.value = payload.BoundaryMatches || '';
@@ -8019,6 +8036,13 @@
                             <td id="bldg_${bIdx}_value_total" style="text-align: right; color: var(--accent); padding-right: 10px;">0.00</td>
                             <td></td>
                         </tr>
+                        <tr style="background: var(--bg-header); font-weight: 700; font-size: 0.68rem;">
+                            <td colspan="2" style="text-align: right; padding-right: 15px; color: var(--text-dim);">COMPOSITE RATE</td>
+                            <td id="bldg_${bIdx}_composite_sqm" style="text-align: center; color: var(--accent); font-style: italic;">0.00</td>
+                            <td id="bldg_${bIdx}_composite_sqft" style="text-align: center; color: var(--accent); font-style: italic;">0.00</td>
+                            <td colspan="7" style="text-align: left; padding-left: 15px; color: var(--text-dim); font-weight: 400; font-style: italic;">= Total Value ÷ BUA</td>
+                            <td></td>
+                        </tr>
                     </tfoot>
                 </table>
 
@@ -8259,6 +8283,18 @@
             if (bupSqmTotalEl) bupSqmTotalEl.innerText = bupSqmSum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             if (bupSqftTotalEl) bupSqftTotalEl.innerText = bupSqftSum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             if (valueTotalEl) valueTotalEl.innerText = valueSum.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+            // Composite Rate = Total Value / BUA
+            const compositeSqmEl = document.getElementById(`bldg_${bIdx}_composite_sqm`);
+            const compositeSqftEl = document.getElementById(`bldg_${bIdx}_composite_sqft`);
+            if (compositeSqmEl) {
+                const rate = bupSqmSum > 0 ? (valueSum / bupSqmSum) : 0;
+                compositeSqmEl.innerText = rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+            if (compositeSqftEl) {
+                const rate = bupSqftSum > 0 ? (valueSum / bupSqftSum) : 0;
+                compositeSqftEl.innerText = rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
         });
     }
 
@@ -8367,36 +8403,30 @@
     }
 
     function updateDynamicLabels() {
-        const rows = document.querySelectorAll('#docsList .doc-row');
         const docStrings = [];
+        const slotNums = new Set();
+        document.querySelectorAll('[data-slot]').forEach(el => {
+            if (el.dataset.slot && el.dataset.slot !== 'Site') slotNums.add(el.dataset.slot);
+        });
 
-        rows.forEach((row) => {
-            const typeInput = row.querySelector('.col-type');
-            const noInput = row.querySelector('.col-no');
-            const dateInput = row.querySelector('.col-date');
-            const yearInput = row.querySelector('.col-year');
+        slotNums.forEach(i => {
+            const nameInput = document.querySelector(`.survey-doc-name-input[data-slot="${i}"]`);
+            const noInput = document.querySelector(`.survey-doc-no-input[data-slot="${i}"]`);
+            const dateInput = document.querySelector(`.survey-doc-date-input[data-slot="${i}"]`);
 
-            if (!typeInput) return;
-
-            const type = typeInput.value.trim();
+            const name = nameInput ? nameInput.value.trim() : '';
             const no = noInput ? noInput.value.trim() : '';
-            const date = dateInput ? dateInput.value : '';
-            const year = yearInput ? yearInput.value.trim() : '';
+            const date = dateInput ? dateInput.value.trim() : '';
 
-            if (!type) return;
+            if (!name) return;
 
-            let segment = type;
-            if (no && year) {
-                segment += ` No. ${no}/${year}`; // Combine No. and Year with a slash
-            } else if (no) {
+            let segment = name;
+            if (no) {
                 segment += ` No. ${no}`;
-            } else if (year) {
-                segment += ` of ${year}`;
             }
 
-            const formattedDate = formatDateDDMMYYYY(date);
-            if (formattedDate) {
-                segment += ` dated ${formattedDate}`;
+            if (date) {
+                segment += ` dated ${date}`;
             }
 
             docStrings.push(segment);
@@ -8439,12 +8469,13 @@
             }
         });
 
-        const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+        const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
         headerThs.forEach(th => {
             const colId = th.dataset.colId;
             if (colId === 'site_ref') return;
-            const select = th.querySelector('.survey-doc-select');
-            const docName = select ? select.value : '';
+            const slotNum = th.dataset.slot;
+            const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+            const docName = docInput ? docInput.value.trim() : '';
             if (!docName) return;
 
             const schedInput = document.querySelector(`#surveyHeaderSched .schedule-no-input[data-col="${colId}"]`);
@@ -8540,12 +8571,13 @@
 
         if (indivStates) {
             window.loadedIndividualStates = indivStates;
-            const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+            const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
             headerThs.forEach(th => {
                 const colId = th.dataset.colId;
                 if (colId === 'site_ref') return;
-                const select = th.querySelector('.survey-doc-select');
-                const docName = select ? select.value : '';
+                const slotNum = th.dataset.slot;
+                const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+                const docName = docInput ? docInput.value.trim() : '';
                 if (!docName) return;
 
                 const schedInput = document.querySelector(`#surveyHeaderSched .schedule-no-input[data-col="${colId}"]`);
@@ -9103,18 +9135,29 @@
 
             if (!cat) continue;
 
+            let docStr = slot.doc_name;
+            if (slot.doc_no) docStr += ` No. ${slot.doc_no}`;
+            if (slot.doc_date) {
+                const yearMatch = slot.doc_date.match(/\d{4}/);
+                if (yearMatch) {
+                    docStr += ` /${yearMatch[0]}`;
+                } else {
+                    docStr += ` /${slot.doc_date}`;
+                }
+            }
+
             const processEntry = (entry) => {
                 const area = parseFloat(entry.land_extent) || 0;
-                const cls = (entry.land_classification || '').toLowerCase();
+                const cls = (entry.land_classification || '').trim();
                 if (!cls) return;
 
                 cats[cat].items.push({
-                    doc: slot.doc_name,
+                    doc: docStr,
                     area: area,
-                    cls: entry.land_classification
+                    cls: cls
                 });
                 cats[cat].totalArea += area;
-                if (cls === 'wet' || cls === 'wet land') cats[cat].wetArea += area;
+                if (cls.toLowerCase() === 'wet' || cls.toLowerCase() === 'wet land') cats[cat].wetArea += area;
             };
 
             processEntry(slot.initial);
@@ -9143,7 +9186,7 @@
         let grouped = {}; // { 'purayidam': ['Title Deed No. 11/2000', 'Land Tax Receipt No. 22/2026'] }
         for (let c in cats) {
             cats[c].items.forEach(item => {
-                const cls = (item.cls || '').toLowerCase().trim();
+                const cls = item.cls;
                 if (!cls) return;
                 if (!grouped[cls]) grouped[cls] = [];
                 // Avoid duplicate document names in the same category
@@ -9281,30 +9324,70 @@
     }
 
     function updateOwnershipLabels() {
-        const rows = document.querySelectorAll('#ownersList .owner-row');
         const output = document.getElementById('ownershipLabelOutput');
         if (!output) return;
 
-        const docs = getBasisDocuments();
         const sroName = document.getElementById('sched_sro')?.value.trim() || '';
-        const segments = [];
+        const ownerGroups = {};
 
-        rows.forEach(row => {
-            const name = row.querySelector('.owner-name-input')?.value.trim() || '';
-            const docFull = row.querySelector('.basis-doc-select')?.value;
-            const docObj = docs.find(d => d.id === docFull);
+        const slotNums = new Set();
+        document.querySelectorAll('[data-slot]').forEach(el => {
+            if (el.dataset.slot && el.dataset.slot !== 'Site') slotNums.add(el.dataset.slot);
+        });
 
-            if (name && docObj) {
-                let segment = `${name}, acquired through ${docObj.display}`;
-                // Only add SRO for deeds
-                if (sroName && docObj.display.toLowerCase().includes('deed')) {
-                    segment += ` registered at ${sroName} SRO`;
+        slotNums.forEach(i => {
+            const nameInput = document.querySelector(`.survey-doc-name-input[data-slot="${i}"]`);
+            const noInput = document.querySelector(`.survey-doc-no-input[data-slot="${i}"]`);
+            const dateInput = document.querySelector(`.survey-doc-date-input[data-slot="${i}"]`);
+            const ownerInput = document.querySelector(`.survey-owner-name-input[data-slot="${i}"]`);
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const no = noInput ? noInput.value.trim() : '';
+            const date = dateInput ? dateInput.value.trim() : '';
+            const owner = ownerInput ? ownerInput.value.trim() : '';
+
+            if (owner) {
+                if (!ownerGroups[owner]) {
+                    ownerGroups[owner] = [];
                 }
-                segments.push(segment);
-            } else if (name) {
-                segments.push(name);
+
+                if (name) {
+                    let docDisplay = name;
+                    if (no) docDisplay += ` No. ${no}`;
+                    if (date) {
+                        const yearMatch = date.match(/\d{4}/);
+                        if (yearMatch) {
+                            docDisplay += ` /${yearMatch[0]}`;
+                        } else {
+                            docDisplay += ` /${date}`;
+                        }
+                    }
+
+                    let segment = `acquired through ${docDisplay}`;
+                    if (sroName) {
+                        segment += ` registered at ${sroName} SRO`;
+                    }
+                    ownerGroups[owner].push({
+                        name: name.toLowerCase(),
+                        segment: segment
+                    });
+                }
             }
         });
+
+        const segments = [];
+        for (const [owner, docs] of Object.entries(ownerGroups)) {
+            if (docs.length === 0) {
+                segments.push(owner);
+            } else {
+                const deedDoc = docs.find(d => d.name.includes('deed'));
+                if (deedDoc) {
+                    segments.push(`${owner}, ${deedDoc.segment}`);
+                } else {
+                    segments.push(`${owner}, ${docs[0].segment}`);
+                }
+            }
+        }
 
         if (segments.length === 0) {
             output.innerText = "The subject property is owned by...";
@@ -9323,29 +9406,40 @@
         updateMasterSynthesis();
     }
 
-    function refreshSurveyDropdowns() {
-        const allDocs = getAllReceivedDocuments();
-        const dropdowns = document.querySelectorAll('.survey-doc-select');
-        dropdowns.forEach(dd => {
-            const currentVal = dd.value;
-            dd.innerHTML = `<option value="">-- Choose --</option>` +
-                allDocs.map(d => `<option value="${d.id}" ${currentVal == d.id ? 'selected' : ''}>${d.display}</option>`).join('');
-        });
-    }
-
     function getAllReceivedDocuments() {
-        const docRows = document.querySelectorAll('#docsList .doc-row');
         const docs = [];
-        docRows.forEach(row => {
-            const type = row.querySelector('.col-type')?.value || '';
-            if (type.toLowerCase().includes('building')) return;
-            const no = row.querySelector('.col-no')?.value || '';
-            const year = row.querySelector('.col-year')?.value || '';
-            let display = type;
-            if (no && year) display += ` No. ${no}/${year}`;
-            else if (no) display += ` No. ${no}`;
-            else if (year) display += ` (${year})`;
-            if (display) docs.push({ id: display, display: display });
+        const slotNums = new Set();
+        document.querySelectorAll('[data-slot]').forEach(el => {
+            if (el.dataset.slot && el.dataset.slot !== 'Site') slotNums.add(el.dataset.slot);
+        });
+
+        slotNums.forEach(i => {
+            const nameInput = document.querySelector(`.survey-doc-name-input[data-slot="${i}"]`);
+            const noInput = document.querySelector(`.survey-doc-no-input[data-slot="${i}"]`);
+            const dateInput = document.querySelector(`.survey-doc-date-input[data-slot="${i}"]`);
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const no = noInput ? noInput.value.trim() : '';
+            const date = dateInput ? dateInput.value.trim() : '';
+
+            if (name) {
+                if (name.toLowerCase().includes('building')) return;
+
+                let display = name;
+                if (no) display += ` No. ${no}`;
+                if (date) {
+                    const yearMatch = date.match(/\d{4}/);
+                    if (yearMatch) {
+                        display += ` /${yearMatch[0]}`;
+                    } else {
+                        display += ` /${date}`;
+                    }
+                }
+
+                if (!docs.some(d => d.id === display)) {
+                    docs.push({ id: display, display: display });
+                }
+            }
         });
         return docs;
     }
@@ -9607,12 +9701,13 @@
 
         // Fallback: if boundary comparison table is empty, read from survey analysis table
         if (Object.keys(boundaries).length === 0) {
-            const headerThs = document.querySelectorAll('#surveyHeaderDocs th[data-col-id]:not(.is-pending-delete)');
+            const headerThs = document.querySelectorAll('#surveyHeaderDocName th[data-col-id]:not(.is-pending-delete)');
             headerThs.forEach(th => {
                 const colId = th.dataset.colId;
                 if (colId === 'site_ref') return;
-                const select = th.querySelector('.survey-doc-select');
-                const docName = select ? select.value : '';
+                const slotNum = th.dataset.slot;
+                const docInput = document.querySelector(`.survey-doc-name-input[data-slot="${slotNum}"]`);
+                const docName = docInput ? docInput.value.trim() : '';
                 if (!docName) return;
 
                 const n = document.querySelector(`#surveyTableBody tr[data-field="boundary_north"] td.survey-col-${colId} input`)?.value.trim() || '';
@@ -9636,7 +9731,8 @@
         }
 
         // 1. Find Priority Doc (Manual Selection > Title Deed > Others)
-        const manualDoc = document.getElementById('boundaryVerifiedWith')?.value;
+        const manualDocFullName = document.getElementById('boundaryVerifiedWith')?.value || '';
+        const manualDoc = manualDocFullName.split(' No.')[0].split(' /')[0].split(' (')[0].trim();
         const priorityDoc = (manualDoc && docs.includes(manualDoc)) ? manualDoc : (docs.find(d => d.toLowerCase().includes('title deed')) || docs[0]);
         const docObj = boundaries[priorityDoc];
 

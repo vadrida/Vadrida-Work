@@ -13,6 +13,7 @@ from PyPDF2 import PdfMerger
 from PIL import Image, ImageDraw
 from datetime import datetime, timedelta
 import time
+import calendar
 from django.conf import settings
 from coreapi.search_index import get_index
 from coreapi.search_index import refresh_index
@@ -26,7 +27,7 @@ from django.db.models import Q, Max
 import uuid
 from django.contrib.auth.decorators import login_required
 from weasyprint import HTML, CSS
-from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport, WorkSession
 import fitz  
 from django.shortcuts import render, get_object_or_404
 import shutil
@@ -610,8 +611,27 @@ def login_api(request):
     request.session["user_name"] = user.user_name
     request.session["user_email"] = user.email
     request.session["user_role"] = user.role
-    request.session.set_expiry(604800)  
+    # Set session validity (24 hours for office users, 7 days for others)
+    if user.role.lower() == 'office':
+        request.session.set_expiry(86400)
+    else:
+        request.session.set_expiry(604800)  
     request.session.modified = True
+
+    # --- WORK SESSION TRACKING ---
+    now = timezone.now()
+    today = now.date()
+    session_obj, created = WorkSession.objects.get_or_create(
+        user=user,
+        date=today,
+        defaults={'login_time': now, 'is_active': True}
+    )
+    if not created:
+        # Resuming an existing session today — reactivate it
+        session_obj.is_active = True
+        session_obj.save(update_fields=['is_active'])
+    # Store the original login_time as ISO string in the Django session for the JS timer
+    request.session["work_session_start"] = session_obj.login_time.isoformat()
 
     # 🚨 THE FIX: Intercept the developer login
     if user.user_name == 'alnroy':
@@ -627,6 +647,23 @@ def login_api(request):
 
 
 def logout_api(request):
+    # --- CLOSE WORK SESSION & RECORD HOURS ---
+    user_id = request.session.get("user_id")
+    if user_id:
+        try:
+            now = timezone.now()
+            today = now.date()
+            session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
+            if session_obj:
+                elapsed = (now - session_obj.login_time).total_seconds() / 3600.0  # hours
+                session_obj.logout_time = now
+                session_obj.hours_worked = round(min(elapsed, 10.0), 2)  # Cap at 10h
+                session_obj.overtime_hours = round(max(elapsed - 8.0, 0), 2)  # OT starts after 8h
+                session_obj.is_active = False
+                session_obj.save()
+        except Exception:
+            pass  # Don't block logout on tracking errors
+
     request.session.flush()
     return redirect("coreapi:login_page")
 
@@ -651,10 +688,57 @@ def office(request):
     except UserProfile.DoesNotExist:
         return redirect("coreapi:login_page")
 
+    # --- CALCULATE MONTHLY TARGETS ---
+    now = timezone.now()
+    year = now.year
+    month = now.month
+    _, total_days = calendar.monthrange(year, month)
+    
+    # Calculate Sundays (0=Monday, 6=Sunday)
+    sundays = len([1 for i in calendar.monthcalendar(year, month) if i[6] != 0])
+    
+    working_days = total_days - sundays
+    files_per_day = 5
+    credits_per_file = 6
+    
+    target_files = working_days * files_per_day
+    target_credits = target_files * credits_per_file
+
+    # --- 6-MONTH TREND DATA (Mock for now) ---
+    month_names = []
+    for i in range(5, -1, -1):
+        m = now.month - i
+        y = now.year
+        if m <= 0:
+            m += 12
+            y -= 1
+        month_names.append(calendar.month_abbr[m])
+        
+    mock_files = [85, 92, 78, 105, 88, 112]  # Mock data
+    current_month_files = mock_files[-1]
+    prev_month_files = mock_files[-2]
+    
+    diff = current_month_files - prev_month_files
+    is_trend_up = diff >= 0
+    trend_diff = abs(diff)
+
     context = {
         "user_profile": user_profile,
         "last_login": user_profile.last_seen if user_profile.last_seen else "Never",
-        "created_at": user_profile.created_at
+        "created_at": user_profile.created_at,
+        "month_total_days": total_days,
+        "month_sundays": sundays,
+        "month_working_days": working_days,
+        "target_files": target_files,
+        "target_credits": target_credits,
+        "files_per_day": files_per_day,
+        "credits_per_file": credits_per_file,
+        "months_labels_json": json.dumps(month_names),
+        "months_data_json": json.dumps(mock_files),
+        "current_month_files": current_month_files,
+        "prev_month_files": prev_month_files,
+        "is_trend_up": is_trend_up,
+        "trend_diff": trend_diff
     }
     return render(request, "office.html", context)
 
@@ -781,9 +865,8 @@ def create_folder_api(request):
                         'success': False,
                         'error': f'Folder exists on disk but could not be registered in DB: {reg_err}'
                     })
-
             else:
-                # 5. Save to DB FIRST (inside transaction — if this fails, nothing on disk is touched)
+                # 5. Save to DB FIRST (inside transaction - if this fails, nothing on disk is touched)
                 ClientFolder.objects.create(
                     unique_file_no=unique_id,
                     year=year,
@@ -798,40 +881,41 @@ def create_folder_api(request):
                     full_folder_path=full_path
                 )
 
-                # 6. Now create the folder on disk (DB record already safe)
-                os.makedirs(full_path, exist_ok=True)
+        # === DB TRANSACTION COMMITTED SUCCESSFULLY ===
+        # 6. Now create the folder on disk (DB record already safely committed)
+        os.makedirs(full_path, exist_ok=True)
 
-            # --- NEW: COPY EXCEL TEMPLATE ---
-            try:
-                # 1. Get Bank Name (from our global list)
-                bank_map = {b['code']: b['name'] for b in BANKS}
-                bank_name = bank_map.get(bank_code)
+        # --- NEW: COPY EXCEL TEMPLATE ---
+        try:
+            # 1. Get Bank Name (from our global list)
+            bank_map = {b['code']: b['name'] for b in BANKS}
+            bank_name = bank_map.get(bank_code)
 
-                if bank_name:
-                    # --- CUSTOM LOGIC FOR MAHINDRA: Use Chola Template ---
-                    lookup_name = bank_name
-                    if bank_name == "Mahindra Home Finance":
-                        lookup_name = "Chola"
+            if bank_name:
+                # --- CUSTOM LOGIC FOR MAHINDRA: Use Chola Template ---
+                lookup_name = bank_name
+                if bank_name == "Mahindra Home Finance":
+                    lookup_name = "Chola"
 
-                    # 2. Check for template in static/excels/
-                    template_filename = f"{lookup_name}.xlsm"
-                    template_src = os.path.join(settings.BASE_DIR, 'static', 'excels', template_filename)
+                # 2. Check for template in static/excels/
+                template_filename = f"{lookup_name}.xlsm"
+                template_src = os.path.join(settings.BASE_DIR, 'static', 'excels', template_filename)
 
-                    if os.path.exists(template_src):
-                        # 3. New Format: OfficeFileNo_BankFileNo_Applicant
-                        office_no = unique_id
-                        bank_ref = str(meta.get('bank_ref', 'XXXX')).strip().replace(' ', '_')
-                        applicant_sanitized = str(meta.get('applicant', 'Report')).strip().replace(' ', '_')
-                        
-                        new_excel_name = f"{office_no}_{bank_ref}_{applicant_sanitized}.xlsm"
-                        excel_dest = os.path.join(full_path, new_excel_name)
+                if os.path.exists(template_src):
+                    # 3. New Format: OfficeFileNo_BankFileNo_Applicant
+                    office_no = unique_id
+                    bank_ref = str(meta.get('bank_ref', 'XXXX')).strip().replace(' ', '_')
+                    applicant_sanitized = str(meta.get('applicant', 'Report')).strip().replace(' ', '_')
+                    
+                    new_excel_name = f"{office_no}_{bank_ref}_{applicant_sanitized}.xlsm"
+                    excel_dest = os.path.join(full_path, new_excel_name)
 
-                        # 4. Copy the file
-                        shutil.copy2(template_src, excel_dest)
-                        print(f"Excel template copied: {new_excel_name}")
-            except Exception as ex:
-                # We skip errors here so the folder creation isn't aborted if template copy fails
-                print(f"Warning: Excel template copy skipped: {ex}")
+                    # 4. Copy the file
+                    shutil.copy2(template_src, excel_dest)
+                    print(f"Excel template copied: {new_excel_name}")
+        except Exception as ex:
+            # We skip errors here so the folder creation isn't aborted if template copy fails
+            print(f"Warning: Excel template copy skipped: {ex}")
 
         return JsonResponse({'success': True, 'new_id': unique_id, 'saved_in_kollam': was_redirected})
 
@@ -2955,9 +3039,21 @@ def digital_signer(request):
     if not request.session.get("user_id"): return redirect("coreapi:login_page")
     return render(request, "digital_signer.html")
 
+import threading
+DSC_TOKEN_LOCK = threading.Lock()
+
 @csrf_exempt
 @require_POST
 def digital_sign_pdf_api(request):
+    try:
+        with DSC_TOKEN_LOCK:
+            return _digital_sign_pdf_api_internal(request)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': f"Critical Error: {str(e)}"}, status=500)
+
+def _digital_sign_pdf_api_internal(request):
     """
     Performs digital signing using a Hardware DSC Token.
     """
@@ -2967,6 +3063,8 @@ def digital_sign_pdf_api(request):
         import io, os
 
         pdf_file = request.FILES.get('pdf')
+        file_path = request.POST.get('file_path')
+        case_type = request.POST.get('case_type')
         x, y, w, h = float(request.POST.get('x', 0)), float(request.POST.get('y', 0)), float(request.POST.get('w', 100)), float(request.POST.get('h', 50))
         page = int(request.POST.get('page', 1))
         user_password = request.POST.get('password')
@@ -2976,13 +3074,18 @@ def digital_sign_pdf_api(request):
             return JsonResponse({'success': False, 'error': 'Invalid Password'}, status=403)
 
         # Token Configuration
-        # (Forced bypassing os.environ to ignore the old cached .env value without requiring a server restart)
         PKCS11_LIB = os.environ.get('PKCS11_LIB')
         USER_PIN = os.environ.get('DSC_PIN')
 
-        # Use the original uploaded PDF stream directly
-        pdf_file.seek(0)
-        clean_pdf = io.BytesIO(pdf_file.read())
+        if file_path and os.path.exists(file_path):
+            with open(file_path, 'rb') as f:
+                clean_pdf = io.BytesIO(f.read())
+        elif pdf_file:
+            pdf_file.seek(0)
+            clean_pdf = io.BytesIO(pdf_file.read())
+        else:
+            return JsonResponse({'success': False, 'error': 'No PDF provided'}, status=400)
+        
         clean_pdf.seek(0)
 
         # 2. Use strict=False to handle malformed or hybrid PDFs
@@ -3116,13 +3219,31 @@ def digital_sign_pdf_api(request):
         if not final_data or len(final_data) < 100:
             raise Exception("Signing produced an empty or corrupted file. Check your USB Token.")
 
-        response = HttpResponse(final_data, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="Signed_{pdf_file.name}"'
-        # 🚨 Prevent browser/SW from caching the result
-        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-        response['Pragma'] = 'no-cache'
-        return response
+        if file_path:
+            # Save it to disk with _DSC
+            base, ext = os.path.splitext(file_path)
+            dsc_path = f"{base}_DSC{ext}"
+            with open(dsc_path, 'wb') as out_f:
+                out_f.write(final_data)
+                
+            return JsonResponse({'success': True, 'dsc_path': dsc_path, 'case_type': case_type})
+        else:
+            response = HttpResponse(final_data, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="Signed_{pdf_file.name}"'
+            response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response['Pragma'] = 'no-cache'
+            return response
     except Exception as e:
         import traceback
         traceback.print_exc()
         return JsonResponse({'success': False, 'error': f"Critical Error: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+def serve_local_pdf(request):
+    import os
+    from django.http import FileResponse, JsonResponse
+    file_path = request.GET.get('path')
+    if file_path and os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    return JsonResponse({'error': 'File not found'}, status=404)

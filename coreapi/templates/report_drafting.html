@@ -835,11 +835,11 @@
                                 style="text-align: left; vertical-align: top;"></td>
                         </tr>
                         <tr>
-                            <td class="label-cell"
-                                style="text-align: left; font-weight: bold; height: 120px; vertical-align: middle;">
-                                Remarks If Any</td>
-                            <td class="value-cell" id="val_val_remarks" colspan="3"
-                                style="text-align: left; vertical-align: top; font-weight: bold; padding: 10px;"></td>
+                            <td colspan="4" style="padding: 4px 6px; vertical-align: top;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">Remarks If Any:</div>
+                                <div class="value-cell" contenteditable="true" id="val_val_remarks"
+                                    style="min-height: 50px; outline: none; border: none; width: 100%; text-align: justify; white-space: pre-wrap; padding: 0.5cm 4cm 0.5cm 1cm; box-sizing: border-box; line-height: 1.3; font-size: 14px; font-weight: normal;"></div>
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -6122,6 +6122,32 @@
                         }
                     </style>
 
+                    <!-- LETTERHEAD (Vadrida OPC) -->
+                    <div class="print-letterhead"
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 3px solid #333; padding-bottom: 12px;">
+                        <div style="flex-shrink: 0;">
+                            <img src="{% static 'images/VADRIDA LOGO.png' %}" alt="Vadrida Logo"
+                                style="height: 100px; width: auto;">
+                        </div>
+                        <div style="text-align: right; color: #000;">
+                            <h1
+                                style="font-size: 22px; margin: 0 0 4px 0; font-weight: 800; font-family: 'Arial Black', sans-serif;">
+                                Vadrida (OPC) Private Limited</h1>
+                            <div
+                                style="font-size: 12px; line-height: 1.6; font-weight: 400; font-family: 'Poppins', sans-serif;">
+                                Registered Valuer Entity with<br>
+                                Insolvency and Bankruptcy Board of India<br>
+                                Registration No: IBBI/RV-E/11/2025/226<br>
+                                CIN: U69100KL2025OPC092620<br>
+                                GSTIN : 32AAKCV8315L1ZZ<br>
+                                HSN/SAC Code : 997224, PAN:AAKCV8315L,<br>
+                                Udyam Reg.No : UDYAM-KL-02-0138595<br>
+                                Reg. Office Address: Door No. 16/349/A2, 2nd Floor, Blayithara Building,<br>
+                                Kundannoor, Ernakulam -682304
+                            </div>
+                        </div>
+                    </div>
+
                     <table>
                         <colgroup>
                             <col style="width: 28%;">
@@ -6728,11 +6754,11 @@
                             <td colspan="2" class="value-cell" contenteditable="true" id="axis_distress_value"
                                 style="text-align: center;">0</td>
                         </tr>
-                        <tr style="page-break-before: always;">
+                        <tr>
                             <td colspan="4" style="padding: 4px 6px; vertical-align: top;">
                                 <div style="font-weight: bold; margin-bottom: 5px;">Remarks:</div>
                                 <div class="value-cell" contenteditable="true" id="axis_remarks_final"
-                                    style="min-height: 150px; outline: none; border: none; width: 100%;"></div>
+                                    style="min-height: 50px; outline: none; border: none; width: 100%; text-align: justify; white-space: pre-wrap; padding: 0.5cm 4cm 0.5cm 1cm; box-sizing: border-box; line-height: 1.3; font-size: 12px;"></div>
                             </td>
                         </tr>
                         <tr>
@@ -6796,8 +6822,7 @@
                                                 style="width: 50%; border: none !important; text-align: left; vertical-align: bottom; padding-top: 20px;">
                                                 <b>Date :</b> <span class="value-cell" contenteditable="true"
                                                     id="axis_sign_date"
-                                                    style="min-width: 150px; border: none; outline: none; border-bottom: 1px dotted #000; display: inline-block;">{{
-                                                    today_date }}</span>
+                                                    style="min-width: 150px; border: none; outline: none; border-bottom: 1px dotted #000; display: inline-block;">{{ today_date }}</span>
                                             </td>
                                         </tr>
                                     </table>
@@ -6876,24 +6901,29 @@
                                 if (!selector || !selector.value) return;
 
                                 const docName = selector.value;
-                                const ver = megaPayload.verification || {};
-                                let sv_checklist = megaPayload.site_visit?.form_data || {};
-                                if (typeof sv_checklist === 'string') {
-                                    try { sv_checklist = JSON.parse(sv_checklist); } catch (e) { sv_checklist = {}; }
+                                
+                                let docBoundary = {};
+                                if (window.axisDocBoundariesMap && window.axisDocBoundariesMap[docName]) {
+                                    docBoundary = window.axisDocBoundariesMap[docName];
+                                } else {
+                                    const ver = megaPayload.verification || {};
+                                    let sv_checklist = megaPayload.site_visit?.form_data || {};
+                                    if (typeof sv_checklist === 'string') {
+                                        try { sv_checklist = JSON.parse(sv_checklist); } catch (e) { sv_checklist = {}; }
+                                    }
+                                    const boundaryData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
+                                    docBoundary = boundaryData[docName] || {};
                                 }
-                                const boundaryData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
-
-                                const docBoundary = boundaryData[docName] || {};
 
                                 const n = document.getElementById('axis_north_deed');
                                 const s = document.getElementById('axis_south_deed');
                                 const e = document.getElementById('axis_east_deed');
                                 const w = document.getElementById('axis_west_deed');
 
-                                if (n) { n.innerText = docBoundary.North || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_north_deed'] = n.innerText; }
-                                if (s) { s.innerText = docBoundary.South || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_south_deed'] = s.innerText; }
-                                if (e) { e.innerText = docBoundary.East || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_east_deed'] = e.innerText; }
-                                if (w) { w.innerText = docBoundary.West || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_west_deed'] = w.innerText; }
+                                if (n) { n.innerText = docBoundary.North || docBoundary.north || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_north_deed'] = n.innerText; }
+                                if (s) { s.innerText = docBoundary.South || docBoundary.south || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_south_deed'] = s.innerText; }
+                                if (e) { e.innerText = docBoundary.East || docBoundary.east || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_east_deed'] = e.innerText; }
+                                if (w) { w.innerText = docBoundary.West || docBoundary.west || '--'; if (typeof fieldValues !== 'undefined') fieldValues['axis_west_deed'] = w.innerText; }
                             }
 
                             window.updateAxisPlotArea = function () {
@@ -7114,6 +7144,26 @@
                     this bank.</p>
             </div>
             {% endif %}
+
+            <script>
+                // Global handleImageUpload — must be outside any bank-specific if block
+                if (typeof handleImageUpload === 'undefined') {
+                    function handleImageUpload(inputEl, imgElId) {
+                        if (inputEl.files && inputEl.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                const imgEl = document.getElementById(imgElId);
+                                if (imgEl) {
+                                    imgEl.src = e.target.result;
+                                    if (typeof fieldValues !== 'undefined') fieldValues[imgElId] = e.target.result;
+                                    if (typeof triggerAutoSave === 'function') triggerAutoSave();
+                                }
+                            }
+                            reader.readAsDataURL(inputEl.files[0]);
+                        }
+                    }
+                }
+            </script>
 
             <!-- FLOATING BUTTONS (UNIVERSAL) -->
             <button id="floating-save-btn" onclick="manualSaveDraftingData(true)" title="Save Report"
@@ -8976,7 +9026,11 @@
             if (field && field.id) {
                 reportData[field.id] = field.value;
             } else if (cell.id) {
-                reportData[cell.id] = cell.innerHTML;
+                if (cell.tagName === 'IMG') {
+                    reportData[cell.id] = cell.src;
+                } else {
+                    reportData[cell.id] = cell.innerHTML;
+                }
             }
         });
 
@@ -9935,7 +9989,8 @@
         const hName = sv_checklist.land_inspection_details?.house_name || '';
         const vName = ver.village || sv_checklist.village || ver.database?.ScheduleData?.village || '';
         const tName = ver.taluk || sv_checklist.taluk || ver.database?.ScheduleData?.taluk || '';
-        const pCode = sv_checklist.land_inspection_details?.pincode || '';
+        const pCode = sv_checklist.land_inspection_details?.pincode || sv_checklist.pincode || ver.database?.ScheduleData?.pincode || '';
+        const poName = sv_checklist.land_inspection_details?.post_office || sv_checklist.land_inspection_details?.po_name || '';
         const dMap = {
             "01": "Trivandrum", "02": "Kollam", "03": "Pathanamthitta", "04": "Alappuzha",
             "05": "Kottayam", "06": "Idukki", "07": "Ernakulam", "08": "Thrissur",
@@ -9944,16 +9999,107 @@
         };
         let dName = ver.district || sv_checklist.district || ver.database?.ScheduleData?.district || dMap[cf.district] || cf.district || '';
 
+        // Extract Door Nos (Ward / Building No)
+        const boundaryInfo = sv_checklist.Boundary_analysis || ver.database?.Boundary_analysis || {};
+        const ward = boundaryInfo.Ward;
+        let doorNos = [];
+        if (ward) {
+            if (boundaryInfo.Building_no) doorNos.push(`${ward}/${boundaryInfo.Building_no}`);
+            if (boundaryInfo.Building_no_2) doorNos.push(`${ward}/${boundaryInfo.Building_no_2}`);
+            if (boundaryInfo.Building_no_3) doorNos.push(`${ward}/${boundaryInfo.Building_no_3}`);
+        }
+        const doorNoStr = doorNos.join(' & '); // e.g. "10/1 & 10/2"
 
-        if (hName) siteAddrParts.push(hName);
-        if (vName) siteAddrParts.push(vName);
+        // Build first part (Door No + House Name)
+        let firstPart = hName;
+        if (doorNoStr && firstPart) {
+            firstPart = `${doorNoStr} ${firstPart}`;
+        } else if (doorNoStr) {
+            firstPart = doorNoStr;
+        }
 
-        let talukAndPin = tName;
-        if (pCode) talukAndPin = talukAndPin ? `${talukAndPin} ${pCode}` : pCode;
-        if (talukAndPin) siteAddrParts.push(talukAndPin);
-        if (dName) siteAddrParts.push(dName);
+        const baseParts = [];
+        if (firstPart) baseParts.push(firstPart);
+        if (vName) baseParts.push(vName);
+        if (tName) baseParts.push(tName);
 
-        const constructedSiteAddress = siteAddrParts.join(', ') || '--';
+        // Add Post Office and Pincode (Initial synchronous state)
+        let pinPart = pCode;
+        if (poName && pCode) pinPart = `${poName} P.O ${pCode}`;
+        else if (poName) pinPart = `${poName} P.O`;
+        
+        let initialParts = [...baseParts];
+        if (pinPart) initialParts.push(pinPart);
+        if (dName) initialParts.push(dName);
+
+        let constructedSiteAddress = initialParts.join(', ') || '--';
+
+        // Async API Fallback for Post Office Name if not locally stored
+        if (pCode && !poName) {
+            fetch(`https://api.postalpincode.in/pincode/${pCode}`)
+                .then(res => res.json())
+                .then(data => {
+                    let fetchedPoName = '';
+                    if (data && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+                        const poList = data[0].PostOffice;
+                        
+                        // Robust Indian Name Matching: handles "pp" vs "p", "oo" vs "u", "ee" vs "i", etc.
+                        const normalize = (str) => {
+                            if (!str) return '';
+                            return str.toLowerCase()
+                                      .replace(/[^a-z]/g, '')
+                                      .replace(/oo/g, 'u')
+                                      .replace(/ee/g, 'i')
+                                      .replace(/(.)\1+/g, '$1');
+                        };
+                        
+                        // Try to find a Post Office that matches the Village Name
+                        let exactMatch = poList.find(po => vName && normalize(po.Name) === normalize(vName));
+                        
+                        if (!exactMatch) {
+                            // Secondary fallback: if village name is contained in the PO name or vice versa
+                            exactMatch = poList.find(po => vName && (normalize(po.Name).includes(normalize(vName)) || normalize(vName).includes(normalize(po.Name))));
+                        }
+                        
+                        if (exactMatch) {
+                            fetchedPoName = exactMatch.Name + ' P.O';
+                        } else {
+                            // If no exact match, fallback to the first one available
+                            fetchedPoName = poList[0].Name + ' P.O';
+                        }
+                    } else if (vName) {
+                        // Fallback to Village name if Pincode API fails (e.g. invalid test pincode)
+                        fetchedPoName = vName + ' P.O';
+                    }
+                    
+                    if (fetchedPoName) {
+                        const newParts = [...baseParts, `${fetchedPoName} ${pCode}`];
+                        if (dName) newParts.push(dName);
+                        const newAddress = newParts.join(', ');
+                        
+                        // Update DOM elements unconditionally
+                        const mappedIds = ['val_site_address', 'chola08_site_address', 'val_lnt_postal_address', 'axis_property_address', 'sbi_postal_address', 'sbi_property_address', 'axis_address'];
+                        mappedIds.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.innerText = newAddress;
+                        });
+                        constructedSiteAddress = newAddress; // update for any downstream use
+                    }
+                }).catch(e => {
+                    console.error("PO API Error:", e);
+                    if (vName) {
+                        const newParts = [...baseParts, `${vName} P.O ${pCode}`];
+                        if (dName) newParts.push(dName);
+                        const newAddress = newParts.join(', ');
+                        
+                        const mappedIds = ['val_site_address', 'chola08_site_address', 'val_lnt_postal_address', 'axis_property_address', 'sbi_postal_address', 'sbi_property_address', 'axis_address'];
+                        mappedIds.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.innerText = newAddress;
+                        });
+                    }
+                });
+        }
 
         // Road Width Calculation (Mtr to Ft) & Categorization
         const roadData = ver.database?.RightOfAccess?.['As per Site'] || {};
@@ -9962,17 +10108,17 @@
         const accessAlignment = ver.database?.Narratives?.access_alignment || '';
         let roadWidthDisplay = '--';
         let roadWidthOnlyDisplay = '--';
+        let roadWidthCategory = '--';
 
         if (roadWidthMtr > 0) {
             const ftValue = roadWidthMtr * 3.28084;
-            let category = '';
-            if (ftValue < 5) category = '<5 ft';
-            else if (ftValue < 10) category = '5-10 ft';
-            else if (ftValue < 15) category = '10-15 ft';
-            else if (Math.abs(ftValue - 15) < 0.01) category = '15ft';
-            else category = '> 15 ft';
+            if (ftValue < 5) roadWidthCategory = '<5 ft';
+            else if (ftValue < 10) roadWidthCategory = '5-10 ft';
+            else if (ftValue < 15) roadWidthCategory = '10-15 ft';
+            else if (Math.abs(ftValue - 15) < 0.01) roadWidthCategory = '15ft';
+            else roadWidthCategory = '> 15 ft';
 
-            roadWidthDisplay = `<span class="bold-value">${category} (${ftValue.toFixed(2)} Ft (${roadWidthMtr} m))</span>`;
+            roadWidthDisplay = `<span class="bold-value">${roadWidthCategory} (${ftValue.toFixed(2)} Ft (${roadWidthMtr} m))</span>`;
             roadWidthOnlyDisplay = roadWidthDisplay; // Store just the size for specific fields
 
             if (accessAlignment) {
@@ -10260,6 +10406,34 @@
             'axis_date_inspection': visitDateRaw && visitDateRaw !== '--' ?
                 new Date(visitDateRaw).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) :
                 (formattedVisitDate || '--'),
+            'axis_remarks_final': (() => {
+                const raw = ver.database?.MasterSynthesis || '';
+                if (!raw) return '--';
+                const blocks = raw.split(/\n\s*\n/);
+                const formatted = blocks.map(block => {
+                    const lines = block.split('\n');
+                    if (lines.length >= 3 && lines[1].match(/^-+$/)) {
+                        return '• ' + lines.slice(2).join('\n').trim();
+                    }
+                    return block.trim();
+                }).filter(b => b).join('\n');
+                return formatted || '--';
+            })(),
+            'val_val_remarks': (() => {
+                const raw = ver.database?.MasterSynthesis || '';
+                if (!raw) return '--';
+                const blocks = raw.split(/\n\s*\n/);
+                const formatted = blocks.map(block => {
+                    const lines = block.split('\n');
+                    if (lines.length >= 3 && lines[1].match(/^-+$/)) {
+                        return '• ' + lines.slice(2).join('\n').trim();
+                    }
+                    return block.trim();
+                }).filter(b => b).join('\n');
+                return formatted || '--';
+            })(),
+            'axis_sign_date': todayStr,
+            'axis_sign_place': dName || '--',
 
             // Section X & XI Mappings
             'val_lnt_latitude': latVal,
@@ -10628,14 +10802,16 @@
                     val_fsi_plan: fsiLimit.toString(),
                     val_fsi_perm_area: fsiPermArea,
                     val_fsi_actual: fsiPermArea,
-                    val_fsi_actual_area: totalBUASqft > 0 ? Math.round(totalBUASqft).toString() : '--'
+                    val_fsi_actual_area: totalBUASqft > 0 ? Math.round(totalBUASqft).toString() : '--',
+                    val_fsi_sbua: totalBUASqft > 0 ? Math.round(totalBUASqft).toString() : '--',
+                    val_val_build_area: totalBUASqft > 0 ? Math.round(totalBUASqft).toString() : '--'
                 };
             })(),
 
             // ============================================
 
             'val_accom_details': buildAccomDetails(),
-            'val_approach_road': approachRoadMaterialType,
+            'val_approach_road': roadWidthCategory,
             'val_panch_approach': approachRoadMaterialType,
             'val_plot_area_docs': landAreaDocsSqFt,
             'val_plot_area_site': landAreaSiteSqFt,
@@ -10667,7 +10843,14 @@
             'val_railway': (sv_checklist.land_inspection_details?.nearest_railway ? (sv_checklist.land_inspection_details.nearest_railway.toLowerCase().includes('km') ? sv_checklist.land_inspection_details.nearest_railway : sv_checklist.land_inspection_details.nearest_railway + ' KM') : '--'),
             'val_hospital': (sv_checklist.land_inspection_details?.nearest_hospital ? (sv_checklist.land_inspection_details.nearest_hospital.toLowerCase().includes('km') ? sv_checklist.land_inspection_details.nearest_hospital : sv_checklist.land_inspection_details.nearest_hospital + ' KM') : '--'),
             'val_bus_stop': (sv_checklist.land_inspection_details?.nearest_busstop ? (sv_checklist.land_inspection_details.nearest_busstop.toLowerCase().includes('km') ? sv_checklist.land_inspection_details.nearest_busstop : sv_checklist.land_inspection_details.nearest_busstop + ' KM') : '--'),
-            'val_legal_address': ver.database?.Narratives?.deed || '--',
+            'val_legal_address': (() => {
+                let deedText = ver.database?.Narratives?.deed || '';
+                if (deedText && pCode) {
+                    deedText = deedText.trim().replace(/\.$/, '').trim();
+                    return `${deedText}, ${pCode}.`;
+                }
+                return deedText || '--';
+            })(),
             'val_state': 'Kerala',
             'val_city': ver.database?.ScheduleData?.taluk || '--',
             'val_pincode': sv_checklist.land_inspection_details?.pincode || '--',
@@ -10782,20 +10965,48 @@
         // Populate Axis Document Boundary Selector
         const axisBoundarySelector = document.getElementById('axis_deed_boundary_selector');
         if (axisBoundarySelector) {
-            const bData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
             axisBoundarySelector.innerHTML = '<option value="">-- Document --</option>';
+            const docBoundaries = {};
+
+            // 1. Boundary Analysis
+            const bData = ver.database?.Boundary_analysis_property_identification || sv_checklist.Boundary_analysis_property_identification || ver.database?.Boundary || ver.database?.BoundaryAnalysis || {};
             for (const key of Object.keys(bData)) {
                 if (typeof bData[key] === 'object' && !Array.isArray(bData[key]) && bData[key] !== null) {
-                    if (bData[key].North || bData[key].South || bData[key].East || bData[key].West) {
-                        const opt = document.createElement('option');
-                        opt.value = key;
-                        opt.textContent = key;
-                        axisBoundarySelector.appendChild(opt);
+                    const n = bData[key].North || bData[key].north;
+                    const s = bData[key].South || bData[key].south;
+                    const e = bData[key].East || bData[key].east;
+                    const w = bData[key].West || bData[key].west;
+                    if (n || s || e || w) docBoundaries[key] = { North: n, South: s, East: e, West: w };
+                }
+            }
+
+            // 2. Survey Analysis (with nested "initial" boundaries and doc_names)
+            const surveyData = ver.database?.SurveyAnalysis || sv_checklist.SurveyAnalysis || {};
+            for (const key of Object.keys(surveyData)) {
+                if (typeof surveyData[key] === 'object' && surveyData[key] !== null) {
+                    const init = surveyData[key].initial || {};
+                    const n = init.boundary_north;
+                    const s = init.boundary_south;
+                    const e = init.boundary_east;
+                    const w = init.boundary_west;
+                    if (n || s || e || w) {
+                        const dName = surveyData[key].doc_name || key;
+                        docBoundaries[dName] = { North: n, South: s, East: e, West: w };
                     }
                 }
             }
+
+            for (const docName of Object.keys(docBoundaries)) {
+                const opt = document.createElement('option');
+                opt.value = docName;
+                opt.textContent = docName;
+                axisBoundarySelector.appendChild(opt);
+            }
+
+            window.axisDocBoundariesMap = docBoundaries;
+
             if (!draft['axis_deed_boundary_selector']) {
-                if (bData['Title Deed']) {
+                if (docBoundaries['Title Deed']) {
                     axisBoundarySelector.value = 'Title Deed';
                     if (typeof window.updateAxisDeedBoundaries === 'function') window.updateAxisDeedBoundaries();
                 } else if (axisBoundarySelector.options.length > 1) {
@@ -10969,9 +11180,15 @@
     /* ----- PRINT REPORT LOGIC ----- */
     async function printValuationReport() {
         const fileNo = '{{ file_no }}';
-        // Check for bank-specific IDs for filename
-        const bankRef = (document.getElementById('val_bank_ref_no') || document.getElementById('val_rbl_app_no'))?.innerText.trim() || 'BankRef';
-        const applicant = (document.getElementById('val_applicant') || document.getElementById('val_applicant_name'))?.innerText.trim() || 'Applicant';
+        const cfData = megaPayload?.client_folder || {};
+        const verData = megaPayload?.verification || {};
+        const svData = megaPayload?.site_visit?.form_data || {};
+
+        let bankRef = cfData.bank_ref_no || 'BankRef';
+        if (bankRef === '--' || bankRef === '') bankRef = 'BankRef';
+
+        let applicant = verData.applicant_name || svData.Valuers_Checklist?.applicant_name || cfData.applicant_name || 'Applicant';
+        if (applicant === '--' || applicant === '') applicant = 'Applicant';
 
         // Format: filenumber_bankfileno_applicantname_valuation_report
         // (Browser automatically adds .pdf when user selects Save as PDF)
@@ -11000,8 +11217,17 @@
         // Trigger the native print dialog
         window.print();
 
-        // Restore title
-        setTimeout(() => { document.title = originalTitle; }, 1500);
+        // Restore title and open signer modal
+        setTimeout(() => { 
+            document.title = originalTitle; 
+            if (folderPath) {
+                const winPath = folderPath.replace(/\//g, '\\');
+                const finalPdfPath = winPath + '\\' + safeName + '.pdf';
+                if (typeof openSignerModal === 'function') {
+                    openSignerModal(finalPdfPath, safeName + '.pdf');
+                }
+            }
+        }, 1500);
     }
 
     /* =========================================
@@ -11519,5 +11745,368 @@
         });
     };
 
+    /* =========================================
+       DIGITAL SIGNER MODAL LOGIC
+       ========================================= */
+    let pdfDoc = null;
+    let signerScale = 1.5;
+    let signerPageNum = 1;
+    let isSigDrawing = false;
+    let sigStartX = 0, sigStartY = 0;
+    let sigRafId = null;
+    let currentPdfPath = '';
+    let signerEventsBound = false;
+
+    window.openSignerModal = function(pdfPath, fileName) {
+        currentPdfPath = pdfPath;
+        sessionStorage.setItem('pendingSignFile', pdfPath);
+        sessionStorage.setItem('pendingSignName', fileName);
+        
+        document.getElementById('signerFileName').innerText = fileName;
+        document.getElementById('signerModal').style.display = 'flex';
+        bindSignerEvents();
+        
+        if (typeof pdfjsLib === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            script.onload = () => {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                loadLocalPdf();
+            };
+            document.head.appendChild(script);
+        } else {
+            loadLocalPdf();
+        }
+    };
+
+    window.closeSignerModal = function() {
+        document.getElementById('signerModal').style.display = 'none';
+        document.getElementById('sig-box').style.display = 'none';
+        sessionStorage.removeItem('pendingSignFile');
+        sessionStorage.removeItem('pendingSignName');
+        pdfDoc = null;
+    };
+
+    function loadLocalPdf() {
+        const url = `/coreapi/api/serve-local-pdf/?path=${encodeURIComponent(currentPdfPath)}`;
+        const loadingTask = pdfjsLib.getDocument(url);
+        loadingTask.promise.then(function(pdf) {
+            pdfDoc = pdf;
+            const container = document.getElementById('pdf-pages-container');
+            const sigBox = document.getElementById('sig-box');
+            
+            // Clear previous canvases but keep sigBox safe
+            Array.from(container.children).forEach(child => {
+                if(child.id !== 'sig-box') container.removeChild(child);
+            });
+            
+            for(let i=1; i<=pdf.numPages; i++) {
+                let wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.marginBottom = '40px';
+                wrapper.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)';
+                wrapper.style.background = 'white';
+                wrapper.className = 'pdf-page-wrapper';
+                wrapper.dataset.page = i;
+                
+                let canvas = document.createElement('canvas');
+                canvas.className = 'pdf-canvas-page';
+                wrapper.appendChild(canvas);
+                container.appendChild(wrapper);
+                
+                renderSignerPage(i, canvas).then(() => {
+                    // Place the signature box on page 1 by default
+                    if (i === 1) {
+                        wrapper.appendChild(sigBox);
+                        sigBox.style.display = 'block';
+                        sigBox.style.left = '50px';
+                        sigBox.style.top = '50px';
+                        signerPageNum = 1;
+                    }
+                });
+            }
+        }).catch(err => {
+            console.error("Error loading PDF:", err);
+            alert("Could not load the saved PDF. Did you save it to the exact folder path with the exact default name?");
+        });
+    }
+
+    function renderSignerPage(num, canvas) {
+        const ctx = canvas.getContext('2d');
+        return pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({scale: signerScale});
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            return page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        });
+    }
+
+    function bindSignerEvents() {
+        if (signerEventsBound) return;
+        signerEventsBound = true;
+
+        const sigBox = document.getElementById('sig-box');
+
+        // Click to place
+        document.getElementById('pdf-pages-container').onmousedown = (e) => {
+            if (!pdfDoc) return;
+            const wrapper = e.target.closest('.pdf-page-wrapper');
+            if (!wrapper) return;
+            
+            // If they clicked ON the box, don't jump, let the drag handler deal with it
+            if (e.target.closest('#sig-box')) return;
+
+            wrapper.appendChild(sigBox);
+            signerPageNum = parseInt(wrapper.dataset.page);
+            
+            const rect = wrapper.getBoundingClientRect();
+            let newX = e.clientX - rect.left - (sigBox.clientWidth / 2);
+            let newY = e.clientY - rect.top - (sigBox.clientHeight / 2);
+
+            newX = Math.max(0, Math.min(newX, wrapper.clientWidth - sigBox.clientWidth));
+            newY = Math.max(0, Math.min(newY, wrapper.clientHeight - sigBox.clientHeight));
+
+            sigBox.style.display = 'block';
+            sigBox.style.left = newX + 'px';
+            sigBox.style.top = newY + 'px';
+        };
+
+        // Drag to move
+        sigBox.onmousedown = (e) => {
+            isSigDrawing = true;
+            const rect = sigBox.getBoundingClientRect();
+            sigStartX = e.clientX - rect.left;
+            sigStartY = e.clientY - rect.top;
+            e.stopPropagation(); // Prevent the container click event
+            e.preventDefault(); // Prevent native drag/text selection which blocks mousemove
+        };
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isSigDrawing) return;
+            if (sigRafId) cancelAnimationFrame(sigRafId);
+            
+            sigRafId = requestAnimationFrame(() => {
+                const wrapper = sigBox.parentElement;
+                if (!wrapper || !wrapper.classList.contains('pdf-page-wrapper')) return;
+                
+                const rect = wrapper.getBoundingClientRect();
+                let newX = e.clientX - rect.left - sigStartX;
+                let newY = e.clientY - rect.top - sigStartY;
+
+                newX = Math.max(0, Math.min(newX, wrapper.clientWidth - sigBox.clientWidth));
+                newY = Math.max(0, Math.min(newY, wrapper.clientHeight - sigBox.clientHeight));
+
+                sigBox.style.left = newX + 'px';
+                sigBox.style.top = newY + 'px';
+            });
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isSigDrawing) isSigDrawing = false;
+        });
+
+        document.getElementById('toggleSignerPassword').onclick = function() {
+            const pwd = document.getElementById('signerPassword');
+            const icon = this.querySelector('i');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                pwd.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        };
+
+        document.getElementById('btnPlaceSignature').onclick = async function() {
+            const sigBox = document.getElementById('sig-box');
+            if (sigBox.style.display === 'none') {
+                alert("Please click anywhere on a document page to place the blue signature box first.");
+                return;
+            }
+
+            const password = document.getElementById('signerPassword').value;
+            if (!password) {
+                alert("Please enter the system password.");
+                return;
+            }
+
+            const caseType = document.querySelector('input[name="signCaseType"]:checked').value;
+            const x = parseInt(sigBox.style.left);
+            const y = parseInt(sigBox.style.top);
+            const w = parseInt(sigBox.style.width);
+            const h = parseInt(sigBox.style.height);
+            
+            const wrapper = sigBox.parentElement;
+            const canvas = wrapper.querySelector('canvas');
+            
+            const pdfX = x / signerScale; 
+            const pdfY = (canvas.height - y - h) / signerScale; 
+            const pdfW = w / signerScale;
+            const pdfH = h / signerScale;
+
+            const btn = this;
+            const progContainer = document.getElementById('signProgressContainer');
+            const progBar = document.getElementById('signProgressBar');
+            const progText = document.getElementById('signProgressText');
+            const progMsg = document.getElementById('signProgressMsg');
+            
+            btn.style.display = 'none';
+            progContainer.style.display = 'block';
+            progBar.style.width = '0%';
+            progText.innerText = '0%';
+            progMsg.innerText = 'Token queued...';
+
+            const formData = new FormData();
+            formData.append('file_path', currentPdfPath);
+            formData.append('case_type', caseType);
+            formData.append('x', pdfX);
+            formData.append('y', pdfY);
+            formData.append('w', pdfW);
+            formData.append('h', pdfH);
+            formData.append('page', signerPageNum);
+            formData.append('password', password);
+
+            // Simulate progress while waiting for the token FCFS lock
+            let fakeProgress = 0;
+            const progressInterval = setInterval(() => {
+                // Quickly go to 85%, then very slowly tick up to 95% while waiting in queue
+                if (fakeProgress < 85) {
+                    fakeProgress += Math.random() * 15;
+                } else if (fakeProgress < 95) {
+                    fakeProgress += 0.5;
+                    progMsg.innerText = 'Signing...';
+                }
+                
+                if (fakeProgress > 95) fakeProgress = 95;
+                progBar.style.width = fakeProgress + '%';
+                progText.innerText = Math.floor(fakeProgress) + '%';
+            }, 300);
+
+            try {
+                const response = await fetch('/coreapi/api/digital-sign/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                progBar.style.width = '100%';
+                progText.innerText = '100%';
+                progMsg.innerText = 'Complete!';
+                
+                // Small delay to let the user see 100%
+                await new Promise(r => setTimeout(r, 400));
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Success! File signed as ${data.case_type} and saved at:\n${data.dsc_path}`);
+                    closeSignerModal();
+                    // TODO in Phase 2: Log the credits to the database using data.case_type
+                } else {
+                    alert("Signing Failed: " + (data.error || "Unknown Error"));
+                }
+            } catch (error) {
+                clearInterval(progressInterval);
+                console.error(error);
+                alert("An error occurred during signing.");
+            } finally {
+                btn.style.display = 'flex';
+                progContainer.style.display = 'none';
+            }
+        };
+    }
+
+    // Auto-reopen modal if page was refreshed during signing
+    document.addEventListener("DOMContentLoaded", function () {
+        const pendingFile = sessionStorage.getItem('pendingSignFile');
+        const pendingName = sessionStorage.getItem('pendingSignName');
+        if (pendingFile && pendingName) {
+            openSignerModal(pendingFile, pendingName);
+        }
+    });
+
 </script>
+
+<!-- DIGITAL SIGNER MODAL HTML -->
+<div id="signerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: #1e293b; width: 95%; max-width: 1400px; height: 90vh; border-radius: 12px; display: flex; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); font-family: 'Outfit', sans-serif;">
+        <!-- Left Side Controls -->
+        <div style="width: 300px; background: #0f172a; border-right: 1px solid #334155; padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color: white; margin: 0; font-size: 1.2rem;"><i class="fas fa-signature" style="color: #10b981;"></i> Sign & Claim</h3>
+                <button onclick="closeSignerModal()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem;"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div style="color: #94a3b8; font-size: 0.85rem;">
+                File detected:<br>
+                <strong id="signerFileName" style="color: white; word-break: break-all;">file.pdf</strong>
+            </div>
+
+            <div>
+                <label style="color: #94a3b8; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">1. Classify File</label>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; background: #1e293b; padding: 15px; border-radius: 8px;">
+                    <label style="color: white; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="signCaseType" value="PD" checked style="accent-color: #10b981;"> PD
+                    </label>
+                    <label style="color: white; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="signCaseType" value="OTR" style="accent-color: #10b981;"> OTR
+                    </label>
+                    <label style="color: white; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="signCaseType" value="NPA" style="accent-color: #10b981;"> NPA
+                    </label>
+                    <label style="color: white; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="signCaseType" value="Project" style="accent-color: #10b981;"> Project
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label style="color: #94a3b8; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">2. Password</label>
+                <div style="position: relative; margin-top: 8px;">
+                    <input type="password" id="signerPassword" placeholder="System Password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; outline: none;">
+                    <button type="button" id="toggleSignerPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 5px;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <p style="font-size: 0.75rem; color: #64748b; line-height: 1.4;">
+                <i class="fas fa-info-circle"></i> Click anywhere on the document to place the blue signature box, then drag it to adjust.
+            </p>
+
+            <button id="btnPlaceSignature" style="background: #10b981; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: auto; transition: 0.2s; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas fa-pen-nib"></i> Digitally Sign
+            </button>
+
+            <!-- Progress Bar Overlay (Hidden by default) -->
+            <div id="signProgressContainer" style="display: none; width: 100%; background: #1e293b; border-radius: 8px; overflow: hidden; position: relative; height: 48px; margin-top: auto; border: 1px solid #334155; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+                <div id="signProgressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative;">
+                    <!-- Animated stripes overlay -->
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; animation: progress-stripes 1s linear infinite;"></div>
+                </div>
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.8); z-index: 2;">
+                    <i class="fas fa-microchip fa-spin" style="margin-right: 8px; color: #94a3b8;"></i> 
+                    <span id="signProgressText">0%</span> &nbsp;&nbsp;|&nbsp;&nbsp; <span id="signProgressMsg" style="color: #cbd5e1; font-weight: 400;">Token queued...</span>
+                </div>
+            </div>
+            <style>
+                @keyframes progress-stripes {
+                    from { background-position: 1rem 0; }
+                    to { background-position: 0 0; }
+                }
+            </style>
+        </div>
+
+        <!-- Right Side Preview (SCROLLABLE) -->
+        <div style="flex: 1; background: #0b0e14; position: relative; overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 40px; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 35,80 L 50,25 L 75,75 C 85,90 95,70 80,60 L 25,60 C 15,60 15,80 35,80 Z' fill='none' stroke='%23ef4444' stroke-width='8' stroke-linejoin='round' stroke-linecap='round' opacity='0.05'/%3E%3C/svg%3E&quot;); background-position: center; background-attachment: fixed; background-size: 350px;">
+            <div id="pdf-pages-container" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <!-- Signature box will be moved dynamically into specific page wrappers -->
+                <div id="sig-box" style="position: absolute; width: 10cm; height: 6cm; border: 2px dashed #3b82f6; background: rgba(59, 130, 246, 0.15); cursor: move; display: none; box-sizing: border-box; z-index: 100; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #3b82f6; font-weight: bold; pointer-events: none; opacity: 0.8; font-size: 14px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-signature"></i> SIGN HERE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

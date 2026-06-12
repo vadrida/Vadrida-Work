@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 import json
-from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport, MonthlyPerformance, LeaveRecord, CreditLedger, WorkSession
 
 # 1. Improved Inline for Sketches
 class ReportSketchInline(admin.TabularInline):
@@ -111,3 +111,47 @@ class VerificationReportAdmin(admin.ModelAdmin):
         }),
     )
 admin.site.register(DraftingReport)
+
+# --- EMPLOYEE ANALYTICS ADMIN ---
+
+@admin.register(MonthlyPerformance)
+class MonthlyPerformanceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'month', 'year', 'files_done', 'files_target', 'hours_worked', 'overtime_hours', 'pd_cases', 'npa_cases', 'project_cases', 'other_cases', 'updated_at')
+    list_filter = ('year', 'month', 'user')
+    search_fields = ('user__user_name', 'user__email')
+    list_editable = ('files_done', 'files_target', 'hours_worked', 'overtime_hours', 'pd_cases', 'npa_cases', 'project_cases', 'other_cases')
+    list_per_page = 25
+    ordering = ('-year', '-month')
+
+
+@admin.register(LeaveRecord)
+class LeaveRecordAdmin(admin.ModelAdmin):
+    list_display = ('user', 'leave_date', 'leave_type', 'reason', 'created_at')
+    list_filter = ('leave_type', 'leave_date', 'user')
+    search_fields = ('user__user_name', 'reason')
+    list_editable = ('leave_type',)
+    list_per_page = 50
+    ordering = ('-leave_date',)
+    date_hierarchy = 'leave_date'
+
+
+@admin.register(CreditLedger)
+class CreditLedgerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'credits', 'source', 'reference', 'earned_date', 'notes', 'created_at')
+    list_filter = ('source', 'earned_date', 'user')
+    search_fields = ('user__user_name', 'reference', 'notes')
+    list_editable = ('credits', 'source', 'notes')
+    list_per_page = 50
+    ordering = ('-earned_date', '-created_at')
+    date_hierarchy = 'earned_date'
+
+
+@admin.register(WorkSession)
+class WorkSessionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'date', 'login_time', 'logout_time', 'hours_worked', 'overtime_hours', 'is_active')
+    list_filter = ('is_active', 'date', 'user')
+    search_fields = ('user__user_name',)
+    list_per_page = 50
+    ordering = ('-date',)
+    date_hierarchy = 'date'
+

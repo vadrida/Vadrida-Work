@@ -70,4 +70,5 @@ urlpatterns = [
     # Digital Signer
     path('digital-signer/', views.digital_signer, name='digital_signer'),
     path('api/digital-sign/', views.digital_sign_pdf_api, name='digital_sign_pdf_api'),
+    path('api/serve-local-pdf/', views.serve_local_pdf, name='serve_local_pdf'),
 ]

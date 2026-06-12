@@ -877,8 +877,14 @@
             </div>
         </div>
 
-        <div class="nav-right">
-            <span class="user-info">{{ request.session.user_name }}</span>
+        <div class="nav-right" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
+                <span class="user-info" style="font-weight: 700; color: #1e293b;">{{ request.session.user_name }}</span>
+                <span style="font-size: 0.65rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Average Score</span>
+            </div>
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; font-weight: 800; font-size: 0.85rem; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px;" title="Your overall average report score">
+                <i class="fas fa-star" style="color: #fbbf24; font-size: 0.75rem;"></i> {{ average_score|default:"0" }}%
+            </div>
         </div>
     </div>
 </nav>

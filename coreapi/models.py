@@ -138,4 +138,114 @@ class DraftingReport(models.Model):
 
     def __str__(self):
         return f"Drafting Report: {self.office_file_no} ({self.bank_name})"
+
+
+# --- EMPLOYEE ANALYTICS SYSTEM ---
+
+class MonthlyPerformance(models.Model):
+    """One row per user per month. Primary data source for the dashboard."""
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='monthly_performance')
+    year = models.IntegerField()
+    month = models.IntegerField()  # 1-12
+
+    # File Metrics
+    files_done = models.IntegerField(default=0)
+    files_target = models.IntegerField(default=125)  # 25 days × 5 files/day
+
+    # Hours Metrics
+    hours_worked = models.FloatField(default=0)
+    hours_target = models.FloatField(default=200)  # ~25 days × 8 hours
+    overtime_hours = models.FloatField(default=0)
+
+    # Case Type Counters
+    pd_cases = models.IntegerField(default=0)
+    npa_cases = models.IntegerField(default=0)
+    project_cases = models.IntegerField(default=0)
+    other_cases = models.IntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'year', 'month')
+        ordering = ['-year', '-month']
+        verbose_name = 'Monthly Performance'
+        verbose_name_plural = 'Monthly Performance Records'
+
+    def __str__(self):
+        return f"{self.user.user_name} — {self.month}/{self.year}"
+
+
+class LeaveRecord(models.Model):
+    """One row per leave day. Admin-managed, no approval workflow."""
+    LEAVE_TYPES = [
+        ('earned', 'Earned Leave'),
+        ('sick', 'Sick Leave'),
+        ('casual', 'Casual Leave'),
+    ]
+
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='leave_records')
+    leave_date = models.DateField()
+    leave_type = models.CharField(max_length=10, choices=LEAVE_TYPES)
+    reason = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-leave_date']
+        verbose_name = 'Leave Record'
+        verbose_name_plural = 'Leave Records'
+
+    def __str__(self):
+        return f"{self.user.user_name} — {self.leave_type} on {self.leave_date}"
+
+
+class CreditLedger(models.Model):
+    """Credit-only ledger. Credits added on file completion/signing. Admin can deduct manually."""
+    SOURCE_TYPES = [
+        ('file_completion', 'File Completion'),
+        ('report_signed', 'Report Signed'),
+        ('bonus', 'Bonus'),
+        ('admin_adjustment', 'Admin Adjustment'),
+    ]
+
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='credit_entries')
+    credits = models.IntegerField()  # Positive = credit earned, negative = admin deduction
+    source = models.CharField(max_length=20, choices=SOURCE_TYPES)
+    reference = models.CharField(max_length=100, blank=True, null=True)  # e.g. office file number
+    earned_date = models.DateField()
+    notes = models.TextField(blank=True, null=True)  # Admin notes for adjustments
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-earned_date', '-created_at']
+        verbose_name = 'Credit Entry'
+        verbose_name_plural = 'Credit Ledger'
+
+    def __str__(self):
+        sign = "+" if self.credits >= 0 else ""
+        return f"{self.user.user_name} — {sign}{self.credits} ({self.source})"
+
+
+class WorkSession(models.Model):
+    """Tracks daily work sessions. One active session per user per day."""
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='work_sessions')
+    date = models.DateField()
+    login_time = models.DateTimeField()  # When the user first logged in today
+    logout_time = models.DateTimeField(null=True, blank=True)
+    hours_worked = models.FloatField(default=0)
+    overtime_hours = models.FloatField(default=0)
+    is_active = models.BooleanField(default=True)  # Currently logged in
+
+    class Meta:
+        unique_together = ('user', 'date')
+        ordering = ['-date']
+        verbose_name = 'Work Session'
+        verbose_name_plural = 'Work Sessions'
+
+    def __str__(self):
+        status = "🟢 Active" if self.is_active else "⏹ Ended"
+        return f"{self.user.user_name} — {self.date} ({status})"
+
 
