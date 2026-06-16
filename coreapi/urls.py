@@ -7,6 +7,8 @@ urlpatterns = [
     # Authentication APIs
     path("login/api/", views.login_api, name="login_api"),
     path("logout/api/", views.logout_api, name="logout_api"),
+    path("api/session-status/", views.session_status_api, name="session_status_api"),
+    path("api/request-overtime/", views.request_overtime_api, name="request_overtime_api"),
     
     # admin
     path('dev-center/', views.developer_dashboard, name='dev_dashboard'),
@@ -58,6 +60,7 @@ urlpatterns = [
     path('api/db-case-search/', views.db_case_search_api, name='db_case_search'),
     path('api/save-verification/', views.save_verification_data, name='save_verification_data'),
     path('api/utility-hub-chat/', views.utility_hub_chat, name='utility_hub_chat'),
+    path('api/transcribe-audio/', views.transcribe_audio_api, name='transcribe_audio'),
 
     path('api/export-status-excel/', views.export_status_excel_api, name='export_status_excel'),
     path('api/export-master-excel/', views.export_master_status_excel_api, name='export_master_excel'),

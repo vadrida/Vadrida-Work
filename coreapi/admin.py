@@ -152,6 +152,30 @@ class WorkSessionAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date', 'user')
     search_fields = ('user__user_name',)
     list_per_page = 50
-    ordering = ('-date',)
-    date_hierarchy = 'date'
+    readonly_fields = ('login_time', 'logout_time', 'hours_worked')
 
+from .models import SystemConfiguration, OvertimeRequest
+
+@admin.register(SystemConfiguration)
+class SystemConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'files_per_day', 'credits_per_file', 'hours_target', 'max_session_hours')
+    
+    def has_add_permission(self, request):
+        # Prevent multiple rows
+        return not SystemConfiguration.objects.exists()
+
+@admin.register(OvertimeRequest)
+class OvertimeRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'request_date', 'status', 'requested_at', 'approved_at')
+    list_filter = ('status', 'request_date')
+    actions = ['approve_requests', 'deny_requests']
+
+    def approve_requests(self, request, queryset):
+        from django.utils import timezone
+        queryset.update(status='approved', approved_at=timezone.now())
+    approve_requests.short_description = "Approve selected requests"
+
+    def deny_requests(self, request, queryset):
+        queryset.update(status='denied')
+    deny_requests.short_description = "Deny selected requests"
+    date_hierarchy = 'request_date'

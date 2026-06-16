@@ -1,323 +1,336 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vadrida Command Center</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+{% block title %}Admin Dashboard | Vadrida{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    body { overflow: hidden; }
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    .royal-blue { color: #003d99; }
+    .bg-royal-blue { background-color: #003d99; }
     
-    <style>
-    :root {
-        --wa-teal: #00a884;
-        --wa-chat-bg: #efeae2;
-        --wa-incoming: #ffffff;
-        --wa-outgoing: #d9fdd3;
-    }
+    .nav-item { transition: all 0.2s ease; }
+    .nav-item.active { background-color: #e6f0ff; color: #0052cc; border-radius: 8px; font-weight: 600; }
+    .nav-item:hover:not(.active) { background-color: #f0f4f8; border-radius: 8px; }
     
-    body { 
-        background-color: #d1d7db; 
-        font-family: 'Segoe UI', sans-serif; 
-        height: 100vh; 
-        overflow: hidden; /* Keeps it app-like on desktop */
-        margin: 0;
-    }
+    .card-shadow { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); border: 1px solid #edf2f7; }
 
-    /* --- HEADER --- */
-    .app-header {
-        background-color: var(--wa-teal);
-        height: 120px;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        z-index: -1;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 15px 30px;
-        box-sizing: border-box; /* Fix padding overflow */
-    }
-
-    .logout-btn {
-        background: rgba(60, 154, 52, 0.811);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        padding: 5px 15px;
-        border-radius: 20px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: 0.2s;
-    }
-    .logout-btn:hover { background: rgb(99, 255, 1); color: white; }
-
-    /* --- LAYOUT CONTAINER --- */
-    .dashboard-container { 
-        display: flex; 
-        height: 94vh; /* Slightly smaller to fit header visual */
-        margin: 3vh auto; 
-        max-width: 1800px; 
-        width: 98%;
-        gap: 15px; 
-        position: relative;
-        z-index: 10;
-    }
-
-    /* --- COLUMNS (Desktop Default) --- */
-    .col-left { 
-        width: 300px; /* Reduced slightly */
-        display: flex; flex-direction: column; 
-        flex-shrink: 0; 
-        height: 100%;
-        transition: transform 0.3s ease;
-    }
-
-    .col-center { 
-        flex-grow: 1; 
-        display: flex; flex-direction: column; 
-        min-width: 0; 
-        height: 100%;
-    }
-
-    .col-right { 
-        width: 350px; 
-        display: flex; flex-direction: column; 
-        flex-shrink: 0; 
-        height: 100%;
-    }
-
-    /* --- PANELS --- */
-    .panel { 
-        background: white; 
-        display: flex; flex-direction: column; 
-        height: 100%; 
-        overflow: hidden; 
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-        border-radius: 8px; /* Added rounded corners */
-    }
+    /* Slide Over Panel */
+    .slide-over { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+    .slide-over.open { transform: translateX(0); }
     
-    .panel-header { 
-        background: #f0f2f5; 
-        padding: 10px 16px; 
-        border-bottom: 1px solid #d1d7db; 
-        height: 60px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: space-between; 
-        font-weight: 600; color: #54656f; 
-        box-sizing: border-box;
-    }
-
-    .panel-body { 
-        flex-grow: 1; 
-        overflow-y: auto; 
-        min-height: 0; 
-        position: relative;
-    }
-
-    /* --- LIST ITEMS --- */
-    .user-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f0f2f5; transition: 0.1s; }
-    .user-item:hover { background-color: #f5f6f6; }
-    .user-item.disabled { cursor: default; opacity: 0.7; }
-    
-    .avatar { width: 40px; height: 40px; border-radius: 50%; background: #dfe3e5; display: flex; align-items: center; justify-content: center; margin-right: 12px; color: white; font-weight: bold; position: relative; flex-shrink: 0; }
-    .status-dot { width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; position: absolute; bottom: 0; right: 0; }
-    .online { background: #25d366; } .offline { background: #aebac1; }
-
-    /* --- CHAT AREA --- */
-    .chat-area { 
-        background-color: var(--wa-chat-bg);
-        background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
-        flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; 
-    }
-    .msg-bubble { max-width: 85%; padding: 8px 12px; border-radius: 7px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); font-size: 14px; word-wrap: break-word; }
-    .msg-in { align-self: flex-start; background: var(--wa-incoming); border-top-left-radius: 0; }
-    .msg-out { align-self: flex-end; background: var(--wa-outgoing); border-top-right-radius: 0; }
-    
-    .chat-input-area { background: #f0f2f5; padding: 10px; display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
-    .chat-input { width: 100%; border: none; padding: 12px 15px; border-radius: 20px; flex-grow: 1; outline: none; font-size: 14px; }
-
-    /* --- FOLDERS --- */
-    .folder-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f2f5; cursor: pointer; }
-    .folder-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .folder-meta { font-size: 0.75rem; color: #667781; }
-
-    .role-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #e9ecef; color: #666; margin-left: 8px; }
-    .btn-primary:hover { background-color: #075e54 !important; transform: translateY(-1px); transition: all 0.2s; }
-
-    /* =========================================
-       MEDIA QUERIES (RESPONSIVENESS)
-       ========================================= */
-    
-    /* 1. Tablet Mode (Hide Right Column or Stack) */
-    @media (max-width: 1100px) {
-        .dashboard-container { gap: 10px; width: 99%; }
-        .col-left { width: 260px; }
-        .col-right { width: 300px; }
-    }
-
-    /* 2. Small Tablet / Large Phone (Vertical Stack) */
-    @media (max-width: 900px) {
-        body { overflow: auto; height: auto; } /* Allow page scroll */
-        
-        .app-header { height: 80px; position: relative; } /* Unfix header */
-        
-        .dashboard-container {
-            flex-direction: column;
-            height: auto;
-            margin: 10px;
-            width: auto;
-        }
-
-        .col-left, .col-center, .col-right {
-            width: 100%;
-            height: 600px; /* Fixed height for scrolling inside panels */
-            flex: none;
-        }
-
-        /* Adjust chat height specifically */
-        .col-center { height: 70vh; order: -1; /* Put Chat on Top */ }
-    }
-
-    /* 3. Mobile Phones */
-    @media (max-width: 600px) {
-        .app-header { padding: 10px 15px; }
-        .logout-btn { font-size: 0.8rem; padding: 4px 10px; }
-
-        .col-center { height: 80vh; } 
-        .col-left, .col-right { height: 400px; }
-        
-        .msg-bubble { max-width: 95%; }
-        .avatar { width: 35px; height: 35px; }
-        .folder-name { max-width: 150px; }
-    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
-</head>
-<body>
+{% endblock %}
 
-<div class="app-header">
-</div>
+{% block content %}
+<div class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex overflow-hidden font-outfit text-gray-800">
 
-<div class="dashboard-container">
-
-    <div class="col-left">
-        <div class="panel">
-            <div class="panel-header">
-                <div class="d-flex align-items-center gap-2"><i class="fas fa-users"></i> Team</div>
-                <span class="badge bg-success rounded-pill" id="online-count">0</span>
-            </div>
-            <div class="p-2 bg-light border-bottom flex-shrink-0">
-                <input type="text" id="teamSearch" class="form-control form-control-sm border-0" placeholder="Search team..." onkeyup="filterTeam()">
-            </div>
-            <div class="panel-body" id="user-list">
-                <div class="text-center p-4 text-muted small">Loading team...</div>
+    <!-- LEFT COLUMN: NAVIGATION -->
+    <aside class="w-[260px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <div class="p-6 pb-4">
+            <h2 class="text-[19px] font-bold royal-blue flex items-center gap-2 tracking-tight">
+               ADMIN
+            </h2>
+            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Command Center</p>
+        </div>
+        
+        <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4">NAVIGATION</div>
+        
+        <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto">
+            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
+                <i class="fas fa-users w-5 text-blue-600"></i> Team Overview
+            </a>
+            <a href="{% url 'core:report_analysis' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-chart-bar w-5"></i> Performance Analysis
+            </a>
+            <a href="{% url 'core:admin_summary_page' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-file-invoice-dollar w-5"></i> Billing & Invoices
+            </a>
+            <a href="#" onclick="openSystemConfig()" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-cogs w-5"></i> System Configuration
+            </a>
+        </nav>
+        
+        <div class="mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">Live Users</span>
+                <span id="online-count" class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
             </div>
         </div>
-    </div>
+    </aside>
 
-    <div class="col-center">
-        <div class="panel">
-            <div class="panel-header">
-                <div class="d-flex align-items-center gap-2">📢 Global Chat</div>
-                
-                <div class="d-flex gap-2"> <button class="btn btn-sm btn-light" onclick="location.reload()" title="Reload Page">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh
+    <!-- MIDDLE COLUMN: TEAM LIST & PROFILE -->
+    <main class="flex-1 h-full overflow-y-auto p-5 lg:p-8 flex flex-col relative bg-[#f8fafc]" id="middleMainContainer">
+        
+        <!-- TEAM LIST VIEW -->
+        <div id="teamViewContainer" class="flex-1 flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-[24px] font-bold text-gray-800 leading-tight">Team Roster</h1>
+                <div class="relative w-64">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="teamSearch" class="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all card-shadow" placeholder="Search team..." onkeyup="filterTeam()">
+                </div>
+            </div>
+            
+            <div id="user-list" class="flex flex-col gap-6 pb-20">
+                <div class="text-center p-8 text-gray-400">Loading team...</div>
+            </div>
+        </div>
+
+        <!-- USER PROFILE VIEW -->
+        <div id="userProfileContainer" class="hidden flex-1 flex flex-col pb-20">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <button onclick="closeUserPanel()" class="text-gray-400 hover:text-blue-600 mb-2 transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Team
                     </button>
-
-                    <a href="{% url 'core:report_analysis' %}" class="btn btn-sm btn-primary shadow-sm" style="background-color: #128C7E; border: none;">
-                        <i class="fas fa-chart-bar me-2"></i>Analysis
-                    </a>
-                     <a href="{% url 'core:admin_summary_page' %}" class="btn btn-sm btn-primary shadow-sm" style="background-color: #128C7E; border: none;">
-                        <i class="fas fa-chart-bar me-2"></i>Bills
-                    </a>
-
-                    <a href="{% url 'coreapi:logout_api' %}" class="logout-btn">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a>
+                    <h1 id="profName" class="text-[28px] font-bold text-gray-800 leading-tight">User Name</h1>
+                    <p id="profRole" class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Role</p>
+                </div>
+                <div class="text-right">
+                    <span id="profLastSeen" class="text-xs text-gray-400 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm">Last active: -</span>
                 </div>
             </div>
-            
-            <div class="chat-area" id="global-chat-box"></div>
-            
-            <form id="globalChatForm" class="chat-input-area">
-                <label class="btn btn-light rounded-circle text-muted" style="width:40px;height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                    <i class="fas fa-paperclip"></i>
-                    <input type="file" id="chatFileInput" class="d-none">
-                </label>
-                <span id="pendingFileLabel" class="badge bg-primary d-none small me-2">File <i class="fas fa-times ms-1 cursor-pointer" onclick="clearFile()"></i></span>
-                <input type="text" id="globalChatInput" class="chat-input shadow-sm" placeholder="Type a message..." autocomplete="off">
-                <button type="submit" class="btn btn-success rounded-circle shadow-sm" style="width:45px; height:45px;"><i class="fas fa-paper-plane"></i></button>
-            </form>
-        </div>
-    </div>
 
-    <div class="col-right">
-        <div class="panel">
-            <div class="panel-header">
-                <span><i class="fas fa-file-pdf"></i> Generated Reports</span>
-                <button class="btn btn-sm btn-light" onclick="loadGeneratedReports()">↻</button>
-            </div>
-            
-            <div class="p-2 bg-light border-bottom">
-                <input type="text" id="reportSearch" class="form-control form-control-sm border-0" placeholder="Search filename..." onkeyup="filterReports()">
-            </div>
-            
-            <div class="panel-body p-0" id="report-list">
-                <div class="text-center p-4 text-muted small">Loading reports...</div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<div class="modal fade" id="userModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title" id="modalUserName">User Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row text-center mb-4">
-                    <div class="col-4 border-end">
-                        <h3 class="text-primary mb-0" id="modalTotalReports">0</h3>
-                        <small>Total Reports</small>
-                    </div>
-                    <div class="col-4 border-end">
-                        <h3 class="text-success mb-0"><span id="modalAvgScore">0</span></h3>
-                        <small>Avg Completion</small>
-                    </div>
-                    <div class="col-4">
-                        <h5 class="mb-0" id="modalLastSeen">-</h5>
-                        <small>Last Seen</small>
+            <!-- Top Stats & Charts Row -->
+            <div class="grid grid-cols-3 gap-6 mb-6">
+                <!-- Monthly Target Donut -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Files This Month</h3>
+                    <div class="w-[140px] h-[140px] mt-6 relative">
+                        <canvas id="filesChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="profFilesDone" class="text-2xl font-black text-gray-800 leading-none">0</span>
+                            <span id="profFilesTarget" class="text-[10px] text-gray-400 font-bold">/ 0</span>
+                        </div>
                     </div>
                 </div>
-                <h6 class="border-bottom pb-2">Recent Reports</h6>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr><th>File</th><th>Client</th><th>Score</th><th>Date</th><th>Action</th></tr>
+
+                <!-- Credits vs Target Donut -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Credits Earned</h3>
+                    <div class="w-[140px] h-[140px] mt-6 relative">
+                        <canvas id="creditsChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="profCreditsEarned" class="text-2xl font-black text-purple-600 leading-none">0</span>
+                            <span id="profCreditsTarget" class="text-[10px] text-gray-400 font-bold">/ 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaves Donut -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Leaves Taken</h3>
+                    <div class="w-[140px] h-[140px] mt-6 relative">
+                        <canvas id="leavesChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="profLeavesTaken" class="text-2xl font-black text-orange-500 leading-none">0</span>
+                            <span id="profLeavesLeft" class="text-[10px] text-gray-400 font-bold">/ 0</span>
+                        </div>
+                    </div>
+                    <div id="profLeaveTypes" class="flex gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase"></div>
+                </div>
+            </div>
+
+            <!-- Categories & Overtime Row -->
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <!-- Categories Bar Chart -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">File Categories (Month)</h3>
+                    <div class="h-[200px] w-full">
+                        <canvas id="categoriesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Overtime Cards -->
+                <div class="grid grid-rows-3 gap-3">
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center bg-gradient-to-r from-red-50 to-white">
+                        <span class="text-[11px] font-bold text-red-400 uppercase tracking-widest"><i class="fas fa-clock mr-2"></i>Daily OT</span>
+                        <span id="profOTDaily" class="text-xl font-black text-red-600">0h</span>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Weekly OT</span>
+                        <span id="profOTWeekly" class="text-xl font-black text-gray-600">0h</span>
+                    </div>
+                    <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Monthly OT</span>
+                        <span id="profOTMonthly" class="text-xl font-black text-gray-600">0h</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Sessions & Hours (Last 7 Days) -->
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow mb-6">
+                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">7-Day Work Hours</h3>
+                <div class="h-[200px] w-full mb-4">
+                    <canvas id="hoursChart"></canvas>
+                </div>
+                <!-- Sessions Table -->
+                <div class="overflow-hidden rounded-lg border border-gray-100">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-[10px] text-gray-400 uppercase tracking-wider">
+                                <th class="p-3 border-b border-gray-100 font-bold">Date</th>
+                                <th class="p-3 border-b border-gray-100 font-bold">Login</th>
+                                <th class="p-3 border-b border-gray-100 font-bold">Logout</th>
+                                <th class="p-3 border-b border-gray-100 font-bold text-right">Hours</th>
+                            </tr>
                         </thead>
-                        <tbody id="modalReportsBody"></tbody>
+                        <tbody id="profSessionsBody" class="text-xs text-gray-600">
+                            <!-- Populated by JS -->
+                        </tbody>
                     </table>
                 </div>
             </div>
+
         </div>
-    </div>
+
+        <!-- SYSTEM CONFIGURATION VIEW -->
+        <div id="systemConfigContainer" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-6 px-6 pt-6 flex-shrink-0">
+                <div>
+                    <button onclick="closeUserPanel()" class="text-gray-400 hover:text-blue-600 mb-2 transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                    </button>
+                    <h1 class="text-[24px] font-bold text-gray-800 leading-tight">System Configuration</h1>
+                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Settings & Attendance</p>
+                </div>
+            </div>
+
+            <!-- Content Area (Scrollable) -->
+            <div class="flex-1 overflow-y-auto px-6 pb-6">
+                
+                <!-- TOP SECTION: Split view -->
+                <div class="flex gap-6 mb-6">
+                    <!-- Left Calendar Panel (decrease height, real calendar) -->
+                    <div class="w-[30%] bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-fit">
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Calendar</h3>
+                        <div id="calendarRoot" class="rounded-xl bg-gray-50/50 flex flex-col border border-gray-100 p-2">
+                            <!-- Real Calendar will go here -->
+                        </div>
+                    </div>
+
+                    <!-- Right Panel: Cards -->
+                    <div class="w-[70%] grid grid-cols-2 gap-6 h-fit">
+                        <!-- Card 1: Limits & Credits -->
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col relative h-[320px]">
+                            <button onclick="editSystemLimits()" class="absolute top-5 right-5 text-gray-400 hover:text-blue-600 text-sm bg-gray-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors"><i class="fas fa-pen"></i></button>
+                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4"><i class="fas fa-sliders-h mr-2"></i>Global Limits & Credits</h3>
+                            
+                            <div class="flex flex-col gap-3">
+                                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
+                                    <span class="text-[11px] font-bold text-gray-600">Files Per Day</span>
+                                    <span class="text-[12px] font-bold text-gray-800" id="dispFilesPerDay">5</span>
+                                </div>
+                                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
+                                    <span class="text-[11px] font-bold text-gray-600">Base Credits</span>
+                                    <span class="text-[12px] font-bold text-gray-800" id="dispBaseCredits">6</span>
+                                </div>
+                                <div class="mt-2 flex-1 overflow-y-auto pr-2">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">File Types & Credits</span>
+                                    <div class="flex flex-col gap-2" id="dispFileTypes">
+                                        <div class="flex justify-between items-center border-b border-gray-50 pb-1">
+                                            <span class="text-xs text-gray-600 font-semibold">Standard Valuation</span>
+                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">6</span>
+                                        </div>
+                                        <div class="flex justify-between items-center border-b border-gray-50 pb-1">
+                                            <span class="text-xs text-gray-600 font-semibold">PD</span>
+                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">10</span>
+                                        </div>
+                                        <div class="flex justify-between items-center border-b border-gray-50 pb-1">
+                                            <span class="text-xs text-gray-600 font-semibold">NPA</span>
+                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">4</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Credit Adjustment -->
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[320px]">
+                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4"><i class="fas fa-coins mr-2 text-yellow-500"></i>Credit Adjustment</h3>
+                            
+                            <div class="flex-1 overflow-y-auto pr-2">
+                                <div class="flex flex-col gap-2" id="userCreditList">
+                                    <!-- Populated by JS -->
+                                    <div class="text-center text-xs text-gray-400 py-4">Loading users...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTTOM SECTION: Attendance Grid (Full Width) -->
+                <div class="w-full bg-white rounded-2xl border border-gray-200 card-shadow overflow-hidden">
+                    <div class="p-3 border-b border-purple-200 bg-purple-100/50 flex justify-between items-center">
+                        <div class="w-8"></div> <!-- spacer for centering -->
+                        <h3 class="text-[13px] font-bold text-gray-800 uppercase tracking-widest text-center" id="attendanceMonthTitle">JUNE ATTENDANCE</h3>
+                        <div class="flex gap-2">
+                            <button onclick="prevAttendanceMonth()" class="text-gray-500 hover:text-purple-700 p-1"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="nextAttendanceMonth()" class="text-gray-500 hover:text-purple-700 p-1"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto w-full pb-2">
+                        <table class="w-full text-center border-collapse border-t-0 border border-gray-200" style="min-width: 1200px; table-layout: fixed;">
+                            <thead id="attendanceThead" class="bg-white">
+                                <!-- Generated by JS -->
+                            </thead>
+                            <tbody id="attendanceTbody_full" class="text-xs text-gray-700 divide-y divide-gray-200 bg-white">
+                                <!-- Generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- RIGHT COLUMN: GENERATED REPORTS -->
+    <aside class="w-[320px] h-full bg-white border-l border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h2 class="text-[13px] font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wide">
+                <i class="fas fa-file-pdf text-red-500"></i> Recent Reports
+            </h2>
+            <button onclick="loadGeneratedReports()" class="text-gray-400 hover:text-blue-600 transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
+        </div>
+        <div class="p-3 border-b border-gray-100">
+            <input type="text" id="reportSearch" class="w-full bg-gray-50 border border-gray-200 rounded text-xs px-3 py-2 focus:outline-none focus:border-blue-400" placeholder="Search filename..." onkeyup="filterReports()">
+        </div>
+        <div id="report-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-1">
+            <div class="text-center p-4 text-xs text-gray-400">Loading reports...</div>
+        </div>
+    </aside>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
     const CURRENT_USERNAME = "{{ request.session.user_name|default:'Admin' }}";
-    function getCookie(name) { let v=null; document.cookie?.split(";").forEach(c=>{c=c.trim();if(c.startsWith(name+"="))v=decodeURIComponent(c.slice(name.length+1));}); return v; }
-    const csrftoken = getCookie("csrftoken");
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
 
     let allUsers = [];
     let allReports = [];
-    let pendingAttachment = null;
+    let currentSelectedUserId = null;
 
     // --- WEBSOCKETS ---
     const presenceWs = new WebSocket(`${protocol}://${location.host}/ws/presence/`);
-    presenceWs.onopen = () => presenceWs.send(JSON.stringify({ "page": "Admin Dashboard" }));
+    presenceWs.onopen = () => presenceWs.send(JSON.stringify({ "page": "Command Center" }));
     
     presenceWs.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -330,10 +343,7 @@
         }
     };
 
-    const ws = new WebSocket(`${protocol}://${location.host}/ws/chat/global/`);
-    ws.onmessage = (e) => renderSingleMessage(JSON.parse(e.data));
-
-    // --- TEAM LIST LOGIC (Updated with Roles & Click Conditions) ---
+    // --- TEAM LIST LOGIC ---
     function syncTeamData() {
         fetch('/core/api/stats/').then(r=>r.json()).then(data => {
             allUsers = data.team_members || [];
@@ -345,154 +355,221 @@
         const list = document.getElementById('user-list');
         const term = document.getElementById('teamSearch').value.toLowerCase();
         
-        // Prevent update if user is actively searching
         if(document.activeElement.id === 'teamSearch' && term.length > 0) return;
 
-        // 1. Filter by Search Term
         const filtered = users.filter(u => u.user_name.toLowerCase().includes(term));
-        
-        // 2. Update Online Count
         const countEl = document.getElementById('online-count');
         if(countEl) countEl.innerText = users.filter(u => u.is_online).length;
         
         list.innerHTML = "";
 
         if (filtered.length === 0) {
-            list.innerHTML = '<div class="text-center p-3 text-muted">No users found</div>';
+            list.innerHTML = '<div class="text-center p-8 text-gray-400">No users found</div>';
             return;
         }
 
-        // 3. Group Users
-        const groups = {
-            'Site Team': [],
-            'Office Team': [],
-            'Other Staff': []
-        };
+        const groups = { 'Office': [], 'Site': [], 'Others': [] };
 
         filtered.forEach(u => {
             const role = (u.role || "").toLowerCase();
-            if (role === 'site') {
-                groups['Site Team'].push(u);
-            } else if (role === 'office') {
-                groups['Office Team'].push(u);
-            } else {
-                groups['Other Staff'].push(u);
-            }
+            if (role === 'office') groups['Office'].push(u);
+            else if (role === 'site') groups['Site'].push(u);
+            else groups['Others'].push(u);
         });
 
-        // 4. Helper to Render a Group
         const renderGroup = (headerTitle, groupUsers) => {
             if (groupUsers.length === 0) return;
 
-            // Add Header
-           list.innerHTML += `
-                <div class="px-3 py-2 bg-light border-bottom border-top text-uppercase text-muted fw-bold" 
-                     style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                    ${headerTitle}
-                </div>`;
+            groupUsers.sort((a, b) => a.user_name.localeCompare(b.user_name));
 
-            if (headerTitle === 'Site Team') {
-                // Sort Site Team by Score (Highest First)
-                groupUsers.sort((a, b) => b.avg_score - a.avg_score);
-            } else {
-                // Sort others Alphabetically
-                groupUsers.sort((a, b) => a.user_name.localeCompare(b.user_name));
-            }
-            // Render Rows
+            let groupHtml = `
+            <div class="mb-8">
+                <h3 class="text-[13px] font-bold text-gray-500 uppercase tracking-widest mb-4 border-b-2 border-gray-100 pb-2">${headerTitle} <span class="bg-blue-50 text-blue-600 rounded-full px-2 py-0.5 ml-2 text-[10px]">${groupUsers.length}</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            `;
+
             groupUsers.forEach(u => {
-                const color = ['#00a884','#128C7E','#34B7F1'][u.user_name.length % 3];
+                const color = ['#3b82f6','#10b981','#8b5cf6','#f43f5e'][u.user_name.length % 4];
                 const initial = u.user_name.charAt(0).toUpperCase();
-                const statusClass = u.is_online ? 'online' : 'offline';
+                const isOnline = u.is_online;
                 const roleDisplay = u.role ? u.role.toUpperCase() : 'N/A';
-                
-                const isClickable = (u.role || "").toLowerCase() === 'site';
-                const clickAttr = isClickable ? `onclick="openUserModal('${u.id}')"` : '';
-                const rowClass = isClickable ? 'user-item' : 'user-item disabled';
-                const cursorStyle = isClickable ? 'cursor: pointer;' : 'cursor: default;';
+                const scoreDisplay = u.avg_score ? `<span class="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-bold ml-auto">${u.avg_score}%</span>` : '';
 
-                // We determine the badge color for the score
-                let scoreBadge = '';
-                if(isClickable) {
-                    let badgeColor = 'bg-secondary';
-                    if (u.avg_score >= 80) badgeColor = 'bg-success';
-                    else if (u.avg_score >= 50) badgeColor = 'bg-primary';
-                    else if (u.avg_score > 0) badgeColor = 'bg-warning text-dark';
-                    
-                    scoreBadge = `<span class="badge ${badgeColor} rounded-pill ms-2" style="font-size:0.65rem">${u.avg_score}%</span>`;
-                }
-
-                list.innerHTML += `
-                    <div class="${rowClass}" ${clickAttr} style="${cursorStyle}">
-                        <div class="avatar" style="background:${color}">
+                groupHtml += `
+                <div onclick="openUserPanel('${u.id}')" class="bg-white rounded-xl p-3 card-shadow hover:shadow-md cursor-pointer transition-all border-l-4" style="border-left-color: ${isOnline ? '#10b981' : '#cbd5e1'};">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg relative flex-shrink-0" style="background-color: ${color}">
                             ${initial}
-                            <div class="status-dot ${statusClass}"></div>
+                            ${isOnline ? '<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>' : ''}
                         </div>
-                        <div class="flex-grow-1 d-flex flex-column justify-content-center">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="fw-bold text-dark" style="font-size:0.9rem">${u.user_name}</span>
-                                ${!isClickable ? `<span class="role-badge" style="font-size:0.6rem; opacity:0.7">${roleDisplay}</span>` : scoreBadge}
+                        <div class="flex-1 min-w-0 flex flex-col justify-center">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-[13px] font-bold text-gray-800 truncate">${u.user_name}</h4>
+                                ${scoreDisplay}
                             </div>
-                            ${ u.is_online 
-                                ? '<small class="text-success fw-bold" style="font-size:0.7rem">Online</small>' 
-                                : `<small class="text-muted" style="font-size:0.7rem">Last seen: ${u.last_seen}</small>` 
-                            }
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">${roleDisplay}</span>
+                                <span class="text-gray-300 text-[8px]">•</span>
+                                <span class="text-[10px] text-gray-400 truncate">${isOnline ? 'Online Now' : (u.last_seen || 'Offline')}</span>
+                            </div>
                         </div>
-                        ${isClickable ? '<i class="fas fa-chevron-right text-muted small ms-2"></i>' : ''}
-                    </div>`;
+                    </div>
+                </div>`;
             });
+
+            groupHtml += `</div></div>`;
+            list.innerHTML += groupHtml;
         };
-        // 5. Render in Specific Order
-        renderGroup('Site Team', groups['Site Team']);
-        renderGroup('Office Team', groups['Office Team']);
-        renderGroup('Other Staff', groups['Other Staff']);
+
+        renderGroup('Office', groups['Office']);
+        renderGroup('Site', groups['Site']);
+        renderGroup('Others', groups['Others']);
     }
+
     function filterTeam() { renderTeam(allUsers); }
 
-    // --- REPORT MODAL POPULATION ---
-    function openUserModal(userId) {
-        const modal = new bootstrap.Modal(document.getElementById('userModal'));
-        modal.show();
+    let chartInstances = {};
+
+    // --- PANEL LOGIC ---
+    function openUserPanel(userId) {
+        currentSelectedUserId = userId;
+        const user = allUsers.find(u => u.id == userId);
+        if(!user) return;
+
+        // Toggle Views
+        document.getElementById('teamViewContainer').classList.add('hidden');
+        document.getElementById('userProfileContainer').classList.remove('hidden');
+
+        // Reset Profile Header
+        document.getElementById('profName').innerText = "Loading...";
         
-        // Populate with real data from backend
-        fetch(`/core/api/user-details/${userId}/`).then(r=>r.json()).then(data=>{
-            document.getElementById('modalUserName').innerText = data.name;
-            document.getElementById('modalTotalReports').innerText = data.total_reports;
-            document.getElementById('modalAvgScore').innerText = data.avg_score;
-            document.getElementById('modalLastSeen').innerText = data.last_seen ? new Date(data.last_seen).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Never";
-            const avgEl = document.getElementById('modalAvgScore'); 
-            if(avgEl) avgEl.innerText = data.avg_score + "%";
-            const tbody = document.getElementById('modalReportsBody');
-            tbody.innerHTML = "";
+        fetch(`/core/api/user-details/${userId}/`)
+        .then(r => r.json())
+        .then(data => {
+            if(data.error) {
+                alert("Error loading profile: " + data.error);
+                closeUserPanel();
+                return;
+            }
+
+            // Header
+            document.getElementById('profName').innerText = data.name;
+            document.getElementById('profRole').innerText = (data.role || 'UNKNOWN').toUpperCase();
+            document.getElementById('profLastSeen').innerText = data.last_seen ? "Last active: " + new Date(data.last_seen).toLocaleString() : "Offline";
+
+            const a = data.analytics;
+
+            // Stats Update
+            document.getElementById('profFilesDone').innerText = a.files_done;
+            document.getElementById('profFilesTarget').innerText = "/ " + a.files_target;
             
-            if(data.recent_work.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No reports generated yet</td></tr>`;
-            } else {
-                data.recent_work.forEach(w => {
-                    // Assuming report details view exists, otherwise link to file if available
-                    const link = `/core/report-detail/${w.id}/`; 
-                    const score = w.completion_score ? Math.round(w.completion_score) : 0;
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${w.office_file_no||'-'}</td>
-                            <td>${w.applicant_name||'-'}</td>
-                            <td>
-                                <div class="progress" style="height: 6px; width: 60px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: ${w.completion_score}%"></div>
-                                </div>
-                                <small>${w.completion_score}%</small>
-                            </td>
-                            <td>${new Date(w.updated_at).toLocaleDateString()}</td>
-                            <td><a href="${link}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
-                        </tr>`;
-                });
+            document.getElementById('profCreditsEarned').innerText = a.total_credits;
+            document.getElementById('profCreditsTarget').innerText = "/ " + a.credits_target;
+            
+            document.getElementById('profLeavesTaken').innerText = a.total_leaves;
+            document.getElementById('profLeavesLeft').innerText = "/ " + a.leaves_allowed;
+
+            // OT
+            document.getElementById('profOTDaily').innerText = a.ot.daily + "h";
+            document.getElementById('profOTWeekly').innerText = a.ot.weekly + "h";
+            document.getElementById('profOTMonthly').innerText = a.ot.monthly + "h";
+
+            // Leave Types Text
+            let leaveStr = a.leave_types.map(lt => `${lt.leave_type}: ${lt.count}`).join(' | ');
+            document.getElementById('profLeaveTypes').innerText = leaveStr || "No leaves taken";
+
+            // Render Charts
+            renderDonutChart('filesChart', ['Done', 'Remaining'], [a.files_done, Math.max(0, a.files_target - a.files_done)], ['#3b82f6', '#eff6ff']);
+            renderDonutChart('creditsChart', ['Earned', 'Remaining'], [a.total_credits, Math.max(0, a.credits_target - a.total_credits)], ['#9333ea', '#f5f3ff']);
+            renderDonutChart('leavesChart', ['Taken', 'Allowed'], [a.total_leaves, Math.max(0, a.leaves_allowed - a.total_leaves)], ['#f97316', '#fff7ed']);
+            
+            renderCategoriesChart('categoriesChart', [a.pd_cases, a.npa_cases, a.project_cases, a.other_cases]);
+            renderHoursChart('hoursChart', a.sessions);
+
+            // Populate Tables
+            let sessionsHtml = '';
+            a.sessions.forEach(s => {
+                sessionsHtml += `
+                    <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+                        <td class="p-3 font-semibold text-gray-800">${s.date}</td>
+                        <td class="p-3">${s.login || '-'}</td>
+                        <td class="p-3">${s.logout || '-'}</td>
+                        <td class="p-3 text-right font-bold text-gray-800">${s.hours_worked}h</td>
+                    </tr>`;
+            });
+            document.getElementById('profSessionsBody').innerHTML = sessionsHtml || '<tr><td colspan="4" class="p-4 text-center text-gray-400">No recent sessions</td></tr>';
+
+
+        }).catch(err => {
+            console.error("Error fetching user details", err);
+            document.getElementById('profName').innerText = "Error loading user data";
+        });
+    }
+
+    function closeUserPanel() {
+        currentSelectedUserId = null;
+        document.getElementById('userProfileContainer').classList.add('hidden');
+        document.getElementById('systemConfigContainer').classList.add('hidden');
+        document.getElementById('teamViewContainer').classList.remove('hidden');
+    }
+
+    // Chart Helpers
+    function renderDonutChart(canvasId, labels, dataArr, colors) {
+        if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        chartInstances[canvasId] = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: labels, datasets: [{ data: dataArr, backgroundColor: colors, borderWidth: 0 }] },
+            options: { cutout: '80%', responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { enabled: true } } }
+        });
+    }
+
+    function renderCategoriesChart(canvasId, dataArr) {
+        if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        chartInstances[canvasId] = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['PD', 'NPA', 'Project', 'Other'],
+                datasets: [{ label: 'Files', data: dataArr, backgroundColor: '#3b82f6', borderRadius: 4 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, border: { display: false }, grid: { color: '#f3f4f6' }, ticks: { precision: 0 } }
+                }
             }
         });
     }
 
-    // --- OTHER LOGIC (Chat, Reports) ---
+    function renderHoursChart(canvasId, sessions) {
+        if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        const labels = sessions.map(s => s.date);
+        const dataArr = sessions.map(s => s.hours_worked);
+        chartInstances[canvasId] = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Hours', data: dataArr, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, border: { display: false }, grid: { color: '#f3f4f6' } }
+                }
+            }
+        });
+    }
+
+    // --- GENERATED REPORTS LOGIC ---
     function loadGeneratedReports(isBackgroundUpdate = false) {
         const list = document.getElementById('report-list');
-        if (!isBackgroundUpdate) list.innerHTML = '<div class="text-center p-3 text-muted">Scanning...</div>';
+        if (!isBackgroundUpdate) list.innerHTML = '<div class="text-center p-4 text-xs text-gray-400">Scanning...</div>';
 
         fetch('/core/api/pdfs/').then(r => r.json()).then(data => {
             allReports = data.files || [];
@@ -506,88 +583,296 @@
         const filtered = files.filter(f => f.applicant.toLowerCase().includes(term) || f.user.toLowerCase().includes(term));
         
         list.innerHTML = "";
-        if(filtered.length === 0) { list.innerHTML = '<div class="text-center p-3 text-muted">No reports found</div>'; return; }
+        if(filtered.length === 0) { list.innerHTML = '<div class="text-center p-4 text-xs text-gray-400">No reports found</div>'; return; }
 
         filtered.forEach(f => {
             list.innerHTML += `
-                <div class="folder-row" onclick="window.open('/core/report-detail/${f.id}/', '_blank')">
-                    <div class="d-flex align-items-center flex-grow-1 min-w-0">
-                        <i class="fas fa-file-pdf text-danger fs-4 me-3"></i>
-                        <div class="folder-details">
-                            <div class="folder-name text-dark">${f.applicant}</div>
-                            <div class="folder-meta text-muted">${f.file_no} • ${f.user} • ${f.created}</div>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right text-muted small"></i>
-                </div>`;
+            <div onclick="window.location.href='/core/report-detail/${f.id}/'" class="bg-white p-3 rounded-lg border border-gray-100 hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all group">
+                <div class="flex justify-between items-start mb-1">
+                    <span class="text-[12px] font-bold text-gray-800 truncate pr-2 group-hover:text-blue-600"><i class="fas fa-user-circle mr-1 text-gray-400"></i>${f.applicant}</span>
+                    <span class="text-[9px] text-gray-400 font-medium whitespace-nowrap">${f.created}</span>
+                </div>
+                <div class="text-[10px] text-gray-500 truncate mb-1.5"><i class="fas fa-file-alt mr-1 text-gray-300"></i>File: ${f.file_no}</div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold"><i class="fas fa-user-edit mr-1 text-gray-400"></i>${f.user}</span>
+                    <i class="fas fa-arrow-right text-[10px] text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0"></i>
+                </div>
+            </div>`;
         });
     }
+
     function filterReports() { renderReports(allReports); }
 
-    // Chat Logic
-    fetch("/chat/history/").then(r=>r.json()).then(data => {
-        const box = document.getElementById('global-chat-box');
-        box.innerHTML = "";
-        if(data.messages) data.messages.forEach(renderSingleMessage);
-        box.scrollTop = box.scrollHeight;
-    });
-
-    function renderSingleMessage(msg) {
-        const box = document.getElementById('global-chat-box');
-        const isMe = msg.user.toLowerCase() === CURRENT_USERNAME.toLowerCase();
-        const bubbleClass = isMe ? 'msg-out' : 'msg-in';
-        
-        let attach = "";
-        if (msg.attached_type !== "none" && msg.attached_path) {
-            let icon = msg.attached_path.endsWith(".pdf") ? "fa-file-pdf text-danger" : "fa-file-image text-primary";
-            attach = `<div class="attachment-box" onclick="window.open('/coreapi/serve-file/?path=${encodeURIComponent(msg.attached_path)}')">
-                        <i class="fas ${icon}"></i> <span class="text-truncate small fw-bold" style="max-width:150px;">${msg.attached_label}</span>
-                      </div>`;
+    // --- STUB FUNCTIONS FOR SYSTEM EDITS ---
+    function editCredits() {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Add Credits',
+                input: 'number',
+                inputLabel: 'Amount of credits to award manually',
+                showCancelButton: true,
+                confirmButtonText: 'Add'
+            }).then(r => {
+                if(r.isConfirmed) Swal.fire('Success', 'Credits added (Backend pending)', 'success');
+            });
         }
-
-        const div = document.createElement('div');
-        div.className = `msg-bubble ${bubbleClass}`;
-        div.innerHTML = `<div class="msg-sender">${msg.user}</div>${attach}<div>${msg.content}</div><div class="msg-meta">${msg.time}</div>`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
     }
 
-    const chatForm = document.getElementById('globalChatForm');
-    const fileInput = document.getElementById('chatFileInput');
-    const pendingLabel = document.getElementById('pendingFileLabel');
-
-    fileInput.onchange = () => {
-        const file = fileInput.files[0];
-        if(!file) return;
-        pendingLabel.classList.remove('d-none');
-        pendingLabel.innerHTML = `${file.name} <i class="fas fa-times ms-1" onclick="clearFile()"></i>`;
-        
-        const fd = new FormData(); fd.append('file', file);
-        fetch("/chat/upload/", { method: "POST", headers: { "X-CSRFToken": csrftoken }, body: fd })
-        .then(r => r.json()).then(data => {
-            pendingAttachment = { type: "file", path: data.path, label: data.label };
-        });
-    };
-    window.clearFile = () => { fileInput.value = ""; pendingAttachment = null; pendingLabel.classList.add('d-none'); };
-
-    chatForm.onsubmit = (e) => {
-        e.preventDefault();
-        const input = document.getElementById('globalChatInput');
-        if(!input.value.trim() && !pendingAttachment) return;
-        if(ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                user: CURRENT_USERNAME,
-                content: input.value.trim(),
-                attached_type: pendingAttachment ? pendingAttachment.type : "text",
-                attached_path: pendingAttachment ? pendingAttachment.path : null,
-                attached_label: pendingAttachment ? pendingAttachment.label : null,
-            }));
-            input.value = ""; clearFile();
+    function editLeaves() {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire('Log Leave', 'Leave tracking logic will open here.', 'info');
         }
-    };
+    }
 
-    syncTeamData();
-    loadGeneratedReports();
+    let currentAttendanceDate = new Date();
+
+    function openSystemConfig() {
+        document.getElementById('teamViewContainer').classList.add('hidden');
+        document.getElementById('userProfileContainer').classList.add('hidden');
+        document.getElementById('systemConfigContainer').classList.remove('hidden');
+
+        renderCalendar();
+        renderCreditList();
+        renderAttendanceGrid();
+    }
+
+    function renderCalendar() {
+        const root = document.getElementById('calendarRoot');
+        const year = currentAttendanceDate.getFullYear();
+        const month = currentAttendanceDate.getMonth();
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        let calHtml = `
+            <div class="flex justify-between items-center mb-2 px-1">
+                <button onclick="changeCalMonth(-1)" class="text-gray-400 hover:text-purple-600"><i class="fas fa-chevron-left text-xs"></i></button>
+                <span class="text-xs font-bold text-gray-700 uppercase tracking-widest">${monthNames[month]} ${year}</span>
+                <button onclick="changeCalMonth(1)" class="text-gray-400 hover:text-purple-600"><i class="fas fa-chevron-right text-xs"></i></button>
+            </div>
+            <div class="w-full h-full flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 p-2">
+        `;
+        
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        calHtml += `<div class="grid grid-cols-7 gap-1 mb-1">`;
+        days.forEach((d, i) => {
+            const isSun = i === 0;
+            calHtml += `<div class="text-center text-[9px] font-bold ${isSun ? 'text-red-400' : 'text-gray-400'} uppercase">${d}</div>`;
+        });
+        calHtml += `</div><div class="grid grid-cols-7 gap-1 flex-1">`;
+        
+        for (let i = 0; i < firstDay; i++) {
+            calHtml += `<div class="border border-transparent rounded"></div>`;
+        }
+        
+        const today = new Date();
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dateObj = new Date(year, month, i);
+            const isSunday = dateObj.getDay() === 0;
+            const isToday = dateObj.toDateString() === today.toDateString();
+            
+            let bg = isSunday ? 'bg-red-50 text-red-600 font-bold border-red-100' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-100';
+            if (isToday) bg = 'bg-purple-500 text-white font-bold border-purple-600 shadow-sm';
+            
+            calHtml += `<div class="border rounded flex items-center justify-center text-[10px] cursor-pointer transition-colors ${bg}">${i}</div>`;
+        }
+        calHtml += `</div></div>`;
+        root.innerHTML = calHtml;
+    }
+
+    function changeCalMonth(delta) {
+        currentAttendanceDate.setMonth(currentAttendanceDate.getMonth() + delta);
+        renderCalendar();
+        renderAttendanceGrid();
+    }
+
+    function prevAttendanceMonth() { changeCalMonth(-1); }
+    function nextAttendanceMonth() { changeCalMonth(1); }
+
+    function renderCreditList() {
+        const listDiv = document.getElementById('userCreditList');
+        let html = '';
+        allUsers.forEach(u => {
+            if(u.role !== 'admin') {
+                // Mock credits for demo
+                const credits = Math.floor(Math.random() * 50) + 10;
+                html += `
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
+                        <span class="text-[11px] font-bold text-gray-600">${u.user_name}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[11px] font-bold text-gray-800">${credits} Credits</span>
+                            <button onclick="promptCreditAdjust('${u.id}', '${u.user_name}')" class="text-blue-500 bg-white border border-blue-100 hover:bg-blue-50 px-2 py-0.5 rounded text-[10px] transition-colors"><i class="fas fa-plus-minus"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        listDiv.innerHTML = html;
+    }
+
+    function promptCreditAdjust(userId, userName) {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Adjust Credits: ' + userName,
+                html: `
+                    <div class="text-left font-outfit mt-4">
+                        <label class="text-[11px] font-bold text-gray-500 uppercase">Amount (+ or -)</label>
+                        <input type="number" id="swal-credit-amt" class="w-full border rounded p-2 mb-3 outline-none focus:border-blue-400" placeholder="e.g. 5 or -2">
+                        <label class="text-[11px] font-bold text-gray-500 uppercase">Reason</label>
+                        <input type="text" id="swal-credit-reason" class="w-full border rounded p-2 outline-none focus:border-blue-400" placeholder="e.g. Penalty, Bonus">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Save',
+                confirmButtonColor: '#8b5cf6',
+                preConfirm: () => {
+                    const amt = document.getElementById('swal-credit-amt').value;
+                    const rsn = document.getElementById('swal-credit-reason').value;
+                    if(!amt || !rsn) Swal.showValidationMessage('Both fields are required');
+                    return { amt, rsn };
+                }
+            }).then(res => {
+                if(res.isConfirmed) Swal.fire('Saved!', 'Credits updated for ' + userName, 'success');
+            });
+        }
+    }
+
+    function editSystemLimits() {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Global Settings',
+                html: `
+                    <div class="text-left font-outfit mt-4 flex flex-col gap-3">
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-500 uppercase">Files Per Day</label>
+                            <input type="number" id="swal-sys-1" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="5">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-500 uppercase">Base Credits</label>
+                            <input type="number" id="swal-sys-2" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="6">
+                        </div>
+                        <div class="border-t pt-2 mt-2">
+                            <label class="text-[11px] font-bold text-gray-500 uppercase">Standard Valuation</label>
+                            <input type="number" id="swal-sys-3" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="6">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-gray-500 uppercase">Project Approval</label>
+                            <input type="number" id="swal-sys-4" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="10">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes',
+                confirmButtonColor: '#8b5cf6',
+            }).then(res => {
+                if(res.isConfirmed) Swal.fire('Saved!', 'Global settings updated.', 'success');
+            });
+        }
+    }
+
+    function renderAttendanceGrid() {
+        const thead = document.getElementById('attendanceThead');
+        const tbody = document.getElementById('attendanceTbody_full');
+        const title = document.getElementById('attendanceMonthTitle');
+        
+        const year = currentAttendanceDate.getFullYear();
+        const month = currentAttendanceDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        
+        title.innerText = monthNames[month] + " " + year + " ATTENDANCE";
+
+        let headHtml = `
+            <tr class="bg-gray-50/80">
+                <th class="p-2 border-b border-r border-gray-200 text-[10px] font-bold text-gray-500 w-[40px]">SL NO</th>
+                <th class="p-2 border-b border-r border-gray-200 text-[10px] font-bold text-gray-500 w-[70px]">EMP ID</th>
+                <th class="p-2 border-b border-r border-gray-200 text-[10px] font-bold text-gray-500 min-w-[120px]">EMPLOYEE NAME</th>
+        `;
+
+        // Render columns for each day
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dateObj = new Date(year, month, i);
+            const dName = dayNames[dateObj.getDay()];
+            const isSun = dateObj.getDay() === 0;
+            const textCol = isSun ? 'text-red-500' : 'text-gray-500';
+            headHtml += `
+                <th class="p-1 border-b border-r border-gray-200 text-[9px] font-bold text-center w-[30px] ${textCol}">
+                    <div class="mb-1">${dName}</div>
+                    <div>${i}</div>
+                </th>
+            `;
+        }
+
+        headHtml += `
+                <th class="p-2 border-b border-r border-gray-200 text-[9px] font-bold text-gray-500 w-[60px] bg-purple-50">TOTAL LEAVES</th>
+                <th class="p-2 border-b border-r border-gray-200 text-[9px] font-bold text-gray-500 w-[60px] bg-yellow-50">Work at Home</th>
+                <th class="p-2 border-b border-gray-200 text-[9px] font-bold text-gray-500 w-[60px] bg-yellow-50">Late Coming</th>
+            </tr>
+        `;
+        thead.innerHTML = headHtml;
+
+        let bodyHtml = '';
+        let slNo = 1;
+        const officeUsers = allUsers.filter(u => u.role !== 'admin');
+        
+        officeUsers.forEach(u => {
+            // Mock employee ID
+            const empId = "EMP" + (100 + slNo);
+            
+            bodyHtml += `<tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-400 text-center">${slNo}</td>
+                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-600 text-center">${empId}</td>
+                <td class="p-2 border-b border-r border-gray-200 text-[11px] font-bold text-gray-800">${u.user_name}</td>
+            `;
+
+            let totalLeaves = 0;
+            let totalWfh = 0;
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateObj = new Date(year, month, i);
+                const isSun = dateObj.getDay() === 0;
+                
+                // Random mock data for attendance
+                let status = '<i class="fas fa-check text-gray-800 text-[10px]"></i>';
+                let cellClass = "";
+                let textColor = "";
+
+                if (isSun) {
+                    status = '<i class="fas fa-times"></i>';
+                    textColor = "text-red-500";
+                    cellClass = "bg-red-50/30";
+                } else if (Math.random() < 0.05) {
+                    status = 'OFF';
+                    textColor = "text-red-500 font-bold";
+                    totalLeaves++;
+                } else if (Math.random() < 0.02) {
+                    status = 'W';
+                    textColor = "text-red-500 font-bold";
+                    totalWfh++;
+                }
+
+                bodyHtml += `<td class="p-1 border-b border-r border-gray-200 text-[10px] text-center ${textColor} ${cellClass}">${status}</td>`;
+            }
+
+            bodyHtml += `
+                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-600 text-center bg-purple-50/30">${totalLeaves > 0 ? totalLeaves : ''}</td>
+                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-600 text-center bg-yellow-50/30">${totalWfh > 0 ? 'W' : ''}</td>
+                <td class="p-1 border-b border-gray-200 text-[10px] font-bold text-gray-600 text-center bg-yellow-50/30"></td>
+            </tr>`;
+            
+            slNo++;
+        });
+
+        tbody.innerHTML = bodyHtml;
+    }
+
+    // INITIALIZATION
+    document.addEventListener("DOMContentLoaded", () => {
+        syncTeamData();
+        loadGeneratedReports();
+    });
 </script>
-</body>
-</html>
+{% endblock %}

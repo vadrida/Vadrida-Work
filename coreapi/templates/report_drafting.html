@@ -11178,6 +11178,77 @@
     }
 
     /* ----- PRINT REPORT LOGIC ----- */
+    async function compressAllImagesForPrint() {
+        showToast("Compressing images for smaller PDF size... Please wait.");
+        
+        // We will find all images that are visible
+        const allImages = Array.from(document.querySelectorAll('img')).filter(img => {
+            return img.src && img.src.length > 50 && img.style.display !== 'none' && !img.src.includes('avatar');
+        });
+
+        const compressPromises = allImages.map(img => {
+            return new Promise((resolve) => {
+                // If it's already a compressed data URI, we can skip if it's small.
+                // We'll just compress everything larger than 800px to be safe.
+                
+                const tempImg = new Image();
+                tempImg.crossOrigin = "anonymous";
+                
+                tempImg.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    let width = tempImg.naturalWidth;
+                    let height = tempImg.naturalHeight;
+
+                    // Max dimensions to ensure PDF size is small
+                    const maxWidth = 800;
+                    const maxHeight = 800;
+
+                    if (width <= maxWidth && height <= maxHeight && img.src.startsWith('data:image/jpeg')) {
+                        resolve(); // already small and is a jpeg
+                        return;
+                    }
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    try {
+                        ctx.fillStyle = "#FFFFFF"; // Fill white background in case of transparent PNGs
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.drawImage(tempImg, 0, 0, width, height);
+                        
+                        // Compress heavily to keep PDF small (0.6 quality JPEG)
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        img.src = dataUrl; // Replace original image
+                    } catch (e) {
+                        console.warn("Could not compress image (CORS taint)", e);
+                    }
+                    resolve();
+                };
+
+                tempImg.onerror = () => {
+                    console.warn("Could not load image for compression", img.src.substring(0, 50));
+                    resolve();
+                };
+
+                // Trigger load
+                tempImg.src = img.src;
+            });
+        });
+
+        await Promise.all(compressPromises);
+    }
+
     async function printValuationReport() {
         const fileNo = '{{ file_no }}';
         const cfData = megaPayload?.client_folder || {};
@@ -11198,9 +11269,6 @@
         const originalTitle = document.title;
         document.title = safeName;
 
-        // Force a final save to mark the report as completed in the database
-        await manualSaveDraftingData(false, 'completed');
-
         // Copy the exact Client Folder path to clipboard for easy saving
         const folderPath = megaPayload?.client_folder?.full_folder_path;
         if (folderPath) {
@@ -11214,7 +11282,10 @@
             }
         }
 
-        // Trigger the native print dialog
+        // Compress images right before printing!
+        await compressAllImagesForPrint();
+
+        // Trigger the native print dialog IMMEDIATELY after compression
         window.print();
 
         // Restore title and open signer modal
@@ -11228,6 +11299,10 @@
                 }
             }
         }, 1500);
+
+        // Force a final save to mark the report as completed in the database
+        // We do this in the background WITHOUT AWAITING, so it doesn't block the print dialog!
+        manualSaveDraftingData(false, 'completed');
     }
 
     /* =========================================

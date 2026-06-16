@@ -162,19 +162,11 @@
                     <li style="font-weight: bold;">{{ request.session.user_name }}</li>
                     <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
                     {% if request.session.work_session_start %}
-                    <li>
-                        <div class="flex items-center gap-3">
-                            <div class="work-timer hidden" id="workTimer"
-                                data-start="{{ request.session.work_session_start }}"
-                                data-role="{{ request.session.user_role|lower }}">
-                                <i class="fas fa-clock" style="font-size: 11px;"></i>
-                                <span id="timerDisplay">00:00:00</span>
-                            </div>
-                            <button id="requestAccessBtn" class="hidden text-[11px] font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded shadow-sm transition-colors" onclick="requestOtAccess()">
-                                Request Access
-                            </button>
-                        </div>
-                    </li>
+                    <!-- Timer hidden per user request, background script still enforces rules -->
+                    <div id="workTimer" class="hidden" data-start="{{ request.session.work_session_start }}" data-role="{{ request.session.user_role|lower }}"></div>
+                    <button id="requestAccessBtn" class="hidden text-[11px] font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded shadow-sm transition-colors" onclick="requestOtAccess()">
+                        Request Access
+                    </button>
                     {% endif %}
                     <li>
                         <a href="{% url 'coreapi:logout_api' %}" class="nav-link text-red-500 hover:text-red-700"
@@ -270,46 +262,65 @@
 
             const startTime = new Date(startISO).getTime();
             const NORMAL_LIMIT = 8 * 3600;  // 8 hours in seconds
-            const MAX_LIMIT = 10 * 3600;    // 10 hours in seconds
+            let MAX_LIMIT = 10 * 3600;      // 10 hours in seconds
             const userRole = timerEl.dataset.role;
             let maxOTWarned = false;
 
+            // Poll backend to check for extended limits (e.g. approved OT)
+            setInterval(() => {
+                fetch('/coreapi/api/session-status/')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.max_hours) {
+                        MAX_LIMIT = d.max_hours * 3600;
+                        // If limit was extended, reset the warned flag so they can get warned again if they reach the new limit
+                        if (MAX_LIMIT > 10 * 3600) {
+                            maxOTWarned = false;
+                        }
+                    }
+                    if (d.ot_status === 'approved' && reqBtnEl) {
+                        reqBtnEl.innerText = 'Approved';
+                        reqBtnEl.classList.replace('bg-gray-400', 'bg-green-500');
+                        reqBtnEl.classList.replace('bg-yellow-500', 'bg-green-500');
+                        reqBtnEl.disabled = true;
+                    } else if (d.ot_status === 'denied' && reqBtnEl) {
+                        // Do nothing or change the color back
+                    }
+                }).catch(e => console.error('Timer Poll Error:', e));
+            }, 180000); // 3 minutes
+
             function updateTimer() {
+                if (userRole !== 'office') return; // Do not enforce for non-office staff
+                
                 const now = Date.now();
                 let elapsed = Math.floor((now - startTime) / 1000);
                 if (elapsed < 0) elapsed = 0;
 
-                const hrs = Math.floor(elapsed / 3600);
-                const mins = Math.floor((elapsed % 3600) / 60);
-                const secs = elapsed % 60;
-
-                const pad = (n) => String(n).padStart(2, '0');
-
-                // Color logic
-                timerEl.classList.remove('ot', 'exceeded');
-                let label = '';
-                
-                // Only enforce strict 10hr auto-logout and warnings for 'office' users
-                if (userRole === 'office' && elapsed >= MAX_LIMIT) {
+                // Enforce strict 10hr auto-logout and warnings for 'office' users only
+                if (elapsed >= MAX_LIMIT) {
                     if (!maxOTWarned) {
                         maxOTWarned = true;
-                        timerEl.classList.remove('hidden');
-                        if (reqBtnEl) reqBtnEl.classList.remove('hidden');
                         
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Maximum OT Exceeded',
                                 text: 'You have passed the 10-hour limit. Your session will end in 10 minutes unless access is requested.',
-                                confirmButtonColor: '#d33',
-                                confirmButtonText: 'Understood'
+                                showCancelButton: true,
+                                confirmButtonColor: '#eab308',
+                                confirmButtonText: 'Request Access',
+                                cancelButtonText: 'Understood'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.requestOtAccess();
+                                }
                             });
                         } else {
-                            alert('Maximum OT has been passed. Going to sign out in 10 minutes.');
+                            if(confirm('Maximum OT has been passed. Sign out in 10 minutes. Click OK to request OT access.')) {
+                                window.requestOtAccess();
+                            }
                         }
                     }
-                    
-                    timerEl.classList.add('exceeded');
                     
                     const logoutTime = startTime + (MAX_LIMIT * 1000) + (10 * 60 * 1000);
                     let timeLeft = Math.floor((logoutTime - now) / 1000);
@@ -318,24 +329,6 @@
                         window.location.href = "{% url 'coreapi:logout_api' %}";
                         return;
                     }
-                    
-                    const cMins = Math.floor(timeLeft / 60);
-                    const cSecs = timeLeft % 60;
-                    displayEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;">Logging out in: ${pad(cMins)}:${pad(cSecs)}</span>`;
-                    
-                } else {
-                    if (elapsed >= MAX_LIMIT && userRole !== 'office') {
-                        // Standard display for non-office users over 10 hours
-                        timerEl.classList.add('exceeded');
-                        label = ' <span class="timer-label">MAX</span>';
-                    } else if (elapsed >= NORMAL_LIMIT) {
-                        timerEl.classList.add('ot');
-                        const otSecs = elapsed - NORMAL_LIMIT;
-                        const otH = Math.floor(otSecs / 3600);
-                        const otM = Math.floor((otSecs % 3600) / 60);
-                        label = ` <span class="timer-label">OT +${pad(otH)}:${pad(otM)}</span>`;
-                    }
-                    displayEl.innerHTML = `${pad(hrs)}:${pad(mins)}:${pad(secs)}${label}`;
                 }
             }
 
@@ -343,17 +336,29 @@
             setInterval(updateTimer, 1000);
             
             window.requestOtAccess = function() {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire('Request Sent', 'Your request for extended access has been sent to the Admin.', 'success');
-                } else {
-                    alert('Request for extended access sent.');
-                }
-                if (reqBtnEl) {
-                    reqBtnEl.innerText = 'Requested';
-                    reqBtnEl.disabled = true;
-                    reqBtnEl.classList.replace('bg-yellow-500', 'bg-gray-400');
-                    reqBtnEl.classList.remove('hover:bg-yellow-600');
-                }
+                fetch('/coreapi/api/request-overtime/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1],
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json()).then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire('Request Sent', 'Your request for extended access has been sent to the Admin. If approved, you will not be logged out.', 'success');
+                        } else {
+                            alert('Request for extended access sent.');
+                        }
+                    } else {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire('Info', data.message || 'Already requested.', 'info');
+                        } else {
+                            alert(data.message || 'Already requested.');
+                        }
+                    }
+                }).catch(err => {
+                    console.error('OT Request Error:', err);
+                });
             };
         })();
     </script>

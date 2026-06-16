@@ -212,6 +212,7 @@ class PresenceConsumer(AsyncWebsocketConsumer):
             data.append({
                 "id": u.id,
                 "user_name": u.user_name,
+                "role": u.role,
                 "is_online": is_active,  # Computed Value
                 "current_page": u.current_page,
                 "last_seen": u.last_seen.strftime("%H:%M") if u.last_seen else "-"

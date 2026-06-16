@@ -54,6 +54,23 @@ class RedisActiveUserMiddleware(MiddlewareMixin):
             # Set a flag in Redis for this user that auto-deletes after 5 minutes (300 seconds)
             cache.set(f"online_user_{user_name}", True, 300)
             
+        # Update session logout time based on last activity
+        user_id = request.session.get('user_id')
+        if user_id:
+            try:
+                from django.utils import timezone
+                from coreapi.models import WorkSession
+                now = timezone.now()
+                today = now.date()
+                session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
+                if session_obj:
+                    session_obj.logout_time = now
+                    delta = now - session_obj.login_time
+                    session_obj.hours_worked = round(delta.total_seconds() / 3600, 2)
+                    session_obj.save(update_fields=['logout_time', 'hours_worked'])
+            except Exception:
+                pass
+            
 class SmartExceptionMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

@@ -25,9 +25,10 @@ from django.template.loader import render_to_string
 import base64
 from django.db.models import Q, Max
 import uuid
+from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from weasyprint import HTML, CSS
-from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport, WorkSession
+from .models import UserProfile, SiteVisitReport, ReportSketch, ClientFolder, VerificationReport, DraftingReport, WorkSession, MonthlyPerformance, CreditLedger
 import fitz  
 from django.shortcuts import render, get_object_or_404
 import shutil
@@ -667,6 +668,64 @@ def logout_api(request):
     request.session.flush()
     return redirect("coreapi:login_page")
 
+@csrf_exempt
+def session_status_api(request):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({"error": "Unauthorized", "hours_worked": 0, "max_hours": 10}, status=401)
+        
+    try:
+        from .models import WorkSession, SystemConfiguration, OvertimeRequest
+        from django.utils import timezone
+        
+        now = timezone.now()
+        today = now.date()
+        
+        config = SystemConfiguration.objects.first()
+        max_session_hours = config.max_session_hours if config else 10.0
+        
+        session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
+        hours_worked = 0.0
+        if session_obj:
+            elapsed = (now - session_obj.login_time).total_seconds() / 3600.0
+            hours_worked = round(elapsed, 2)
+            
+        # Check overtime status for today
+        ot_request = OvertimeRequest.objects.filter(user_id=user_id, request_date=today).order_by('-requested_at').first()
+        ot_status = ot_request.status if ot_request else "none"
+        
+        if ot_status == "approved":
+            max_session_hours = 12.0 # Give them 2 more hours if approved
+            
+        return JsonResponse({
+            "hours_worked": hours_worked,
+            "max_hours": max_session_hours,
+            "ot_status": ot_status,
+            "minutes_remaining": max(0, int((max_session_hours - hours_worked) * 60))
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def request_overtime_api(request):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+        
+    try:
+        from .models import OvertimeRequest
+        from django.utils import timezone
+        
+        # Don't allow multiple pending requests
+        existing = OvertimeRequest.objects.filter(user_id=user_id, request_date=timezone.now().date(), status='pending').exists()
+        if existing:
+            return JsonResponse({"success": False, "message": "You already have a pending overtime request."})
+            
+        OvertimeRequest.objects.create(user_id=user_id)
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
 
 # ----------------------------
 # File / Folder Handling
@@ -704,8 +763,10 @@ def office(request):
     target_files = working_days * files_per_day
     target_credits = target_files * credits_per_file
 
-    # --- 6-MONTH TREND DATA (Mock for now) ---
+    # --- 6-MONTH TREND DATA (Fetch from MonthlyPerformance) ---
     month_names = []
+    real_files_data = []
+    
     for i in range(5, -1, -1):
         m = now.month - i
         y = now.year
@@ -714,13 +775,53 @@ def office(request):
             y -= 1
         month_names.append(calendar.month_abbr[m])
         
-    mock_files = [85, 92, 78, 105, 88, 112]  # Mock data
-    current_month_files = mock_files[-1]
-    prev_month_files = mock_files[-2]
+        perf = MonthlyPerformance.objects.filter(user=user_profile, year=y, month=m).first()
+        real_files_data.append(perf.files_done if perf else 0)
+        
+    current_month_files = real_files_data[-1]
+    prev_month_files = real_files_data[-2]
     
     diff = current_month_files - prev_month_files
     is_trend_up = diff >= 0
     trend_diff = abs(diff)
+
+    # --- CURRENT MONTH & TODAY DATA ---
+    current_perf = MonthlyPerformance.objects.filter(user=user_profile, year=now.year, month=now.month).first()
+    
+    current_month_credits_agg = CreditLedger.objects.filter(user=user_profile, earned_date__year=now.year, earned_date__month=now.month).aggregate(Sum('credits'))['credits__sum']
+    current_month_credits = current_month_credits_agg if current_month_credits_agg else (current_month_files * credits_per_file)
+    overtime_this_month = current_perf.overtime_hours if current_perf else 0.0
+    
+    hours_worked = current_perf.hours_worked if current_perf else 0.0
+    hours_target = current_perf.hours_target if current_perf else (working_days * 8)
+    hours_remaining = max(0, hours_target - hours_worked)
+
+    today_session = WorkSession.objects.filter(user=user_profile, date=now.date()).first()
+    overtime_today = today_session.overtime_hours if today_session else 0.0
+    
+    files_remaining = max(0, target_files - current_month_files)
+    credits_percentage = round((current_month_credits / target_credits) * 100) if target_credits > 0 else 0
+
+    # --- LEAVE DATA ---
+    from .models import LeaveRecord
+    earned_leaves = LeaveRecord.objects.filter(user=user_profile, leave_date__year=now.year, leave_type='earned').count()
+    sick_leaves = LeaveRecord.objects.filter(user=user_profile, leave_date__year=now.year, leave_type='sick').count()
+    casual_leaves = LeaveRecord.objects.filter(user=user_profile, leave_date__year=now.year, leave_type='casual').count()
+    leaves_this_year = earned_leaves + sick_leaves + casual_leaves
+    leave_target = 12
+    leaves_remaining = max(0, leave_target - leaves_this_year)
+
+    # --- PERCENTAGES FOR CIRCULAR PROGRESS BARS ---
+    files_percentage = min(100, round((current_month_files / target_files) * 100)) if target_files > 0 else 0
+    leaves_percentage = min(100, round((leaves_this_year / leave_target) * 100)) if leave_target > 0 else 0
+    hours_percentage = min(100, round((hours_worked / hours_target) * 100)) if hours_target > 0 else 0
+    # credits_percentage is already calculated above
+
+    # --- CASE BREAKDOWN DATA ---
+    pd_cases = current_perf.pd_cases if current_perf else 0
+    npa_cases = current_perf.npa_cases if current_perf else 0
+    project_cases = current_perf.project_cases if current_perf else 0
+    other_cases = current_perf.other_cases if current_perf else 0
 
     context = {
         "user_profile": user_profile,
@@ -734,11 +835,34 @@ def office(request):
         "files_per_day": files_per_day,
         "credits_per_file": credits_per_file,
         "months_labels_json": json.dumps(month_names),
-        "months_data_json": json.dumps(mock_files),
+        "months_data_json": json.dumps(real_files_data),
         "current_month_files": current_month_files,
         "prev_month_files": prev_month_files,
         "is_trend_up": is_trend_up,
-        "trend_diff": trend_diff
+        "trend_diff": trend_diff,
+        "current_month_credits": current_month_credits,
+        "overtime_this_month": round(overtime_this_month, 1),
+        "overtime_today": round(overtime_today, 1),
+        "files_remaining": files_remaining,
+        "credits_percentage": min(100, credits_percentage),
+        "files_percentage": files_percentage,
+        "leaves_percentage": leaves_percentage,
+        "hours_percentage": hours_percentage,
+        "hours_worked": round(hours_worked),
+        "hours_target": round(hours_target),
+        "hours_remaining": round(hours_remaining),
+        "leaves_taken": leaves_this_year,
+        "leave_target": leave_target,
+        "leaves_remaining": leaves_remaining,
+        "case_data_json": json.dumps([pd_cases, npa_cases, project_cases, other_cases]),
+        "leave_data_json": json.dumps([earned_leaves, sick_leaves, casual_leaves, leaves_remaining]),
+        "pd_cases": pd_cases,
+        "npa_cases": npa_cases,
+        "project_cases": project_cases,
+        "other_cases": other_cases,
+        "earned_leaves": earned_leaves,
+        "sick_leaves": sick_leaves,
+        "casual_leaves": casual_leaves,
     }
     return render(request, "office.html", context)
 
@@ -765,6 +889,29 @@ def create_folder_api(request):
         year = meta.get('year', '26')    
         village = meta.get('village', '')
         dcb_officer = meta.get('dcb_officer', '')
+        applicant = meta.get('applicant', '').strip()
+        product = meta.get('product', '').strip()
+        bank_ref = meta.get('bank_ref', '').strip()
+
+        # --- IDEMPOTENCY / DOUBLE-SUBMIT GUARD ---
+        # Prevent identical folder creation (same bank, applicant, product, bank_ref) within the last 5 minutes
+        from django.utils import timezone
+        import datetime
+        five_mins_ago = timezone.now() - datetime.timedelta(minutes=5)
+        
+        recent_duplicate = ClientFolder.objects.filter(
+            bank_code=bank_code,
+            applicant_name=applicant,
+            product=product,
+            bank_ref_no=bank_ref,
+            created_at__gte=five_mins_ago
+        ).first()
+
+        if recent_duplicate:
+            return JsonResponse({
+                'success': False, 
+                'error': f'Duplicate submission! A folder for "{applicant}" (Ref: {bank_ref}) was just created ({recent_duplicate.unique_file_no}). Please wait 5 minutes to create an identical folder.'
+            })
 
         # --- REDIRECTION LOGIC (Complete Kollam Integration) ---
         # If redirected, we treat the file entirely as a Kollam case (02) for continuity,
@@ -2757,7 +2904,7 @@ def utility_hub_chat(request):
                 return JsonResponse({'error': 'Gemini API Key not configured.'}, status=500)
 
             # Build the prompt
-            prompt = f"SYSTEM: You are Friday, an AI assistant built into the Vadrida Verification Dashboard. Use the provided Context Data to help answer the user's questions about the property valuation and data. Provide concise, helpful answers.\n\n"
+            prompt = f"SYSTEM: You are Aladdin, an AI assistant built into the Vadrida Verification Dashboard. Use the provided Context Data to help answer the user's questions about the property valuation and data. Provide concise, helpful answers.\n\n"
             prompt += f"Context Data from User's Screen:\n{json.dumps(context_data, indent=2)}\n\n"
             
             # Format chat history
@@ -2770,8 +2917,8 @@ def utility_hub_chat(request):
             current_prompt = prompt + f"User Message: {user_message}"
             contents.append({"role": "user", "parts": [{"text": current_prompt}]})
 
-            # Use gemini-3-flash-preview as requested by the user for the latest futuristic features
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+            # Use gemini-2.5-flash as it is highly stable
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
             payload = {
                 "contents": contents
             }
@@ -2786,6 +2933,59 @@ def utility_hub_chat(request):
                 return JsonResponse({'error': resp_data.get('error', {}).get('message', 'API Error')}, status=resp.status_code)
 
         except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@csrf_exempt
+def transcribe_audio_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            audio_base64 = data.get('audio_data', '')
+            mode = data.get('mode', 'ml-IN')
+
+            api_key = os.environ.get('GEMINI_API_KEY')
+            if not api_key:
+                return JsonResponse({'error': 'Gemini API Key not configured.'}, status=500)
+
+            if mode == 'en-IN':
+                prompt = "Transcribe the following English audio into text. Output ONLY the transcribed text, nothing else."
+            elif mode == 'ml-IN-translate':
+                prompt = "Listen to the following Malayalam audio. Translate what is spoken into proper formal English suitable for a valuation report. Output ONLY the translated English text, nothing else."
+            else:
+                prompt = "Transcribe the following Malayalam audio into Malayalam text. Output ONLY the transcribed Malayalam text, nothing else."
+
+            # We use Gemini 2.5 Flash as it is highly stable and avoids the 503 high demand preview errors
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            payload = {
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {"text": prompt},
+                            {
+                                "inline_data": {
+                                    "mime_type": "audio/webm",
+                                    "data": audio_base64
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+            
+            resp = requests.post(url, json=payload)
+            resp_data = resp.json()
+
+            if resp.status_code == 200:
+                transcribed_text = resp_data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
+                return JsonResponse({'text': transcribed_text})
+            else:
+                print("Gemini Audio Error:", resp_data)
+                return JsonResponse({'error': resp_data.get('error', {}).get('message', 'Audio Transcription API Error')}, status=resp.status_code)
+
+        except Exception as e:
+            print("Audio Transcription Exception:", e)
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Invalid method'}, status=405)
 

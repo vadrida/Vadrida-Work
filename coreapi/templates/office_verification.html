@@ -1663,7 +1663,8 @@
                                             Document Date</th>
                                     </tr>
                                     <!-- Row 4: Owner Name -->
-                                    <tr id="surveyHeaderOwnerName" style="background: var(--bg-card); text-align: left;">
+                                    <tr id="surveyHeaderOwnerName"
+                                        style="background: var(--bg-card); text-align: left;">
                                         <th
                                             style="padding: 15px; min-width: 200px; width: 200px; color: var(--text-dim); border-bottom: 1px solid var(--border); background: var(--bg-header); position: sticky; left: 0; z-index: 10; border-right: 2px solid var(--border);">
                                             Owner Name</th>
@@ -2164,7 +2165,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="agreementLabelOutput"
+                                        <div id="agreementLabelOutput" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Proposed Purchase of land...
                                         </div>
@@ -2204,7 +2205,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="agreementLabelOutputOTR"
+                                        <div id="agreementLabelOutputOTR" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Full Agreement...
                                         </div>
@@ -2240,7 +2241,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="deedLabelOutput"
+                                        <div id="deedLabelOutput" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Title Deed Summary...
                                         </div>
@@ -2279,7 +2280,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="deedLabelOutputOTR"
+                                        <div id="deedLabelOutputOTR" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Full Deed Summary...
                                         </div>
@@ -2316,7 +2317,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="landTaxLabelOutput"
+                                        <div id="landTaxLabelOutput" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Land Tax Summary...
                                         </div>
@@ -2355,7 +2356,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="landTaxLabelOutputOTR"
+                                        <div id="landTaxLabelOutputOTR" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Full Land Tax Summary...
                                         </div>
@@ -2395,7 +2396,7 @@
                                         </label>
                                     </div>
                                     <div class="panel-body" style="padding: 10px;">
-                                        <div id="landClassificationOutput"
+                                        <div id="landClassificationOutput" class="summary-card-text"
                                             style="background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.72rem; color: var(--text-main); min-height: 80px; line-height: 1.4; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
                                             Classification details will appear here...
                                         </div>
@@ -2446,8 +2447,16 @@
                                         <div
                                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                             <label class="form-label"
-                                                style="font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0; display: block; font-weight: bold;">
+                                                style="font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0; display: flex; align-items: center; gap: 8px; font-weight: bold;">
                                                 Additional Vetting Remarks (Manual)
+                                                <button type="button" id="micBtnSurveyNotes" onclick="toggleSpeechRecognition('SurveyNotes', 'micBtnSurveyNotes')" style="background: none; border: none; cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;" title="Click to use Voice Typing">
+                                                    <i class="fas fa-microphone"></i>
+                                                </button>
+                                                <select id="voiceLangSelector" style="font-size: 0.6rem; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-dim); outline: none; padding: 2px; cursor: pointer;">
+                                                    <option value="ml-IN">Malayalam</option>
+                                                    <option value="ml-IN-translate">Malayalam (Auto-Translate)</option>
+                                                    <option value="en-IN">English</option>
+                                                </select>
                                             </label>
                                             <label
                                                 style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
@@ -3049,7 +3058,7 @@
                 land_classification: document.getElementById('landClassificationOutput')?.innerText || '',
                 boundary_summary: document.getElementById('boundaryAnalysisOutput')?.innerText || '',
                 demarcation_summary: document.getElementById('demarcationSummaryOutput')?.textContent || '',
-                access_alignment: document.querySelector('.summary-card-text')?.innerText || '',
+                access_alignment: document.querySelector('#accessSummaryPanel .summary-card-text')?.innerText || '',
                 coverage_summary: (() => {
                     if (window.vadridaBuildings) {
                         for (let i = 0; i < window.vadridaBuildings.length; i++) {
@@ -4371,12 +4380,20 @@
         } else {
             docs.forEach(doc => {
                 const sourceName = doc.display;
-                const saved = savedAccess[sourceName] || { type: '', width: '', material: '', vehicular: '' };
+                const sourceKey = doc.slot ? `slot_${doc.slot}` : sourceName;
+                
+                let saved = savedAccess[sourceKey];
+                if (!saved) {
+                    // Fallback to old name format for backward compatibility
+                    saved = savedAccess[sourceName] || { type: '', width: '', material: '', vehicular: '' };
+                }
+
                 const isAgreement = doc.display.toLowerCase().includes('agreement');
                 const listId = isAgreement ? 'agreementAccessTypesList' : 'accessTypesList';
 
                 const row = document.createElement('tr');
-                row.dataset.source = sourceName;
+                row.dataset.source = sourceKey;
+                row.dataset.name = sourceName;
                 row.innerHTML = `
                     <td style="padding: 12px 15px; font-size: 0.78rem; color: var(--text-main); border-bottom: 1px solid var(--border); font-weight: 600; background: var(--bg-card);">
                         <i class="fas fa-file-alt" style="color: var(--accent); margin-right: 8px; opacity: 0.7;"></i> ${sourceName}
@@ -4519,6 +4536,7 @@
 
         rows.forEach(row => {
             const source = row.dataset.source;
+            const name = row.dataset.name || source;
             const type = row.querySelector('.access-type-input')?.value.trim() || '';
             const width = row.querySelector('.access-width-input')?.value.trim() || '';
             const material = row.querySelector('.access-material-input')?.value.trim() || '';
@@ -4530,11 +4548,11 @@
                 asPerSite = { type, width, material, vehicular, users, demarcation };
             } else {
                 if (!type || type === '' || type === 'Access Type...') {
-                    docStances.silent.push(source);
+                    docStances.silent.push(name);
                 } else if (isLLValue(type)) {
-                    docStances.landlocked.push({ name: source, type, width });
+                    docStances.landlocked.push({ name: name, type, width });
                 } else {
-                    docStances.access.push({ name: source, type, width });
+                    docStances.access.push({ name: name, type, width });
                 }
             }
         });
@@ -4591,9 +4609,12 @@
 
         // Helper for Site Observation String
         function getSiteObservation(site) {
-            if (!site || !site.type) return "";
+            if (!site) return "";
+            if (!site.type && !site.demarcation && !site.vehicular && !site.users && !site.width && !site.material) return "";
+
             const w = formatWidth(site.width);
             const m = formatMat(site.material);
+            const typeStr = site.type ? site.type : (w || m ? "access" : "");
 
             // For Site Observation, show EXACTLY what is in the row (don't force calculation)
             const v = site.vehicular ? ` with ${site.vehicular} access` : "";
@@ -4633,7 +4654,17 @@
             }
 
             // Result: Wide + Material + Type + Vehicular + Users + Demarcation
-            return `the access was observed to be a ${w}${m}${site.type}${v}${u}${d}`;
+            let baseString = "the access was observed";
+            if (typeStr || w || m) {
+                baseString += ` to be a ${w}${m}${typeStr}`;
+            }
+            
+            // If we ONLY have demarcation or users
+            if (baseString === "the access was observed" && (v || u || d)) {
+                return `the access was observed${v}${u}${d}`.replace('observed with', 'observed to have');
+            }
+
+            return `${baseString}${v}${u}${d}`;
         }
 
         let finalTitle = "Access Verdict";
@@ -4680,7 +4711,7 @@
 
         // --- THE ENGINE: HARMONIZING STANCES ---
         const isSiteLL = asPerSite && isLLValue(asPerSite.type);
-        const hasSiteAccess = asPerSite && asPerSite.type && !isLLValue(asPerSite.type);
+        const hasSiteAccess = asPerSite && (asPerSite.type || asPerSite.demarcation || asPerSite.vehicular || asPerSite.users || asPerSite.material || asPerSite.width) && !isLLValue(asPerSite.type || "");
 
         // A. THE LL CONFLICT (Red Flag Case)
         if (isSiteLL || allPrimaryAreLL) {
@@ -4724,7 +4755,7 @@
                     const siteW = formatWidth(asPerSite.width);
                     const siteM = formatMat(asPerSite.material);
                     const siteObs = getSiteObservation(asPerSite).replace(`${siteW}${siteM}${asPerSite.type}`, `${siteW}${siteM}${asPerSite.type}${widthNote}`);
-                    
+
                     if (primaryMatchesSite) {
                         sentenceBlocks.push(`${docPhrase}, which was corroborated during our site visit where ${siteObs}.`);
                     } else {
@@ -4762,7 +4793,7 @@
             const docList = joinList(docStances.silent);
 
             let siteRef = "";
-            if (asPerSite && asPerSite.type && !isLLValue(asPerSite.type)) {
+            if (hasSiteAccess) {
                 siteRef = `However, during the site visit, ${getSiteObservation(asPerSite)}. `;
             }
 
@@ -5673,8 +5704,8 @@
                 // It's a schedule branch: either slot-root or is-schedule-entry
                 const branchColId = String(th.dataset.colId);
                 // Count active/visible sub-entries under this branch
-                const subEntryCount = schedHeaders.filter(subTh => 
-                    subTh.classList.contains('is-sub-entry') && 
+                const subEntryCount = schedHeaders.filter(subTh =>
+                    subTh.classList.contains('is-sub-entry') &&
                     String(subTh.dataset.parentSchedCol) === branchColId
                 ).length;
                 th.colSpan = 1 + subEntryCount;
@@ -7834,7 +7865,7 @@
                 let pAreaFmt = parseFloat(plotAreaSqm.toFixed(2));
                 let resLimitFmt = parseFloat(res1.toFixed(2));
                 let buaFmt = parseFloat(bua.toFixed(2));
-                
+
                 msg = `The building has an FSI of ${fsiFmt}, which exceeds the maximum permissible FSI limit of ${fsiLimitFmt} prescribed for a Type ${occType} Building under ${rulePrefix} 2019 and therefore constitutes an FSI violation. The maximum permissible BUA for the ${pAreaFmt} sq.m plot at an FSI of ${fsiLimitFmt} is ${resLimitFmt} sq.m, whereas the provided BUA is ${buaFmt} sq.m. Accordingly, only ${resLimitFmt} sq.m of BUA has been considered for valuation.`;
             }
         } else {
@@ -8619,15 +8650,15 @@
         textNodes.forEach(textEl => {
             const panel = textEl.closest('.panel');
             if (!panel) return;
-            
+
             const titleElNode = panel.querySelector('.ph-title');
             if (!titleElNode) return;
-            
+
             const title = titleElNode.innerText.toLowerCase();
             const text = textEl.innerText.toLowerCase();
-            
+
             let targetColor = "#10B981"; // Vibrant Emerald Green
-            
+
             if (title.includes('boundary')) {
                 if (text.includes('therefore the property has not been identified')) {
                     targetColor = "#EF4444"; // Vivid Red
@@ -8652,28 +8683,34 @@
                 } else if (text.includes('absolute maximum permissible') || (text.includes('only') && text.includes('has been considered for valuation'))) {
                     targetColor = "#EF4444";
                 }
+            } else if (title.includes('classification')) {
+                if (text.includes(' and ') || text.includes('wetland') || text.includes('two classifications')) {
+                    targetColor = "#EF4444"; // Red for mismatch or wetland
+                }
             }
-            
+
             // The solid rich color for the 'banner' (border-left)
             panel.style.borderLeft = `4px solid ${targetColor}`;
             // The soft powdered background for the whole card
             panel.style.background = targetColor + "14"; // ~8% opacity for a crisp, visible tint
-            
+
             const header = panel.querySelector('.panel-header');
             if (header) {
                 header.style.background = 'transparent'; // Let the card's soft background show
                 header.style.borderBottom = '1px solid ' + targetColor + '33'; // 20% opacity border
             }
-            
+
             titleElNode.style.color = 'inherit';
             textEl.style.color = 'var(--text-main)';
-            
+            textEl.style.background = 'transparent';
+            textEl.style.border = 'none';
+
             const iconContainer = panel.querySelector('.panel-header > div > div:first-child');
             if (iconContainer) iconContainer.style.background = targetColor + '26'; // 15% opacity for icon bg
-            
+
             const icon = panel.querySelector('i');
             if (icon) icon.style.color = targetColor;
-            
+
             const btn = panel.querySelector('button.btn-portal');
             if (btn) {
                 btn.style.background = targetColor;
@@ -8683,23 +8720,22 @@
                 const btnIcon = btn.querySelector('i');
                 if (btnIcon) btnIcon.style.color = '#FFFFFF';
             }
-            
+
             const checkbox = panel.querySelector('input[type="checkbox"]');
             if (checkbox) checkbox.style.accentColor = targetColor;
-            
+
             const addRepSpan = panel.querySelector('label span');
             if (addRepSpan) addRepSpan.style.color = 'var(--text-dim)';
-            
+
             const body = panel.querySelector('.panel-body');
             if (body) body.style.background = 'transparent';
 
             const liveIcon = panel.querySelector('.panel-body i.fa-sync-alt');
-            if (liveIcon) liveIcon.style.color = targetColor;
+            if (liveIcon) liveIcon.style.display = 'none';
 
-            const liveTextArray = panel.querySelectorAll('.panel-body div[style*="margin-top"]'); 
+            const liveTextArray = panel.querySelectorAll('.panel-body div[style*="margin-top"]');
             liveTextArray.forEach(d => {
-                d.style.color = 'var(--text-dim)';
-                d.style.background = 'rgba(0,0,0,0.03)';
+                d.style.display = 'none';
             });
         });
     }
@@ -9118,114 +9154,97 @@
         if (!output) return;
 
         const data = collectSurveyAnalysisData();
-        const cats = {
-            'Deed': { items: [], wetArea: 0, totalArea: 0 },
-            'Land Tax': { items: [], wetArea: 0, totalArea: 0 },
-            'Possession': { items: [], wetArea: 0, totalArea: 0 }
-        };
+        
+        let docsData = {}; // Store { docLabel: clsStr }
+        let maxWetArea = 0;
+        let wetlandWarningDoc = '';
 
         for (let key in data) {
             const slot = data[key];
             const dName = (slot.doc_name || '').toLowerCase();
-            let cat = null;
+            if (!dName) continue;
 
-            if (dName.includes('deed')) cat = 'Deed';
-            else if (dName.includes('land tax receipt')) cat = 'Land Tax';
-            else if (dName.includes('possession certificate')) cat = 'Possession';
+            let docLabel = '';
+            if (dName.includes('possession')) docLabel = 'Possession Certificate';
+            else if (dName.includes('tax')) docLabel = 'Land tax receipt';
+            else if (dName.includes('title deed') || dName.includes('deed')) docLabel = 'Title Deed';
+            else if (dName.includes('sale agreement')) docLabel = 'Sale Agreement';
+            else continue; 
 
-            if (!cat) continue;
-
-            let docStr = slot.doc_name;
-            if (slot.doc_no) docStr += ` No. ${slot.doc_no}`;
-            if (slot.doc_date) {
-                const yearMatch = slot.doc_date.match(/\d{4}/);
-                if (yearMatch) {
-                    docStr += ` /${yearMatch[0]}`;
-                } else {
-                    docStr += ` /${slot.doc_date}`;
-                }
-            }
+            let classes = new Set();
+            let currentDocWetArea = 0;
 
             const processEntry = (entry) => {
                 const area = parseFloat(entry.land_extent) || 0;
                 const cls = (entry.land_classification || '').trim();
-                if (!cls) return;
-
-                cats[cat].items.push({
-                    doc: docStr,
-                    area: area,
-                    cls: cls
-                });
-                cats[cat].totalArea += area;
-                if (cls.toLowerCase() === 'wet' || cls.toLowerCase() === 'wet land') cats[cat].wetArea += area;
+                if (!cls || area <= 0) return;
+                
+                classes.add(cls);
+                
+                if (cls.toLowerCase().includes('wet')) {
+                    currentDocWetArea += area;
+                }
             };
 
             processEntry(slot.initial);
             if (slot.parts) slot.parts.forEach(p => processEntry(p));
-        }
 
-        // 1. Check for Warning Threshold (> 10.12 Ares Wetland in any category)
-        let warningCategory = null;
-        for (let c in cats) {
-            if (cats[c].wetArea > 10.12) {
-                warningCategory = c;
-                break;
+            if (classes.size > 0) {
+                let clsArr = Array.from(classes);
+                let clsStr = clsArr.join(' and ');
+                docsData[docLabel] = clsStr;
+                
+                if (currentDocWetArea > maxWetArea) {
+                    maxWetArea = currentDocWetArea;
+                    wetlandWarningDoc = docLabel;
+                }
             }
         }
 
-        if (warningCategory) {
-            const catData = cats[warningCategory];
-            const catLabel = warningCategory === 'Deed' ? 'Title deed' : (warningCategory === 'Land Tax' ? 'Land Tax Receipt' : 'Possession Certificate');
-
-            output.innerText = `The land is classified as wetland as per the ${catLabel}. As the extent of the wetland is ${catData.wetArea.toFixed(2)} Ares, the marketability of the property is significantly reduced in view of the provisions of the Kerala Conservation of Paddy Land and Wetland Act, 2008.`;
-            updateMasterSynthesis();
-            return;
+        if (maxWetArea > 10.12) {
+             output.innerText = `The land is classified as wetland as per the ${wetlandWarningDoc}. As the extent of the wetland is ${maxWetArea.toFixed(2)} Ares, the marketability of the property is significantly reduced in view of the provisions of the Kerala Conservation of Paddy Land and Wetland Act, 2008.`;
+             updateMasterSynthesis();
+             return;
         }
 
-        // 2. Otherwise generate standard grouped list
-        let grouped = {}; // { 'purayidam': ['Title Deed No. 11/2000', 'Land Tax Receipt No. 22/2026'] }
-        for (let c in cats) {
-            cats[c].items.forEach(item => {
-                const cls = item.cls;
-                if (!cls) return;
-                if (!grouped[cls]) grouped[cls] = [];
-                // Avoid duplicate document names in the same category
-                if (!grouped[cls].includes(item.doc)) {
-                    grouped[cls].push(item.doc);
+        let priorityOrder = ['Possession Certificate', 'Land tax receipt', 'Title Deed'];
+        let classGroups = {}; 
+        
+        priorityOrder.forEach(docLabel => {
+            if (docsData[docLabel]) {
+                let clsStr = docsData[docLabel];
+                // Try to find an existing key case-insensitively to group matching classifications
+                let existingKey = Object.keys(classGroups).find(k => k.toLowerCase() === clsStr.toLowerCase());
+                if (existingKey) {
+                    classGroups[existingKey].push(docLabel);
+                } else {
+                    classGroups[clsStr] = [docLabel];
                 }
-            });
-        }
+            }
+        });
 
         let phrases = [];
-        for (let cls in grouped) {
-            const docs = grouped[cls];
-            let docStr = "";
+        for (let clsStr in classGroups) {
+            let docs = classGroups[clsStr];
+            let docsJoined = "";
             if (docs.length === 1) {
-                docStr = docs[0];
+                docsJoined = docs[0];
+            } else if (docs.length === 2) {
+                docsJoined = docs[0] + " and " + docs[1];
             } else {
-                const last = docs.pop();
-                docStr = docs.join(", ") + " and " + last;
+                let last = docs.pop();
+                docsJoined = docs.join(', ') + " and " + last;
             }
-            let clsText = cls;
-            if (!clsText.endsWith("land")) {
-                clsText += " land";
-            }
-            phrases.push(`${clsText} as per ${docStr}`);
+            phrases.push(`${clsStr} as per ${docsJoined}`);
         }
 
         if (phrases.length === 0) {
             output.innerText = "No applicable land classification data found.";
         } else {
-            // Join Multiple classifications (if any) with ", " or " and "
-            let finalOutput = "";
-            if (phrases.length === 1) {
-                finalOutput = phrases[0];
-            } else {
-                const lastPhrase = phrases.pop();
-                finalOutput = phrases.join(", ") + " and " + lastPhrase;
-            }
-            output.innerText = "The land is classified as " + finalOutput + ".";
+            let joined = phrases.join(', ');
+            output.innerText = `The land is classified as ${joined}.`;
         }
+
         updateMasterSynthesis();
     }
 
@@ -9437,7 +9456,7 @@
                 }
 
                 if (!docs.some(d => d.id === display)) {
-                    docs.push({ id: display, display: display });
+                    docs.push({ id: display, display: display, slot: i });
                 }
             }
         });
@@ -9612,7 +9631,16 @@
         // No need to call loadLocalDraft separately as restoreSearchFilters handles it
         // loadLocalDraft(); 
 
-        document.querySelector('.portal-layout').addEventListener('input', triggerAutoSave);
+        document.querySelector('.portal-layout').addEventListener('input', (e) => {
+            triggerAutoSave();
+            if (e.target.classList.contains('survey-doc-name-input') || 
+                e.target.classList.contains('survey-doc-no-input') || 
+                e.target.classList.contains('survey-doc-date-input')) {
+                setTimeout(() => {
+                    renderRightOfAccess(getCurrentDashboardPayload());
+                }, 50);
+            }
+        });
         document.querySelector('.portal-layout').addEventListener('change', triggerAutoSave);
 
         // Add explicit listeners for Survey Analysis fields
@@ -9971,10 +9999,10 @@
     </div>
 
     <div class="fab-drawer">
-        <!-- Friday AI Item -->
+        <!-- Aladdin AI Item -->
         <div class="fab-item ai-item"
-            onclick="AIChat.toggle(); document.getElementById('fabMenu').classList.remove('open')" title="Friday AI">
-            <span class="fab-label">Friday AI</span>
+            onclick="AIChat.toggle(); document.getElementById('fabMenu').classList.remove('open')" title="Aladdin AI">
+            <span class="fab-label">Aladdin AI</span>
             <span style="font-weight: 800;">✨</span>
         </div>
 
@@ -10200,7 +10228,7 @@
                 <i class="fas fa-user-astronaut"></i>
             </div>
             <div>
-                <span style="font-weight:700; font-size:0.95rem; color: var(--text-main); display: block;">Friday
+                <span style="font-weight:700; font-size:0.95rem; color: var(--text-main); display: block;">Aladdin
                     AI</span>
                 <span
                     style="font-size:0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Digital
@@ -10210,9 +10238,10 @@
         <button class="ai-close-btn" onclick="AIChat.toggle()"><i class="fas fa-times"></i></button>
     </div>
     <div id="aiChatHistory" class="ai-history"></div>
-    <div class="ai-input-area">
+    <div class="ai-input-area" style="display: flex; gap: 8px;">
+        <button type="button" id="aiChatMicBtn" class="ai-send-btn" onclick="toggleSpeechRecognition('aiChatInput', 'aiChatMicBtn', true)" title="Speak in Malayalam" style="background: var(--surface); color: #94a3b8; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; cursor: pointer; transition: all 0.2s;"><i class="fas fa-microphone"></i></button>
         <textarea id="aiChatInput" placeholder="Ask AI about this verification file..."
-            onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); AIChat.sendMessage(); }"></textarea>
+            onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); AIChat.sendMessage(); }" style="flex: 1;"></textarea>
         <button class="ai-send-btn" onclick="AIChat.sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
@@ -10247,7 +10276,7 @@
                 histEl.innerHTML = `
                     <div style="text-align:center; padding: 30px 20px; color: var(--text-dim);">
                         <i class="fas fa-user-astronaut" style="font-size: 3rem; color: var(--border); margin-bottom: 15px;"></i>
-                        <h4 style="margin: 0 0 5px 0; color: var(--text-main);">I am Friday!</h4>
+                        <h4 style="margin: 0 0 5px 0; color: var(--text-main);">I am Aladdin!</h4>
                         <p style="font-size:0.8rem; margin:0;">I'm here to help. Ask me any queries in this page. Also select any object or sentences and click the button and I will explain.</p>
                     </div>`;
             } else {
@@ -10387,5 +10416,112 @@
             }
         }
     });
+
+    // --- AUDIO RECORDING & TRANSCRIBING FEATURE ---
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    async function toggleSpeechRecognition(targetId, btnId, isChatBot = false) {
+        const btn = document.getElementById(btnId);
+        const target = document.getElementById(targetId);
+        const langSelector = document.getElementById('voiceLangSelector');
+        
+        // If it's the chatbot, force it to translate Malayalam into English before sending
+        let selectedLangMode = isChatBot ? 'ml-IN-translate' : (langSelector ? langSelector.value : 'ml-IN');
+
+        if (isRecording) {
+            // STOP RECORDING
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+            }
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                // Stop UI
+                isRecording = false;
+                btn.classList.remove('fa-beat-fade');
+                btn.style.color = '#94a3b8';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; // Processing icon
+                btn.title = "Processing audio...";
+
+                // Stop all tracks to release microphone
+                stream.getTracks().forEach(track => track.stop());
+
+                // Create Blob and Base64 encode
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result.split(',')[1]; // Remove data url prefix
+                    
+                    try {
+                        let resp = await fetch('/coreapi/api/transcribe-audio/', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                audio_data: base64Audio,
+                                mode: selectedLangMode
+                            })
+                        });
+                        let data = await resp.json();
+                        if (data.text) {
+                            let currentText = target.value;
+                            if (currentText.length > 0 && !currentText.endsWith(' ') && !currentText.endsWith('\n')) {
+                                currentText += ' ';
+                            }
+                            target.value = currentText + data.text + ' ';
+                            if (typeof triggerAutoSave === 'function' && !isChatBot) triggerAutoSave();
+                            target.scrollTop = target.scrollHeight;
+                            
+                            if (isChatBot) {
+                                AIChat.sendMessage();
+                            }
+                        } else if (data.error) {
+                            Swal.fire('Transcription Error', data.error, 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error', 'Failed to reach the transcription server.', 'error');
+                    }
+                    
+                    // Reset Button UI
+                    btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    btn.title = "Click to record audio";
+                    if (typeof updateMasterSynthesis === 'function') updateMasterSynthesis();
+                };
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            btn.style.color = '#ef4444'; 
+            btn.innerHTML = '<i class="fas fa-microphone fa-beat-fade"></i>';
+            btn.title = "Recording... Click to stop and transcribe";
+            
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'bottom-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
+            Toast.fire({ icon: 'info', title: 'Recording started. Speak, then click mic again to transcribe.' });
+
+        } catch (err) {
+            console.error(err);
+            Swal.fire('Microphone Blocked', 'Please allow microphone access in your browser.', 'error');
+        }
+    }
 </script>
 {% endblock %}

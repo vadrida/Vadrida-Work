@@ -907,7 +907,11 @@
         };
     }
     // --- MAIN SUBMIT FUNCTION ---
+    let isSubmitting = false;
+    
     function submitFolderCreation() {
+        if (isSubmitting) return;
+
         const btn = document.querySelector('.btn-submit');
         const originalText = btn.innerHTML;
 
@@ -922,6 +926,7 @@
         const data = updatePreview();
         const bankRef = data.bankRef; // Uses the sanitized hyphenated reference
 
+        isSubmitting = true;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
 
@@ -942,6 +947,7 @@
                         if (result.isConfirmed) {
                             executeCreation(btn, originalText, data, bankRef);
                         } else {
+                            isSubmitting = false;
                             btn.disabled = false;
                             btn.innerHTML = originalText;
                         }
@@ -1007,8 +1013,22 @@
                 }
             })
         })
-            .then(r => r.json())
+            .then(async r => {
+                let data = {};
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    throw new Error("Invalid response from server. It might be down or locked.");
+                }
+                
+                if (!r.ok || data.success === false) {
+                    throw new Error(data.error || `Server Error (${r.status})`);
+                }
+                
+                return data;
+            })
             .then(resp => {
+                isSubmitting = false;
                 btn.disabled = false;
                 btn.innerHTML = originalText;
 
@@ -1050,9 +1070,10 @@
                 }
             })
             .catch(err => {
+                isSubmitting = false;
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-                Swal.fire('System Error', 'Could not connect to server', 'error');
+                Swal.fire('System Error', err.message || 'Could not connect to server', 'error');
             });
     }
 </script>

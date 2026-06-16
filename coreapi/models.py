@@ -245,7 +245,47 @@ class WorkSession(models.Model):
         verbose_name_plural = 'Work Sessions'
 
     def __str__(self):
-        status = "🟢 Active" if self.is_active else "⏹ Ended"
-        return f"{self.user.user_name} — {self.date} ({status})"
+        status = "🟢 Active" if self.is_active else "🔴 Ended"
+        return f"{self.user.user_name} - {self.date} ({status})"
 
-
+
+class SystemConfiguration(models.Model):
+    """Stores global multipliers and configurations editable by the Admin."""
+    files_per_day = models.IntegerField(default=5)
+    credits_per_file = models.IntegerField(default=6)
+    hours_target = models.FloatField(default=176.0)
+    max_session_hours = models.FloatField(default=10.0, help_text="Auto-logout after X hours of work in a single day.")
+
+    class Meta:
+        verbose_name = 'System Configuration'
+        verbose_name_plural = 'System Configurations'
+
+    def __str__(self):
+        return "Global System Settings"
+
+    def save(self, *args, **kwargs):
+        # Ensure only one record exists
+        if not self.pk and SystemConfiguration.objects.exists():
+            return
+        super().save(*args, **kwargs)
+
+class OvertimeRequest(models.Model):
+    """Tracks overtime access requests from employees to bypass the 10-hour logout."""
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('denied', 'Denied')
+    )
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='overtime_requests')
+    request_date = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Overtime Request'
+        verbose_name_plural = 'Overtime Requests'
+        ordering = ['-requested_at']
+
+    def __str__(self):
+        return f"{self.user.user_name} - {self.request_date} ({self.status})"

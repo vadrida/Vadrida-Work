@@ -7,10 +7,10 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.http import require_GET
-from coreapi.models import UserProfile, SiteVisitReport
+from coreapi.models import UserProfile, SiteVisitReport, MonthlyPerformance, LeaveRecord, CreditLedger, WorkSession
 from chat.models import ChatMessage, FolderChatMessage
 from django.db.models import Avg, Count, Max
-from django.db.models import Count, Avg, Q
+from django.db.models import Count, Avg, Q, Sum
 from django.shortcuts import get_object_or_404
 from django.views.decorators.clickjacking import xframe_options_exempt 
 from django.db.models.functions import TruncMonth
@@ -135,7 +135,7 @@ def list_pdfs_api(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
     # Fetch reports that have a PDF file linked
-    reports = SiteVisitReport.objects.exclude(generated_pdf_name__isnull=True).exclude(generated_pdf_name='').select_related('user').order_by('-updated_at')
+    reports = SiteVisitReport.objects.exclude(generated_pdf_name__isnull=True).exclude(generated_pdf_name='').select_related('user').order_by('-updated_at')[:50]
     
     data = []
     for r in reports:
@@ -211,7 +211,7 @@ def dashboard_stats_api(request):
 
     # 2. TEAM MEMBERS (Updated to include Avg Score)
     # Prefetch reports to avoid N+1 query problem (optimizes speed)
-    team_query = UserProfile.objects.exclude(role='admin').prefetch_related('sitevisitreport_set').order_by('-last_seen')
+    team_query = UserProfile.objects.all().order_by('-last_seen')
     
     users_data = []
     threshold = timezone.now() - timezone.timedelta(minutes=5)
@@ -219,25 +219,13 @@ def dashboard_stats_api(request):
     for u in team_query:
         is_online = u.last_seen and u.last_seen >= threshold
         
-        # --- CALCULATE INDIVIDUAL AVG SCORE ---
-        # We loop through this specific user's reports
-        u_reports = u.sitevisitreport_set.all() 
-        u_sum = 0
-        u_count = 0
-        for r in u_reports:
-            u_sum += get_report_percent(r)
-            u_count += 1
-        
-        user_avg = round(u_sum / u_count) if u_count > 0 else 0
-
         users_data.append({
             'id': u.id,
             'user_name': u.user_name,
             'role': u.role,
             'is_online': bool(is_online),
             'last_seen': u.last_seen.strftime("%H:%M") if u.last_seen else "Never",
-            'current_page': u.current_page if is_online else "Offline",
-            'avg_score': user_avg  # <--- NEW FIELD WE NEED FOR SORTING
+            'current_page': u.current_page if is_online else "Offline"
         })
 
     # ... (Keep the rest of your view: recent_reports, chats, stats) ... 
@@ -283,32 +271,79 @@ def user_details_api(request, user_id):
 
     # 2. Iterate to calculate "Real" Average based on JSON Payload
     for i, r in enumerate(reports):
-        # Use the helper function that reads 'payload' -> 'completion_metrics' -> 'percent'
         score = get_report_percent(r) 
-        
         total_sum += score
         count += 1
-        
-        # Collect top 5 for the list
-        if i < 5:
-            recent_work_list.append({
-                'id': r.id,
-                'office_file_no': r.office_file_no,
-                'applicant_name': r.applicant_name,
-                'updated_at': r.updated_at,
-                'completion_score': score # <--- Send the calculated JSON score, not DB column
-            })
 
-    # 3. Calculate Average
     avg_score = round(total_sum / count) if count > 0 else 0
+
+    # 3. Monthly Performance Data
+    now = timezone.now()
+    current_month_perf = MonthlyPerformance.objects.filter(user=user, year=now.year, month=now.month).first()
+    files_done = current_month_perf.files_done if current_month_perf else 0
+    files_target = current_month_perf.files_target if current_month_perf else 125
+    files_percent = round((files_done / files_target) * 100) if files_target > 0 else 0
     
+    pd_cases = current_month_perf.pd_cases if current_month_perf else 0
+    npa_cases = current_month_perf.npa_cases if current_month_perf else 0
+    project_cases = current_month_perf.project_cases if current_month_perf else 0
+    other_cases = current_month_perf.other_cases if current_month_perf else 0
+
+    # 4. Credits Data
+    total_credits = CreditLedger.objects.filter(user=user, earned_date__year=now.year, earned_date__month=now.month).aggregate(Sum('credits'))['credits__sum'] or 0
+    credits_target = files_target * 6 # Assuming 6 credits per file
+
+    # 5. Leaves Data
+    total_leaves = LeaveRecord.objects.filter(user=user, leave_date__year=now.year).count()
+    leave_types = list(LeaveRecord.objects.filter(user=user, leave_date__year=now.year).values('leave_type').annotate(count=Count('id')))
+
+    # 6. Work Sessions (Last 7 Days)
+    seven_days_ago = now.date() - timedelta(days=6)
+    sessions = WorkSession.objects.filter(user=user, date__gte=seven_days_ago).order_by('date')
+    session_data = []
+    daily_ot = 0
+    for s in sessions:
+        session_data.append({
+            'date': s.date.strftime('%a'), # e.g. 'Mon'
+            'hours_worked': round(s.hours_worked, 2),
+            'login': s.login_time.strftime('%I:%M %p') if s.login_time else None,
+            'logout': s.logout_time.strftime('%I:%M %p') if s.logout_time else 'Active'
+        })
+        if s.date == now.date():
+            daily_ot = s.overtime_hours
+
+    # OT Data
+    weekly_sessions = WorkSession.objects.filter(user=user, date__gte=now.date() - timedelta(days=now.weekday()))
+    weekly_ot = weekly_sessions.aggregate(Sum('overtime_hours'))['overtime_hours__sum'] or 0
+    monthly_ot = current_month_perf.overtime_hours if current_month_perf else 0
+
     return JsonResponse({
         'name': user.user_name,
         'role': user.role,
         'total_reports': count,
-        'avg_score': avg_score, # <--- The correctly calculated average
+        'avg_score': avg_score,
         'last_seen': user.last_seen,
-        'recent_work': recent_work_list
+        'recent_work': recent_work_list,
+        'analytics': {
+            'files_done': files_done,
+            'files_target': files_target,
+            'files_percent': files_percent,
+            'pd_cases': pd_cases,
+            'npa_cases': npa_cases,
+            'project_cases': project_cases,
+            'other_cases': other_cases,
+            'total_credits': total_credits,
+            'credits_target': credits_target,
+            'total_leaves': total_leaves,
+            'leaves_allowed': 12, # Hardcoded default for allowed leaves
+            'leave_types': leave_types,
+            'sessions': session_data,
+            'ot': {
+                'daily': round(daily_ot, 2),
+                'weekly': round(weekly_ot, 2),
+                'monthly': round(monthly_ot, 2)
+            }
+        }
     })
 
 @xframe_options_exempt
