@@ -9,6 +9,7 @@ urlpatterns = [
     path("logout/api/", views.logout_api, name="logout_api"),
     path("api/session-status/", views.session_status_api, name="session_status_api"),
     path("api/request-overtime/", views.request_overtime_api, name="request_overtime_api"),
+    path("api/request-leaves/", views.request_leaves_api, name="request_leaves_api"),
     
     # admin
     path('dev-center/', views.developer_dashboard, name='dev_dashboard'),

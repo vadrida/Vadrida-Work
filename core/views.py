@@ -24,6 +24,7 @@ from .utils import (
     parse_dcb_folder, parse_pnbhfl_folder, parse_sbi_folder,
     parse_csb_folder, parse_chola_folder, parse_sib_folder
 )
+@xframe_options_exempt
 @csrf_protect
 def admin_summary_page(request):
     if request.session.get("user_role") not in ["admin", "office", "accountant"]:
@@ -346,7 +347,6 @@ def user_details_api(request, user_id):
         }
     })
 
-@xframe_options_exempt
 def report_detail_view(request, report_id):
     if request.session.get("user_role") not in ["admin", "accountant"]:
         return redirect("coreapi:login_page")
@@ -658,3 +658,235 @@ def analysis_data_api(request):
         'team_stats': sorted(team_stats, key=lambda x: x['score' if sort_by=='score' else 'reports'], reverse=True),
         'velocity': velocity
     })
+
+from coreapi.models import SystemHoliday
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def system_holidays_api(request):
+    if request.method == "GET":
+        holidays = SystemHoliday.objects.all().values('date', 'reason')
+        return JsonResponse({'holidays': list(holidays)})
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            # data can contain a list of new holidays
+            new_holidays = data.get('holidays', [])
+            for h in new_holidays:
+                date_str = h.get('date')
+                reason = h.get('reason')
+                if date_str and reason:
+                    # using update_or_create to avoid duplicate date errors
+                    SystemHoliday.objects.update_or_create(
+                        date=date_str,
+                        defaults={'reason': reason}
+                    )
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    elif request.method == "DELETE":
+        try:
+            data = json.loads(request.body)
+            date_str = data.get('date')
+            if date_str:
+                SystemHoliday.objects.filter(date=date_str).delete()
+                return JsonResponse({'status': 'success'})
+            return JsonResponse({'error': 'No date provided'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+from coreapi.models import SystemConfiguration
+
+@csrf_exempt
+def system_config_api(request):
+    config = SystemConfiguration.objects.first()
+    if not config:
+        config = SystemConfiguration.objects.create()
+        
+    if request.method == "GET":
+        return JsonResponse({
+            'files_per_day': config.files_per_day,
+            'credits_other': config.credits_other,
+            'credits_pd': config.credits_pd,
+            'credits_npa': config.credits_npa,
+            'hours_target': config.hours_target,
+            'max_session_hours': config.max_session_hours,
+        })
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            if 'files_per_day' in data: config.files_per_day = int(data['files_per_day'])
+            if 'credits_other' in data: config.credits_other = int(data['credits_other'])
+            if 'credits_pd' in data: config.credits_pd = int(data['credits_pd'])
+            if 'credits_npa' in data: config.credits_npa = int(data['credits_npa'])
+            if 'hours_target' in data: config.hours_target = float(data['hours_target'])
+            if 'max_session_hours' in data: config.max_session_hours = float(data['max_session_hours'])
+            config.save()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+from django.utils import timezone
+from coreapi.models import UserProfile, MonthlyPerformance, CreditLedger
+
+@csrf_exempt
+def credit_users_api(request):
+    if request.method == "GET":
+        now = timezone.now()
+        users = UserProfile.objects.all()
+        data = []
+        for u in users:
+            # Get files done this month
+            perf = MonthlyPerformance.objects.filter(user=u, year=now.year, month=now.month).first()
+            files_done = perf.files_done if perf else 0
+            
+            # Get total credits earned this month
+            entries = CreditLedger.objects.filter(user=u, earned_date__year=now.year, earned_date__month=now.month)
+            total_credits = sum(e.credits for e in entries)
+            
+            # Get latest adjustments this month
+            adjustments = entries.filter(source='admin_adjustment').order_by('-earned_date')
+            latest_adjustments = [{'amt': a.credits, 'rsn': a.notes, 'date': a.earned_date.strftime('%Y-%m-%d')} for a in adjustments[:3]]
+            
+            data.append({
+                'id': u.id,
+                'user_name': u.user_name,
+                'role': u.role,
+                'files_done': files_done,
+                'total_credits': total_credits,
+                'latest_adjustments': latest_adjustments
+            })
+        return JsonResponse({'users': data})
+        
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+            amt = int(data.get('amt', 0))
+            reason = data.get('reason', '')
+            
+            if not user_id or not amt:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+                
+            user = UserProfile.objects.get(id=user_id)
+            CreditLedger.objects.create(
+                user=user,
+                credits=amt,
+                source='admin_adjustment',
+                notes=reason,
+                earned_date=timezone.now().date()
+            )
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def attendance_api(request):
+    if request.method == "GET":
+        date_str = request.GET.get('date')
+        if not date_str:
+            date_str = timezone.now().date().strftime('%Y-%m-%d')
+            
+        users = UserProfile.objects.exclude(role__in=['admin', 'IT', 'site', ''])
+        user_data = []
+        for u in users:
+            # Determine status
+            status = 'absent'
+            # check leaves
+            lr = LeaveRecord.objects.filter(user=u, leave_date=date_str, status='approved').first()
+            if lr:
+                if lr.leave_type in dict(LeaveRecord.LEAVE_TYPES).keys():
+                    status = lr.leave_type
+            else:
+                ws = WorkSession.objects.filter(user=u, date=date_str).first()
+                if ws:
+                    status = 'present'
+                    
+            user_data.append({
+                'id': u.id,
+                'user_name': u.user_name,
+                'role': u.role,
+                'status': status
+            })
+            
+        return JsonResponse({'status': 'success', 'users': user_data})
+        
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            updates = data.get('updates')
+            
+            if not updates:
+                updates = [{
+                    'user_id': data.get('user_id'),
+                    'date': data.get('date'),
+                    'status': data.get('status')
+                }]
+
+            for update in updates:
+                user_id = update.get('user_id')
+                date_str = update.get('date')
+                status = update.get('status')
+                
+                if not user_id or not date_str or not status:
+                    continue
+
+                user = UserProfile.objects.get(id=user_id)
+                
+                if status == 'present':
+                    # Remove LeaveRecord if exists
+                    LeaveRecord.objects.filter(user=user, leave_date=date_str).delete()
+                    # Create WorkSession if not exists
+                    ws, created = WorkSession.objects.get_or_create(
+                        user=user, date=date_str, 
+                        defaults={'login_time': timezone.now(), 'is_active': False, 'hours_worked': 0}
+                    )
+                else:
+                    # Any other status is a LeaveRecord override
+                    WorkSession.objects.filter(user=user, date=date_str).delete()
+                    
+                    lr, created = LeaveRecord.objects.get_or_create(
+                        user=user, leave_date=date_str,
+                        defaults={'leave_type': status, 'status': 'approved', 'reason': 'Admin mapped'}
+                    )
+                    if not created:
+                        lr.leave_type = status
+                        lr.status = 'approved'
+                        lr.save()
+                        
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+
+@csrf_exempt
+def leaves_api(request):
+    if request.method == "GET":
+        from django.utils import timezone
+        import datetime
+        thirty_days_ago = timezone.now().date() - datetime.timedelta(days=30)
+        leaves = LeaveRecord.objects.filter(leave_date__gte=thirty_days_ago).order_by('-leave_date')
+        leave_data = []
+        for l in leaves:
+            leave_data.append({
+                'id': l.id,
+                'user_name': l.user.user_name,
+                'leave_type': l.get_leave_type_display(),
+                'date': l.leave_date.strftime('%Y-%m-%d'),
+                'reason': l.reason,
+                'status': l.status
+            })
+        return JsonResponse({'status': 'success', 'leaves': leave_data})
+        
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            leave_id = data.get('leave_id')
+            action = data.get('action') # 'approved' or 'denied'
+            
+            lr = LeaveRecord.objects.get(id=leave_id)
+            lr.status = action
+            lr.save()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)

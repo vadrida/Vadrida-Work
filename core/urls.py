@@ -18,4 +18,9 @@ urlpatterns = [
     path('report-analysis/', views.report_analysis_view, name='report_analysis'),
     path('api/analysis-data/', views.analysis_data_api, name='analysis_data_api'),
     path('summary-report/', views.admin_summary_page, name='admin_summary_page'),
+    path('api/system-holidays/', views.system_holidays_api, name='system_holidays_api'),
+    path('api/system-config/', views.system_config_api, name='system_config_api'),
+    path('api/credit-users/', views.credit_users_api, name='credit_users_api'),
+    path('api/attendance/', views.attendance_api, name='attendance_api'),
+    path('api/leaves/', views.leaves_api, name='leaves_api'),
 ]

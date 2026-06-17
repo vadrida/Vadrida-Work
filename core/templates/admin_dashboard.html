@@ -44,18 +44,24 @@
         
         <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4">NAVIGATION</div>
         
-        <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto">
-            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
+        <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto" id="main-nav">
+            <a href="#" data-tab="team" onclick="switchTab(this, event)" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
                 <i class="fas fa-users w-5 text-blue-600"></i> Team Overview
             </a>
-            <a href="{% url 'core:report_analysis' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="analysis" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-chart-bar w-5"></i> Performance Analysis
             </a>
-            <a href="{% url 'core:admin_summary_page' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="billing" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-file-invoice-dollar w-5"></i> Billing & Invoices
             </a>
-            <a href="#" onclick="openSystemConfig()" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="config" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-cogs w-5"></i> System Configuration
+            </a>
+            <a href="#" data-tab="attendance" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-calendar-check w-5"></i> Attendance
+            </a>
+            <a href="#" data-tab="reports" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+                <i class="fas fa-file-pdf w-5"></i> Recent Reports
             </a>
         </nav>
         
@@ -199,9 +205,6 @@
             <!-- Header -->
             <div class="flex justify-between items-start mb-6 px-6 pt-6 flex-shrink-0">
                 <div>
-                    <button onclick="closeUserPanel()" class="text-gray-400 hover:text-blue-600 mb-2 transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
-                        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
-                    </button>
                     <h1 class="text-[24px] font-bold text-gray-800 leading-tight">System Configuration</h1>
                     <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Settings & Attendance</p>
                 </div>
@@ -213,103 +216,136 @@
                 <!-- TOP SECTION: Split view -->
                 <div class="flex gap-6 mb-6">
                     <!-- Left Calendar Panel (decrease height, real calendar) -->
-                    <div class="w-[30%] bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-fit">
-                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Calendar</h3>
-                        <div id="calendarRoot" class="rounded-xl bg-gray-50/50 flex flex-col border border-gray-100 p-2">
+                    <div class="w-[30%] bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[420px]">
+                        <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Calendar</h3>
+                            <button id="editCalendarBtn" onclick="manageHolidays()" class="text-blue-500 hover:text-blue-700 text-[10px] bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 flex items-center transition-colors font-bold"><i class="fas fa-calendar-plus mr-1"></i>Edit</button>
+                        </div>
+                        <div id="calendarRoot" class="rounded-xl bg-gray-50/50 flex flex-col flex-1 border border-gray-100 p-2 min-h-72 overflow-hidden">
                             <!-- Real Calendar will go here -->
                         </div>
                     </div>
 
                     <!-- Right Panel: Cards -->
-                    <div class="w-[70%] grid grid-cols-2 gap-6 h-fit">
+                    <div class="w-[70%] grid grid-cols-2 gap-6 h-[420px]">
                         <!-- Card 1: Limits & Credits -->
-                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col relative h-[320px]">
-                            <button onclick="editSystemLimits()" class="absolute top-5 right-5 text-gray-400 hover:text-blue-600 text-sm bg-gray-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors"><i class="fas fa-pen"></i></button>
-                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4"><i class="fas fa-sliders-h mr-2"></i>Global Limits & Credits</h3>
+                        <div id="limitsCardRoot" class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col relative h-[420px] transition-colors">
+                            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest"><i class="fas fa-sliders-h mr-2"></i>Global Limits</h3>
+                                <button id="editLimitsBtn" onclick="toggleEditLimits()" class="text-blue-500 hover:text-blue-700 text-[10px] bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 flex items-center transition-colors font-bold"><i class="fas fa-pen mr-1"></i>Edit</button>
+                            </div>
                             
-                            <div class="flex flex-col gap-3">
-                                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
-                                    <span class="text-[11px] font-bold text-gray-600">Files Per Day</span>
-                                    <span class="text-[12px] font-bold text-gray-800" id="dispFilesPerDay">5</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
-                                    <span class="text-[11px] font-bold text-gray-600">Base Credits</span>
-                                    <span class="text-[12px] font-bold text-gray-800" id="dispBaseCredits">6</span>
-                                </div>
-                                <div class="mt-2 flex-1 overflow-y-auto pr-2">
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">File Types & Credits</span>
-                                    <div class="flex flex-col gap-2" id="dispFileTypes">
-                                        <div class="flex justify-between items-center border-b border-gray-50 pb-1">
-                                            <span class="text-xs text-gray-600 font-semibold">Standard Valuation</span>
-                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">6</span>
-                                        </div>
-                                        <div class="flex justify-between items-center border-b border-gray-50 pb-1">
-                                            <span class="text-xs text-gray-600 font-semibold">PD</span>
-                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">10</span>
-                                        </div>
-                                        <div class="flex justify-between items-center border-b border-gray-50 pb-1">
-                                            <span class="text-xs text-gray-600 font-semibold">NPA</span>
-                                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded">4</span>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1" id="limitsContainer">
+                                <!-- Rendered by JS -->
                             </div>
                         </div>
 
                         <!-- Card 2: Credit Adjustment -->
-                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[320px]">
-                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4"><i class="fas fa-coins mr-2 text-yellow-500"></i>Credit Adjustment</h3>
-                            
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[420px]">
+                            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest"><i class="fas fa-coins mr-2 text-yellow-500"></i>Credit Adjustment</h3>
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" id="creditSearchInput" onkeyup="filterCreditUsers()" placeholder="Search users..." class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-blue-400">
+                            </div>
                             <div class="flex-1 overflow-y-auto pr-2">
                                 <div class="flex flex-col gap-2" id="userCreditList">
-                                    <!-- Populated by JS -->
                                     <div class="text-center text-xs text-gray-400 py-4">Loading users...</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- BOTTOM SECTION: Attendance Grid (Full Width) -->
-                <div class="w-full bg-white rounded-2xl border border-gray-200 card-shadow overflow-hidden">
-                    <div class="p-3 border-b border-purple-200 bg-purple-100/50 flex justify-between items-center">
-                        <div class="w-8"></div> <!-- spacer for centering -->
-                        <h3 class="text-[13px] font-bold text-gray-800 uppercase tracking-widest text-center" id="attendanceMonthTitle">JUNE ATTENDANCE</h3>
+        <!-- ATTENDANCE VIEW -->
+        <div id="attendanceMainContainer" class="hidden flex-1 flex flex-col">
+            <div class="flex justify-between items-center mb-6 px-6 pt-6 flex-shrink-0">
+                <div>
+                    <h1 class="text-[24px] font-bold text-gray-800 leading-tight">Attendance Roster</h1>
+                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Daily Logs</p>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-6">
+                <!-- Daily Roster Card -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[619px]">
+                    <div class="flex justify-between items-center mb-4 flex-shrink-0 border-b border-gray-100 pb-3">
+                        <div class="flex gap-2 items-center">
+                            <button onclick="changeAttendanceDate(-1)" class="text-gray-400 hover:text-purple-600 px-2 py-1"><i class="fas fa-chevron-left"></i></button>
+                            <span id="attendanceDateLabel" class="text-[13px] font-bold text-gray-800 uppercase tracking-widest">LOADING...</span>
+                            <button onclick="changeAttendanceDate(1)" class="text-gray-400 hover:text-purple-600 px-2 py-1"><i class="fas fa-chevron-right"></i></button>
+                        </div>
                         <div class="flex gap-2">
-                            <button onclick="prevAttendanceMonth()" class="text-gray-500 hover:text-purple-700 p-1"><i class="fas fa-chevron-left"></i></button>
-                            <button onclick="nextAttendanceMonth()" class="text-gray-500 hover:text-purple-700 p-1"><i class="fas fa-chevron-right"></i></button>
+                            <button id="saveAttendanceBtn" onclick="saveAttendanceUpdates()" class="hidden text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1 rounded text-[11px] font-bold transition-colors">
+                                <i class="fas fa-check mr-1"></i> Save Changes
+                            </button>
+                            <button onclick="fetchAttendance()" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-[11px] font-bold transition-colors">
+                                <i class="fas fa-sync-alt mr-1"></i> Refresh
+                            </button>
                         </div>
                     </div>
-                    
-                    <div class="overflow-x-auto w-full pb-2">
-                        <table class="w-full text-center border-collapse border-t-0 border border-gray-200" style="min-width: 1200px; table-layout: fixed;">
-                            <thead id="attendanceThead" class="bg-white">
-                                <!-- Generated by JS -->
-                            </thead>
-                            <tbody id="attendanceTbody_full" class="text-xs text-gray-700 divide-y divide-gray-200 bg-white">
-                                <!-- Generated by JS -->
-                            </tbody>
-                        </table>
+
+                    <div class="flex-1 overflow-y-auto pr-2">
+                        <div class="flex flex-col gap-2" id="dailyAttendanceList">
+                            <div class="text-center text-xs text-gray-400 py-4">Loading roster...</div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Monthly Summaries (Grid) -->
+                <div class="grid grid-cols-2 gap-6" id="attendanceSummaryCards">
+                    <!-- Cards will go here -->
+                </div>
             </div>
         </div>
+
+        <!-- IFRAME CONTAINER (For External Tabs) -->
+        <div id="iframeContainer" class="hidden flex-1 w-full h-full pb-4 flex-col">
+            <iframe id="mainIframe" src="" class="block w-full flex-1 border-0 rounded-2xl card-shadow min-h-[800px]"></iframe>
+        </div>
+
+        <!-- RECENT REPORTS VIEW -->
+        <div id="reportsMainContainer" class="hidden flex-1 flex-col">
+            <div class="flex justify-between items-center mb-6 px-6 pt-6 flex-shrink-0">
+                <div>
+                    <h1 class="text-[24px] font-bold text-gray-800 leading-tight">Recent Reports</h1>
+                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Latest Submissions</p>
+                </div>
+                <button onclick="loadGeneratedReports()" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-[11px] font-bold transition-colors"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+            </div>
+            <div class="px-6 pb-2">
+                <input type="text" id="reportSearch" class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-400 card-shadow" placeholder="Search filename..." onkeyup="filterReports()">
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-3" id="report-list">
+                <div class="text-center p-4 text-xs text-gray-400">Loading reports...</div>
+            </div>
+        </div>
+
     </main>
 
-    <!-- RIGHT COLUMN: GENERATED REPORTS -->
+    <!-- RIGHT COLUMN -->
     <aside class="w-[320px] h-full bg-white border-l border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
-        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h2 class="text-[13px] font-bold text-gray-700 flex items-center gap-2 uppercase tracking-wide">
-                <i class="fas fa-file-pdf text-red-500"></i> Recent Reports
-            </h2>
-            <button onclick="loadGeneratedReports()" class="text-gray-400 hover:text-blue-600 transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
-        </div>
-        <div class="p-3 border-b border-gray-100">
-            <input type="text" id="reportSearch" class="w-full bg-gray-50 border border-gray-200 rounded text-xs px-3 py-2 focus:outline-none focus:border-blue-400" placeholder="Search filename..." onkeyup="filterReports()">
-        </div>
-        <div id="report-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-1">
-            <div class="text-center p-4 text-xs text-gray-400">Loading reports...</div>
+        
+        <!-- LEAVE APPROVALS PANEL -->
+        <div id="rightPanelLeaves" class="flex flex-col h-full bg-purple-50/20">
+            <div class="p-5 border-b border-purple-100 flex justify-between items-center bg-purple-50">
+                <h2 class="text-[13px] font-bold text-purple-800 flex items-center gap-2 uppercase tracking-wide">
+                    <i class="fas fa-calendar-times text-purple-500"></i> Leave Approvals
+                </h2>
+                <button onclick="fetchLeaves()" class="text-purple-400 hover:text-purple-600 transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
+            </div>
+            <div class="p-3 border-b border-purple-100 bg-white">
+                <div class="flex gap-2">
+                    <button onclick="filterLeaves('pending')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700" id="btnFilterPending">Pending</button>
+                    <button onclick="filterLeaves('approved')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterApproved">Approved</button>
+                    <button onclick="filterLeaves('denied')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterDenied">Denied</button>
+                </div>
+            </div>
+            <div id="leave-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-2">
+                <div class="text-center p-4 text-xs text-gray-400">Loading leaves...</div>
+            </div>
         </div>
     </aside>
 
@@ -355,8 +391,6 @@
         const list = document.getElementById('user-list');
         const term = document.getElementById('teamSearch').value.toLowerCase();
         
-        if(document.activeElement.id === 'teamSearch' && term.length > 0) return;
-
         const filtered = users.filter(u => u.user_name.toLowerCase().includes(term));
         const countEl = document.getElementById('online-count');
         if(countEl) countEl.innerText = users.filter(u => u.is_online).length;
@@ -625,15 +659,97 @@
     }
 
     let currentAttendanceDate = new Date();
+    let systemHolidays = {};
+    let isCalendarEditMode = false;
+    
+    let systemConfig = {
+        files_per_day: 5,
+        credits_other: 6,
+        credits_pd: 2,
+        credits_npa: 4,
+        hours_target: 200,
+        max_session_hours: 10
+    };
+    let isLimitsEditMode = false;
 
-    function openSystemConfig() {
+    function fetchSystemConfig() {
+        fetch('/core/api/system-config/')
+        .then(r => r.json())
+        .then(data => {
+            if(!data.error) {
+                systemConfig = data;
+                renderSystemLimits();
+            }
+        });
+    }
+
+    function fetchHolidays() {
+        fetch('/core/api/system-holidays/')
+        .then(r => r.json())
+        .then(data => {
+            if(data.holidays) {
+                systemHolidays = {};
+                data.holidays.forEach(h => { systemHolidays[h.date] = h.reason; });
+                renderCalendar();
+            }
+        });
+    }
+
+    function switchTab(element, event) {
+        if(event) event.preventDefault();
+        const tabName = element.getAttribute('data-tab');
+
+        // 1. Update active styling
+        document.querySelectorAll('#main-nav .nav-item').forEach(el => {
+            el.classList.remove('active', 'text-blue-600');
+            el.classList.add('text-gray-600');
+            const icon = el.querySelector('i');
+            if(icon) icon.classList.remove('text-blue-600');
+        });
+        element.classList.add('active');
+        element.classList.remove('text-gray-600');
+        const activeIcon = element.querySelector('i');
+        if(activeIcon) activeIcon.classList.add('text-blue-600');
+
+        // 2. Hide all containers
         document.getElementById('teamViewContainer').classList.add('hidden');
         document.getElementById('userProfileContainer').classList.add('hidden');
-        document.getElementById('systemConfigContainer').classList.remove('hidden');
+        document.getElementById('systemConfigContainer').classList.add('hidden');
+        document.getElementById('attendanceMainContainer').classList.add('hidden');
+        document.getElementById('reportsMainContainer').classList.add('hidden');
+        document.getElementById('reportsMainContainer').classList.remove('flex');
+        document.getElementById('iframeContainer').classList.add('hidden');
+        document.getElementById('iframeContainer').classList.remove('flex');
+        
+        // 3. Show specific container & set iframe src if needed
+        if(tabName === 'team') {
+            document.getElementById('teamViewContainer').classList.remove('hidden');
+        } else if(tabName === 'config') {
+            document.getElementById('systemConfigContainer').classList.remove('hidden');
+            fetchHolidays();
+            fetchSystemConfig();
+            fetchCreditUsers();
+        } else if(tabName === 'attendance') {
+            document.getElementById('attendanceMainContainer').classList.remove('hidden');
+            initAttendanceDate();
+        } else if(tabName === 'reports') {
+            document.getElementById('reportsMainContainer').classList.remove('hidden');
+            document.getElementById('reportsMainContainer').classList.add('flex');
+            loadGeneratedReports();
+        } else if(tabName === 'analysis') {
+            document.getElementById('iframeContainer').classList.remove('hidden');
+            document.getElementById('iframeContainer').classList.add('flex');
+            const iframe = document.getElementById('mainIframe');
+            iframe.src = "{% url 'core:report_analysis' %}";
+        } else if(tabName === 'billing') {
+            document.getElementById('iframeContainer').classList.remove('hidden');
+            document.getElementById('iframeContainer').classList.add('flex');
+            const iframe = document.getElementById('mainIframe');
+            iframe.src = "{% url 'core:admin_summary_page' %}";
+        }
 
-        renderCalendar();
-        renderCreditList();
-        renderAttendanceGrid();
+        // 4. Save to localStorage
+        localStorage.setItem('adminDashboardTab', tabName);
     }
 
     function renderCalendar() {
@@ -661,7 +777,7 @@
             const isSun = i === 0;
             calHtml += `<div class="text-center text-[9px] font-bold ${isSun ? 'text-red-400' : 'text-gray-400'} uppercase">${d}</div>`;
         });
-        calHtml += `</div><div class="grid grid-cols-7 gap-1 flex-1">`;
+        calHtml += `</div><div class="grid grid-cols-7 gap-1 flex-1 auto-rows-fr">`;
         
         for (let i = 0; i < firstDay; i++) {
             calHtml += `<div class="border border-transparent rounded"></div>`;
@@ -673,42 +789,160 @@
             const isSunday = dateObj.getDay() === 0;
             const isToday = dateObj.toDateString() === today.toDateString();
             
-            let bg = isSunday ? 'bg-red-50 text-red-600 font-bold border-red-100' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-100';
-            if (isToday) bg = 'bg-purple-500 text-white font-bold border-purple-600 shadow-sm';
+            // Format date string as YYYY-MM-DD to match DB
+            const mStr = String(month + 1).padStart(2, '0');
+            const dStr = String(i).padStart(2, '0');
+            const dateStr = `${year}-${mStr}-${dStr}`;
             
-            calHtml += `<div class="border rounded flex items-center justify-center text-[10px] cursor-pointer transition-colors ${bg}">${i}</div>`;
+            const holidayReason = systemHolidays[dateStr];
+                       let bg = isSunday ? 'bg-red-50 text-red-600 font-bold border-red-100' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-100';
+            if (isToday) bg = 'bg-purple-500 text-white font-bold border-purple-600 shadow-sm';
+            if (holidayReason) bg = 'bg-red-500 text-white font-bold shadow-sm';
+            
+            if (isCalendarEditMode) {
+                bg += ' hover:ring-2 hover:ring-yellow-400 cursor-pointer border-dashed border-yellow-300';
+            }
+            
+            calHtml += `<div onclick="calendarDateClicked('${dateStr}')" class="flex items-center justify-center text-[10px] rounded border transition-colors ${bg}" title="${holidayReason || ''}">${i}</div>`;
         }
         calHtml += `</div></div>`;
         root.innerHTML = calHtml;
     }
 
+    function manageHolidays() {
+        isCalendarEditMode = !isCalendarEditMode;
+        
+        const btn = document.getElementById('editCalendarBtn');
+        if(isCalendarEditMode) {
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Done';
+            btn.classList.replace('text-blue-500', 'text-green-600');
+            btn.classList.replace('hover:text-blue-700', 'hover:text-green-800');
+            btn.classList.replace('bg-blue-50', 'bg-green-50');
+            btn.classList.replace('hover:bg-blue-100', 'hover:bg-green-100');
+        } else {
+            btn.innerHTML = '<i class="fas fa-calendar-plus mr-1"></i>Edit';
+            btn.classList.replace('text-green-600', 'text-blue-500');
+            btn.classList.replace('hover:text-green-800', 'hover:text-blue-700');
+            btn.classList.replace('bg-green-50', 'bg-blue-50');
+            btn.classList.replace('hover:bg-green-100', 'hover:bg-blue-100');
+        }
+        
+        renderCalendar();
+    }
+
+    function calendarDateClicked(dateStr) {
+        if (!isCalendarEditMode) return;
+        
+        const existingReason = systemHolidays[dateStr] || '';
+        
+        let htmlContent = `
+            <div class="text-left font-outfit mt-4">
+                <label class="text-[11px] font-bold text-gray-500 uppercase">Selected Date</label>
+                <input type="text" readonly value="${dateStr}" class="w-full border rounded p-2 mb-3 bg-gray-100 text-gray-600 outline-none cursor-not-allowed">
+                <label class="text-[11px] font-bold text-gray-500 uppercase">Reason / Event Name</label>
+                <input type="text" id="swal-hol-reason" value="${existingReason}" class="w-full border rounded p-2 outline-none focus:border-blue-400" placeholder="e.g. Independence Day">
+            </div>
+        `;
+
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: existingReason ? 'Edit Holiday' : 'Add Holiday',
+                html: htmlContent,
+                showCancelButton: true,
+                showDenyButton: !!existingReason,
+                confirmButtonText: 'Save',
+                denyButtonText: 'Delete',
+                confirmButtonColor: '#10b981',
+                denyButtonColor: '#ef4444',
+                preConfirm: () => {
+                    const reason = document.getElementById('swal-hol-reason').value;
+                    if(!reason) Swal.showValidationMessage('Reason is required to save');
+                    return { action: 'save', reason };
+                }
+            }).then(res => {
+                if(res.isConfirmed) {
+                    // SAVE
+                    fetch('/core/api/system-holidays/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ holidays: [{date: dateStr, reason: res.value.reason}] })
+                    }).then(r => r.json()).then(data => {
+                        if(data.status === 'success') {
+                            fetchHolidays(); // Refresh
+                        } else {
+                            Swal.fire('Error', data.error || 'Failed to save', 'error');
+                        }
+                    });
+                } else if(res.isDenied) {
+                    // DELETE
+                    fetch('/core/api/system-holidays/', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ date: dateStr })
+                    }).then(r => r.json()).then(data => {
+                        if(data.status === 'success') {
+                            fetchHolidays(); // Refresh
+                        } else {
+                            Swal.fire('Error', data.error || 'Failed to delete', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    }
+
     function changeCalMonth(delta) {
         currentAttendanceDate.setMonth(currentAttendanceDate.getMonth() + delta);
         renderCalendar();
-        renderAttendanceGrid();
     }
 
-    function prevAttendanceMonth() { changeCalMonth(-1); }
-    function nextAttendanceMonth() { changeCalMonth(1); }
+    let creditUsersData = [];
 
-    function renderCreditList() {
+    function fetchCreditUsers() {
+        fetch('/core/api/credit-users/')
+        .then(res => res.json())
+        .then(data => {
+            if(data.users) {
+                creditUsersData = data.users;
+                renderCreditList(creditUsersData);
+            }
+        });
+    }
+
+    function filterCreditUsers() {
+        const query = document.getElementById('creditSearchInput').value.toLowerCase();
+        const filtered = creditUsersData.filter(u => u.user_name.toLowerCase().includes(query) || u.role.toLowerCase().includes(query));
+        renderCreditList(filtered);
+    }
+
+    function renderCreditList(users) {
         const listDiv = document.getElementById('userCreditList');
         let html = '';
-        allUsers.forEach(u => {
+        users.forEach(u => {
             if(u.role !== 'admin') {
-                // Mock credits for demo
-                const credits = Math.floor(Math.random() * 50) + 10;
+                let adjustHtml = '';
+                if(u.latest_adjustments && u.latest_adjustments.length > 0) {
+                    const latest = u.latest_adjustments[0];
+                    const sign = latest.amt > 0 ? '+' : '';
+                    const color = latest.amt > 0 ? 'text-green-500' : 'text-red-500';
+                    adjustHtml = `<span class="text-[9px] ${color} font-bold ml-2" title="${latest.rsn} on ${latest.date}">(${sign}${latest.amt})</span>`;
+                }
+
                 html += `
-                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
-                        <span class="text-[11px] font-bold text-gray-600">${u.user_name}</span>
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100 transition-colors hover:bg-gray-100">
+                        <div class="flex flex-col">
+                            <span class="text-[11px] font-bold text-gray-700">${u.user_name} ${adjustHtml}</span>
+                            <span class="text-[9px] text-gray-400 font-semibold">${u.files_done} Files Done this month</span>
+                        </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-[11px] font-bold text-gray-800">${credits} Credits</span>
-                            <button onclick="promptCreditAdjust('${u.id}', '${u.user_name}')" class="text-blue-500 bg-white border border-blue-100 hover:bg-blue-50 px-2 py-0.5 rounded text-[10px] transition-colors"><i class="fas fa-plus-minus"></i></button>
+                            <span class="text-[11px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded shadow-sm border border-gray-200">${u.total_credits} Credits</span>
+                            <button onclick="promptCreditAdjust('${u.id}', '${u.user_name}')" class="text-blue-500 bg-white border border-blue-100 hover:bg-blue-50 px-2 py-1 rounded text-[10px] transition-colors"><i class="fas fa-pen"></i></button>
                         </div>
                     </div>
                 `;
             }
         });
+        if(html === '') html = '<div class="text-center text-xs text-gray-400 py-4">No users found.</div>';
         listDiv.innerHTML = html;
     }
 
@@ -734,145 +968,364 @@
                     return { amt, rsn };
                 }
             }).then(res => {
-                if(res.isConfirmed) Swal.fire('Saved!', 'Credits updated for ' + userName, 'success');
+                if(res.isConfirmed) {
+                    fetch('/core/api/credit-users/', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            user_id: userId,
+                            amt: res.value.amt,
+                            reason: res.value.rsn
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            Swal.fire('Saved!', 'Credits updated for ' + userName, 'success');
+                            fetchCreditUsers();
+                        } else {
+                            Swal.fire('Error', data.error || 'Failed to update credits', 'error');
+                        }
+                    });
+                }
             });
         }
     }
 
-    function editSystemLimits() {
-        if(typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Global Settings',
-                html: `
-                    <div class="text-left font-outfit mt-4 flex flex-col gap-3">
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-500 uppercase">Files Per Day</label>
-                            <input type="number" id="swal-sys-1" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="5">
+    function toggleEditLimits() {
+        if (isLimitsEditMode) {
+            // Save mode
+            const inputs = {
+                files_per_day: document.getElementById('inp_files_per_day').value,
+                credits_other: document.getElementById('inp_credits_other').value,
+                credits_pd: document.getElementById('inp_credits_pd').value,
+                credits_npa: document.getElementById('inp_credits_npa').value,
+                hours_target: document.getElementById('inp_hours_target').value,
+                max_session_hours: document.getElementById('inp_max_session_hours').value,
+            };
+            
+            fetch('/core/api/system-config/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inputs)
+            }).then(r => r.json()).then(data => {
+                if(data.status === 'success') {
+                    fetchSystemConfig();
+                }
+            });
+            
+            isLimitsEditMode = false;
+        } else {
+            isLimitsEditMode = true;
+        }
+        
+        const btn = document.getElementById('editLimitsBtn');
+        const cardRoot = document.getElementById('limitsCardRoot');
+        if(isLimitsEditMode) {
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Done';
+            btn.classList.replace('text-blue-500', 'text-green-600');
+            btn.classList.replace('hover:text-blue-700', 'hover:text-green-800');
+            btn.classList.replace('bg-blue-50', 'bg-green-50');
+            btn.classList.replace('hover:bg-blue-100', 'hover:bg-green-100');
+            cardRoot.classList.replace('bg-white', 'bg-yellow-50/30');
+            cardRoot.classList.replace('border-gray-100', 'border-yellow-200');
+        } else {
+            btn.innerHTML = '<i class="fas fa-pen mr-1"></i>Edit';
+            btn.classList.replace('text-green-600', 'text-blue-500');
+            btn.classList.replace('hover:text-green-800', 'hover:text-blue-700');
+            btn.classList.replace('bg-green-50', 'bg-blue-50');
+            btn.classList.replace('hover:bg-green-100', 'hover:bg-blue-100');
+            cardRoot.classList.replace('bg-yellow-50/30', 'bg-white');
+            cardRoot.classList.replace('border-yellow-200', 'border-gray-100');
+        }
+        
+        renderSystemLimits();
+    }
+
+    function renderSystemLimits() {
+        const container = document.getElementById('limitsContainer');
+        const bg = isLimitsEditMode ? 'bg-yellow-50 border-yellow-200 shadow-sm' : 'bg-gray-50 border-gray-100';
+        
+        const renderItem = (label, key, isFloat=false) => {
+            const val = systemConfig[key];
+            if (isLimitsEditMode) {
+                const step = isFloat ? '0.1' : '1';
+                return `
+                <div class="flex justify-between items-center ${bg} p-2 rounded border transition-colors">
+                    <span class="text-[11px] font-bold text-gray-600">${label}</span>
+                    <input type="number" step="${step}" id="inp_${key}" value="${val}" class="w-16 text-right text-[12px] font-bold text-gray-800 border-b border-yellow-400 bg-transparent outline-none focus:border-blue-500">
+                </div>`;
+            } else {
+                return `
+                <div class="flex justify-between items-center ${bg} p-2 rounded border transition-colors">
+                    <span class="text-[11px] font-bold text-gray-600">${label}</span>
+                    <span class="text-[12px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded shadow-sm border border-gray-200">${val}</span>
+                </div>`;
+            }
+        };
+
+        container.innerHTML = `
+            ${renderItem('Files Per Day', 'files_per_day')}
+            
+            <div class="mt-2 pr-2">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Credit Settings</span>
+                <div class="flex flex-col gap-2">
+                    ${renderItem('Other', 'credits_other')}
+                    ${renderItem('PD', 'credits_pd')}
+                    ${renderItem('NPA', 'credits_npa')}
+                </div>
+            </div>
+
+            <div class="mt-2 pr-2">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Time Settings</span>
+                <div class="flex flex-col gap-2">
+                    ${renderItem('Hours Target', 'hours_target', true)}
+                    ${renderItem('Max Session Hours', 'max_session_hours', true)}
+                </div>
+            </div>
+        `;
+    }
+
+    let currentAttendanceDateObj = new Date();
+
+    function initAttendanceDate() {
+        changeAttendanceDate(0); // Fetches today initially
+    }
+
+    function changeAttendanceDate(deltaDays) {
+        currentAttendanceDateObj.setDate(currentAttendanceDateObj.getDate() + deltaDays);
+        const yyyy = currentAttendanceDateObj.getFullYear();
+        const mm = String(currentAttendanceDateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(currentAttendanceDateObj.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+        
+        const displayOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('attendanceDateLabel').innerText = currentAttendanceDateObj.toLocaleDateString('en-US', displayOptions);
+        
+        fetchAttendance(dateStr);
+    }
+
+    function fetchAttendance(dateStr = null) {
+        if(!dateStr) {
+            const yyyy = currentAttendanceDateObj.getFullYear();
+            const mm = String(currentAttendanceDateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(currentAttendanceDateObj.getDate()).padStart(2, '0');
+            dateStr = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        const listDiv = document.getElementById('dailyAttendanceList');
+        listDiv.innerHTML = '<div class="text-center p-4 text-xs text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
+
+        fetch(`/core/api/attendance/?date=${dateStr}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.users) {
+                renderDailyAttendance(data.users, dateStr);
+            }
+        });
+    }
+
+    function renderDailyAttendance(users, dateStr) {
+        const listDiv = document.getElementById('dailyAttendanceList');
+        let html = '';
+        
+        users.forEach(u => {
+            const statusColors = {
+                'present': 'text-green-600 bg-green-50 border-green-200',
+                'absent': 'text-red-600 bg-red-50 border-red-200',
+                'half_day': 'text-blue-600 bg-blue-50 border-blue-200',
+                'sick': 'text-orange-600 bg-orange-50 border-orange-200',
+                'casual': 'text-blue-600 bg-blue-50 border-blue-200',
+                'wfh': 'text-purple-600 bg-purple-50 border-purple-200',
+                'late': 'text-yellow-600 bg-yellow-50 border-yellow-200'
+            };
+            const currentStatus = u.status || 'absent';
+            const colorClass = statusColors[currentStatus] || statusColors['absent'];
+
+            html += `
+                <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase shadow-sm border border-blue-200">
+                            ${u.user_name.substring(0,2)}
                         </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-500 uppercase">Base Credits</label>
-                            <input type="number" id="swal-sys-2" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="6">
-                        </div>
-                        <div class="border-t pt-2 mt-2">
-                            <label class="text-[11px] font-bold text-gray-500 uppercase">Standard Valuation</label>
-                            <input type="number" id="swal-sys-3" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="6">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-500 uppercase">Project Approval</label>
-                            <input type="number" id="swal-sys-4" class="w-full border rounded p-2 outline-none focus:border-blue-400" value="10">
+                        <div class="flex flex-col">
+                            <span class="text-[12px] font-bold text-gray-800">${u.user_name}</span>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${u.role}</span>
                         </div>
                     </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Save Changes',
-                confirmButtonColor: '#8b5cf6',
-            }).then(res => {
-                if(res.isConfirmed) Swal.fire('Saved!', 'Global settings updated.', 'success');
-            });
-        }
+                    <select onchange="updateAttendanceStatus('${u.id}', '${dateStr}', this.value, this)" 
+                        class="text-[10px] font-bold outline-none rounded px-2 py-1.5 border appearance-none text-center cursor-pointer ${colorClass}">
+                        <option value="present" ${currentStatus==='present'?'selected':''}>PRESENT</option>
+                        <option value="absent" ${currentStatus==='absent'?'selected':''}>ABSENT</option>
+                        <option value="half_day" ${currentStatus==='half_day'?'selected':''}>HALF DAY</option>
+                        <option value="sick" ${currentStatus==='sick'?'selected':''}>SICK LEAVE</option>
+                        <option value="casual" ${currentStatus==='casual'?'selected':''}>CASUAL LEAVE</option>
+                        <option value="wfh" ${currentStatus==='wfh'?'selected':''}>WORK FROM HOME</option>
+                        <option value="late" ${currentStatus==='late'?'selected':''}>LATE</option>
+                    </select>
+                </div>
+            `;
+        });
+        
+        if(html === '') html = '<div class="text-center text-xs text-gray-400 py-4">No users found.</div>';
+        listDiv.innerHTML = html;
     }
 
-    function renderAttendanceGrid() {
-        const thead = document.getElementById('attendanceThead');
-        const tbody = document.getElementById('attendanceTbody_full');
-        const title = document.getElementById('attendanceMonthTitle');
+    let pendingAttendanceUpdates = {};
+
+    function updateAttendanceStatus(userId, dateStr, status, selectElement) {
+        pendingAttendanceUpdates[userId] = { user_id: userId, date: dateStr, status: status };
         
-        const year = currentAttendanceDate.getFullYear();
-        const month = currentAttendanceDate.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        // Update styling instantly
+        const statusColors = {
+            'present': 'text-green-600 bg-green-50 border-green-200',
+            'absent': 'text-red-600 bg-red-50 border-red-200',
+            'half_day': 'text-blue-600 bg-blue-50 border-blue-200',
+            'sick': 'text-orange-600 bg-orange-50 border-orange-200',
+            'casual': 'text-blue-600 bg-blue-50 border-blue-200',
+            'wfh': 'text-purple-600 bg-purple-50 border-purple-200',
+            'late': 'text-yellow-600 bg-yellow-50 border-yellow-200'
+        };
+        const colorClass = statusColors[status] || statusColors['absent'];
+        selectElement.className = `text-[10px] font-bold outline-none rounded px-2 py-1.5 border appearance-none text-center cursor-pointer ${colorClass}`;
         
-        title.innerText = monthNames[month] + " " + year + " ATTENDANCE";
+        // Show save button
+        document.getElementById('saveAttendanceBtn').classList.remove('hidden');
+    }
 
-        let headHtml = `
-            <tr class="bg-gray-50/80">
-                <th class="p-2 border-b border-r border-gray-200 text-[10px] font-bold text-gray-500 w-[40px]">SL NO</th>
-                <th class="p-2 border-b border-r border-gray-200 text-[10px] font-bold text-gray-500 w-[70px]">EMP ID</th>
-                <th class="p-2 border-b border-r border-gray-200 text-[10px] font-bold text-gray-500 min-w-[120px]">EMPLOYEE NAME</th>
-        `;
+    function saveAttendanceUpdates() {
+        const updates = Object.values(pendingAttendanceUpdates);
+        if(updates.length === 0) return;
 
-        // Render columns for each day
-        for (let i = 1; i <= daysInMonth; i++) {
-            const dateObj = new Date(year, month, i);
-            const dName = dayNames[dateObj.getDay()];
-            const isSun = dateObj.getDay() === 0;
-            const textCol = isSun ? 'text-red-500' : 'text-gray-500';
-            headHtml += `
-                <th class="p-1 border-b border-r border-gray-200 text-[9px] font-bold text-center w-[30px] ${textCol}">
-                    <div class="mb-1">${dName}</div>
-                    <div>${i}</div>
-                </th>
-            `;
-        }
-
-        headHtml += `
-                <th class="p-2 border-b border-r border-gray-200 text-[9px] font-bold text-gray-500 w-[60px] bg-purple-50">TOTAL LEAVES</th>
-                <th class="p-2 border-b border-r border-gray-200 text-[9px] font-bold text-gray-500 w-[60px] bg-yellow-50">Work at Home</th>
-                <th class="p-2 border-b border-gray-200 text-[9px] font-bold text-gray-500 w-[60px] bg-yellow-50">Late Coming</th>
-            </tr>
-        `;
-        thead.innerHTML = headHtml;
-
-        let bodyHtml = '';
-        let slNo = 1;
-        const officeUsers = allUsers.filter(u => u.role !== 'admin');
+        const btn = document.getElementById('saveAttendanceBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+        btn.disabled = true;
         
-        officeUsers.forEach(u => {
-            // Mock employee ID
-            const empId = "EMP" + (100 + slNo);
-            
-            bodyHtml += `<tr class="hover:bg-gray-50/50 transition-colors">
-                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-400 text-center">${slNo}</td>
-                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-600 text-center">${empId}</td>
-                <td class="p-2 border-b border-r border-gray-200 text-[11px] font-bold text-gray-800">${u.user_name}</td>
-            `;
-
-            let totalLeaves = 0;
-            let totalWfh = 0;
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                const dateObj = new Date(year, month, i);
-                const isSun = dateObj.getDay() === 0;
-                
-                // Random mock data for attendance
-                let status = '<i class="fas fa-check text-gray-800 text-[10px]"></i>';
-                let cellClass = "";
-                let textColor = "";
-
-                if (isSun) {
-                    status = '<i class="fas fa-times"></i>';
-                    textColor = "text-red-500";
-                    cellClass = "bg-red-50/30";
-                } else if (Math.random() < 0.05) {
-                    status = 'OFF';
-                    textColor = "text-red-500 font-bold";
-                    totalLeaves++;
-                } else if (Math.random() < 0.02) {
-                    status = 'W';
-                    textColor = "text-red-500 font-bold";
-                    totalWfh++;
-                }
-
-                bodyHtml += `<td class="p-1 border-b border-r border-gray-200 text-[10px] text-center ${textColor} ${cellClass}">${status}</td>`;
+        fetch('/core/api/attendance/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ updates: updates })
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if(data.status === 'success') {
+                pendingAttendanceUpdates = {};
+                btn.classList.add('hidden');
+                // Refresh cleanly
+                const dateStr = updates[0].date;
+                fetchAttendance(dateStr);
+            } else {
+                alert('Error saving updates: ' + (data.error || 'Unknown error'));
             }
-
-            bodyHtml += `
-                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-600 text-center bg-purple-50/30">${totalLeaves > 0 ? totalLeaves : ''}</td>
-                <td class="p-1 border-b border-r border-gray-200 text-[10px] font-bold text-gray-600 text-center bg-yellow-50/30">${totalWfh > 0 ? 'W' : ''}</td>
-                <td class="p-1 border-b border-gray-200 text-[10px] font-bold text-gray-600 text-center bg-yellow-50/30"></td>
-            </tr>`;
-            
-            slNo++;
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            alert('Error saving updates');
+            console.error(err);
         });
+    }
 
-        tbody.innerHTML = bodyHtml;
+    // LEAVES LOGIC
+    let allLeaves = [];
+    let currentLeaveFilter = 'pending';
+
+    function fetchLeaves() {
+        const listDiv = document.getElementById('leave-list');
+        listDiv.innerHTML = '<div class="text-center p-4 text-xs text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
+
+        fetch('/core/api/leaves/')
+        .then(r => r.json())
+        .then(data => {
+            if(data.leaves) {
+                allLeaves = data.leaves;
+                filterLeaves(currentLeaveFilter);
+            }
+        });
+    }
+
+    function filterLeaves(status) {
+        currentLeaveFilter = status;
+        
+        // Update tabs styling
+        const btnP = document.getElementById('btnFilterPending');
+        const btnA = document.getElementById('btnFilterApproved');
+        const btnR = document.getElementById('btnFilterDenied');
+        
+        const activeClass = "flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700";
+        const inactiveClass = "flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100";
+
+        btnP.className = status === 'pending' ? activeClass : inactiveClass;
+        btnA.className = status === 'approved' ? activeClass : inactiveClass;
+        btnR.className = status === 'denied' ? activeClass : inactiveClass;
+
+        const filtered = allLeaves.filter(l => l.status === status);
+        const listDiv = document.getElementById('leave-list');
+        let html = '';
+        
+        filtered.forEach(l => {
+            html += `
+                <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[12px] font-bold text-gray-800">${l.user_name}</span>
+                        <span class="text-[9px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded uppercase">${l.leave_type}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-500 mb-2 font-semibold"><i class="far fa-calendar-alt mr-1"></i>${l.date}</div>
+                    ${l.reason ? `<div class="text-[10px] text-gray-500 italic mb-3 bg-gray-50 p-1.5 rounded border border-gray-100">${l.reason}</div>` : ''}
+                    
+                    ${status === 'pending' ? `
+                    <div class="flex gap-2 mt-2">
+                        <button onclick="approveLeave('${l.id}', 'approved')" class="flex-1 py-1 text-[10px] font-bold bg-green-50 text-green-600 rounded hover:bg-green-100 border border-green-200 transition-colors">APPROVE</button>
+                        <button onclick="approveLeave('${l.id}', 'rejected')" class="flex-1 py-1 text-[10px] font-bold bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200 transition-colors">DENY</button>
+                    </div>
+                    ` : `
+                    <div class="flex justify-between items-center mt-1">
+                        <div class="text-[10px] font-bold ${l.status === 'approved' ? 'text-green-500' : 'text-red-500'} uppercase">
+                            ${l.status}
+                        </div>
+                        ${l.status === 'denied' ? `<button onclick="approveLeave('${l.id}', 'approved')" class="px-2 py-0.5 text-[9px] font-bold bg-gray-50 text-gray-600 border rounded hover:bg-green-50 hover:text-green-600 transition-colors">Approve</button>` : ''}
+                        ${l.status === 'approved' ? `<button onclick="approveLeave('${l.id}', 'denied')" class="px-2 py-0.5 text-[9px] font-bold bg-gray-50 text-gray-600 border rounded hover:bg-red-50 hover:text-red-600 transition-colors">Deny</button>` : ''}
+                    </div>
+                    `}
+                </div>
+            `;
+        });
+        
+        if(html === '') html = `<div class="text-center p-4 text-xs text-gray-400">No ${status} leaves</div>`;
+        listDiv.innerHTML = html;
+    }
+
+    function approveLeave(id, action) {
+        fetch('/core/api/leaves/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ leave_id: id, action: action })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                fetchLeaves();
+            }
+        });
     }
 
     // INITIALIZATION
     document.addEventListener("DOMContentLoaded", () => {
         syncTeamData();
         loadGeneratedReports();
+        fetchLeaves(); // Load leaves immediately since it's always visible now
+        
+        // Restore tab state from localStorage
+        const savedTab = localStorage.getItem('adminDashboardTab');
+        if(savedTab) {
+            const tabElement = document.querySelector(`#main-nav a[data-tab="${savedTab}"]`);
+            if(tabElement) {
+                switchTab(tabElement);
+            }
+        }
     });
 </script>
 {% endblock %}

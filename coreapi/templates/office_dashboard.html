@@ -15,36 +15,39 @@
     <div class="text-sm">Processing your file...</div>
   </div>
   <div class="sticky top-[90px] z-40 bg-white border-b border-gray-200 px-4 py-3 mb-4 shadow-sm flex items-center">
-      <div class="text-gray-500 mr-2 text-sm">
-          <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
-      </div>
-      <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
-          /
-      </div>
+    <div class="text-gray-500 mr-2 text-sm">
+      <i class="fas fa-folder-open text-yellow-500"></i> Current Location:
+    </div>
+    <div id="topBannerPath" class="font-mono text-sm text-blue-700 font-semibold tracking-wide truncate">
+      /
+    </div>
   </div>
   <div class="dashboard-grid">
     <aside class="bg-white rounded-lg p-4 shadow-sm flex flex-col h-full">
-    <div class="flex items-center justify-between mb-3 flex-shrink-0">
+      <div class="flex items-center justify-between mb-3 flex-shrink-0">
         <h3 class="font-montserrat font-semibold">Files</h3>
         <button id="refreshFolders" class="px-3 py-1 border rounded text-sm hover:bg-gray-50">🔄</button>
-    </div>
+      </div>
 
-    <div class="mb-3 flex-shrink-0">
-        <input id="fileSearch" type="text" placeholder="Search file id or name..." class="w-full p-2 rounded border text-sm" />
-    </div>
+      <div class="mb-3 flex-shrink-0">
+        <input id="fileSearch" type="text" placeholder="Search file id or name..."
+          class="w-full p-2 rounded border text-sm" />
+      </div>
 
-    <div class="flex items-center gap-2 mb-3 text-sm flex-shrink-0">
+      <div class="flex items-center gap-2 mb-3 text-sm flex-shrink-0">
         <button id="goBackBtn" class="px-2 py-1 border rounded hover:bg-gray-50">⬅</button>
-        <span id="currentPath" class="break-all whitespace-normal font-mono text-xs text-gray-500 leading-tight">/</span>
-    </div>
+        <span id="currentPath"
+          class="break-all whitespace-normal font-mono text-xs text-gray-500 leading-tight">/</span>
+      </div>
 
-    <div id="folderStatsBox" class="hidden mb-3 p-3 bg-gray-50 border rounded text-xs space-y-1 flex-shrink-0 shadow-inner">
-        </div>
+      <div id="folderStatsBox"
+        class="hidden mb-3 p-3 bg-gray-50 border rounded text-xs space-y-1 flex-shrink-0 shadow-inner">
+      </div>
 
-    <div class="file-list-scroll flex-1 overflow-y-auto min-h-0 border-t pt-2">
+      <div class="file-list-scroll flex-1 overflow-y-auto min-h-0 border-t pt-2">
         <ul id="fileList" class="space-y-1 text-sm"></ul>
-    </div>
-    
+      </div>
+
     </aside>
     <!-- CENTER: Big preview + controls -->
     <section class="bg-white rounded-lg shadow-sm">
@@ -52,7 +55,8 @@
         <h3 class="font-montserrat font-semibold">Preview</h3>
         <div class="flex gap-2 flex-wrap">
           <button id="analyseBtn" class="analyse-btn px-4 py-2 rounded">Analyse</button>
-          <a id="siteFeedbackBtn" href="{% url 'coreapi:feedback' %}" class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200">
+          <a id="siteFeedbackBtn" href="{% url 'coreapi:feedback' %}"
+            class="px-4 py-2 border rounded bg-gray-100 hover:bg-gray-200">
             Site Feedback
           </a>
           <button id="openFullBtn" class="px-3 py-2 border rounded">Open Full</button>
@@ -64,14 +68,17 @@
 
       <!-- Large viewer -->
       <div class="preview-shell rounded border mx-3 mb-3 flex flex-col h-[600px] lg:h-auto lg:flex-1 overflow-hidden">
-        
-        <div id="bigPreviewHeader" class="flex items-center justify-between px-4 py-3 bg-gray-100 border-b flex-shrink-0 min-h-[40px]">
-          <div id="bigPreviewTitle" class="font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4">
+
+        <div id="bigPreviewHeader"
+          class="flex items-center justify-between px-4 py-3 bg-gray-100 border-b flex-shrink-0 min-h-[40px]">
+          <div id="bigPreviewTitle"
+            class="font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4">
             Home / Root
           </div>
-          
+
           <div class="flex items-center gap-2">
-            <button id="downloadPdfBtn" class="px-2 py-1 border rounded text-xs hidden download-btn bg-white hover:bg-gray-50">
+            <button id="downloadPdfBtn"
+              class="px-2 py-1 border rounded text-xs hidden download-btn bg-white hover:bg-gray-50">
               <i class="fas fa-file-download"></i>
             </button>
           </div>
@@ -79,27 +86,31 @@
 
         <div id="bigViewer" class="relative flex-1 flex flex-col bg-gray-100 min-h-0 overflow-hidden">
 
-            <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
-                Select a file to preview
-            </div>
-            
-            <div id="pdfToolbar" class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10 flex-shrink-0 h-10">
-                <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
-                <div class="flex items-center gap-2">
-                    <button id="pdfZoomOut" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-minus"></i></button>
-                    <span id="zoomLevelDisplay" class="text-xs w-12 text-center">100%</span>
-                    <button id="pdfZoomIn" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i class="fas fa-plus"></i></button>
-                </div>
-            </div>
+          <div id="noSelection" class="flex items-center justify-center h-full text-gray-400">
+            Select a file to preview
+          </div>
 
-            <div id="scrollContainer" class="hidden flex-1 overflow-auto p-4 flex flex-col items-center gap-4 bg-gray-200/50">
-                <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
-                    <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
-                </div>
+          <div id="pdfToolbar"
+            class="hidden flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm z-10 flex-shrink-0 h-10">
+            <div class="text-sm font-semibold text-gray-600" id="pageCountDisplay">Page 1</div>
+            <div class="flex items-center gap-2">
+              <button id="pdfZoomOut" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i
+                  class="fas fa-minus"></i></button>
+              <span id="zoomLevelDisplay" class="text-xs w-12 text-center">100%</span>
+              <button id="pdfZoomIn" class="px-2 py-1 bg-gray-100 border rounded hover:bg-gray-200"><i
+                  class="fas fa-plus"></i></button>
             </div>
+          </div>
 
-            <img id="bigImageFrame" class="hidden w-full h-full object-contain" src="" />
-            <iframe id="nativePdfViewer" class="hidden flex-1 w-full border-none" src=""></iframe>
+          <div id="scrollContainer"
+            class="hidden flex-1 overflow-auto p-4 flex flex-col items-center gap-4 bg-gray-200/50">
+            <div id="scrollSentinel" class="w-full h-20 flex items-center justify-center text-gray-400">
+              <div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-6 h-6 animate-spin"></div>
+            </div>
+          </div>
+
+          <img id="bigImageFrame" class="hidden w-full h-full object-contain" src="" />
+          <iframe id="nativePdfViewer" class="hidden flex-1 w-full border-none" src=""></iframe>
 
         </div>
       </div>
@@ -107,79 +118,73 @@
 
     <!-- RIGHT: WhatsApp-Style Chat -->
     <aside class="bg-white rounded-lg p-4 shadow-sm">
-  
-  <div class="flex items-center justify-between p-3 border-b bg-white" style="flex-shrink: 0;">
-    <h3 class="font-montserrat font-semibold text-lg">Team Chat</h3>
-    
-  </div>
 
-  <div id="pinnedMessages" class="px-3 pt-2 space-y-2" style="flex-shrink: 0;"></div>
+      <div class="flex items-center justify-between p-3 border-b bg-white" style="flex-shrink: 0;">
+        <h3 class="font-montserrat font-semibold text-lg">Team Chat</h3>
 
-  <div 
-    id="chatBox" 
-    class="bg-gray-50"
-    style="flex: 1; overflow-y: auto; min-height: 0; padding: 10px; display: flex; flex-direction: column;"
-  >
       </div>
 
-  <form 
-    id="chatForm" 
-    style="flex-shrink: 0; padding: 10px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: white;"
-  >
-    
-    <label class="cursor-pointer p-2 hover:bg-gray-100 rounded-full text-gray-500 hover:text-blue-600 transition" style="flex-shrink: 0;">
-      <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx" />
-      <i class="fas fa-paperclip text-lg"></i>
-    </label>
+      <div id="pinnedMessages" class="px-3 pt-2 space-y-2" style="flex-shrink: 0;"></div>
 
-    <input
-      id="chatInput"
-      type="text"
-      placeholder="Type a message..."
-      class="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      style="flex: 1; min-width: 0;"
-      autocomplete="off"
-    />
+      <div id="chatBox" class="bg-gray-50"
+        style="flex: 1; overflow-y: auto; min-height: 0; padding: 10px; display: flex; flex-direction: column;">
+      </div>
 
-    <button 
-      type="submit" 
-      class="bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-sm transition"
-      style="flex-shrink: 0; width: 40px; height: 40px; border: none; cursor: pointer;"
-    >
-      <i class="fas fa-paper-plane text-sm ml-[-2px]"></i>
-    </button>
-  </form>
-</aside>
+      <form id="chatForm"
+        style="flex-shrink: 0; padding: 10px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 8px; background: white;">
+
+        <label class="cursor-pointer p-2 hover:bg-gray-100 rounded-full text-gray-500 hover:text-blue-600 transition"
+          style="flex-shrink: 0;">
+          <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx" />
+          <i class="fas fa-paperclip text-lg"></i>
+        </label>
+
+        <input id="chatInput" type="text" placeholder="Type a message..."
+          class="border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          style="flex: 1; min-width: 0;" autocomplete="off" />
+
+        <button type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-sm transition"
+          style="flex-shrink: 0; width: 40px; height: 40px; border: none; cursor: pointer;">
+          <i class="fas fa-paper-plane text-sm ml-[-2px]"></i>
+        </button>
+      </form>
+    </aside>
   </div>
 </div>
 
 <!-- Fullscreen modal for preview -->
 <div id="fullscreenModal" aria-hidden="true">
   <div class="modal-box">
-    
+
     <div class="flex items-center justify-between p-3 border-b bg-white z-50 relative">
       <div class="font-semibold truncate max-w-[200px]" id="modalTitle">Preview</div>
 
       <div>
         <button id="modalZoomOut">
-         
+
         </button>
-        
+
         <button id="modalZoomIn">
-         
+
         </button>
         <button id="modalZoomReset">
-          
+
         </button>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap">
-        
-        <div id="shareButtonsContainer" class="flex space-x-2 hidden absolute top-14 right-4 bg-white shadow-xl p-2 rounded-lg border z-50">
-          <a href="#" id="shareWhatsapp" class="p-2 hover:bg-green-50 rounded text-green-600"><i class="fab fa-whatsapp text-xl"></i></a>
-          <a href="#" id="shareTelegram" class="p-2 hover:bg-blue-50 rounded text-blue-500"><i class="fab fa-telegram text-xl"></i></a>
-          <a href="#" id="shareEmail" class="p-2 hover:bg-gray-50 rounded text-gray-600"><i class="fas fa-envelope text-xl"></i></a>
-          <a href="#" id="shareCopy" class="p-2 hover:bg-gray-50 rounded text-gray-600"><i class="fas fa-link text-xl"></i></a>
+
+        <div id="shareButtonsContainer"
+          class="flex space-x-2 hidden absolute top-14 right-4 bg-white shadow-xl p-2 rounded-lg border z-50">
+          <a href="#" id="shareWhatsapp" class="p-2 hover:bg-green-50 rounded text-green-600"><i
+              class="fab fa-whatsapp text-xl"></i></a>
+          <a href="#" id="shareTelegram" class="p-2 hover:bg-blue-50 rounded text-blue-500"><i
+              class="fab fa-telegram text-xl"></i></a>
+          <a href="#" id="shareEmail" class="p-2 hover:bg-gray-50 rounded text-gray-600"><i
+              class="fas fa-envelope text-xl"></i></a>
+          <a href="#" id="shareCopy" class="p-2 hover:bg-gray-50 rounded text-gray-600"><i
+              class="fas fa-link text-xl"></i></a>
         </div>
 
         <button id="modalShare" class="px-3 py-2 rounded border text-sm hover:bg-gray-50 transition">
@@ -190,38 +195,46 @@
           <i class="fas fa-file-download"></i> <span class="hidden sm:inline">Download</span>
         </button>
 
-        <button id="modalClose" class="px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded text-sm hover:bg-red-100 transition">Close</button>
+        <button id="modalClose"
+          class="px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded text-sm hover:bg-red-100 transition">Close</button>
       </div>
     </div>
 
-    <div id="modalBody" class="modal-inner relative bg-gray-100 flex items-center justify-center overflow-hidden" style="height: calc(100% - 60px);">
-      
+    <div id="modalBody" class="modal-inner relative bg-gray-100 flex items-center justify-center overflow-hidden"
+      style="height: calc(100% - 60px);">
+
       <iframe id="modalFrame" class="hidden w-full h-full border-none"></iframe>
-      
+
       <div id="imageZoomWrapper" class="hidden w-full h-full overflow-auto flex items-center justify-center">
-         <img id="modalImage" class="transition-transform duration-200 origin-center" src="" alt="preview" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+        <img id="modalImage" class="transition-transform duration-200 origin-center" src="" alt="preview"
+          style="max-width: 100%; max-height: 100%; object-fit: contain;" />
       </div>
-      
-      <div id="modalPdfContainer" class="hidden w-full h-full overflow-y-auto flex flex-col items-center bg-gray-200 pt-4 pb-10"></div>
-    
+
+      <div id="modalPdfContainer"
+        class="hidden w-full h-full overflow-y-auto flex flex-col items-center bg-gray-200 pt-4 pb-10"></div>
+
     </div>
   </div>
 </div>
 <!-- chat folder modal -->
 
-<div id="folderChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center pt-32 justify-center z-[60] ">
+<div id="folderChatModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center pt-32 justify-center z-[60] ">
   <div class="bg-white rounded-lg w-[500px] h-[500px] flex flex-col shadow-2xl">
     <div class="p-4 border-b flex justify-between items-center bg-blue-600 text-white rounded-t-lg">
       <h3 class="font-bold break-all whitespace-normal pr-4 text-sm leading-tight" id="folderChatTitle">Case Chat</h3>
       <button onclick="closeFolderChat()" class="hover:text-gray-200"><i class="fas fa-times"></i></button>
     </div>
-    
+
     <div id="folderChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-      </div>
+    </div>
 
     <form id="folderChatForm" class="p-3 border-t bg-white flex gap-2">
-      <input type="text" id="folderChatInput" class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type a note..." autocomplete="off">
-      <button type="submit" class="bg-blue-600 text-white rounded-full w-10 h-10 hover:bg-blue-700 flex items-center justify-center">
+      <input type="text" id="folderChatInput"
+        class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Type a note..." autocomplete="off">
+      <button type="submit"
+        class="bg-blue-600 text-white rounded-full w-10 h-10 hover:bg-blue-700 flex items-center justify-center">
         <i class="fas fa-paper-plane"></i>
       </button>
     </form>
@@ -267,112 +280,112 @@
 </div>
 
 <script>
-/* =========================
-   CSRF
-========================= */
-function getCookie(name) {
-  let v = null;
-  document.cookie?.split(";").forEach(c => {
-    c = c.trim();
-    if (c.startsWith(name + "=")) v = decodeURIComponent(c.slice(name.length + 1));
-  });
-  return v;
-}
-const csrftoken = getCookie("csrftoken");
+  /* =========================
+     CSRF
+  ========================= */
+  function getCookie(name) {
+    let v = null;
+    document.cookie?.split(";").forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + "=")) v = decodeURIComponent(c.slice(name.length + 1));
+    });
+    return v;
+  }
+  const csrftoken = getCookie("csrftoken");
 
-/* =========================
-   ELEMENTS
-========================= */
-const fileList = document.getElementById("fileList");
-const thumbsContainer = document.getElementById("thumbs");
-const bigImageFrame = document.getElementById("bigImageFrame");
-const noSelection = document.getElementById("noSelection");
-const bigPreviewTitle = document.getElementById("bigPreviewTitle");
-const openModalBtn = document.getElementById("openFullBtn");
-const fileInfoBox = document.getElementById("fileInfoBox");
-const pdfWrapper = document.getElementById("pdfWrapper");
-const pdfMain = document.getElementById("pdfMain");
-
-/* =========================
-   STATE
-========================= */
-let currentFolder = "";
-let currentFile = null;
-let analysisController = null;
-let currentFolderFiles = [];
-let selectedAnalysisFiles = [];
-let rootFoldersCache = null;
-let isSearching = false;
-let currentPreviewUrl = null;
-const folderScrollHistory = {};
-/* =========================
-   FOLDER LOADER
-========================= */
-function loadFolder(path = "") {
-  // 1. Save Scroll of PREVIOUS folder before switching (Optional, for navigation history)
-  const scrollContainer = document.querySelector('.file-list-scroll');
-  if (scrollContainer) folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
-
-  currentFolder = path;
-  
-  // UI Updates...
-  document.getElementById("currentPath").textContent = "/" + (path || "");
-  const banner = document.getElementById("bigPreviewTitle");
-  if(banner) banner.textContent = path ? path : "Home / Root";
-  const topBanner = document.getElementById("topBannerPath");
-  if (topBanner) topBanner.textContent = path ? "/" + path : "/";
-
-  // Reset Preview Pane (Standard reset)
-  if(document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");
-  if(document.getElementById("pdfToolbar")) document.getElementById("pdfToolbar").classList.add("hidden");
-  if(document.getElementById("bigImageFrame")) document.getElementById("bigImageFrame").classList.add("hidden");
-  if(document.getElementById("downloadPdfBtn")) document.getElementById("downloadPdfBtn").classList.add("hidden");
+  /* =========================
+     ELEMENTS
+  ========================= */
+  const fileList = document.getElementById("fileList");
+  const thumbsContainer = document.getElementById("thumbs");
+  const bigImageFrame = document.getElementById("bigImageFrame");
   const noSelection = document.getElementById("noSelection");
-  if(noSelection) {
+  const bigPreviewTitle = document.getElementById("bigPreviewTitle");
+  const openModalBtn = document.getElementById("openFullBtn");
+  const fileInfoBox = document.getElementById("fileInfoBox");
+  const pdfWrapper = document.getElementById("pdfWrapper");
+  const pdfMain = document.getElementById("pdfMain");
+
+  /* =========================
+     STATE
+  ========================= */
+  let currentFolder = "";
+  let currentFile = null;
+  let analysisController = null;
+  let currentFolderFiles = [];
+  let selectedAnalysisFiles = [];
+  let rootFoldersCache = null;
+  let isSearching = false;
+  let currentPreviewUrl = null;
+  const folderScrollHistory = {};
+  /* =========================
+     FOLDER LOADER
+  ========================= */
+  function loadFolder(path = "") {
+    // 1. Save Scroll of PREVIOUS folder before switching (Optional, for navigation history)
+    const scrollContainer = document.querySelector('.file-list-scroll');
+    if (scrollContainer) folderScrollHistory[currentFolder] = scrollContainer.scrollTop;
+
+    currentFolder = path;
+
+    // UI Updates...
+    document.getElementById("currentPath").textContent = "/" + (path || "");
+    const banner = document.getElementById("bigPreviewTitle");
+    if (banner) banner.textContent = path ? path : "Home / Root";
+    const topBanner = document.getElementById("topBannerPath");
+    if (topBanner) topBanner.textContent = path ? "/" + path : "/";
+
+    // Reset Preview Pane (Standard reset)
+    if (document.getElementById("scrollContainer")) document.getElementById("scrollContainer").classList.add("hidden");
+    if (document.getElementById("pdfToolbar")) document.getElementById("pdfToolbar").classList.add("hidden");
+    if (document.getElementById("bigImageFrame")) document.getElementById("bigImageFrame").classList.add("hidden");
+    if (document.getElementById("downloadPdfBtn")) document.getElementById("downloadPdfBtn").classList.add("hidden");
+    const noSelection = document.getElementById("noSelection");
+    if (noSelection) {
       noSelection.classList.remove("hidden");
       noSelection.textContent = "Select a file to preview";
-  }
+    }
 
-  const statsBox = document.getElementById("folderStatsBox");
-  
-  fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
-    .then(r => r.json())
-    .then(data => {
-      currentFolderFiles = data.files || [];
-      renderFileList(data.folders || [], data.files || []);
-      renderThumbs(data.files || []);
-      
-      if (data.folder_info) renderFolderStats(data.folder_info);
-      else if(statsBox) statsBox.classList.add("hidden");
-
-      // ✅ SCROLL RESTORE LOGIC
-      if (scrollContainer) {
-          setTimeout(() => {
-              // 1. Check if we just reloaded the page (use LocalStorage)
-              const savedReloadScroll = localStorage.getItem('vadrida_dash_scroll_files');
-              // 2. Check if we are navigating back in history (use Memory)
-              const memoryScroll = folderScrollHistory[path];
-
-              if (savedReloadScroll && path === localStorage.getItem('vadrida_dash_folder')) {
-                  // If we are on the reloaded folder, use local storage
-                  scrollContainer.scrollTop = parseInt(savedReloadScroll);
-                  // Clear it so navigation doesn't get stuck later
-                  localStorage.removeItem('vadrida_dash_scroll_files'); 
-              } 
-              else if (memoryScroll) {
-                  // Normal navigation
-                  scrollContainer.scrollTop = memoryScroll;
-              } else {
-                  scrollContainer.scrollTop = 0;
-              }
-          }, 0);
-      }
-    });
-}
-// New Helper Function to Render the Stats Box
-function renderFolderStats(info) {
     const statsBox = document.getElementById("folderStatsBox");
-    
+
+    fetch(`/coreapi/api/folder-contents/?path=${encodeURIComponent(path)}`)
+      .then(r => r.json())
+      .then(data => {
+        currentFolderFiles = data.files || [];
+        renderFileList(data.folders || [], data.files || []);
+        renderThumbs(data.files || []);
+
+        if (data.folder_info) renderFolderStats(data.folder_info);
+        else if (statsBox) statsBox.classList.add("hidden");
+
+        // ✅ SCROLL RESTORE LOGIC
+        if (scrollContainer) {
+          setTimeout(() => {
+            // 1. Check if we just reloaded the page (use LocalStorage)
+            const savedReloadScroll = localStorage.getItem('vadrida_dash_scroll_files');
+            // 2. Check if we are navigating back in history (use Memory)
+            const memoryScroll = folderScrollHistory[path];
+
+            if (savedReloadScroll && path === localStorage.getItem('vadrida_dash_folder')) {
+              // If we are on the reloaded folder, use local storage
+              scrollContainer.scrollTop = parseInt(savedReloadScroll);
+              // Clear it so navigation doesn't get stuck later
+              localStorage.removeItem('vadrida_dash_scroll_files');
+            }
+            else if (memoryScroll) {
+              // Normal navigation
+              scrollContainer.scrollTop = memoryScroll;
+            } else {
+              scrollContainer.scrollTop = 0;
+            }
+          }, 0);
+        }
+      });
+  }
+  // New Helper Function to Render the Stats Box
+  function renderFolderStats(info) {
+    const statsBox = document.getElementById("folderStatsBox");
+
     // Select dot class
     let dotClass = "status-grey";
     if (info.status_color === "green") dotClass = "status-green";
@@ -401,92 +414,92 @@ function renderFolderStats(info) {
             <div class="font-medium text-right">${info.final_report_date}</div>
         </div>
     `;
-    
+
     statsBox.classList.remove("hidden");
-}
+  }
 
-document.getElementById("goBackBtn").onclick = () => {
-  if (!currentFolder) return;
-  const parts = currentFolder.split("/");
-  parts.pop();
-  loadFolder(parts.join("/"));
-};
+  document.getElementById("goBackBtn").onclick = () => {
+    if (!currentFolder) return;
+    const parts = currentFolder.split("/");
+    parts.pop();
+    loadFolder(parts.join("/"));
+  };
 
-/* =========================
-   FILE LIST
-========================= */
-function renderFileList(folders, files) {
-  files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
-  fileList.innerHTML = "";
+  /* =========================
+     FILE LIST
+  ========================= */
+  function renderFileList(folders, files) {
+    files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
+    fileList.innerHTML = "";
 
-  // 1. RENDER FOLDERS
-  folders.forEach(folder => {
-    const li = document.createElement("li");
-    // 'items-start' makes the icon stick to the TOP if text is 2 lines
-    li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
-    li.dataset.folderPath = folder.path; 
+    // 1. RENDER FOLDERS
+    folders.forEach(folder => {
+      const li = document.createElement("li");
+      // 'items-start' makes the icon stick to the TOP if text is 2 lines
+      li.className = "p-2 hover:bg-blue-50 flex items-start justify-between group border-b border-gray-50";
+      li.dataset.folderPath = folder.path;
 
-    // --- Status Dot Logic ---
-    let statusDotHtml = "";
-    if (folder.status_color) {
+      // --- Status Dot Logic ---
+      let statusDotHtml = "";
+      if (folder.status_color) {
         let colorClass = "bg-gray-400";
         if (folder.status_color === "green") colorClass = "bg-green-500";
         else if (folder.status_color === "yellow") colorClass = "bg-yellow-400";
         else if (folder.status_color === "red") colorClass = "bg-red-500";
-        
+
         // Added flex-shrink-0 to prevent dot from squishing
         statusDotHtml = `<span class="block w-2 h-2 rounded-full ${colorClass} mt-1 flex-shrink-0"></span>`;
-    } else {
-        statusDotHtml = `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`; 
-    }
+      } else {
+        statusDotHtml = `<span class="block w-2 h-2 mt-1 flex-shrink-0"></span>`;
+      }
 
-    const leftDiv = document.createElement("div");
-    // 'min-w-0' is CRITICAL. It allows the text container to shrink and wrap.
-    leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0"; 
-    
-    leftDiv.innerHTML = `
+      const leftDiv = document.createElement("div");
+      // 'min-w-0' is CRITICAL. It allows the text container to shrink and wrap.
+      leftDiv.className = "flex items-start gap-3 cursor-pointer flex-1 min-w-0";
+
+      leftDiv.innerHTML = `
       <div class="flex flex-col items-center justify-start flex-shrink-0 w-8 pt-0.5">
           <span class="text-xl leading-none">📁</span> 
           ${statusDotHtml}
       </div>
       <span class="font-medium break-all whitespace-normal leading-snug text-sm pt-1 block">${folder.name}</span>
     `;
-    
-    leftDiv.onclick = () => loadFolder(folder.path);
-    li.appendChild(leftDiv);
 
-    // --- Chat Icon Logic ---
-    if (folder.has_chat) {
-       const chatBtnWrapper = document.createElement("div");
-       chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1"; 
-       
-       const chatBtn = document.createElement("button");
-       chatBtn.className = "w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center";
-       chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
-       chatBtn.onclick = (e) => {
-           e.stopPropagation();
-           openFolderChat(folder.path, folder.name);
-           const dot = chatBtnWrapper.querySelector('.unread-dot');
-           if(dot) dot.remove();
-       };
-       chatBtnWrapper.appendChild(chatBtn);
-       
-       if (folder.is_unread) {
-           const dot = document.createElement("span");
-           dot.className = "unread-dot absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white";
-           chatBtnWrapper.appendChild(dot);
-       }
-       li.appendChild(chatBtnWrapper);
-    }
+      leftDiv.onclick = () => loadFolder(folder.path);
+      li.appendChild(leftDiv);
 
-    fileList.appendChild(li);
-  });
+      // --- Chat Icon Logic ---
+      if (folder.has_chat) {
+        const chatBtnWrapper = document.createElement("div");
+        chatBtnWrapper.className = "relative ml-2 flex-shrink-0 mt-1";
 
-  // 2. RENDER FILES
-  files.forEach(file => {
+        const chatBtn = document.createElement("button");
+        chatBtn.className = "w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center";
+        chatBtn.innerHTML = '<i class="fas fa-comments"></i>';
+        chatBtn.onclick = (e) => {
+          e.stopPropagation();
+          openFolderChat(folder.path, folder.name);
+          const dot = chatBtnWrapper.querySelector('.unread-dot');
+          if (dot) dot.remove();
+        };
+        chatBtnWrapper.appendChild(chatBtn);
+
+        if (folder.is_unread) {
+          const dot = document.createElement("span");
+          dot.className = "unread-dot absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white";
+          chatBtnWrapper.appendChild(dot);
+        }
+        li.appendChild(chatBtnWrapper);
+      }
+
+      fileList.appendChild(li);
+    });
+
+    // 2. RENDER FILES
+    files.forEach(file => {
       const li = document.createElement("li");
       li.className = "p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-50";
-      
+
       // Fixed: Removed fixed height, allowed wrapping
       li.innerHTML = `
         <div class="flex justify-between items-start">
@@ -495,83 +508,83 @@ function renderFileList(folders, files) {
             <div class="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">${file.extension || "FILE"}</div>
           </div>
         </div>`;
-        
+
       li.onclick = () => {
-          document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
-          li.classList.add("bg-blue-100");
-          loadBigPreview(file);
-          setFileInfo(file);
+        document.querySelectorAll("#fileList li").forEach(el => el.classList.remove("bg-blue-100"));
+        li.classList.add("bg-blue-100");
+        loadBigPreview(file);
+        setFileInfo(file);
       };
       fileList.appendChild(li);
-  });
+    });
 
-  if (!folders.length && !files.length) {
-    fileList.innerHTML = `<li class="p-3 text-gray-400 text-center text-sm">Empty Folder</li>`;
+    if (!folders.length && !files.length) {
+      fileList.innerHTML = `<li class="p-3 text-gray-400 text-center text-sm">Empty Folder</li>`;
+    }
   }
-}
-/* =========================
-   FOLDER CHAT LOGIC (WebSocket Enabled)
-========================= */
-let currentChatFolder = null;
-let folderChatSocket = null; // Variable to hold the connection
+  /* =========================
+     FOLDER CHAT LOGIC (WebSocket Enabled)
+  ========================= */
+  let currentChatFolder = null;
+  let folderChatSocket = null; // Variable to hold the connection
 
-const folderChatModal = document.getElementById('folderChatModal');
-const folderChatMsgs = document.getElementById('folderChatMessages');
+  const folderChatModal = document.getElementById('folderChatModal');
+  const folderChatMsgs = document.getElementById('folderChatMessages');
 
-function openFolderChat(path, name) {
+  function openFolderChat(path, name) {
     currentChatFolder = path;
     document.getElementById('folderChatTitle').textContent = name;
     folderChatModal.classList.remove('hidden');
-    
+
     // 1. Load History (Keep this, it's good)
     loadFolderChatHistory();
 
     // 2. CONNECT TO WEBSOCKET
     // Close existing connection if switching folders
     if (folderChatSocket) {
-        folderChatSocket.close();
+      folderChatSocket.close();
     }
 
     // Determine protocol (ws or wss)
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-    
+
     // Connect to the route we defined in Step 1
     // We pass the path in the query string as your Consumer expects
     const wsUrl = `${protocol}://${location.host}/ws/chat/folder/?path=${encodeURIComponent(path)}`;
     folderChatSocket = new WebSocket(wsUrl);
 
-    folderChatSocket.onopen = function(e) {
-        console.log("✅ Folder Chat Connected");
+    folderChatSocket.onopen = function (e) {
+      console.log("✅ Folder Chat Connected");
     };
 
-    folderChatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        appendFolderMessage(data); // Helper function to add message to UI
+    folderChatSocket.onmessage = function (e) {
+      const data = JSON.parse(e.data);
+      appendFolderMessage(data); // Helper function to add message to UI
     };
 
-    folderChatSocket.onclose = function(e) {
-        console.log("❌ Folder Chat Disconnected");
+    folderChatSocket.onclose = function (e) {
+      console.log("❌ Folder Chat Disconnected");
     };
-}
+  }
 
-function closeFolderChat() {
+  function closeFolderChat() {
     folderChatModal.classList.add('hidden');
     currentChatFolder = null;
-    
+
     // Close socket to save resources
     if (folderChatSocket) {
-        folderChatSocket.close();
-        folderChatSocket = null;
+      folderChatSocket.close();
+      folderChatSocket = null;
     }
-}
+  }
 
-// Helper to Append Message (Used by both History and WebSocket)
-function appendFolderMessage(msg) {
+  // Helper to Append Message (Used by both History and WebSocket)
+  function appendFolderMessage(msg) {
     const isMe = msg.is_me; // Boolean from server
-    
+
     const div = document.createElement('div');
     div.className = `flex flex-col mb-3 ${isMe ? 'items-end' : 'items-start'}`;
-    
+
     const bubbleColor = isMe ? 'bg-[#dcf8c6]' : 'bg-white border';
     const corners = isMe ? 'rounded-tr-none' : 'rounded-tl-none';
 
@@ -584,153 +597,153 @@ function appendFolderMessage(msg) {
     `;
     folderChatMsgs.appendChild(div);
     folderChatMsgs.scrollTop = folderChatMsgs.scrollHeight;
-}
+  }
 
-// Load History Function (Slightly modified to use the helper)
-function loadFolderChatHistory() {
+  // Load History Function (Slightly modified to use the helper)
+  function loadFolderChatHistory() {
     folderChatMsgs.innerHTML = '<div class="text-center text-gray-400 mt-4">Loading...</div>';
     fetch(`/chat/api/folder-history/?path=${encodeURIComponent(currentChatFolder)}`)
-        .then(r => r.json())
-        .then(data => {
-            folderChatMsgs.innerHTML = ""; 
-            if(data.messages.length === 0) {
-                folderChatMsgs.innerHTML = '<div class="text-center text-gray-400 mt-10 text-sm">No notes yet. Start the conversation!</div>';
-                return;
-            }
-            data.messages.forEach(msg => appendFolderMessage(msg));
-        })
-        .catch(err => {
-            console.error(err);
-            folderChatMsgs.innerHTML = '<div class="text-center text-red-500 mt-4">Failed to load history</div>';
-        });
-}
+      .then(r => r.json())
+      .then(data => {
+        folderChatMsgs.innerHTML = "";
+        if (data.messages.length === 0) {
+          folderChatMsgs.innerHTML = '<div class="text-center text-gray-400 mt-10 text-sm">No notes yet. Start the conversation!</div>';
+          return;
+        }
+        data.messages.forEach(msg => appendFolderMessage(msg));
+      })
+      .catch(err => {
+        console.error(err);
+        folderChatMsgs.innerHTML = '<div class="text-center text-red-500 mt-4">Failed to load history</div>';
+      });
+  }
 
-/* =========================
-   SEND MESSAGE (VIA WEBSOCKET)
-========================= */
-document.getElementById('folderChatForm').onsubmit = (e) => {
+  /* =========================
+     SEND MESSAGE (VIA WEBSOCKET)
+  ========================= */
+  document.getElementById('folderChatForm').onsubmit = (e) => {
     e.preventDefault();
     const input = document.getElementById('folderChatInput');
     const msg = input.value.trim();
-    
+
     // Check if socket is ready
-    if(!msg || !folderChatSocket || folderChatSocket.readyState !== WebSocket.OPEN) {
-        console.error("Socket not ready or message empty");
-        return;
+    if (!msg || !folderChatSocket || folderChatSocket.readyState !== WebSocket.OPEN) {
+      console.error("Socket not ready or message empty");
+      return;
     }
 
     // Send to Consumer
     folderChatSocket.send(JSON.stringify({
-        'message': msg
+      'message': msg
     }));
-    
+
     input.value = ""; // Clear input
-};
-/* =========================
-   THUMBNAILS
-========================= */
+  };
+  /* =========================
+     THUMBNAILS
+  ========================= */
 
-// 1. Helper to load PDF.js library if not present
-function loadPdfJsIfNeeded() {
-  if (window.pdfjsLib) return Promise.resolve();
-  
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    // Using a reliable CDN version
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-    
-    script.onload = () => {
-      // Set the worker source immediately after loading
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      resolve();
-    };
-    
-    script.onerror = () => reject(new Error("Could not load PDF.js"));
-    document.head.appendChild(script);
-  });
-}
+  // 1. Helper to load PDF.js library if not present
+  function loadPdfJsIfNeeded() {
+    if (window.pdfjsLib) return Promise.resolve();
 
-// 2. Render PDF Thumbnail (Now accepts a direct URL)
-async function renderPdfThumbnail(pdfUrl, container) {
-  try {
-    await loadPdfJsIfNeeded();
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      // Using a reliable CDN version
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 
-    // Fetch the PDF using the calculated URL
-    const loadingTask = pdfjsLib.getDocument(pdfUrl);
-    const pdf = await loadingTask.promise;
-    
-    // Get the first page
-    const page = await pdf.getPage(1);
+      script.onload = () => {
+        // Set the worker source immediately after loading
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        resolve();
+      };
 
-    // Calculate scale to fit the thumbnail container (approx 100x100)
-    // We render slightly larger (scale 0.5) for sharpness, then resize via CSS
-    const viewport = page.getViewport({ scale: 0.5 });
-    
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    
-    // Force CSS styles to ensure it stays inside the thumbnail box
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.objectFit = "contain";
+      script.onerror = () => reject(new Error("Could not load PDF.js"));
+      document.head.appendChild(script);
+    });
+  }
 
-    await page.render({
-      canvasContext: context,
-      viewport: viewport
-    }).promise;
+  // 2. Render PDF Thumbnail (Now accepts a direct URL)
+  async function renderPdfThumbnail(pdfUrl, container) {
+    try {
+      await loadPdfJsIfNeeded();
 
-    container.appendChild(canvas);
-    
-  } catch (error) {
-    console.error("PDF Thumb Error:", error);
-    // Fallback Icon
-    container.innerHTML = `
+      // Fetch the PDF using the calculated URL
+      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const pdf = await loadingTask.promise;
+
+      // Get the first page
+      const page = await pdf.getPage(1);
+
+      // Calculate scale to fit the thumbnail container (approx 100x100)
+      // We render slightly larger (scale 0.5) for sharpness, then resize via CSS
+      const viewport = page.getViewport({ scale: 0.5 });
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      // Force CSS styles to ensure it stays inside the thumbnail box
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.objectFit = "contain";
+
+      await page.render({
+        canvasContext: context,
+        viewport: viewport
+      }).promise;
+
+      container.appendChild(canvas);
+
+    } catch (error) {
+      console.error("PDF Thumb Error:", error);
+      // Fallback Icon
+      container.innerHTML = `
       <div class="file-icon" style="color: #dc2626; text-align: center;">
         <i class="fas fa-file-pdf" style="font-size: 24px;"></i><br>
         <span style="font-size: 10px;">PDF</span>
       </div>`;
-  }
-}
-
-// 3. Main Thumbnail Function
-/* =========================
-   FAST SERVER-SIDE THUMBNAILS
-   (No PDF.js needed for list view!)
-========================= */
-function renderThumbs(files) {
-  files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
-  thumbsContainer.innerHTML = "";
-
-  if (!files.length) {
-    thumbsContainer.innerHTML = `<div class="no-thumbs">No files to preview</div>`;
-    return;
+    }
   }
 
-  // Clear any previous processing queue
-  // (This fixes the "Files appearing in wrong folder" issue)
-  // Since we use standard <img> tags now, the browser handles cancellation automatically.
+  // 3. Main Thumbnail Function
+  /* =========================
+     FAST SERVER-SIDE THUMBNAILS
+     (No PDF.js needed for list view!)
+  ========================= */
+  function renderThumbs(files) {
+    files = files.filter(f => f.name.toLowerCase() !== 'desktop.ini' && f.name !== '.DS_Store');
+    thumbsContainer.innerHTML = "";
 
-  files.forEach(file => {
-    const card = document.createElement("div");
-    card.className = "thumb-item";
-    
-    const ext = file.name.split(".").pop().toLowerCase();
-    
-    // Logic: If it's an Image OR a PDF, ask server for a thumbnail
-    if (['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(ext)) {
+    if (!files.length) {
+      thumbsContainer.innerHTML = `<div class="no-thumbs">No files to preview</div>`;
+      return;
+    }
+
+    // Clear any previous processing queue
+    // (This fixes the "Files appearing in wrong folder" issue)
+    // Since we use standard <img> tags now, the browser handles cancellation automatically.
+
+    files.forEach(file => {
+      const card = document.createElement("div");
+      card.className = "thumb-item";
+
+      const ext = file.name.split(".").pop().toLowerCase();
+
+      // Logic: If it's an Image OR a PDF, ask server for a thumbnail
+      if (['jpg', 'jpeg', 'png', 'gif', 'pdf'].includes(ext)) {
         const img = document.createElement("img");
-        
+
         // --- THE MAGIC LINE ---
         // We point the image source to our new Python view
         // We add a timestamp to prevent the browser from caching the WRONG image
         img.src = `/coreapi/api/thumbnail/?path=${encodeURIComponent(file.path)}&t=${new Date().getTime()}`;
-        
+
         img.loading = "lazy"; // Only load when scrolled into view
-        
+
         // Setup visuals
         img.style.objectFit = "contain";
         img.style.width = "100%";
@@ -738,487 +751,487 @@ function renderThumbs(files) {
 
         // Error handling (If server fails, show icon)
         img.onerror = () => {
-            card.innerHTML = `<div class="file-icon"><i class="fas fa-file-pdf"></i><br>${ext.toUpperCase()}</div>`;
+          card.innerHTML = `<div class="file-icon"><i class="fas fa-file-pdf"></i><br>${ext.toUpperCase()}</div>`;
         };
 
         card.appendChild(img);
-    } else {
+      } else {
         // Generic Icon for Word/Excel/etc
         card.innerHTML = `<div class="file-icon"><i class="fas fa-file-alt"></i><br>${ext.toUpperCase()}</div>`;
+      }
+
+      // Click Event (Keep this same as before)
+      card.onclick = () => {
+        document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
+        loadBigPreview(file);
+        setFileInfo(file);
+      };
+
+      thumbsContainer.appendChild(card);
+    });
+  }
+  /* =========================
+     PREVIEW
+  ========================= */
+  /* =========================
+     PREVIEW LOGIC
+  ========================= */
+  function loadBigPreview(file) {
+    currentFile = file;
+
+    let displayPath = file.path;
+    if (!displayPath || (displayPath.indexOf("/") === -1 && currentFolder)) {
+      const cleanFolder = currentFolder.replace(/\/$/, "");
+      displayPath = `${cleanFolder}/${file.name}`;
+    }
+    if (!currentFolder && displayPath.indexOf("/") === -1) {
+      displayPath = `/${file.name}`;
     }
 
-    // Click Event (Keep this same as before)
-    card.onclick = () => {
-      document.querySelectorAll(".file-item").forEach(el => el.classList.remove("selected"));
-      loadBigPreview(file);
-      setFileInfo(file);
-    };
+    const banner = document.getElementById("bigPreviewTitle");
+    banner.textContent = displayPath;
+    banner.className = "font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4";
 
-    thumbsContainer.appendChild(card);
-  });
-}
-/* =========================
-   PREVIEW
-========================= */
-/* =========================
-   PREVIEW LOGIC
-========================= */
-function loadBigPreview(file) {
-  currentFile = file;
+    // Reset UI
+    if (typeof pdfMain !== 'undefined' && pdfMain) pdfMain.innerHTML = "";
+    document.getElementById("scrollContainer").classList.add("hidden");
+    document.getElementById("pdfToolbar").classList.add("hidden");
+    document.getElementById("bigImageFrame").classList.add("hidden");
+    document.getElementById("noSelection").classList.add("hidden");
+    document.getElementById("downloadPdfBtn").classList.remove("hidden");
 
-  let displayPath = file.path;
-  if (!displayPath || (displayPath.indexOf("/") === -1 && currentFolder)) {
-      const cleanFolder = currentFolder.replace(/\/$/, ""); 
-      displayPath = `${cleanFolder}/${file.name}`;
-  } 
-  if (!currentFolder && displayPath.indexOf("/") === -1) {
-      displayPath = `/${file.name}`;
-  }
-
-  const banner = document.getElementById("bigPreviewTitle");
-  banner.textContent = displayPath;
-  banner.className = "font-mono text-xs text-gray-800 font-semibold break-all whitespace-normal leading-tight pr-4";
-
-  // Reset UI
-  if(typeof pdfMain !== 'undefined' && pdfMain) pdfMain.innerHTML = "";
-  document.getElementById("scrollContainer").classList.add("hidden");
-  document.getElementById("pdfToolbar").classList.add("hidden");
-  document.getElementById("bigImageFrame").classList.add("hidden");
-  document.getElementById("noSelection").classList.add("hidden");
-  document.getElementById("downloadPdfBtn").classList.remove("hidden");
-
-  // Reset State
-  if(typeof viewerState !== 'undefined') {
-      viewerState.path = file.path; 
+    // Reset State
+    if (typeof viewerState !== 'undefined') {
+      viewerState.path = file.path;
       viewerState.nextPageToLoad = 0;
       viewerState.isLoading = false;
       viewerState.isFinished = false;
+    }
+    pdfZoomState.scale = 1.0; // Reset Zoom!
+
+    // Clear previous pages
+    const scrollContainer = document.getElementById("scrollContainer");
+    const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
+    existingImages.forEach(img => img.remove());
+
+    const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+    const ext = file.name.split(".").pop().toLowerCase();
+
+    // IMAGE
+    if (["jpg", "jpeg", "png", "gif", "bmp"].includes(ext)) {
+      const bigImg = document.getElementById("bigImageFrame");
+      bigImg.src = url;
+      bigImg.classList.remove("hidden");
+      resetImageZoom();
+      return;
+    }
+
+    // PDF
+    if (ext === "pdf") {
+      document.getElementById("scrollContainer").classList.remove("hidden");
+      document.getElementById("pdfToolbar").classList.remove("hidden");
+      const sentinel = document.getElementById("scrollSentinel");
+      sentinel.classList.remove("hidden");
+
+      // Reset alignment
+      scrollContainer.classList.remove('items-start');
+      scrollContainer.classList.add('items-center');
+      updateZoomDisplayUI(); // Show 100%
+
+      loadNextPage();
+      if (typeof observer !== 'undefined') observer.observe(sentinel);
+      return;
+    }
+
+    // OTHER
+    const noSel = document.getElementById("noSelection");
+    noSel.textContent = "Preview not available for this file type";
+    noSel.classList.remove("hidden");
+    document.getElementById("downloadPdfBtn").classList.add("hidden");
   }
-  pdfZoomState.scale = 1.0; // Reset Zoom!
 
-  // Clear previous pages
-  const scrollContainer = document.getElementById("scrollContainer");
-  const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
-  existingImages.forEach(img => img.remove());
-
-  const url = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-  const ext = file.name.split(".").pop().toLowerCase();
-
-  // IMAGE
-  if (["jpg","jpeg","png","gif","bmp"].includes(ext)) {
-    const bigImg = document.getElementById("bigImageFrame");
-    bigImg.src = url;
-    bigImg.classList.remove("hidden");
-    resetImageZoom();
-    return;
-  }
-
-  // PDF
-  if (ext === "pdf") {
-    document.getElementById("scrollContainer").classList.remove("hidden");
-    document.getElementById("pdfToolbar").classList.remove("hidden");
-    const sentinel = document.getElementById("scrollSentinel");
-    sentinel.classList.remove("hidden");
-    
-    // Reset alignment
-    scrollContainer.classList.remove('items-start');
-    scrollContainer.classList.add('items-center');
-    updateZoomDisplayUI(); // Show 100%
-
-    loadNextPage();
-    if(typeof observer !== 'undefined') observer.observe(sentinel);
-    return;
-  }
-
-  // OTHER
-  const noSel = document.getElementById("noSelection");
-  noSel.textContent = "Preview not available for this file type";
-  noSel.classList.remove("hidden");
-  document.getElementById("downloadPdfBtn").classList.add("hidden");
-}
-
-function loadNextPage() {
+  function loadNextPage() {
     if (viewerState.isLoading || viewerState.isFinished) return;
     viewerState.isLoading = true;
 
     const pageIndex = viewerState.nextPageToLoad;
     const img = document.createElement("img");
-    
+
     // 🚨 THE FIX: Removed 'transition-all duration-100' so layout updates instantly!
     img.className = "pdf-page-img shadow-md mb-2 h-auto bg-white";
-    img.style.maxWidth = "none"; 
+    img.style.maxWidth = "none";
     img.style.width = `${pdfZoomState.scale * 100}%`;
     img.alt = `Page ${pageIndex + 1}`;
-    
+
     const url = `/coreapi/render-page/?path=${encodeURIComponent(viewerState.path)}&page=${pageIndex}&zoom=1.5`;
 
     img.onload = () => {
-        viewerState.isLoading = false;
-        viewerState.nextPageToLoad++;
-        pageCountDisplay.textContent = `Pages loaded: ${viewerState.nextPageToLoad}`;
-        
-        if (isSentinelVisible()) {
-            loadNextPage();
-        }
+      viewerState.isLoading = false;
+      viewerState.nextPageToLoad++;
+      pageCountDisplay.textContent = `Pages loaded: ${viewerState.nextPageToLoad}`;
+
+      if (isSentinelVisible()) {
+        loadNextPage();
+      }
     };
 
     img.onerror = () => {
-        viewerState.isFinished = true;
-        viewerState.isLoading = false;
-        img.remove(); 
-        scrollSentinel.classList.add("hidden"); 
-        observer.unobserve(scrollSentinel); 
+      viewerState.isFinished = true;
+      viewerState.isLoading = false;
+      img.remove();
+      scrollSentinel.classList.add("hidden");
+      observer.unobserve(scrollSentinel);
     };
 
     img.src = url;
     scrollContainer.insertBefore(img, scrollSentinel);
-}
-/* =========================
-   FILE INFO
-========================= */
-function setFileInfo(file) {
-  fileInfoBox.innerHTML = `
+  }
+  /* =========================
+     FILE INFO
+  ========================= */
+  function setFileInfo(file) {
+    fileInfoBox.innerHTML = `
     <div class="mb-1"><strong>Name:</strong> <span class="text-xs break-all">${file.name}</span></div>
     <div class="mb-1"><strong>Type:</strong> ${file.extension || "Unknown"}</div>
     <div><strong>Size:</strong> ${file.size || "N/A"}</div>
   `;
-}
-
-/* =========================
-   ANALYSE
-========================= */
-function startAnalysis(files) {
-  if (analysisController) {
-    analysisController.abort();
   }
 
-  analysisController = new AbortController();
-  document.getElementById("analyseLoading").classList.remove("hidden");
+  /* =========================
+     ANALYSE
+  ========================= */
+  function startAnalysis(files) {
+    if (analysisController) {
+      analysisController.abort();
+    }
 
-  fetch("/coreapi/api/analyze/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrftoken
-    },
-    body: JSON.stringify({ files, folder: currentFolder }),
-    signal: analysisController.signal
-  })
-  .then(r => r.json())
-  .then(() => loadFolder(currentFolder))
-  .finally(() => {
-    document.getElementById("analyseLoading").classList.add("hidden");
-    analysisController = null;
-  });
-}
+    analysisController = new AbortController();
+    document.getElementById("analyseLoading").classList.remove("hidden");
 
-const analyseBtn = document.getElementById("analyseBtn");
-const analyseModal = document.getElementById("analyseModal");
-
-analyseBtn.onclick = () => {
-  if (!currentFolder) {
-    alert("Select a folder first");
-    return;
-  }
-  analyseModal.classList.remove("hidden");
-};
-
-document.getElementById("analyseSelectAll").onclick = () => {
-  if (!currentFolderFiles.length) {
-    alert("No files in this folder");
-    return;
+    fetch("/coreapi/api/analyze/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken
+      },
+      body: JSON.stringify({ files, folder: currentFolder }),
+      signal: analysisController.signal
+    })
+      .then(r => r.json())
+      .then(() => loadFolder(currentFolder))
+      .finally(() => {
+        document.getElementById("analyseLoading").classList.add("hidden");
+        analysisController = null;
+      });
   }
 
-  const files = currentFolderFiles.map(f => ({ file_path: f.path }));
-  analyseModal.classList.add("hidden");
-  startAnalysis(files);
-};
+  const analyseBtn = document.getElementById("analyseBtn");
+  const analyseModal = document.getElementById("analyseModal");
 
-const fileSelectModal = document.getElementById("fileSelectModal");
-const fileSelectList = document.getElementById("fileSelectList");
+  analyseBtn.onclick = () => {
+    if (!currentFolder) {
+      alert("Select a folder first");
+      return;
+    }
+    analyseModal.classList.remove("hidden");
+  };
 
-document.getElementById("analyseSelectFiles").onclick = () => {
-  if (!currentFolderFiles.length) {
-    alert("No files in this folder");
-    return;
-  }
+  document.getElementById("analyseSelectAll").onclick = () => {
+    if (!currentFolderFiles.length) {
+      alert("No files in this folder");
+      return;
+    }
 
-  fileSelectList.innerHTML = "";
-  selectedAnalysisFiles = [];
+    const files = currentFolderFiles.map(f => ({ file_path: f.path }));
+    analyseModal.classList.add("hidden");
+    startAnalysis(files);
+  };
 
-  currentFolderFiles.forEach(file => {
-    const row = document.createElement("label");
-    row.className = "flex items-center gap-2 mb-2 cursor-pointer";
-    row.innerHTML = `
+  const fileSelectModal = document.getElementById("fileSelectModal");
+  const fileSelectList = document.getElementById("fileSelectList");
+
+  document.getElementById("analyseSelectFiles").onclick = () => {
+    if (!currentFolderFiles.length) {
+      alert("No files in this folder");
+      return;
+    }
+
+    fileSelectList.innerHTML = "";
+    selectedAnalysisFiles = [];
+
+    currentFolderFiles.forEach(file => {
+      const row = document.createElement("label");
+      row.className = "flex items-center gap-2 mb-2 cursor-pointer";
+      row.innerHTML = `
       <input type="checkbox" value="${file.path}" />
       <span class="truncate">${file.name}</span>
     `;
 
-    const checkbox = row.querySelector("input");
-    checkbox.onchange = () => {
-      if (checkbox.checked) {
-        selectedAnalysisFiles.push({ file_path: checkbox.value });
-      } else {
-        selectedAnalysisFiles = selectedAnalysisFiles.filter(f => f.file_path !== checkbox.value);
-      }
-    };
+      const checkbox = row.querySelector("input");
+      checkbox.onchange = () => {
+        if (checkbox.checked) {
+          selectedAnalysisFiles.push({ file_path: checkbox.value });
+        } else {
+          selectedAnalysisFiles = selectedAnalysisFiles.filter(f => f.file_path !== checkbox.value);
+        }
+      };
 
-    fileSelectList.appendChild(row);
-  });
-
-  analyseModal.classList.add("hidden");
-  fileSelectModal.classList.remove("hidden");
-};
-
-document.getElementById("confirmFileSelection").onclick = () => {
-  if (!selectedAnalysisFiles.length) {
-    alert("Select at least one file");
-    return;
-  }
-
-  fileSelectModal.classList.add("hidden");
-  startAnalysis(selectedAnalysisFiles);
-};
-
-document.getElementById("analyseClose").onclick = () => {
-  analyseModal.classList.add("hidden");
-};
-
-document.getElementById("fileSelectClose").onclick = () => {
-  fileSelectModal.classList.add("hidden");
-};
-
-/* =========================
-   SEARCH DEBOUNCE (Prevents Spamming Server)
-========================= */
-const searchInput = document.getElementById("fileSearch");
-let searchTimer = null;
-
-searchInput.addEventListener("input", e => {
-  const q = e.target.value.trim();
-  
-  // Clear any existing timer
-  clearTimeout(searchTimer);
-
-  // Wait 500ms before sending the request
-  searchTimer = setTimeout(() => {
-    if (!q) { 
-        loadFolder(currentFolder); 
-        return; 
-    }
-    
-    // Only search if the user stopped typing for 500ms
-    globalSearch(q);
-  }, 500); // Increased from 300ms to 500ms
-});
-
-/* =========================
-   PDF.JS LOADER
-========================= */
-function loadPdfJsIfNeeded() {
-  if (window.pdfjsLib) return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-
-    script.onload = () => {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      resolve();
-    };
-
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
-/* =========================
-   GLOBAL SEARCH
-========================= */
-function globalSearch(query) {
-  isSearching = true;
-  fileList.innerHTML = `<li class="p-2 text-gray-400">Searching...</li>`;
-  thumbsContainer.innerHTML = "";
-
-  fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`)
-    .then(r => r.json())
-    .then(data => {
-      renderFileList(data.folders || [], data.files || []);
-      renderThumbs(data.files || []);
-    })
-    .catch(() => {
-      fileList.innerHTML = `<li class="p-2 text-red-500">Search failed</li>`;
+      fileSelectList.appendChild(row);
     });
-}
 
-/* =========================
-   REFRESH
-========================= */
-document.getElementById("refreshFolders").onclick = () => {
-  const btn = document.getElementById("refreshFolders");
-  btn.style.transition = "transform 0.5s";
-  btn.style.transform = "rotate(360deg)";
-  const searchInput = document.getElementById("fileSearch");
-  if(searchInput.value) {
-      searchInput.value = "";
-  }
-  loadFolder(currentFolder);
-  setTimeout(() => {
-      btn.style.transform = "none";
-  }, 500);
-};
-
-document.getElementById("modalClose").onclick = () => {
-  // Close logic supporting both class and aria attribute
-  fullscreenModal.classList.remove("active");
-  fullscreenModal.setAttribute("aria-hidden", "true");
-  
-  modalFrame.src = "";
-  modalImage.src = "";
-  document.getElementById("modalPdfContainer").innerHTML = "";
-};
-
-
-
-function updateShareLinks(url) {
-  const encoded = encodeURIComponent(window.location.origin + url);
-
-  document.getElementById("shareWhatsapp").href = `https://wa.me/?text=${encoded}`;
-  document.getElementById("shareTelegram").href = `https://t.me/share/url?url=${encoded}`;
-  document.getElementById("shareEmail").href = `mailto:?subject=Document&body=${encoded}`;
-
-  document.getElementById("shareCopy").onclick = (e) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(window.location.origin + url);
-    alert("Link copied to clipboard");
+    analyseModal.classList.add("hidden");
+    fileSelectModal.classList.remove("hidden");
   };
-}
 
+  document.getElementById("confirmFileSelection").onclick = () => {
+    if (!selectedAnalysisFiles.length) {
+      alert("Select at least one file");
+      return;
+    }
 
-/* =========================
-   INIT (Restoration Logic)
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Dashboard JS loaded");
+    fileSelectModal.classList.add("hidden");
+    startAnalysis(selectedAnalysisFiles);
+  };
 
-  // 1. Restore Folder
-  const lastFolder = localStorage.getItem('vadrida_dash_folder') || "";
-  loadFolder(lastFolder);
+  document.getElementById("analyseClose").onclick = () => {
+    analyseModal.classList.add("hidden");
+  };
 
-  // 2. Restore Active File (PDF/Image Viewer)
-  const lastFileJson = localStorage.getItem('vadrida_dash_file');
-  if (lastFileJson) {
-      try {
-          const lastFile = JSON.parse(lastFileJson);
-          if (lastFile && lastFile.path) {
-              console.log("Restoring active file:", lastFile.name);
-              
-              // Load the preview
-              loadBigPreview(lastFile);
-              setFileInfo(lastFile);
+  document.getElementById("fileSelectClose").onclick = () => {
+    fileSelectModal.classList.add("hidden");
+  };
 
-              // 3. Restore PDF/Viewer Scroll
-              // We need a slight delay to allow the PDF/Image to initialize
-              const savedPdfScroll = localStorage.getItem('vadrida_dash_scroll_pdf');
-              if (savedPdfScroll) {
-                  const scrollContainer = document.getElementById("scrollContainer");
-                  
-                  // Wait for DOM layout
-                  setTimeout(() => {
-                      if (scrollContainer && !scrollContainer.classList.contains('hidden')) {
-                          scrollContainer.scrollTop = parseInt(savedPdfScroll);
-                      }
-                  }, 500); // 500ms allows time for the first PDF page to render size
-              }
-          }
-      } catch (e) {
-          console.error("Error restoring file", e);
+  /* =========================
+     SEARCH DEBOUNCE (Prevents Spamming Server)
+  ========================= */
+  const searchInput = document.getElementById("fileSearch");
+  let searchTimer = null;
+
+  searchInput.addEventListener("input", e => {
+    const q = e.target.value.trim();
+
+    // Clear any existing timer
+    clearTimeout(searchTimer);
+
+    // Wait 500ms before sending the request
+    searchTimer = setTimeout(() => {
+      if (!q) {
+        loadFolder(currentFolder);
+        return;
       }
+
+      // Only search if the user stopped typing for 500ms
+      globalSearch(q);
+    }, 500); // Increased from 300ms to 500ms
+  });
+
+  /* =========================
+     PDF.JS LOADER
+  ========================= */
+  function loadPdfJsIfNeeded() {
+    if (window.pdfjsLib) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+
+      script.onload = () => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        resolve();
+      };
+
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   }
-});
+
+  /* =========================
+     GLOBAL SEARCH
+  ========================= */
+  function globalSearch(query) {
+    isSearching = true;
+    fileList.innerHTML = `<li class="p-2 text-gray-400">Searching...</li>`;
+    thumbsContainer.innerHTML = "";
+
+    fetch(`/coreapi/api/search/?q=${encodeURIComponent(query)}`)
+      .then(r => r.json())
+      .then(data => {
+        renderFileList(data.folders || [], data.files || []);
+        renderThumbs(data.files || []);
+      })
+      .catch(() => {
+        fileList.innerHTML = `<li class="p-2 text-red-500">Search failed</li>`;
+      });
+  }
+
+  /* =========================
+     REFRESH
+  ========================= */
+  document.getElementById("refreshFolders").onclick = () => {
+    const btn = document.getElementById("refreshFolders");
+    btn.style.transition = "transform 0.5s";
+    btn.style.transform = "rotate(360deg)";
+    const searchInput = document.getElementById("fileSearch");
+    if (searchInput.value) {
+      searchInput.value = "";
+    }
+    loadFolder(currentFolder);
+    setTimeout(() => {
+      btn.style.transform = "none";
+    }, 500);
+  };
+
+  document.getElementById("modalClose").onclick = () => {
+    // Close logic supporting both class and aria attribute
+    fullscreenModal.classList.remove("active");
+    fullscreenModal.setAttribute("aria-hidden", "true");
+
+    modalFrame.src = "";
+    modalImage.src = "";
+    document.getElementById("modalPdfContainer").innerHTML = "";
+  };
+
+
+
+  function updateShareLinks(url) {
+    const encoded = encodeURIComponent(window.location.origin + url);
+
+    document.getElementById("shareWhatsapp").href = `https://wa.me/?text=${encoded}`;
+    document.getElementById("shareTelegram").href = `https://t.me/share/url?url=${encoded}`;
+    document.getElementById("shareEmail").href = `mailto:?subject=Document&body=${encoded}`;
+
+    document.getElementById("shareCopy").onclick = (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(window.location.origin + url);
+      alert("Link copied to clipboard");
+    };
+  }
+
+
+  /* =========================
+     INIT (Restoration Logic)
+  ========================= */
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("Dashboard JS loaded");
+
+    // 1. Restore Folder
+    const lastFolder = localStorage.getItem('vadrida_dash_folder') || "";
+    loadFolder(lastFolder);
+
+    // 2. Restore Active File (PDF/Image Viewer)
+    const lastFileJson = localStorage.getItem('vadrida_dash_file');
+    if (lastFileJson) {
+      try {
+        const lastFile = JSON.parse(lastFileJson);
+        if (lastFile && lastFile.path) {
+          console.log("Restoring active file:", lastFile.name);
+
+          // Load the preview
+          loadBigPreview(lastFile);
+          setFileInfo(lastFile);
+
+          // 3. Restore PDF/Viewer Scroll
+          // We need a slight delay to allow the PDF/Image to initialize
+          const savedPdfScroll = localStorage.getItem('vadrida_dash_scroll_pdf');
+          if (savedPdfScroll) {
+            const scrollContainer = document.getElementById("scrollContainer");
+
+            // Wait for DOM layout
+            setTimeout(() => {
+              if (scrollContainer && !scrollContainer.classList.contains('hidden')) {
+                scrollContainer.scrollTop = parseInt(savedPdfScroll);
+              }
+            }, 500); // 500ms allows time for the first PDF page to render size
+          }
+        }
+      } catch (e) {
+        console.error("Error restoring file", e);
+      }
+    }
+  });
 
 </script>
 
 <script>
-/* =========================
-   CHAT STATE
-========================= */
-const CURRENT_USERNAME = "{{ request.user_profile.user_name|default:request.session.user_name }}";
-const chatBox = document.getElementById("chatBox");
-const chatForm = document.getElementById("chatForm");
-const chatInput = document.getElementById("chatInput");
-const pinnedBox = document.getElementById("pinnedMessages");
-const fileInput = document.getElementById("fileInput");
+  /* =========================
+     CHAT STATE
+  ========================= */
+  const CURRENT_USERNAME = "{{ request.user_profile.user_name|default:request.session.user_name }}";
+  const chatBox = document.getElementById("chatBox");
+  const chatForm = document.getElementById("chatForm");
+  const chatInput = document.getElementById("chatInput");
+  const pinnedBox = document.getElementById("pinnedMessages");
+  const fileInput = document.getElementById("fileInput");
 
-let pendingAttachment = null;
+  let pendingAttachment = null;
 
-/* =========================
-   WEBSOCKET
-========================= */
+  /* =========================
+     WEBSOCKET
+  ========================= */
 
-const protocol = location.protocol === "https:" ? "wss" : "ws";
-const ws = new WebSocket(`${protocol}://${location.host}/ws/chat/global/`);
+  const protocol = location.protocol === "https:" ? "wss" : "ws";
+  const ws = new WebSocket(`${protocol}://${location.host}/ws/chat/global/`);
 
-ws.onopen = () => console.log("✅ WS connected");
-ws.onerror = e => console.error("❌ WS error", e);
+  ws.onopen = () => console.log("✅ WS connected");
+  ws.onerror = e => console.error("❌ WS error", e);
 
-ws.onmessage = e => {
-  const msg = JSON.parse(e.data);
-  renderMessage(msg);
-};
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    renderMessage(msg);
+  };
 
-/* =========================
-   LOAD HISTORY (With Scroll Memory)
-========================= */
-fetch("/chat/history/")
-  .then(r => r.json())
-  .then(data => {
-    if (Array.isArray(data.pins)) {
-      data.pins.forEach(renderPinned);
-    }
-    if (Array.isArray(data.messages)) {
-      data.messages.forEach(renderMessage);
-    }
-    
-    // ✅ CHAT SCROLL RESTORE
-    setTimeout(() => {
+  /* =========================
+     LOAD HISTORY (With Scroll Memory)
+  ========================= */
+  fetch("/chat/history/")
+    .then(r => r.json())
+    .then(data => {
+      if (Array.isArray(data.pins)) {
+        data.pins.forEach(renderPinned);
+      }
+      if (Array.isArray(data.messages)) {
+        data.messages.forEach(renderMessage);
+      }
+
+      // ✅ CHAT SCROLL RESTORE
+      setTimeout(() => {
         const savedChatScroll = localStorage.getItem('vadrida_dash_scroll_chat');
         if (savedChatScroll) {
-            chatBox.scrollTop = parseInt(savedChatScroll);
+          chatBox.scrollTop = parseInt(savedChatScroll);
         } else {
-            // Default behavior: Scroll to bottom
-            chatBox.scrollTop = chatBox.scrollHeight;
+          // Default behavior: Scroll to bottom
+          chatBox.scrollTop = chatBox.scrollHeight;
         }
-    }, 50);
-  });
+      }, 50);
+    });
 
-/* =========================
-   SEND MESSAGE
-========================= */
+  /* =========================
+     SEND MESSAGE
+  ========================= */
 
-chatForm.onsubmit = e => {
-  e.preventDefault();
+  chatForm.onsubmit = e => {
+    e.preventDefault();
 
-  if (!chatInput.value.trim() && !pendingAttachment) return;
+    if (!chatInput.value.trim() && !pendingAttachment) return;
 
-  ws.send(JSON.stringify({
-    user: CURRENT_USERNAME,
-    content: chatInput.value,
-    attached_type: pendingAttachment ? pendingAttachment.type : "text",
-    attached_path: pendingAttachment ? pendingAttachment.path : null,
-    attached_label: pendingAttachment ? pendingAttachment.label : null,
-  }));
+    ws.send(JSON.stringify({
+      user: CURRENT_USERNAME,
+      content: chatInput.value,
+      attached_type: pendingAttachment ? pendingAttachment.type : "text",
+      attached_path: pendingAttachment ? pendingAttachment.path : null,
+      attached_label: pendingAttachment ? pendingAttachment.label : null,
+    }));
 
-  chatInput.value = "";
-  pendingAttachment = null;
-};
+    chatInput.value = "";
+    pendingAttachment = null;
+  };
 
-/* =========================
-   RENDER MESSAGE
-========================= */
+  /* =========================
+     RENDER MESSAGE
+  ========================= */
 
-function renderMessage(msg) {
+  function renderMessage(msg) {
     // DEBUG: Check why names aren't matching
     // Remove this console.log after it works
     console.log(`Checking: '${msg.user}' vs '${CURRENT_USERNAME}'`);
@@ -1227,27 +1240,27 @@ function renderMessage(msg) {
     const sender = String(msg.user).trim().toLowerCase();
     const me = String(CURRENT_USERNAME).trim().toLowerCase();
     const isMe = (sender === me);
-    
+
     // 2. CONTAINER DIV (Flex Alignment)
     const div = document.createElement("div");
     // 'w-full' ensures it spans across. 'flex' allows alignment.
-    div.className = "w-full mb-2 flex"; 
+    div.className = "w-full mb-2 flex";
     div.style.justifyContent = isMe ? "flex-end" : "flex-start";
 
     // 3. COLORS & STYLING
     // Green (#dcf8c6) for Me, White (#fff) for Others
-    const bgStyle = isMe 
-        ? "background-color: #dcf8c6; border-top-right-radius: 0;" 
-        : "background-color: #ffffff; border-top-left-radius: 0;";
+    const bgStyle = isMe
+      ? "background-color: #dcf8c6; border-top-right-radius: 0;"
+      : "background-color: #ffffff; border-top-left-radius: 0;";
 
     // 4. ATTACHMENT
     let attachHtml = "";
     if (msg.attached_type !== "none" && msg.attached_path) {
-        let icon = "fa-file-alt";
-        if (msg.attached_path.endsWith(".pdf")) icon = "fa-file-pdf text-red-500";
-        else if (msg.attached_path.match(/\.(jpg|jpeg|png|gif)$/i)) icon = "fa-file-image text-blue-500";
+      let icon = "fa-file-alt";
+      if (msg.attached_path.endsWith(".pdf")) icon = "fa-file-pdf text-red-500";
+      else if (msg.attached_path.match(/\.(jpg|jpeg|png|gif)$/i)) icon = "fa-file-image text-blue-500";
 
-        attachHtml = `
+      attachHtml = `
             <div class="mt-1 mb-1 p-2 bg-black/5 rounded border border-black/10 cursor-pointer flex items-center gap-2 hover:bg-black/10 transition"
                  onclick="handleChatAttachmentClick('${msg.attached_path}', '${msg.attached_label}')">
                 <i class="fas ${icon}"></i>
@@ -1257,10 +1270,10 @@ function renderMessage(msg) {
     }
 
     // 5. NAME LABEL (Only show for others)
-    const userLabel = !isMe 
-        ? `<div class="text-[10px] font-bold text-orange-600 mb-1 uppercase tracking-wide">${msg.user}</div>` 
-        : "";
-    
+    const userLabel = !isMe
+      ? `<div class="text-[10px] font-bold text-orange-600 mb-1 uppercase tracking-wide">${msg.user}</div>`
+      : "";
+
     const checkmark = isMe ? '<i class="fas fa-check-double text-blue-500 ml-1 text-[10px]"></i>' : '';
 
     // 6. INJECT HTML (Using Inline Styles to guarantee layout)
@@ -1277,103 +1290,103 @@ function renderMessage(msg) {
 
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
-}
-/* =========================
-   PIN RENDERING (HISTORY ONLY)
-========================= */
+  }
+  /* =========================
+     PIN RENDERING (HISTORY ONLY)
+  ========================= */
 
-function renderPinned(pin) {
-  const div = document.createElement("div");
-  div.className = "bg-yellow-100 p-2 rounded cursor-pointer";
+  function renderPinned(pin) {
+    const div = document.createElement("div");
+    div.className = "bg-yellow-100 p-2 rounded cursor-pointer";
 
-  div.innerHTML = `
+    div.innerHTML = `
     <strong>📌 ${pin.value}</strong>
     <div class="text-xs text-gray-600">Pinned by ${pin.by}</div>
   `;
 
-  pinnedBox.appendChild(div);
-}
-
-/* =========================
-   FILE UPLOAD
-========================= */
-
-fileInput.onchange = () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  fetch("/chat/upload/", {
-    method: "POST",
-    headers: { "X-CSRFToken": csrftoken },
-    body: formData
-  })
-    .then(r => r.json())
-    .then(data => {
-      pendingAttachment = {
-        type: "file",
-        path: data.path,
-        label: data.label
-      };
-    });
-};
-
-/* =========================
-   OPEN PINNED FILE / FOLDER
-========================= */
-
-function openPinnedReference(msg) {
-  if (!msg.attached_path) return;
-
-  const parts = msg.attached_path.split("/");
-  const folder = parts.slice(0, -1).join("/");
-
-  loadFolder(folder);
-  waitForFileAndPreview(msg.attached_path);
-}
-
-function waitForFileAndPreview(path, tries = 10) {
-  const file = currentFolderFiles.find(f => f.path === path);
-  if (file) {
-    loadBigPreview(file);
-    return;
+    pinnedBox.appendChild(div);
   }
-  if (tries > 0) {
-    setTimeout(() => waitForFileAndPreview(path, tries - 1), 300);
+
+  /* =========================
+     FILE UPLOAD
+  ========================= */
+
+  fileInput.onchange = () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch("/chat/upload/", {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken },
+      body: formData
+    })
+      .then(r => r.json())
+      .then(data => {
+        pendingAttachment = {
+          type: "file",
+          path: data.path,
+          label: data.label
+        };
+      });
+  };
+
+  /* =========================
+     OPEN PINNED FILE / FOLDER
+  ========================= */
+
+  function openPinnedReference(msg) {
+    if (!msg.attached_path) return;
+
+    const parts = msg.attached_path.split("/");
+    const folder = parts.slice(0, -1).join("/");
+
+    loadFolder(folder);
+    waitForFileAndPreview(msg.attached_path);
   }
-}
+
+  function waitForFileAndPreview(path, tries = 10) {
+    const file = currentFolderFiles.find(f => f.path === path);
+    if (file) {
+      loadBigPreview(file);
+      return;
+    }
+    if (tries > 0) {
+      setTimeout(() => waitForFileAndPreview(path, tries - 1), 300);
+    }
+  }
 </script>
 <script>
-document.getElementById("siteFeedbackBtn").onclick = () => {
-  window.location.href = "feedback/";
-};
+  document.getElementById("siteFeedbackBtn").onclick = () => {
+    window.location.href = "feedback/";
+  };
 
-/* ==========================================
-   SERVER-SIDE INFINITE SCROLL PDF VIEWER
-   ========================================== */
+  /* ==========================================
+     SERVER-SIDE INFINITE SCROLL PDF VIEWER
+     ========================================== */
 
-// State
-let viewerState = {
+  // State
+  let viewerState = {
     path: null,
     nextPageToLoad: 0,
     zoom: 1.0,
     isLoading: false,
     isFinished: false // True when we hit the last page
-};
+  };
 
-// Elements
-const scrollContainer = document.getElementById("scrollContainer");
-const scrollSentinel = document.getElementById("scrollSentinel"); // The loading spinner at bottom
-const pdfToolbar = document.getElementById("pdfToolbar");
-const pageCountDisplay = document.getElementById("pageCountDisplay");
-const zoomLevelDisplay = document.getElementById("zoomLevelDisplay");
+  // Elements
+  const scrollContainer = document.getElementById("scrollContainer");
+  const scrollSentinel = document.getElementById("scrollSentinel"); // The loading spinner at bottom
+  const pdfToolbar = document.getElementById("pdfToolbar");
+  const pageCountDisplay = document.getElementById("pageCountDisplay");
+  const zoomLevelDisplay = document.getElementById("zoomLevelDisplay");
 
-// --- 1. INITIALIZE PREVIEW ---
-function loadBigPreview(file) {
+  // --- 1. INITIALIZE PREVIEW ---
+  function loadBigPreview(file) {
     currentFile = file;
-    
+
     // Reset State
     viewerState.path = file.path;
     viewerState.nextPageToLoad = 0;
@@ -1384,7 +1397,7 @@ function loadBigPreview(file) {
     document.getElementById("bigPreviewTitle").textContent = file.path;
     document.getElementById("noSelection").classList.add("hidden");
     document.getElementById("downloadPdfBtn").classList.remove("hidden");
-    
+
     // Clear previous pages (Keep only the sentinel)
     // We remove all img elements before the sentinel
     const existingImages = scrollContainer.querySelectorAll('img.pdf-page-img');
@@ -1394,81 +1407,81 @@ function loadBigPreview(file) {
 
     // CASE A: PDF (Vertical Scroll)
     if (ext === "pdf") {
-        scrollContainer.classList.remove("hidden");
-        pdfToolbar.classList.remove("hidden");
-        scrollSentinel.classList.remove("hidden"); // Show spinner
-        
-        // Start observing for scroll
-        observer.observe(scrollSentinel);
-        
-        // Load Page 0 immediately
-        loadNextPage();
-    } 
+      scrollContainer.classList.remove("hidden");
+      pdfToolbar.classList.remove("hidden");
+      scrollSentinel.classList.remove("hidden"); // Show spinner
+
+      // Start observing for scroll
+      observer.observe(scrollSentinel);
+
+      // Load Page 0 immediately
+      loadNextPage();
+    }
     // CASE B: Image
     else if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
-        scrollContainer.classList.remove("hidden");
-        pdfToolbar.classList.add("hidden");
-        scrollSentinel.classList.add("hidden"); // No infinite scroll for single images
-        
-        const img = createPageImage(0, true); // True = is single image
-        img.src = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
-        scrollContainer.insertBefore(img, scrollSentinel);
+      scrollContainer.classList.remove("hidden");
+      pdfToolbar.classList.add("hidden");
+      scrollSentinel.classList.add("hidden"); // No infinite scroll for single images
+
+      const img = createPageImage(0, true); // True = is single image
+      img.src = `/coreapi/serve-file/?path=${encodeURIComponent(file.path)}`;
+      scrollContainer.insertBefore(img, scrollSentinel);
     }
     else {
-        scrollContainer.classList.add("hidden");
-        document.getElementById("noSelection").classList.remove("hidden");
-        document.getElementById("noSelection").textContent = "Preview not available.";
+      scrollContainer.classList.add("hidden");
+      document.getElementById("noSelection").classList.remove("hidden");
+      document.getElementById("noSelection").textContent = "Preview not available.";
     }
-}
+  }
 
-// --- 3. HELPER: CREATE IMAGE ELEMENT ---
-function createPageImage(index, isSingle = false) {
+  // --- 3. HELPER: CREATE IMAGE ELEMENT ---
+  function createPageImage(index, isSingle = false) {
     const img = document.createElement("img");
     img.className = "pdf-page-img shadow-lg bg-white mb-4 transition-transform duration-200";
     img.alt = `Page ${index + 1}`;
     img.dataset.page = index;
-    
+
     // Styles for nice paper look
     img.style.minHeight = isSingle ? "auto" : "800px"; // Placeholder height prevents jumpiness
     img.style.minWidth = "600px";
     img.style.maxWidth = "100%";
-    
+
     if (isSingle) img.style.minHeight = "auto";
 
     return img;
-}
+  }
 
-// --- 4. INTERSECTION OBSERVER (Auto-Scroll) ---
-// This watches the "spinner" at the bottom. When it appears on screen, it triggers loadNextPage()
-const observer = new IntersectionObserver((entries) => {
+  // --- 4. INTERSECTION OBSERVER (Auto-Scroll) ---
+  // This watches the "spinner" at the bottom. When it appears on screen, it triggers loadNextPage()
+  const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) {
-        loadNextPage();
+      loadNextPage();
     }
-}, { root: scrollContainer, threshold: 0.1 });
+  }, { root: scrollContainer, threshold: 0.1 });
 
-function isSentinelVisible() {
+  function isSentinelVisible() {
     const rect = scrollSentinel.getBoundingClientRect();
     const containerRect = scrollContainer.getBoundingClientRect();
     return (rect.top <= containerRect.bottom);
-}
+  }
 
-/* ==========================================
-   PDF PINCH, SCROLL & DOUBLE-TAP ZOOM LOGIC (WITH ORIGIN TRACKING)
-========================================== */
-let pdfZoomState = {
+  /* ==========================================
+     PDF PINCH, SCROLL & DOUBLE-TAP ZOOM LOGIC (WITH ORIGIN TRACKING)
+  ========================================== */
+  let pdfZoomState = {
     scale: 1.0,
     initialPinchDist: 0,
     initialScale: 1.0,
-    min: 0.5, 
-    max: 4.0  
-};
+    min: 0.5,
+    max: 4.0
+  };
 
-// The Magic Function: It accepts X/Y coordinates to know WHERE to zoom
-function applyPdfZoom(originX, originY) {
+  // The Magic Function: It accepts X/Y coordinates to know WHERE to zoom
+  function applyPdfZoom(originX, originY) {
     if (!scrollContainer) return;
-    
+
     const rect = scrollContainer.getBoundingClientRect();
-    
+
     // 1. Identify the focal point (Default to center of screen if using +/- buttons)
     const clientX = originX !== undefined ? originX : rect.left + rect.width / 2;
     const clientY = originY !== undefined ? originY : rect.top + rect.height / 2;
@@ -1479,25 +1492,25 @@ function applyPdfZoom(originX, originY) {
     // 2. Calculate where we are looking AS A PERCENTAGE of the total scrollable area
     const oldScrollWidth = scrollContainer.scrollWidth;
     const oldScrollHeight = scrollContainer.scrollHeight;
-    
+
     const pctX = (scrollContainer.scrollLeft + viewX) / oldScrollWidth;
     const pctY = (scrollContainer.scrollTop + viewY) / oldScrollHeight;
 
     // 3. Apply CSS Alignment (Prevents the left side from clipping)
     if (pdfZoomState.scale > 1.0) {
-        scrollContainer.classList.remove('items-center');
-        scrollContainer.classList.add('items-start');
+      scrollContainer.classList.remove('items-center');
+      scrollContainer.classList.add('items-start');
     } else {
-        scrollContainer.classList.remove('items-start');
-        scrollContainer.classList.add('items-center');
+      scrollContainer.classList.remove('items-start');
+      scrollContainer.classList.add('items-center');
     }
 
     // 4. Apply the Scale to the images instantly
     const pages = scrollContainer.querySelectorAll('.pdf-page-img');
     pages.forEach(img => {
-        img.style.width = `${pdfZoomState.scale * 100}%`;
+      img.style.width = `${pdfZoomState.scale * 100}%`;
     });
-    
+
     updateZoomDisplayUI();
 
     // 5. 🚨 THE FIX: Force immediate layout reflow, then apply scrollbars
@@ -1507,131 +1520,131 @@ function applyPdfZoom(originX, originY) {
 
     scrollContainer.scrollLeft = (newScrollWidth * pctX) - viewX;
     scrollContainer.scrollTop = (newScrollHeight * pctY) - viewY;
-}
+  }
 
-function updateZoomDisplayUI() {
-    if(zoomLevelDisplay) {
-        zoomLevelDisplay.textContent = `${Math.round(pdfZoomState.scale * 100)}%`;
+  function updateZoomDisplayUI() {
+    if (zoomLevelDisplay) {
+      zoomLevelDisplay.textContent = `${Math.round(pdfZoomState.scale * 100)}%`;
     }
-}
+  }
 
-// 1. Button Controls (Defaults to center screen)
-document.getElementById("pdfZoomIn").onclick = () => {
+  // 1. Button Controls (Defaults to center screen)
+  document.getElementById("pdfZoomIn").onclick = () => {
     if (pdfZoomState.scale < pdfZoomState.max) {
-        pdfZoomState.scale += 0.25;
-        applyPdfZoom(); 
+      pdfZoomState.scale += 0.25;
+      applyPdfZoom();
     }
-};
+  };
 
-document.getElementById("pdfZoomOut").onclick = () => {
+  document.getElementById("pdfZoomOut").onclick = () => {
     if (pdfZoomState.scale > pdfZoomState.min) {
-        pdfZoomState.scale -= 0.25;
-        applyPdfZoom();
+      pdfZoomState.scale -= 0.25;
+      applyPdfZoom();
     }
-};
+  };
 
-// Event Listeners for Scroll Container
-if (scrollContainer) {
+  // Event Listeners for Scroll Container
+  if (scrollContainer) {
     let pdfLastTap = 0; // Tracks double-taps
 
     // 2. Desktop: Double-Click to Zoom at Cursor
     scrollContainer.addEventListener('dblclick', (e) => {
-        e.preventDefault();
-        pdfZoomState.scale = (pdfZoomState.scale === 1.0) ? 2.5 : 1.0;
-        applyPdfZoom(e.clientX, e.clientY); // Pass Mouse Coordinates!
+      e.preventDefault();
+      pdfZoomState.scale = (pdfZoomState.scale === 1.0) ? 2.5 : 1.0;
+      applyPdfZoom(e.clientX, e.clientY); // Pass Mouse Coordinates!
     });
 
     // 3. Desktop: Ctrl + Scroll Wheel at Cursor
     scrollContainer.addEventListener('wheel', (e) => {
-        if (e.ctrlKey) {
-            e.preventDefault(); 
-            const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
-            pdfZoomState.scale = Math.min(Math.max(pdfZoomState.min, pdfZoomState.scale + zoomDelta), pdfZoomState.max);
-            applyPdfZoom(e.clientX, e.clientY); // Pass Mouse Coordinates!
-        }
+      if (e.ctrlKey) {
+        e.preventDefault();
+        const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
+        pdfZoomState.scale = Math.min(Math.max(pdfZoomState.min, pdfZoomState.scale + zoomDelta), pdfZoomState.max);
+        applyPdfZoom(e.clientX, e.clientY); // Pass Mouse Coordinates!
+      }
     }, { passive: false });
 
     // 4. Tablet: Pinch & Double-Tap
     scrollContainer.addEventListener('touchstart', (e) => {
-        // --- Double Tap Detection ---
-        if (e.touches.length === 1) {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - pdfLastTap;
-            
-            if (tapLength < 300 && tapLength > 0) {
-                e.preventDefault(); 
-                pdfZoomState.scale = (pdfZoomState.scale === 1.0) ? 2.5 : 1.0;
-                applyPdfZoom(e.touches[0].clientX, e.touches[0].clientY); // Pass Finger Coordinates!
-                pdfLastTap = 0; 
-            } else {
-                pdfLastTap = currentTime;
-            }
-        }
+      // --- Double Tap Detection ---
+      if (e.touches.length === 1) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - pdfLastTap;
 
-        // --- Pinch Detection ---
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            pdfZoomState.initialPinchDist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            pdfZoomState.initialScale = pdfZoomState.scale;
+        if (tapLength < 300 && tapLength > 0) {
+          e.preventDefault();
+          pdfZoomState.scale = (pdfZoomState.scale === 1.0) ? 2.5 : 1.0;
+          applyPdfZoom(e.touches[0].clientX, e.touches[0].clientY); // Pass Finger Coordinates!
+          pdfLastTap = 0;
+        } else {
+          pdfLastTap = currentTime;
         }
+      }
+
+      // --- Pinch Detection ---
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        pdfZoomState.initialPinchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        pdfZoomState.initialScale = pdfZoomState.scale;
+      }
     }, { passive: false });
 
     // 5. Tablet: Track Pinch Movement
     scrollContainer.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2 && pdfZoomState.initialPinchDist > 0) {
-            e.preventDefault();
-            const currentDist = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            const scaleFactor = currentDist / pdfZoomState.initialPinchDist;
-            pdfZoomState.scale = Math.min(Math.max(pdfZoomState.min, pdfZoomState.initialScale * scaleFactor), pdfZoomState.max);
-            
-            // Find center point between two fingers
-            const pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-            const pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-            
-            applyPdfZoom(pinchCenterX, pinchCenterY); // Zoom precisely into the pinch!
-        }
+      if (e.touches.length === 2 && pdfZoomState.initialPinchDist > 0) {
+        e.preventDefault();
+        const currentDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const scaleFactor = currentDist / pdfZoomState.initialPinchDist;
+        pdfZoomState.scale = Math.min(Math.max(pdfZoomState.min, pdfZoomState.initialScale * scaleFactor), pdfZoomState.max);
+
+        // Find center point between two fingers
+        const pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+        applyPdfZoom(pinchCenterX, pinchCenterY); // Zoom precisely into the pinch!
+      }
     }, { passive: false });
 
     scrollContainer.addEventListener('touchend', (e) => {
-        if (e.touches.length < 2) {
-            pdfZoomState.initialPinchDist = 0;
-        }
+      if (e.touches.length < 2) {
+        pdfZoomState.initialPinchDist = 0;
+      }
     });
-}
-/* ==========================================
-   UPDATED: FULLSCREEN MODAL WITH ZOOM
-   ========================================== */
+  }
+  /* ==========================================
+     UPDATED: FULLSCREEN MODAL WITH ZOOM
+     ========================================== */
 
-// 1. Get Modal Elements (Using UNIQUE IDs)
-const fullscreenModal = document.getElementById("fullscreenModal");
-const modalFrame = document.getElementById("modalFrame");
-const modalImage = document.getElementById("modalImage");
-const imageZoomWrapper = document.getElementById("imageZoomWrapper"); 
-const modalPdfContainer = document.getElementById("modalPdfContainer");
-const modalTitle = document.getElementById("modalTitle");
+  // 1. Get Modal Elements (Using UNIQUE IDs)
+  const fullscreenModal = document.getElementById("fullscreenModal");
+  const modalFrame = document.getElementById("modalFrame");
+  const modalImage = document.getElementById("modalImage");
+  const imageZoomWrapper = document.getElementById("imageZoomWrapper");
+  const modalPdfContainer = document.getElementById("modalPdfContainer");
+  const modalTitle = document.getElementById("modalTitle");
 
-// 2. ZOOM CONTROLS (Renamed to avoid conflict with Dashboard)
-const modalZoomDisplay = document.getElementById("modalZoomLevel"); // New ID
-let currentModalZoom = 1.0; // Separate state for Modal
+  // 2. ZOOM CONTROLS (Renamed to avoid conflict with Dashboard)
+  const modalZoomDisplay = document.getElementById("modalZoomLevel"); // New ID
+  let currentModalZoom = 1.0; // Separate state for Modal
 
-// 3. State
-let modalState = {
+  // 3. State
+  let modalState = {
     path: null,
     nextPage: 0,
     isLoading: false,
     isFinished: false,
     observer: null,
     mode: 'none'
-};
+  };
 
-/* --- OPEN MODAL BUTTON --- */
-document.getElementById("openFullBtn").onclick = () => {
+  /* --- OPEN MODAL BUTTON --- */
+  document.getElementById("openFullBtn").onclick = () => {
     if (!currentFile) return alert("Select a file first");
 
     const ext = currentFile.name.split(".").pop().toLowerCase();
@@ -1639,14 +1652,14 @@ document.getElementById("openFullBtn").onclick = () => {
 
     // If PDF, open in a new tab!
     if (ext === 'pdf') {
-        window.open(url, '_blank');
-        return; 
+      window.open(url, '_blank');
+      return;
     }
 
     // --- IMAGE MODAL LOGIC ---
     const fullscreenModal = document.getElementById("fullscreenModal");
     const modalTitle = document.getElementById("modalTitle");
-    
+
     fullscreenModal.classList.add("active");
     fullscreenModal.setAttribute("aria-hidden", "false");
     modalTitle.textContent = currentFile.name;
@@ -1657,98 +1670,98 @@ document.getElementById("openFullBtn").onclick = () => {
     const modalImage = document.getElementById("modalImage");
 
     [modalFrame, imageZoomWrapper, modalPdfContainer].forEach(el => {
-        el.classList.add("hidden");
-        el.classList.remove("flex"); 
-        el.style.display = "none";   
+      el.classList.add("hidden");
+      el.classList.remove("flex");
+      el.style.display = "none";
     });
-    
-    modalPdfContainer.innerHTML = ""; 
-    
+
+    modalPdfContainer.innerHTML = "";
+
     currentModalZoom = 1.0;
-    if(typeof updateModalZoomUI === "function") updateModalZoomUI();
+    if (typeof updateModalZoomUI === "function") updateModalZoomUI();
 
     modalState.path = currentFile.path;
 
-    if (["jpg","jpeg","png","gif","bmp","webp"].includes(ext)) {
-        modalState.mode = 'image';
-        
-        imageZoomWrapper.classList.remove("hidden");
-        imageZoomWrapper.classList.add("flex"); 
-        imageZoomWrapper.style.display = "flex";
-        
-        modalImage.classList.remove("hidden");
-        modalImage.src = url + `&t=${new Date().getTime()}`;
-        modalImage.style.transform = "scale(1)";
-        modalImage.style.maxWidth = "100%";
-        modalImage.style.maxHeight = "100%";
-        modalImage.style.margin = "0";
+    if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+      modalState.mode = 'image';
+
+      imageZoomWrapper.classList.remove("hidden");
+      imageZoomWrapper.classList.add("flex");
+      imageZoomWrapper.style.display = "flex";
+
+      modalImage.classList.remove("hidden");
+      modalImage.src = url + `&t=${new Date().getTime()}`;
+      modalImage.style.transform = "scale(1)";
+      modalImage.style.maxWidth = "100%";
+      modalImage.style.maxHeight = "100%";
+      modalImage.style.margin = "0";
     } else {
-        modalPdfContainer.classList.remove("hidden");
-        modalPdfContainer.classList.add("flex");
-        modalPdfContainer.style.display = "flex";
-        modalPdfContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500 gap-2"><i class="fas fa-file-alt text-4xl"></i><span>Preview not available</span></div>`;
+      modalPdfContainer.classList.remove("hidden");
+      modalPdfContainer.classList.add("flex");
+      modalPdfContainer.style.display = "flex";
+      modalPdfContainer.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-500 gap-2"><i class="fas fa-file-alt text-4xl"></i><span>Preview not available</span></div>`;
     }
-};
-/* --- ZOOM LOGIC --- */
-function applyModalZoom() {
+  };
+  /* --- ZOOM LOGIC --- */
+  function applyModalZoom() {
     updateModalZoomUI();
 
     if (modalState.mode === 'image') {
-        // IMAGE ZOOM
-        if (currentModalZoom > 1.0) {
-            modalImage.style.maxWidth = "none";
-            modalImage.style.maxHeight = "none";
-            modalImage.style.transform = `scale(${currentModalZoom})`;
-            modalImage.style.margin = "50px"; 
-        } else {
-            modalImage.style.maxWidth = "100%";
-            modalImage.style.maxHeight = "100%";
-            modalImage.style.transform = "scale(1)";
-            modalImage.style.margin = "0";
-        }
-    } 
-    else if (modalState.mode === 'pdf') {
-        // PDF ZOOM (Resize widths)
-        const widthPercent = Math.round(currentModalZoom * 80); 
-        const pages = modalPdfContainer.querySelectorAll("img");
-        pages.forEach(p => {
-            p.style.width = `${widthPercent}%`;
-            p.style.maxWidth = "none";
-        });
+      // IMAGE ZOOM
+      if (currentModalZoom > 1.0) {
+        modalImage.style.maxWidth = "none";
+        modalImage.style.maxHeight = "none";
+        modalImage.style.transform = `scale(${currentModalZoom})`;
+        modalImage.style.margin = "50px";
+      } else {
+        modalImage.style.maxWidth = "100%";
+        modalImage.style.maxHeight = "100%";
+        modalImage.style.transform = "scale(1)";
+        modalImage.style.margin = "0";
+      }
     }
-}
+    else if (modalState.mode === 'pdf') {
+      // PDF ZOOM (Resize widths)
+      const widthPercent = Math.round(currentModalZoom * 80);
+      const pages = modalPdfContainer.querySelectorAll("img");
+      pages.forEach(p => {
+        p.style.width = `${widthPercent}%`;
+        p.style.maxWidth = "none";
+      });
+    }
+  }
 
-function updateModalZoomUI() {
+  function updateModalZoomUI() {
     const percent = Math.round(currentModalZoom * 100);
     // Use the NEW variable
-    if(modalZoomDisplay) {
-        modalZoomDisplay.textContent = percent === 100 ? "Fit" : `${percent}%`;
+    if (modalZoomDisplay) {
+      modalZoomDisplay.textContent = percent === 100 ? "Fit" : `${percent}%`;
     }
-}
+  }
 
-// Button Listeners (Make sure IDs match your HTML)
-document.getElementById("modalZoomIn").onclick = () => {
+  // Button Listeners (Make sure IDs match your HTML)
+  document.getElementById("modalZoomIn").onclick = () => {
     if (currentModalZoom < 3.0) {
-        currentModalZoom += 0.25;
-        applyModalZoom();
+      currentModalZoom += 0.25;
+      applyModalZoom();
     }
-};
+  };
 
-document.getElementById("modalZoomOut").onclick = () => {
+  document.getElementById("modalZoomOut").onclick = () => {
     if (currentModalZoom > 0.5) {
-        currentModalZoom -= 0.25;
-        applyModalZoom();
+      currentModalZoom -= 0.25;
+      applyModalZoom();
     }
-};
+  };
 
-document.getElementById("modalZoomReset").onclick = () => {
+  document.getElementById("modalZoomReset").onclick = () => {
     currentModalZoom = 1.0;
     applyModalZoom();
-};
+  };
 
-/* --- PDF INFINITE SCROLL --- */
-/* --- PDF INFINITE SCROLL SETUP --- */
-function initPdfModal() {
+  /* --- PDF INFINITE SCROLL --- */
+  /* --- PDF INFINITE SCROLL SETUP --- */
+  function initPdfModal() {
     modalState.nextPage = 0;
     modalState.isLoading = false;
     modalState.isFinished = false;
@@ -1758,142 +1771,142 @@ function initPdfModal() {
     sentinel.id = "modalSentinel";
     sentinel.className = "w-full flex items-center justify-center py-8";
     // Give it height so it can be "seen" by the observer
-    sentinel.style.height = "100px"; 
+    sentinel.style.height = "100px";
     sentinel.style.flexShrink = "0"; // Prevent it from being squashed
     sentinel.innerHTML = '<div class="spinner border-4 border-gray-300 border-t-blue-500 rounded-full w-8 h-8 animate-spin"></div>';
-    
+
     const container = document.getElementById("modalPdfContainer");
     container.appendChild(sentinel);
 
     // 2. Setup Observer
     if (modalState.observer) modalState.observer.disconnect();
-    
+
     modalState.observer = new IntersectionObserver((entries) => {
-        // Load next page if the spinner comes into view
-        if (entries[0].isIntersecting) {
-            loadNextModalPage(sentinel);
-        }
-    }, { 
-        root: container, // Watch scrolling INSIDE the modal
-        threshold: 0.1,  // Trigger when 10% of spinner is visible
-        rootMargin: "200px" // Pre-load 200px before reaching bottom
+      // Load next page if the spinner comes into view
+      if (entries[0].isIntersecting) {
+        loadNextModalPage(sentinel);
+      }
+    }, {
+      root: container, // Watch scrolling INSIDE the modal
+      threshold: 0.1,  // Trigger when 10% of spinner is visible
+      rootMargin: "200px" // Pre-load 200px before reaching bottom
     });
-    
+
     modalState.observer.observe(sentinel);
-    
+
     // 3. Trigger initial load immediately
     loadNextModalPage(sentinel);
-}
-function loadNextModalPage(sentinel) {
+  }
+  function loadNextModalPage(sentinel) {
     if (modalState.isLoading || modalState.isFinished) return;
     modalState.isLoading = true;
 
     // 1. Create Image Page
     const img = document.createElement("img");
-    const widthPercent = Math.round(currentModalZoom * 80); 
-    
+    const widthPercent = Math.round(currentModalZoom * 80);
+
     // STYLE FIXES:
     img.style.width = `${widthPercent}%`;
     img.style.maxWidth = "none";
     img.style.marginBottom = "20px";
     img.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
     img.style.backgroundColor = "white";
-    
+
     // CRITICAL: Prevent flexbox from shrinking the page height to 0
-    img.style.flexShrink = "0"; 
+    img.style.flexShrink = "0";
     img.style.minHeight = "800px"; // Placeholder height while loading
 
     // 2. Set Source
     img.src = `/coreapi/render-page/?path=${encodeURIComponent(modalState.path)}&page=${modalState.nextPage}&zoom=1.5`;
 
     img.onload = () => {
-        modalState.isLoading = false;
-        modalState.nextPage++;
-        
-        // Remove placeholder height constraint once loaded
-        img.style.minHeight = "auto"; 
+      modalState.isLoading = false;
+      modalState.nextPage++;
 
-        // CHECK: If content is still short (spinner visible), load next immediately
-        const container = document.getElementById("modalPdfContainer");
-        const sentinelRect = sentinel.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
+      // Remove placeholder height constraint once loaded
+      img.style.minHeight = "auto";
 
-        if (sentinelRect.top < containerRect.bottom) {
-             loadNextModalPage(sentinel);
-        }
+      // CHECK: If content is still short (spinner visible), load next immediately
+      const container = document.getElementById("modalPdfContainer");
+      const sentinelRect = sentinel.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      if (sentinelRect.top < containerRect.bottom) {
+        loadNextModalPage(sentinel);
+      }
     };
 
     img.onerror = () => {
-        // 404 means End of PDF
-        console.log("End of PDF reached.");
-        modalState.isFinished = true;
-        sentinel.remove(); // Remove spinner
-        if (modalState.observer) modalState.observer.disconnect();
+      // 404 means End of PDF
+      console.log("End of PDF reached.");
+      modalState.isFinished = true;
+      sentinel.remove(); // Remove spinner
+      if (modalState.observer) modalState.observer.disconnect();
     };
 
     // 3. Insert BEFORE the sentinel (Spinner stays at bottom)
     const container = document.getElementById("modalPdfContainer");
     container.insertBefore(img, sentinel);
-}
-/* --- CLOSE BUTTON --- */
-document.getElementById("modalClose").onclick = () => {
+  }
+  /* --- CLOSE BUTTON --- */
+  document.getElementById("modalClose").onclick = () => {
     fullscreenModal.classList.remove("active");
     fullscreenModal.setAttribute("aria-hidden", "true");
-    
+
     // Cleanup
     modalImage.src = "";
     modalPdfContainer.innerHTML = "";
     if (modalState.observer) modalState.observer.disconnect();
-};
-/* ==========================================
-   UPDATED: DOWNLOAD BUTTONS
-   ========================================== */
+  };
+  /* ==========================================
+     UPDATED: DOWNLOAD BUTTONS
+     ========================================== */
 
-// 1. Dashboard Download Button (Small icon in header)
-document.getElementById("downloadPdfBtn").onclick = (e) => {
+  // 1. Dashboard Download Button (Small icon in header)
+  document.getElementById("downloadPdfBtn").onclick = (e) => {
     e.stopPropagation(); // Prevent glitches
     triggerDownload();
-};
+  };
 
-// 2. Modal Download Button (Big button in modal)
-document.getElementById("modalDownloadBtn").onclick = () => {
+  // 2. Modal Download Button (Big button in modal)
+  document.getElementById("modalDownloadBtn").onclick = () => {
     triggerDownload();
-};
+  };
 
-// Shared Download Function
-function triggerDownload() {
+  // Shared Download Function
+  function triggerDownload() {
     if (!currentFile) {
-        alert("No file selected.");
-        return;
+      alert("No file selected.");
+      return;
     }
     // Points to the standard serve-file view with download=true
     const url = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
     window.location.href = url;
-}
+  }
 
 
-/* =========================
-   ADVANCED FILE SHARING (Sends Actual File)
-========================= */
+  /* =========================
+     ADVANCED FILE SHARING (Sends Actual File)
+  ========================= */
 
-// 1. Get Elements
-const modalShareBtn = document.getElementById("modalShare");
-const shareButtonsContainer = document.getElementById("shareButtonsContainer");
-const modalDownloadBtn = document.getElementById("modalDownloadBtn");
+  // 1. Get Elements
+  const modalShareBtn = document.getElementById("modalShare");
+  const shareButtonsContainer = document.getElementById("shareButtonsContainer");
+  const modalDownloadBtn = document.getElementById("modalDownloadBtn");
 
-// 2. Main Share Button Logic
-modalShareBtn.onclick = async (e) => {
-  e.preventDefault();
-  
-  if (!currentFile) return alert("No file selected");
+  // 2. Main Share Button Logic
+  modalShareBtn.onclick = async (e) => {
+    e.preventDefault();
 
-  const originalText = modalShareBtn.innerHTML;
-  
-  // Visual Feedback: Show user we are preparing the file
-  modalShareBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
-  modalShareBtn.style.pointerEvents = "none"; // Prevent double click
+    if (!currentFile) return alert("No file selected");
 
-  try {
+    const originalText = modalShareBtn.innerHTML;
+
+    // Visual Feedback: Show user we are preparing the file
+    modalShareBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
+    modalShareBtn.style.pointerEvents = "none"; // Prevent double click
+
+    try {
       // A. Construct the Download URL
       const downloadUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
 
@@ -1907,75 +1920,75 @@ modalShareBtn.onclick = async (e) => {
 
       // D. Check if the Device supports File Sharing
       if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
-          
-          // --- SUCCESS: Share the Actual File ---
-          await navigator.share({
-              files: [fileObj],
-              title: currentFile.name,
-              text: 'Here is the file.'
-          });
-          
+
+        // --- SUCCESS: Share the Actual File ---
+        await navigator.share({
+          files: [fileObj],
+          title: currentFile.name,
+          text: 'Here is the file.'
+        });
+
       } else {
-          // --- FALLBACK: Device doesn't support file sharing (e.g. Desktop) ---
-          // We revert to the Link menu, but we tell the user why
-          shareButtonsContainer.classList.toggle("hidden");
-          
-          // Still update links just in case they want to send the link instead
-          const fileLink = window.location.origin + `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
-          updateShareLinks(fileLink);
+        // --- FALLBACK: Device doesn't support file sharing (e.g. Desktop) ---
+        // We revert to the Link menu, but we tell the user why
+        shareButtonsContainer.classList.toggle("hidden");
+
+        // Still update links just in case they want to send the link instead
+        const fileLink = window.location.origin + `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}`;
+        updateShareLinks(fileLink);
       }
 
-  } catch (err) {
+    } catch (err) {
       console.log('Share failed or canceled:', err);
       // If user canceled share, do nothing. If error, maybe show alert.
       if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
-          alert("Could not share file directly. Try downloading it first.");
+        alert("Could not share file directly. Try downloading it first.");
       }
-  } finally {
+    } finally {
       // Reset Button
       modalShareBtn.innerHTML = originalText;
       modalShareBtn.style.pointerEvents = "auto";
-  }
-};
+    }
+  };
 
-// 3. Fallback Links (Only used if File Sharing fails/Desktop)
-function updateShareLinks(url) {
-  const encodedUrl = encodeURIComponent(url);
-  const encodedText = encodeURIComponent("Check this document: " + currentFile.name);
+  // 3. Fallback Links (Only used if File Sharing fails/Desktop)
+  function updateShareLinks(url) {
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent("Check this document: " + currentFile.name);
 
-  // Note: These CANNOT attach files. This is a browser limitation.
-  document.getElementById("shareWhatsapp").href = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
-  document.getElementById("shareTelegram").href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
-  document.getElementById("shareEmail").href = `mailto:?subject=${encodeURIComponent(currentFile.name)}&body=${encodedText}%20${encodedUrl}`;
+    // Note: These CANNOT attach files. This is a browser limitation.
+    document.getElementById("shareWhatsapp").href = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
+    document.getElementById("shareTelegram").href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+    document.getElementById("shareEmail").href = `mailto:?subject=${encodeURIComponent(currentFile.name)}&body=${encodedText}%20${encodedUrl}`;
 
-  document.getElementById("shareCopy").onclick = (e) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(url).then(() => {
+    document.getElementById("shareCopy").onclick = (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(url).then(() => {
         alert("Link copied to clipboard!");
         shareButtonsContainer.classList.add("hidden");
-    });
-  };
-}
+      });
+    };
+  }
 
-// 4. Download Button Logic
-modalDownloadBtn.onclick = (e) => {
-  e.preventDefault();
-  if (!currentFile) return alert("No file selected");
-  const downloadUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
-  window.location.href = downloadUrl;
-};
-/* =========================
-   12. STATE PERSISTENCE (Auto-Save on Reload)
-========================= */
-window.addEventListener('beforeunload', () => {
+  // 4. Download Button Logic
+  modalDownloadBtn.onclick = (e) => {
+    e.preventDefault();
+    if (!currentFile) return alert("No file selected");
+    const downloadUrl = `/coreapi/serve-file/?path=${encodeURIComponent(currentFile.path)}&download=true`;
+    window.location.href = downloadUrl;
+  };
+  /* =========================
+     12. STATE PERSISTENCE (Auto-Save on Reload)
+  ========================= */
+  window.addEventListener('beforeunload', () => {
     // 1. Save Active Folder
     localStorage.setItem('vadrida_dash_folder', currentFolder);
 
     // 2. Save Active File (So we can re-open it)
     if (currentFile) {
-        localStorage.setItem('vadrida_dash_file', JSON.stringify(currentFile));
+      localStorage.setItem('vadrida_dash_file', JSON.stringify(currentFile));
     } else {
-        localStorage.removeItem('vadrida_dash_file');
+      localStorage.removeItem('vadrida_dash_file');
     }
 
     // 3. Save Scroll Positions
@@ -1991,9 +2004,9 @@ window.addEventListener('beforeunload', () => {
     const viewerEl = document.getElementById('scrollContainer');
     // Only save if it's visible (not hidden)
     if (viewerEl && !viewerEl.classList.contains('hidden')) {
-        localStorage.setItem('vadrida_dash_scroll_pdf', viewerEl.scrollTop);
+      localStorage.setItem('vadrida_dash_scroll_pdf', viewerEl.scrollTop);
     }
-});
+  });
 </script>
 
 {% endblock %}

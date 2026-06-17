@@ -7337,7 +7337,7 @@
 
         if (key === 'constructionYear' || key === 'structureType') {
             if (standardX > 0) {
-                f.resAge = standardX - age;
+                f.resAge = Math.max(0, standardX - age); // Prevent negative residual age
             }
         }
 
@@ -7348,7 +7348,7 @@
         let effectiveX = standardX;
         if (currentRes !== autoRes && standardX > 0) {
             // X = (Age) + (Type val - manual residial age)
-            effectiveX = age + (standardX - currentRes);
+            effectiveX = age + currentRes;
         }
 
         // 3. Calculate Depreciated Rate
@@ -7356,8 +7356,12 @@
         const damage = parseFloat(f.damagePct) || 0;
 
         if (effectiveX > 0 && reconRate > 0) {
-            const depFactor = 1 - (0.94 * age / effectiveX);
-            const damageFactor = 1 - (damage / 100);
+            // Calculate depreciation, but never let it drop below the 6% Scrap Value
+            const depFactor = Math.max(0.06, 1 - (0.94 * age / effectiveX));
+            
+            // Calculate damage factor, preventing negative damage
+            const damageFactor = Math.max(0, 1 - (damage / 100));
+            
             const calcRate = depFactor * reconRate * damageFactor;
             f.depreciatedRate = calcRate > 0 ? Math.round(calcRate).toString() : '0';
         }
@@ -8682,10 +8686,6 @@
                     targetColor = "#E67E22";
                 } else if (text.includes('absolute maximum permissible') || (text.includes('only') && text.includes('has been considered for valuation'))) {
                     targetColor = "#EF4444";
-                }
-            } else if (title.includes('classification')) {
-                if (text.includes(' and ') || text.includes('wetland') || text.includes('two classifications')) {
-                    targetColor = "#EF4444"; // Red for mismatch or wetland
                 }
             }
 
@@ -10242,7 +10242,7 @@
         <button type="button" id="aiChatMicBtn" class="ai-send-btn" onclick="toggleSpeechRecognition('aiChatInput', 'aiChatMicBtn', true)" title="Speak in Malayalam" style="background: var(--surface); color: #94a3b8; border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; cursor: pointer; transition: all 0.2s;"><i class="fas fa-microphone"></i></button>
         <textarea id="aiChatInput" placeholder="Ask AI about this verification file..."
             onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); AIChat.sendMessage(); }" style="flex: 1;"></textarea>
-        <button class="ai-send-btn" onclick="AIChat.sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        <button id="aiChatSendBtn" class="ai-send-btn" onclick="AIChat.sendMessage()"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
@@ -10333,6 +10333,13 @@
             const histEl = document.getElementById('aiChatHistory');
             histEl.insertAdjacentHTML('beforeend', `<div id="${loadingId}" class="ai-msg model" style="color:var(--text-dim); font-style:italic;"><i class="fas fa-circle-notch fa-spin"></i> Analyzing...</div>`);
             this.scrollToBottom();
+            
+            const sendBtn = document.getElementById('aiChatSendBtn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                sendBtn.style.opacity = '0.7';
+            }
 
             try {
                 const response = await fetch('/coreapi/api/utility-hub-chat/', {
@@ -10358,6 +10365,12 @@
             } catch (err) {
                 document.getElementById(loadingId)?.remove();
                 this.renderMessage('model', '⚠️ Network error occurred. Please check your connection.');
+            } finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                    sendBtn.style.opacity = '1';
+                }
             }
         }
     };
@@ -10486,9 +10499,7 @@
                             if (typeof triggerAutoSave === 'function' && !isChatBot) triggerAutoSave();
                             target.scrollTop = target.scrollHeight;
                             
-                            if (isChatBot) {
-                                AIChat.sendMessage();
-                            }
+                            // Let the user review the text first. They can edit or delete it (abort) before sending.
                         } else if (data.error) {
                             Swal.fire('Transcription Error', data.error, 'error');
                         }

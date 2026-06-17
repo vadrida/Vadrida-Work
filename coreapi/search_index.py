@@ -74,7 +74,7 @@ def build_index():
                     
                     file_count += 1
                     if file_count >= MAX_FILES:
-                        print(f"⚠️ LIMIT REACHED: Stopped at {MAX_FILES} files.")
+                        print(f"LIMIT REACHED: Stopped at {MAX_FILES} files.")
                         break 
                 except OSError: continue
 
@@ -100,7 +100,7 @@ def get_index():
     
     # If index is not ready yet (Background thread still running)
     if FILE_INDEX is None:
-        print("⚠️ Search attempted before Index was ready. Returning empty results.")
+        print("Search attempted before Index was ready. Returning empty results.")
         # Return empty list so the server doesn't freeze/rebuild
         return {"folders": [], "files": []}
         

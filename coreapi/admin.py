@@ -158,7 +158,7 @@ from .models import SystemConfiguration, OvertimeRequest
 
 @admin.register(SystemConfiguration)
 class SystemConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'files_per_day', 'credits_per_file', 'hours_target', 'max_session_hours')
+    list_display = ('id', 'files_per_day', 'credits_other', 'credits_pd', 'credits_npa', 'hours_target', 'max_session_hours')
     
     def has_add_permission(self, request):
         # Prevent multiple rows

@@ -863,6 +863,8 @@ def office(request):
         "earned_leaves": earned_leaves,
         "sick_leaves": sick_leaves,
         "casual_leaves": casual_leaves,
+        "recent_leaves": LeaveRecord.objects.filter(user=user_profile).order_by('-created_at')[:3],
+        "latest_leave_status": LeaveRecord.objects.filter(user=user_profile).order_by('-created_at').first().status if LeaveRecord.objects.filter(user=user_profile).exists() else None,
     }
     return render(request, "office.html", context)
 
@@ -2917,13 +2919,13 @@ def utility_hub_chat(request):
             current_prompt = prompt + f"User Message: {user_message}"
             contents.append({"role": "user", "parts": [{"text": current_prompt}]})
 
-            # Use gemini-2.5-flash as it is highly stable
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            # Use gemini-2.5-flash-lite for ultra-fast, stable responses
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={api_key}"
             payload = {
                 "contents": contents
             }
             
-            resp = requests.post(url, json=payload)
+            resp = requests.post(url, json=payload, timeout=25)
             resp_data = resp.json()
 
             if resp.status_code == 200:
@@ -2955,8 +2957,8 @@ def transcribe_audio_api(request):
             else:
                 prompt = "Transcribe the following Malayalam audio into Malayalam text. Output ONLY the transcribed Malayalam text, nothing else."
 
-            # We use Gemini 2.5 Flash as it is highly stable and avoids the 503 high demand preview errors
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            # We use gemini-2.5-flash-lite for ultra-fast, stable responses
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={api_key}"
             payload = {
                 "contents": [
                     {
@@ -2974,7 +2976,7 @@ def transcribe_audio_api(request):
                 ]
             }
             
-            resp = requests.post(url, json=payload)
+            resp = requests.post(url, json=payload, timeout=25)
             resp_data = resp.json()
 
             if resp.status_code == 200:
@@ -3447,3 +3449,43 @@ def serve_local_pdf(request):
     if file_path and os.path.exists(file_path):
         return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
     return JsonResponse({'error': 'File not found'}, status=404)
+
+@csrf_exempt
+def request_leaves_api(request):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+        
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            requests = data.get('requests', [])
+            
+            if not requests:
+                return JsonResponse({"error": "No dates provided"}, status=400)
+                
+            from .models import LeaveRecord, UserProfile
+            user = UserProfile.objects.get(id=user_id)
+            
+            for req in requests:
+                date_str = req.get('date')
+                leave_type = req.get('type')
+                reason = req.get('reason', '')
+                
+                if date_str and leave_type:
+                    # Update if exists, or create new
+                    lr, created = LeaveRecord.objects.get_or_create(
+                        user=user, leave_date=date_str,
+                        defaults={'leave_type': leave_type, 'reason': reason, 'status': 'pending'}
+                    )
+                    if not created:
+                        lr.leave_type = leave_type
+                        lr.reason = reason
+                        lr.status = 'pending' # Reset to pending when user updates it
+                        lr.save()
+                        
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+            
+    return JsonResponse({"error": "Invalid request"}, status=400)

@@ -245,8 +245,16 @@
             });
         }
 
-
-        // --- FULLSCREEN LOGIC REMOVED ---
+        /* Hide UI if loaded inside iframe */
+        if (window.self !== window.top) {
+            document.querySelector('nav').style.display = 'none';
+            const mainEl = document.querySelector('main');
+            if (mainEl) {
+                mainEl.classList.remove('pt-28');
+                mainEl.classList.add('pt-0');
+            }
+            document.body.classList.replace('bg-gray-50', 'bg-white');
+        }
     </script>
 
     <!-- WORK TIMER SCRIPT -->

@@ -182,12 +182,17 @@ class LeaveRecord(models.Model):
         ('earned', 'Earned Leave'),
         ('sick', 'Sick Leave'),
         ('casual', 'Casual Leave'),
+        ('absent', 'Absent'),
+        ('wfh', 'Work From Home'),
+        ('late', 'Late Coming'),
+        ('half_day', 'Half Day'),
     ]
 
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='leave_records')
     leave_date = models.DateField()
     leave_type = models.CharField(max_length=10, choices=LEAVE_TYPES)
     reason = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, default='pending') # pending, approved, denied
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -252,7 +257,9 @@ class WorkSession(models.Model):
 class SystemConfiguration(models.Model):
     """Stores global multipliers and configurations editable by the Admin."""
     files_per_day = models.IntegerField(default=5)
-    credits_per_file = models.IntegerField(default=6)
+    credits_other = models.IntegerField(default=6)
+    credits_pd = models.IntegerField(default=2)
+    credits_npa = models.IntegerField(default=4)
     hours_target = models.FloatField(default=176.0)
     max_session_hours = models.FloatField(default=10.0, help_text="Auto-logout after X hours of work in a single day.")
 
@@ -289,3 +296,14 @@ class OvertimeRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.user_name} - {self.request_date} ({self.status})"
+
+class SystemHoliday(models.Model):
+    date = models.DateField(unique=True)
+    reason = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.date} - {self.reason}"
