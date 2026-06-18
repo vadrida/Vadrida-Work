@@ -13,6 +13,8 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     current_page = models.CharField(max_length=255, null=True, blank=True)
+    shift_timing = models.CharField(max_length=50, default="09:00 AM - 05:30 PM", blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     
 
     def save(self, *args, **kwargs):

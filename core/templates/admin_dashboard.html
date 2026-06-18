@@ -256,6 +256,37 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- USER MANAGEMENT -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col mb-6 mt-6">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                        <h3 class="text-[14px] font-bold text-gray-700 uppercase tracking-widest"><i class="fas fa-users mr-2 text-indigo-500"></i>User Management</h3>
+                        <button onclick="openUserModal()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded text-[12px] font-bold transition-colors shadow">
+                            <i class="fas fa-user-plus mr-1"></i> Add New User
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" id="userSearchInput" onkeyup="filterUserManagement()" placeholder="Search users by name, id, role..." class="w-full md:w-1/3 bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-indigo-400">
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-600 border-collapse">
+                            <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-tl-lg font-bold">Profile</th>
+                                    <th class="px-4 py-3 font-bold">User ID</th>
+                                    <th class="px-4 py-3 font-bold">Name</th>
+                                    <th class="px-4 py-3 font-bold">Role</th>
+                                    <th class="px-4 py-3 font-bold">Shift Timing</th>
+                                    <th class="px-4 py-3 font-bold">Phone</th>
+                                    <th class="px-4 py-3 text-right rounded-tr-lg font-bold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userManagementTable" class="divide-y divide-gray-100">
+                                <tr><td colspan="7" class="text-center py-4 text-gray-400 text-xs">Loading users...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -352,7 +383,61 @@
 </div>
 
 
-
+<!-- USER MANAGEMENT MODAL -->
+<div id="userModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 w-[500px] card-shadow">
+        <h2 id="userModalTitle" class="text-xl font-bold mb-4 text-gray-800">Add New User</h2>
+        <form id="userForm" onsubmit="saveUser(event)">
+            <input type="hidden" id="userAction" value="create">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">User ID</label>
+                    <input type="text" id="userId" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Name</label>
+                    <input type="text" id="userName" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Email</label>
+                    <input type="email" id="userEmail" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Phone</label>
+                    <input type="text" id="userPhone" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Role</label>
+                    <select id="userRole" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                        <option value="office">Office</option>
+                        <option value="site">Site</option>
+                        <option value="admin">Admin</option>
+                        <option value="accountant">Accountant</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Shift Timing</label>
+                    <select id="userShift" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                        <option value="09:00 AM - 05:30 PM">09:00 AM - 05:30 PM</option>
+                        <option value="09:30 AM - 06:00 PM">09:30 AM - 06:00 PM</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="userPassword" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" placeholder="Leave blank to keep current">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Profile Picture</label>
+                    <input type="file" id="userProfilePic" accept="image/*" class="w-full text-xs">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">Cancel</button>
+                <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 rounded hover:bg-indigo-600 transition-colors">Save User</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -1311,12 +1396,176 @@
             }
         });
     }
+    // --- USER MANAGEMENT API ---
+    let globalUsers = [];
 
+    function fetchUserManagement() {
+        fetch('/core/api/manage-users/')
+        .then(r => r.json())
+        .then(data => {
+            if(data.users) {
+                globalUsers = data.users;
+                renderUserManagement(globalUsers);
+            }
+        });
+    }
+
+    function renderUserManagement(users) {
+        const tbody = document.getElementById('userManagementTable');
+        tbody.innerHTML = '';
+        if(users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-400">No users found.</td></tr>';
+            return;
+        }
+
+        users.forEach(u => {
+            const picHtml = u.profile_picture ? 
+                `<img src="${u.profile_picture}" class="w-8 h-8 rounded-full object-cover">` : 
+                `<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center font-bold text-xs">${u.user_name.charAt(0)}</div>`;
+                
+            tbody.innerHTML += `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-2">${picHtml}</td>
+                    <td class="px-4 py-2 font-mono text-xs">${u.id}</td>
+                    <td class="px-4 py-2 font-bold text-gray-700">${u.user_name}</td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 text-[10px] font-bold rounded-full ${
+                            u.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+                            u.role === 'office' ? 'bg-blue-100 text-blue-700' :
+                            u.role === 'site' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
+                        }">${u.role.toUpperCase()}</span>
+                    </td>
+                    <td class="px-4 py-2 text-xs">${u.shift_timing || '--'}</td>
+                    <td class="px-4 py-2 text-xs">${u.ph_no}</td>
+                    <td class="px-4 py-2 text-right">
+                        <button onclick='editUser(${JSON.stringify(u)})' class="text-blue-500 hover:bg-blue-50 px-2 py-1 rounded transition-colors" title="Edit"><i class="fas fa-pen"></i></button>
+                        <button onclick="deleteUser('${u.id}')" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded transition-colors ml-1" title="Delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function filterUserManagement() {
+        const query = document.getElementById('userSearchInput').value.toLowerCase();
+        const filtered = globalUsers.filter(u => 
+            u.user_name.toLowerCase().includes(query) || 
+            u.id.toLowerCase().includes(query) || 
+            u.role.toLowerCase().includes(query)
+        );
+        renderUserManagement(filtered);
+    }
+
+    function openUserModal() {
+        document.getElementById('userAction').value = 'create';
+        document.getElementById('userModalTitle').innerText = 'Add New User';
+        document.getElementById('userId').value = '';
+        document.getElementById('userId').disabled = false;
+        document.getElementById('userName').value = '';
+        document.getElementById('userEmail').value = '';
+        document.getElementById('userPhone').value = '';
+        document.getElementById('userRole').value = 'office';
+        document.getElementById('userShift').value = '09:00 AM - 05:30 PM';
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userPassword').required = true;
+        document.getElementById('userProfilePic').value = '';
+        document.getElementById('userModal').classList.remove('hidden');
+    }
+
+    function closeUserModal() {
+        document.getElementById('userModal').classList.add('hidden');
+    }
+
+    function editUser(user) {
+        document.getElementById('userAction').value = 'update';
+        document.getElementById('userModalTitle').innerText = 'Edit User';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userId').disabled = true;
+        document.getElementById('userName').value = user.user_name;
+        document.getElementById('userEmail').value = user.email;
+        document.getElementById('userPhone').value = user.ph_no;
+        document.getElementById('userRole').value = user.role;
+        document.getElementById('userShift').value = user.shift_timing || '09:00 AM - 05:30 PM';
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userPassword').required = false;
+        document.getElementById('userProfilePic').value = '';
+        document.getElementById('userModal').classList.remove('hidden');
+    }
+
+    function saveUser(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('action', document.getElementById('userAction').value);
+        formData.append('id', document.getElementById('userId').value);
+        formData.append('user_name', document.getElementById('userName').value);
+        formData.append('email', document.getElementById('userEmail').value);
+        formData.append('ph_no', document.getElementById('userPhone').value);
+        formData.append('role', document.getElementById('userRole').value);
+        formData.append('shift_timing', document.getElementById('userShift').value);
+        if(document.getElementById('userPassword').value) {
+            formData.append('password', document.getElementById('userPassword').value);
+        }
+        const fileInput = document.getElementById('userProfilePic');
+        if(fileInput.files.length > 0) {
+            formData.append('profile_picture', fileInput.files[0]);
+        }
+
+        fetch('/core/api/manage-users/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                closeUserModal();
+                fetchUserManagement();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                Swal.fire('Error', data.error || 'Failed to save user', 'error');
+            }
+        });
+    }
+
+    function deleteUser(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This user will be permanently deleted!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('id', id);
+                fetch('/core/api/manage-users/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        fetchUserManagement();
+                    }
+                });
+            }
+        });
+    }
     // INITIALIZATION
     document.addEventListener("DOMContentLoaded", () => {
         syncTeamData();
         loadGeneratedReports();
         fetchLeaves(); // Load leaves immediately since it's always visible now
+        fetchUserManagement();
         
         // Restore tab state from localStorage
         const savedTab = localStorage.getItem('adminDashboardTab');

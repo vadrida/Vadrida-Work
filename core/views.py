@@ -281,18 +281,32 @@ def user_details_api(request, user_id):
     # 3. Monthly Performance Data
     now = timezone.now()
     current_month_perf = MonthlyPerformance.objects.filter(user=user, year=now.year, month=now.month).first()
-    files_done = current_month_perf.files_done if current_month_perf else 0
-    files_target = current_month_perf.files_target if current_month_perf else 125
-    files_percent = round((files_done / files_target) * 100) if files_target > 0 else 0
-    
-    pd_cases = current_month_perf.pd_cases if current_month_perf else 0
-    npa_cases = current_month_perf.npa_cases if current_month_perf else 0
-    project_cases = current_month_perf.project_cases if current_month_perf else 0
-    other_cases = current_month_perf.other_cases if current_month_perf else 0
 
-    # 4. Credits Data
-    total_credits = CreditLedger.objects.filter(user=user, earned_date__year=now.year, earned_date__month=now.month).aggregate(Sum('credits'))['credits__sum'] or 0
-    credits_target = files_target * 6 # Assuming 6 credits per file
+    if user.role == 'site':
+        files_done = SiteVisitReport.objects.filter(user=user, created_at__year=now.year, created_at__month=now.month).count()
+        files_target = 125
+        files_percent = round((files_done / files_target) * 100) if files_target > 0 else 0
+        
+        pd_cases = 0
+        npa_cases = 0
+        project_cases = 0
+        other_cases = files_done
+        
+        total_credits = 0
+        credits_target = 0
+    else:
+        files_done = current_month_perf.files_done if current_month_perf else 0
+        files_target = current_month_perf.files_target if current_month_perf else 125
+        files_percent = round((files_done / files_target) * 100) if files_target > 0 else 0
+        
+        pd_cases = current_month_perf.pd_cases if current_month_perf else 0
+        npa_cases = current_month_perf.npa_cases if current_month_perf else 0
+        project_cases = current_month_perf.project_cases if current_month_perf else 0
+        other_cases = current_month_perf.other_cases if current_month_perf else 0
+
+        # 4. Credits Data
+        total_credits = CreditLedger.objects.filter(user=user, earned_date__year=now.year, earned_date__month=now.month).aggregate(Sum('credits'))['credits__sum'] or 0
+        credits_target = files_target * 6 # Assuming 6 credits per file
 
     # 5. Leaves Data
     total_leaves = LeaveRecord.objects.filter(user=user, leave_date__year=now.year).count()
@@ -890,3 +904,72 @@ def leaves_api(request):
             return JsonResponse({'status': 'success'})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def manage_users_api(request):
+    if request.session.get("user_role") not in ["admin", "accountant"]:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+        
+    if request.method == "GET":
+        users = UserProfile.objects.all().order_by('-created_at')
+        data = [{
+            "id": u.id,
+            "user_name": u.user_name,
+            "email": u.email,
+            "ph_no": u.ph_no,
+            "role": u.role,
+            "shift_timing": u.shift_timing,
+            "profile_picture": u.profile_picture.url if u.profile_picture else None,
+        } for u in users]
+        return JsonResponse({"users": data})
+        
+    elif request.method == "POST":
+        action = request.POST.get("action")
+        if action == "create":
+            try:
+                UserProfile.objects.create(
+                    id=request.POST.get("id"),
+                    user_name=request.POST.get("user_name"),
+                    email=request.POST.get("email"),
+                    ph_no=request.POST.get("ph_no"),
+                    role=request.POST.get("role"),
+                    password=request.POST.get("password"),
+                    shift_timing=request.POST.get("shift_timing", "09:00 AM - 05:30 PM"),
+                    profile_picture=request.FILES.get("profile_picture")
+                )
+                return JsonResponse({"status": "success"})
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=400)
+                
+        elif action == "update":
+            try:
+                user_id = request.POST.get("id")
+                u = UserProfile.objects.get(id=user_id)
+                u.user_name = request.POST.get("user_name", u.user_name)
+                u.email = request.POST.get("email", u.email)
+                u.ph_no = request.POST.get("ph_no", u.ph_no)
+                u.role = request.POST.get("role", u.role)
+                u.shift_timing = request.POST.get("shift_timing", u.shift_timing)
+                
+                if request.POST.get("password"):
+                    u.password = request.POST.get("password") # save() handles hashing
+                    
+                if request.FILES.get("profile_picture"):
+                    u.profile_picture = request.FILES.get("profile_picture")
+                    
+                u.save()
+                return JsonResponse({"status": "success"})
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=400)
+                
+        elif action == "delete":
+            try:
+                user_id = request.POST.get("id")
+                UserProfile.objects.get(id=user_id).delete()
+                return JsonResponse({"status": "success"})
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=400)
+                
+    return JsonResponse({"error": "Invalid method"}, status=405)

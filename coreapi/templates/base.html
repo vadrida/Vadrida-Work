@@ -272,30 +272,21 @@
             const NORMAL_LIMIT = 8 * 3600;  // 8 hours in seconds
             let MAX_LIMIT = 10 * 3600;      // 10 hours in seconds
             const userRole = timerEl.dataset.role;
-            let maxOTWarned = false;
+            let logoutWarned = false;
 
-            // Poll backend to check for extended limits (e.g. approved OT)
+            // Poll backend to check for updated max_hours or force_logout
             setInterval(() => {
                 fetch('/coreapi/api/session-status/')
                 .then(r => r.json())
                 .then(d => {
+                    if (d.force_logout) {
+                        window.location.href = "{% url 'coreapi:logout_api' %}";
+                    }
                     if (d.max_hours) {
                         MAX_LIMIT = d.max_hours * 3600;
-                        // If limit was extended, reset the warned flag so they can get warned again if they reach the new limit
-                        if (MAX_LIMIT > 10 * 3600) {
-                            maxOTWarned = false;
-                        }
-                    }
-                    if (d.ot_status === 'approved' && reqBtnEl) {
-                        reqBtnEl.innerText = 'Approved';
-                        reqBtnEl.classList.replace('bg-gray-400', 'bg-green-500');
-                        reqBtnEl.classList.replace('bg-yellow-500', 'bg-green-500');
-                        reqBtnEl.disabled = true;
-                    } else if (d.ot_status === 'denied' && reqBtnEl) {
-                        // Do nothing or change the color back
                     }
                 }).catch(e => console.error('Timer Poll Error:', e));
-            }, 180000); // 3 minutes
+            }, 60000); // 1 minute
 
             function updateTimer() {
                 if (userRole !== 'office') return; // Do not enforce for non-office staff
@@ -304,70 +295,31 @@
                 let elapsed = Math.floor((now - startTime) / 1000);
                 if (elapsed < 0) elapsed = 0;
 
-                // Enforce strict 10hr auto-logout and warnings for 'office' users only
+                // Warning 10 minutes before logout
+                if (elapsed >= (MAX_LIMIT - 600) && !logoutWarned) {
+                    logoutWarned = true;
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Ending Soon',
+                            text: 'Your session will automatically end in 10 minutes. Please save your work.',
+                            confirmButtonColor: '#eab308',
+                            confirmButtonText: 'Understood'
+                        });
+                    } else {
+                        alert('Your session will automatically end in 10 minutes. Please save your work.');
+                    }
+                }
+
+                // Enforce strict auto-logout for 'office' users only
                 if (elapsed >= MAX_LIMIT) {
-                    if (!maxOTWarned) {
-                        maxOTWarned = true;
-                        
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Maximum OT Exceeded',
-                                text: 'You have passed the 10-hour limit. Your session will end in 10 minutes unless access is requested.',
-                                showCancelButton: true,
-                                confirmButtonColor: '#eab308',
-                                confirmButtonText: 'Request Access',
-                                cancelButtonText: 'Understood'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.requestOtAccess();
-                                }
-                            });
-                        } else {
-                            if(confirm('Maximum OT has been passed. Sign out in 10 minutes. Click OK to request OT access.')) {
-                                window.requestOtAccess();
-                            }
-                        }
-                    }
-                    
-                    const logoutTime = startTime + (MAX_LIMIT * 1000) + (10 * 60 * 1000);
-                    let timeLeft = Math.floor((logoutTime - now) / 1000);
-                    
-                    if (timeLeft <= 0) {
-                        window.location.href = "{% url 'coreapi:logout_api' %}";
-                        return;
-                    }
+                    window.location.href = "{% url 'coreapi:logout_api' %}";
+                    return;
                 }
             }
 
             updateTimer();
             setInterval(updateTimer, 1000);
-            
-            window.requestOtAccess = function() {
-                fetch('/coreapi/api/request-overtime/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1],
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => response.json()).then(data => {
-                    if (data.success) {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire('Request Sent', 'Your request for extended access has been sent to the Admin. If approved, you will not be logged out.', 'success');
-                        } else {
-                            alert('Request for extended access sent.');
-                        }
-                    } else {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire('Info', data.message || 'Already requested.', 'info');
-                        } else {
-                            alert(data.message || 'Already requested.');
-                        }
-                    }
-                }).catch(err => {
-                    console.error('OT Request Error:', err);
-                });
-            };
         })();
     </script>
     {% if request.session.user_id %}

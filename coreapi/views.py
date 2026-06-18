@@ -652,14 +652,18 @@ def logout_api(request):
     user_id = request.session.get("user_id")
     if user_id:
         try:
+            from .models import SystemConfiguration
+            config = SystemConfiguration.objects.first()
+            max_session_hours = config.max_session_hours if config else 10.0
+            
             now = timezone.now()
             today = now.date()
             session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
             if session_obj:
                 elapsed = (now - session_obj.login_time).total_seconds() / 3600.0  # hours
                 session_obj.logout_time = now
-                session_obj.hours_worked = round(min(elapsed, 10.0), 2)  # Cap at 10h
-                session_obj.overtime_hours = round(max(elapsed - 8.0, 0), 2)  # OT starts after 8h
+                session_obj.hours_worked = round(min(elapsed, max_session_hours), 2)  # Cap at max_session_hours
+                session_obj.overtime_hours = round(max(min(elapsed, max_session_hours) - 8.0, 0), 2)  # OT starts after 8h
                 session_obj.is_active = False
                 session_obj.save()
         except Exception:
@@ -675,7 +679,7 @@ def session_status_api(request):
         return JsonResponse({"error": "Unauthorized", "hours_worked": 0, "max_hours": 10}, status=401)
         
     try:
-        from .models import WorkSession, SystemConfiguration, OvertimeRequest
+        from .models import WorkSession, SystemConfiguration
         from django.utils import timezone
         
         now = timezone.now()
@@ -690,17 +694,20 @@ def session_status_api(request):
             elapsed = (now - session_obj.login_time).total_seconds() / 3600.0
             hours_worked = round(elapsed, 2)
             
-        # Check overtime status for today
-        ot_request = OvertimeRequest.objects.filter(user_id=user_id, request_date=today).order_by('-requested_at').first()
-        ot_status = ot_request.status if ot_request else "none"
-        
-        if ot_status == "approved":
-            max_session_hours = 12.0 # Give them 2 more hours if approved
+            # STRICT LOGOUT
+            if hours_worked >= max_session_hours:
+                session_obj.logout_time = now
+                session_obj.hours_worked = round(max_session_hours, 2)
+                session_obj.overtime_hours = round(max(max_session_hours - 8.0, 0), 2)
+                session_obj.is_active = False
+                session_obj.save()
+                
+                request.session.flush()
+                return JsonResponse({"force_logout": True})
             
         return JsonResponse({
             "hours_worked": hours_worked,
             "max_hours": max_session_hours,
-            "ot_status": ot_status,
             "minutes_remaining": max(0, int((max_session_hours - hours_worked) * 60))
         })
     except Exception as e:
