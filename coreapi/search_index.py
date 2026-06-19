@@ -8,6 +8,8 @@ LAST_UPDATED = 0
 def build_index():
     """
     Scans the drive to build a search index including timestamps.
+    Uses os.scandir for efficiency and yields control between directories
+    to avoid choking Google Drive's virtual filesystem.
     """
     global FILE_INDEX, LAST_UPDATED
 
@@ -18,68 +20,63 @@ def build_index():
     folders = []
     files = []
     
-    # ✅ INCREASED LIMIT: 200,000
     MAX_FILES = 200000 
     file_count = 0
 
     print("--- STARTING INDEX BUILD (With Dates) ---") 
 
     try:
-        for root, dirnames, filenames in os.walk(base_dir):
-            # 1. Skip hidden system folders (.git, .venv, etc)
-            dirnames[:] = [d for d in dirnames if not d.startswith('.') and not d.startswith('$')]
-
-            # --- PROCESS FOLDERS ---
-            for d in dirnames:
-                try:
-                    full_dir_path = os.path.join(root, d)
-                    rel_path = os.path.relpath(full_dir_path, base_dir).replace("\\", "/")
-                    
-                    # ✅ CAPTURE TIME FOR FOLDERS TOO
-                    try:
-                        stat = os.stat(full_dir_path)
-                        mtime = stat.st_mtime
-                    except:
-                        mtime = 0
-
-                    folders.append({ 
-                        "name": d, 
-                        "path": rel_path,
-                        "mtime": mtime  # <--- Added
-                    })
-                except ValueError: continue
-
-            # --- PROCESS FILES ---
-            for f in filenames:
-                # Skip hidden files
-                if f.startswith('.'): continue 
-                
-                try:
-                    full_path = os.path.join(root, f)
-                    rel_path = os.path.relpath(full_path, base_dir).replace("\\", "/")
-                    
-                    # ✅ CRITICAL FIX: CAPTURE MODIFIED TIME HERE
-                    # This allows us to sort instanty without touching the disk later
-                    try:
-                        stat = os.stat(full_path)
-                        mtime = stat.st_mtime
-                    except Exception:
-                        mtime = 0 # Default if file is locked/unreadable
-
-                    files.append({
-                        "name": f,
-                        "path": rel_path,
-                        "mtime": mtime # <--- Added
-                    })
-                    
-                    file_count += 1
-                    if file_count >= MAX_FILES:
-                        print(f"LIMIT REACHED: Stopped at {MAX_FILES} files.")
-                        break 
-                except OSError: continue
-
+        def scan_dir(path):
+            nonlocal file_count
             if file_count >= MAX_FILES:
-                break 
+                return
+            subdirs = []
+            try:
+                with os.scandir(path) as it:
+                    for entry in it:
+                        if entry.name.startswith('.') or entry.name.startswith('$'):
+                            continue
+                            
+                        if entry.is_dir(follow_symlinks=False):
+                            try:
+                                mtime = entry.stat().st_mtime
+                            except:
+                                mtime = 0
+                            rel_path = os.path.relpath(entry.path, base_dir).replace("\\", "/")
+                            folders.append({
+                                "name": entry.name,
+                                "path": rel_path,
+                                "mtime": mtime
+                            })
+                            subdirs.append(entry.path)
+                        elif entry.is_file(follow_symlinks=False):
+                            try:
+                                mtime = entry.stat().st_mtime
+                            except:
+                                mtime = 0
+                            rel_path = os.path.relpath(entry.path, base_dir).replace("\\", "/")
+                            files.append({
+                                "name": entry.name,
+                                "path": rel_path,
+                                "mtime": mtime
+                            })
+                            file_count += 1
+                            
+                            if file_count >= MAX_FILES:
+                                print(f"LIMIT REACHED: Stopped at {MAX_FILES} files.")
+                                break
+            except OSError:
+                pass
+
+            for subdir in subdirs:
+                if file_count >= MAX_FILES:
+                    break
+                # Yield control briefly between directories to avoid
+                # saturating Google Drive's virtual filesystem
+                time.sleep(0.005)
+                scan_dir(subdir)
+
+        scan_dir(base_dir)
 
         FILE_INDEX = { "folders": folders, "files": files }
         LAST_UPDATED = time.time()
@@ -93,8 +90,6 @@ def build_index():
         return {"folders": [], "files": []}
 
 
-# In coreapi/search_index.py
-
 def get_index():
     global FILE_INDEX
     
@@ -105,5 +100,6 @@ def get_index():
         return {"folders": [], "files": []}
         
     return FILE_INDEX
+
 def refresh_index():
     return build_index()

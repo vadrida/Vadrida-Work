@@ -10,6 +10,7 @@
     <meta name="keywords" content="property valuation, real estate assessment, property appraisal, market value, Vadrida, HDFC, SIB, DCB">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -256,11 +257,38 @@
             console.log("Parsed data:", data);
 
             if (response.ok && data.success) {
-                console.log("Login successful, redirecting...");
-                alert("Login Successful ! ")
-                window.location.href = data.redirect;
+                console.log("Login successful...");
+                
+                if (data.is_late) {
+                    let title = "Late Arrival Logged!";
+                    let text = `You logged in past the 15-minute buffer. This is your ${data.late_count} late arrival this month.`;
+                    let icon = "warning";
+                    
+                    if (data.was_penalized) {
+                        title = "Penalty Applied!";
+                        text = `You have exceeded 3 late arrivals this month. A Half-Day Casual Leave has been automatically deducted from your balance.`;
+                        icon = "error";
+                    }
+
+                    Swal.fire({
+                        title: title,
+                        text: text,
+                        icon: icon,
+                        confirmButtonColor: '#0066ff',
+                        confirmButtonText: 'I Understand'
+                    }).then(() => {
+                        window.location.href = data.redirect;
+                    });
+                } else {
+                    window.location.href = data.redirect;
+                }
             } else {
-                alert(data.error || "Login failed. Please try again.");
+                Swal.fire({
+                    title: 'Login Failed',
+                    text: data.error || "Please try again.",
+                    icon: 'error',
+                    confirmButtonColor: '#0066ff'
+                });
             }
         } catch (error) {
             console.error("Fetch error:", error);

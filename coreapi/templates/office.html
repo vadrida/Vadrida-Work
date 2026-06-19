@@ -247,8 +247,35 @@
         
     </main>
 
-    <!-- RIGHT COLUMN: PROFILE (FLUSH TO EDGE) -->
+    <!-- RIGHT COLUMN: PROFILE (FLUSH TO EDGE) OR LEAVE APPROVALS -->
     <aside class="hidden lg:flex w-[260px] xl:w-[320px] h-full bg-white border-l border-gray-200 flex-col relative node-bg flex-shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+        {% if user_profile.email == "vijithaithikombil86@gmail.com" or user_profile.email == "feminaabidmanaf@gmail.com" or user_profile.email == "treesaneenu89@gmail.com" %}
+            <!-- LEAVE APPROVALS PANEL -->
+            <div id="rightPanelLeaves" class="flex flex-col h-full bg-purple-50/20 w-full z-20 relative">
+                <div class="p-5 border-b border-purple-100 flex justify-between items-center bg-purple-50 flex-shrink-0">
+                    <h2 class="text-[13px] font-bold text-purple-800 flex items-center gap-2 uppercase tracking-wide">
+                        <i class="fas fa-calendar-times text-purple-500"></i> Leave Approvals
+                    </h2>
+                    <button onclick="fetchLeaves()" class="text-purple-400 hover:text-purple-600 transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
+                </div>
+                <div class="p-3 border-b border-purple-100 bg-white flex-shrink-0">
+                    <div class="flex gap-2">
+                        <button onclick="filterLeaves('pending')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700" id="btnFilterPending">Pending</button>
+                        <button onclick="filterLeaves('approved')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterApproved">Approved</button>
+                        <button onclick="filterLeaves('denied')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterDenied">Denied</button>
+                    </div>
+                </div>
+                <div id="leave-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-2 relative z-30">
+                    <div class="text-center p-4 text-xs text-gray-400">Loading leaves...</div>
+                </div>
+                <!-- Bottom Sign Out -->
+                <div class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0 px-5">
+                    <a href="{% url 'coreapi:logout_api' %}" class="text-red-500 hover:text-red-700 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 w-full justify-center">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+        {% else %}
         <!-- Header -->
         <div class="px-5 py-4 flex justify-between items-center bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 flex-shrink-0">
             <span class="text-[10px] font-bold text-blue-500 tracking-widest">EMPLOYEE DETAILS</span>
@@ -371,7 +398,7 @@
                 <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
                 <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
             </div>
-        </div>
+        {% endif %}
     </aside>
 
 </div>
@@ -492,13 +519,22 @@
                             <option value="wfh">Work From Home</option>
                             <option value="casual">Casual Leave</option>
                             <option value="sick">Sick Leave</option>
-                            <option value="half_day">Half Day</option>
+                            <option value="earned">Earned Leave</option>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Reason (Optional)</label>
-                    <textarea rows="1" class="leave-reason-input w-full border border-gray-300 rounded p-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none" placeholder="Explain your reason briefly..."></textarea>
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Duration</label>
+                        <select class="leave-duration-input w-full border border-gray-300 rounded p-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                            <option value="full_day">Full Day</option>
+                            <option value="half_day">Half Day</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Reason (Optional)</label>
+                        <textarea rows="1" class="leave-reason-input w-full border border-gray-300 rounded p-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none" placeholder="Explain briefly..."></textarea>
+                    </div>
                 </div>
             </div>
         `;
@@ -515,6 +551,7 @@
         rows.forEach(row => {
             const date = row.querySelector('.leave-date-input').value;
             const type = row.querySelector('.leave-type-input').value;
+            const duration = row.querySelector('.leave-duration-input').value;
             const reason = row.querySelector('.leave-reason-input').value;
 
             if (!date) {
@@ -522,7 +559,7 @@
                 row.querySelector('.leave-date-input').classList.add('border-red-500');
             } else {
                 row.querySelector('.leave-date-input').classList.remove('border-red-500');
-                requests.push({ date, type, reason });
+                requests.push({ date, type, duration, reason });
             }
         });
 
@@ -572,6 +609,92 @@
             if (c.startsWith(name + "=")) v = decodeURIComponent(c.slice(name.length + 1));
         });
         return v;
+    }
+
+    // LEAVES LOGIC FOR HR/ADMIN IN OFFICE
+    let allLeaves = [];
+    let currentLeaveFilter = 'pending';
+
+    function fetchLeaves() {
+        const listDiv = document.getElementById('leave-list');
+        if(!listDiv) return;
+        listDiv.innerHTML = '<div class="text-center p-4 text-xs text-gray-400">Loading...</div>';
+        fetch('/core/api/leaves/')
+        .then(r => r.json())
+        .then(data => {
+            if(data.leaves) {
+                allLeaves = data.leaves;
+                filterLeaves(currentLeaveFilter);
+            }
+        });
+    }
+
+    function filterLeaves(status) {
+        currentLeaveFilter = status;
+        const btnP = document.getElementById('btnFilterPending');
+        const btnA = document.getElementById('btnFilterApproved');
+        const btnR = document.getElementById('btnFilterDenied');
+        
+        if (btnP) btnP.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'pending' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
+        if (btnA) btnA.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'approved' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
+        if (btnR) btnR.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'denied' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
+
+        const filtered = allLeaves.filter(l => l.status === status);
+        const listDiv = document.getElementById('leave-list');
+        if(!listDiv) return;
+        
+        let html = '';
+        filtered.forEach(l => {
+            html += `
+                <div class="bg-white p-3 rounded-xl border border-gray-100 card-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="font-bold text-[12px] text-gray-700">${l.user_name}</div>
+                        <div class="flex gap-1">
+                            <span class="text-[9px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded uppercase">${l.leave_type}</span>
+                            ${l.duration === 'half_day' ? '<span class="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">½ DAY</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-gray-500 mb-2 font-semibold"><i class="far fa-calendar-alt mr-1"></i>${l.date}</div>
+                    ${l.reason ? `<div class="text-[10px] text-gray-500 italic mb-3 bg-gray-50 p-1.5 rounded border border-gray-100">${l.reason}</div>` : ''}
+                    
+                    <div class="flex gap-2">
+                        ${l.status === 'pending' ? `
+                        <button onclick="approveLeave('${l.id}', 'approved')" class="flex-1 py-1 text-[10px] font-bold bg-green-50 text-green-600 rounded hover:bg-green-100 border border-green-200 transition-colors">APPROVE</button>
+                        <button onclick="approveLeave('${l.id}', 'rejected')" class="flex-1 py-1 text-[10px] font-bold bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200 transition-colors">DENY</button>
+                        ` : ''}
+                        
+                        ${l.status !== 'pending' ? `
+                        ${l.status === 'denied' ? `<button onclick="approveLeave('${l.id}', 'approved')" class="px-2 py-0.5 text-[9px] font-bold bg-gray-50 text-gray-600 border rounded hover:bg-green-50 hover:text-green-600 transition-colors">Approve</button>` : ''}
+                        ${l.status === 'approved' ? `<button onclick="approveLeave('${l.id}', 'denied')" class="px-2 py-0.5 text-[9px] font-bold bg-gray-50 text-gray-600 border rounded hover:bg-red-50 hover:text-red-600 transition-colors">Deny</button>` : ''}
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        if(html === '') html = `<div class="text-center p-4 text-xs text-gray-400">No ${status} leaves</div>`;
+        listDiv.innerHTML = html;
+    }
+
+    function approveLeave(id, action) {
+        fetch('/core/api/leaves/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ leave_id: id, action: action })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                fetchLeaves();
+            }
+        });
+    }
+
+    // Init fetch
+    if(document.getElementById('rightPanelLeaves')) {
+        fetchLeaves();
     }
 </script>
 

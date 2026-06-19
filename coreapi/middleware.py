@@ -66,7 +66,10 @@ class RedisActiveUserMiddleware(MiddlewareMixin):
                 if session_obj:
                     session_obj.logout_time = now
                     delta = now - session_obj.login_time
-                    session_obj.hours_worked = round(delta.total_seconds() / 3600, 2)
+                    elapsed_hours = delta.total_seconds() / 3600
+                    # Deduct 30-minute break from actual work
+                    actual_work = max(0, elapsed_hours - 0.5)
+                    session_obj.hours_worked = round(actual_work, 2)
                     session_obj.save(update_fields=['logout_time', 'hours_worked'])
             except Exception:
                 pass

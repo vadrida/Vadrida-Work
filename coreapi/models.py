@@ -15,6 +15,12 @@ class UserProfile(models.Model):
     current_page = models.CharField(max_length=255, null=True, blank=True)
     shift_timing = models.CharField(max_length=50, default="09:00 AM - 05:30 PM", blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
+
+    # --- LEAVE BALANCE TRACKING ---
+    cl_balance = models.FloatField(default=1.0, help_text="Casual Leave balance (resets monthly, 1/month)")
+    sl_balance = models.FloatField(default=1.0, help_text="Sick Leave balance (resets monthly, 1/month)")
+    el_balance = models.FloatField(default=0.0, help_text="Earned Leave balance (carries forward, ~15/year)")
+    late_count_this_month = models.IntegerField(default=0, help_text="Number of late arrivals this month (resets on 1st)")
     
 
     def save(self, *args, **kwargs):
@@ -179,7 +185,7 @@ class MonthlyPerformance(models.Model):
 
 
 class LeaveRecord(models.Model):
-    """One row per leave day. Admin-managed, no approval workflow."""
+    """One row per leave request. Supports full-day and half-day durations."""
     LEAVE_TYPES = [
         ('earned', 'Earned Leave'),
         ('sick', 'Sick Leave'),
@@ -187,14 +193,19 @@ class LeaveRecord(models.Model):
         ('absent', 'Absent'),
         ('wfh', 'Work From Home'),
         ('late', 'Late Coming'),
+    ]
+
+    DURATION_CHOICES = [
+        ('full_day', 'Full Day'),
         ('half_day', 'Half Day'),
     ]
 
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='leave_records')
     leave_date = models.DateField()
     leave_type = models.CharField(max_length=10, choices=LEAVE_TYPES)
+    duration = models.CharField(max_length=10, choices=DURATION_CHOICES, default='full_day')
     reason = models.TextField(blank=True, null=True)
-    status = models.CharField(max_length=20, default='pending') # pending, approved, denied
+    status = models.CharField(max_length=20, default='pending') # pending, pending_office, approved, denied
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -203,8 +214,14 @@ class LeaveRecord(models.Model):
         verbose_name = 'Leave Record'
         verbose_name_plural = 'Leave Records'
 
+    @property
+    def deduction_value(self):
+        """Returns 1.0 for full day, 0.5 for half day."""
+        return 0.5 if self.duration == 'half_day' else 1.0
+
     def __str__(self):
-        return f"{self.user.user_name} — {self.leave_type} on {self.leave_date}"
+        dur = '(½)' if self.duration == 'half_day' else ''
+        return f"{self.user.user_name} — {self.leave_type}{dur} on {self.leave_date}"
 
 
 class CreditLedger(models.Model):
@@ -244,6 +261,7 @@ class WorkSession(models.Model):
     hours_worked = models.FloatField(default=0)
     overtime_hours = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)  # Currently logged in
+    is_late = models.BooleanField(default=False)  # Was the user late (past buffer time)?
 
     class Meta:
         unique_together = ('user', 'date')
@@ -253,7 +271,8 @@ class WorkSession(models.Model):
 
     def __str__(self):
         status = "🟢 Active" if self.is_active else "🔴 Ended"
-        return f"{self.user.user_name} - {self.date} ({status})"
+        late = " ⚠️LATE" if self.is_late else ""
+        return f"{self.user.user_name} - {self.date} ({status}{late})"
 
 
 class SystemConfiguration(models.Model):

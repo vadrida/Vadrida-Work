@@ -108,7 +108,7 @@
             </div>
 
             <!-- Top Stats & Charts Row -->
-            <div class="grid grid-cols-3 gap-6 mb-6">
+            <div class="grid grid-cols-4 gap-6 mb-6">
                 <!-- Monthly Target Donut -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
                     <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Files This Month</h3>
@@ -133,17 +133,28 @@
                     </div>
                 </div>
 
-                <!-- Leaves Donut -->
+                <!-- Leaves Taken Donut -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
                     <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Leaves Taken</h3>
                     <div class="w-[140px] h-[140px] mt-6 relative">
                         <canvas id="leavesChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <span id="profLeavesTaken" class="text-2xl font-black text-orange-500 leading-none">0</span>
-                            <span id="profLeavesLeft" class="text-[10px] text-gray-400 font-bold">/ 0</span>
                         </div>
                     </div>
-                    <div id="profLeaveTypes" class="flex gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase"></div>
+                    <div id="profLeaveTypes" class="flex flex-wrap justify-center gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase"></div>
+                </div>
+
+                <!-- Leaves Left Donut -->
+                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Leaves Left</h3>
+                    <div class="w-[140px] h-[140px] mt-6 relative">
+                        <canvas id="leavesLeftChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="profLeavesLeftTotal" class="text-2xl font-black text-green-500 leading-none">0</span>
+                        </div>
+                    </div>
+                    <div id="profLeaveBalances" class="flex flex-wrap justify-center gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase"></div>
                 </div>
             </div>
 
@@ -369,8 +380,10 @@
             </div>
             <div class="p-3 border-b border-purple-100 bg-white">
                 <div class="flex gap-2">
+                    {% if request.session.user_role != 'accountant' %}
                     <button onclick="filterLeaves('pending')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700" id="btnFilterPending">Pending</button>
-                    <button onclick="filterLeaves('approved')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterApproved">Approved</button>
+                    {% endif %}
+                    <button onclick="filterLeaves('approved')" class="flex-1 py-1.5 text-[10px] font-bold rounded {% if request.session.user_role == 'accountant' %}bg-purple-100 text-purple-700{% else %}bg-gray-50 text-gray-500 hover:bg-gray-100{% endif %}" id="btnFilterApproved">Approved</button>
                     <button onclick="filterLeaves('denied')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterDenied">Denied</button>
                 </div>
             </div>
@@ -586,21 +599,74 @@
             document.getElementById('profCreditsTarget').innerText = "/ " + a.credits_target;
             
             document.getElementById('profLeavesTaken').innerText = a.total_leaves;
-            document.getElementById('profLeavesLeft').innerText = "/ " + a.leaves_allowed;
+            
+            // Calculate Total Leaves Left
+            let totalLeft = (a.leave_balances?.cl || 0) + (a.leave_balances?.sl || 0) + (a.leave_balances?.el || 0);
+            document.getElementById('profLeavesLeftTotal').innerText = totalLeft.toFixed(1);
 
             // OT
             document.getElementById('profOTDaily').innerText = a.ot.daily + "h";
             document.getElementById('profOTWeekly').innerText = a.ot.weekly + "h";
             document.getElementById('profOTMonthly').innerText = a.ot.monthly + "h";
 
-            // Leave Types Text
-            let leaveStr = a.leave_types.map(lt => `${lt.leave_type}: ${lt.count}`).join(' | ');
-            document.getElementById('profLeaveTypes').innerText = leaveStr || "No leaves taken";
+            // Leave Types Text & Charts Breakdown
+            let takenLabels = [];
+            let takenData = [];
+            let takenColors = [];
+            
+            let typeColorMap = {
+                'casual': '#f97316', // Orange
+                'sick': '#ef4444',   // Red
+                'earned': '#10b981', // Emerald
+                'wfh': '#3b82f6',    // Blue
+            };
+
+            a.leave_types.forEach(lt => {
+                takenLabels.push(lt.leave_type.toUpperCase());
+                takenData.push(lt.count);
+                takenColors.push(typeColorMap[lt.leave_type] || '#8b5cf6');
+            });
+            
+            // If no leaves taken, show placeholder donut
+            if(takenData.length === 0) {
+                takenLabels = ['None'];
+                takenData = [1];
+                takenColors = ['#f3f4f6'];
+                document.getElementById('profLeaveTypes').innerHTML = "<span>No leaves taken</span>";
+            } else {
+                let leaveStr = a.leave_types.map(lt => `<span style="color:${typeColorMap[lt.leave_type] || '#8b5cf6'}">${lt.leave_type}: ${lt.count}</span>`).join(' | ');
+                document.getElementById('profLeaveTypes').innerHTML = leaveStr;
+            }
+
+            // Leaves Left Setup
+            let leftLabels = ['CL', 'SL', 'EL'];
+            let leftData = [
+                a.leave_balances?.cl || 0,
+                a.leave_balances?.sl || 0,
+                a.leave_balances?.el || 0
+            ];
+            let leftColors = ['#f97316', '#ef4444', '#10b981']; // CL, SL, EL colors
+            
+            // If no balances, show placeholder donut
+            if(totalLeft === 0) {
+                leftLabels = ['Zero Balance'];
+                leftData = [1];
+                leftColors = ['#f3f4f6'];
+                document.getElementById('profLeaveBalances').innerHTML = "<span>No leaves left</span>";
+            } else {
+                let balStr = `
+                    <span class="text-orange-500">CL: ${a.leave_balances?.cl || 0}</span> | 
+                    <span class="text-red-500">SL: ${a.leave_balances?.sl || 0}</span> | 
+                    <span class="text-emerald-500">EL: ${a.leave_balances?.el || 0}</span>
+                `;
+                document.getElementById('profLeaveBalances').innerHTML = balStr;
+            }
 
             // Render Charts
             renderDonutChart('filesChart', ['Done', 'Remaining'], [a.files_done, Math.max(0, a.files_target - a.files_done)], ['#3b82f6', '#eff6ff']);
             renderDonutChart('creditsChart', ['Earned', 'Remaining'], [a.total_credits, Math.max(0, a.credits_target - a.total_credits)], ['#9333ea', '#f5f3ff']);
-            renderDonutChart('leavesChart', ['Taken', 'Allowed'], [a.total_leaves, Math.max(0, a.leaves_allowed - a.total_leaves)], ['#f97316', '#fff7ed']);
+            renderDonutChart('leavesChart', takenLabels, takenData, takenColors);
+            renderDonutChart('leavesLeftChart', leftLabels, leftData, leftColors);
             
             renderCategoriesChart('categoriesChart', [a.pd_cases, a.npa_cases, a.project_cases, a.other_cases]);
             renderHoursChart('hoursChart', a.sessions);
@@ -1316,7 +1382,8 @@
 
     // LEAVES LOGIC
     let allLeaves = [];
-    let currentLeaveFilter = 'pending';
+    const USER_ROLE_FOR_LEAVES = "{{ request.session.user_role }}";
+    let currentLeaveFilter = USER_ROLE_FOR_LEAVES === 'accountant' ? 'approved' : 'pending';
 
     function fetchLeaves() {
         const listDiv = document.getElementById('leave-list');
@@ -1340,12 +1407,13 @@
         const btnA = document.getElementById('btnFilterApproved');
         const btnR = document.getElementById('btnFilterDenied');
         
-        const activeClass = "flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700";
-        const inactiveClass = "flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100";
-
-        btnP.className = status === 'pending' ? activeClass : inactiveClass;
-        btnA.className = status === 'approved' ? activeClass : inactiveClass;
-        btnR.className = status === 'denied' ? activeClass : inactiveClass;
+        if (USER_ROLE_FOR_LEAVES !== 'accountant' && btnP) {
+            btnP.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'pending' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
+        } else if (btnP) {
+            btnP.classList.add('hidden');
+        }
+        btnA.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'approved' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
+        btnR.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'denied' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
 
         const filtered = allLeaves.filter(l => l.status === status);
         const listDiv = document.getElementById('leave-list');
@@ -1356,25 +1424,25 @@
                 <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-[12px] font-bold text-gray-800">${l.user_name}</span>
-                        <span class="text-[9px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded uppercase">${l.leave_type}</span>
+                        <div class="flex gap-1">
+                            <span class="text-[9px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded uppercase">${l.leave_type}</span>
+                            ${l.duration === 'half_day' ? '<span class="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">½ DAY</span>' : ''}
+                        </div>
                     </div>
                     <div class="text-[10px] text-gray-500 mb-2 font-semibold"><i class="far fa-calendar-alt mr-1"></i>${l.date}</div>
                     ${l.reason ? `<div class="text-[10px] text-gray-500 italic mb-3 bg-gray-50 p-1.5 rounded border border-gray-100">${l.reason}</div>` : ''}
                     
-                    ${status === 'pending' ? `
-                    <div class="flex gap-2 mt-2">
+                    <div class="flex gap-2">
+                        ${(l.status === 'pending' && USER_ROLE_FOR_LEAVES !== 'accountant') ? `
                         <button onclick="approveLeave('${l.id}', 'approved')" class="flex-1 py-1 text-[10px] font-bold bg-green-50 text-green-600 rounded hover:bg-green-100 border border-green-200 transition-colors">APPROVE</button>
                         <button onclick="approveLeave('${l.id}', 'rejected')" class="flex-1 py-1 text-[10px] font-bold bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200 transition-colors">DENY</button>
-                    </div>
-                    ` : `
-                    <div class="flex justify-between items-center mt-1">
-                        <div class="text-[10px] font-bold ${l.status === 'approved' ? 'text-green-500' : 'text-red-500'} uppercase">
-                            ${l.status}
-                        </div>
+                        ` : ''}
+                        
+                        ${(l.status !== 'pending' && USER_ROLE_FOR_LEAVES !== 'accountant') ? `
                         ${l.status === 'denied' ? `<button onclick="approveLeave('${l.id}', 'approved')" class="px-2 py-0.5 text-[9px] font-bold bg-gray-50 text-gray-600 border rounded hover:bg-green-50 hover:text-green-600 transition-colors">Approve</button>` : ''}
                         ${l.status === 'approved' ? `<button onclick="approveLeave('${l.id}', 'denied')" class="px-2 py-0.5 text-[9px] font-bold bg-gray-50 text-gray-600 border rounded hover:bg-red-50 hover:text-red-600 transition-colors">Deny</button>` : ''}
+                        ` : ''}
                     </div>
-                    `}
                 </div>
             `;
         });

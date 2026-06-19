@@ -350,7 +350,11 @@ def user_details_api(request, user_id):
             'total_credits': total_credits,
             'credits_target': credits_target,
             'total_leaves': total_leaves,
-            'leaves_allowed': 12, # Hardcoded default for allowed leaves
+            'leave_balances': {
+                'cl': user.cl_balance,
+                'sl': user.sl_balance,
+                'el': user.el_balance
+            },
             'leave_types': leave_types,
             'sessions': session_data,
             'ot': {
@@ -878,17 +882,46 @@ def leaves_api(request):
     if request.method == "GET":
         from django.utils import timezone
         import datetime
+        user_email = request.session.get("user_email")
+        user_role = request.session.get("user_role")
+
         thirty_days_ago = timezone.now().date() - datetime.timedelta(days=30)
-        leaves = LeaveRecord.objects.filter(leave_date__gte=thirty_days_ago).order_by('-leave_date')
+        leaves_qs = LeaveRecord.objects.filter(leave_date__gte=thirty_days_ago).order_by('-leave_date')
+        
+        group_a = ['anushaanutti@gmail.com', 'fathimabai21@gmail.com', 'reshmamartin17@gmail.com', 'sanujoseph4444@gmail.com', 'maluremya13@gmail.com']
+        group_b = ['athirathilak86@gmail.com', 'sayalsafna1@gmail.com']
+        group_a_approvers = ['vijithaithikombil86@gmail.com', 'treesaneenu89@gmail.com']
+        group_b_approvers = ['feminaabidmanaf@gmail.com']
+
+        # Determine which leaves to show
+        if user_email in group_a_approvers:
+            leaves_qs = leaves_qs.filter(user__email__in=group_a)
+        elif user_email in group_b_approvers:
+            leaves_qs = leaves_qs.filter(user__email__in=group_b)
+        elif user_role in ['admin', 'accountant']:
+            # Admin shouldn't see leaves still pending office staff approval
+            leaves_qs = leaves_qs.exclude(status='pending_office')
+        else:
+            # If anyone else accesses this endpoint, don't show them anything
+            leaves_qs = LeaveRecord.objects.none()
+            
         leave_data = []
-        for l in leaves:
+        for l in leaves_qs:
+            display_status = l.status
+            # Map pending_office to pending in the UI for the office approvers
+            if display_status == 'pending_office' and (user_email in group_a_approvers or user_email in group_b_approvers):
+                display_status = 'pending'
+                
             leave_data.append({
                 'id': l.id,
                 'user_name': l.user.user_name,
                 'leave_type': l.get_leave_type_display(),
+                'leave_type_key': l.leave_type,
+                'duration': l.duration,
+                'duration_display': '½ Day' if l.duration == 'half_day' else 'Full Day',
                 'date': l.leave_date.strftime('%Y-%m-%d'),
                 'reason': l.reason,
-                'status': l.status
+                'status': display_status
             })
         return JsonResponse({'status': 'success', 'leaves': leave_data})
         
@@ -896,10 +929,59 @@ def leaves_api(request):
         try:
             data = json.loads(request.body)
             leave_id = data.get('leave_id')
-            action = data.get('action') # 'approved' or 'denied'
+            action = data.get('action') # 'approved' or 'rejected'
             
+            # Map 'rejected' from UI to 'denied' in DB
+            if action == 'rejected':
+                action = 'denied'
+                
             lr = LeaveRecord.objects.get(id=leave_id)
-            lr.status = action
+            old_status = lr.status
+            
+            user_email = request.session.get("user_email")
+            user_role = request.session.get("user_role")
+            user_name = request.session.get("user_name", "Office Staff")
+            
+            group_a_approvers = ['vijithaithikombil86@gmail.com', 'treesaneenu89@gmail.com']
+            group_b_approvers = ['feminaabidmanaf@gmail.com']
+            
+            if user_email in group_a_approvers or user_email in group_b_approvers:
+                if action == 'approved':
+                    lr.status = 'pending' # Move to admin queue
+                    # Add note to reason that it was approved by office staff
+                    old_reason = lr.reason if lr.reason else ''
+                    new_note = f"[Recommended by {user_name}]"
+                    if new_note not in old_reason:
+                        lr.reason = f"{old_reason} {new_note}".strip()
+                else:
+                    lr.status = 'denied'
+            elif user_role == 'admin':
+                lr.status = action
+                
+                # --- BALANCE DEDUCTION/RESTORATION ON ADMIN APPROVAL ---
+                deduction = lr.deduction_value  # 1.0 or 0.5
+                target_user = lr.user
+                
+                if action == 'approved' and old_status != 'approved':
+                    # Deduct from balance
+                    if lr.leave_type == 'casual':
+                        target_user.cl_balance = max(0, target_user.cl_balance - deduction)
+                    elif lr.leave_type == 'sick':
+                        target_user.sl_balance = max(0, target_user.sl_balance - deduction)
+                    elif lr.leave_type == 'earned':
+                        target_user.el_balance = max(0, target_user.el_balance - deduction)
+                    target_user.save(update_fields=['cl_balance', 'sl_balance', 'el_balance'])
+                    
+                elif action == 'denied' and old_status == 'approved':
+                    # Restore balance (admin reversed an approved leave)
+                    if lr.leave_type == 'casual':
+                        target_user.cl_balance += deduction
+                    elif lr.leave_type == 'sick':
+                        target_user.sl_balance += deduction
+                    elif lr.leave_type == 'earned':
+                        target_user.el_balance += deduction
+                    target_user.save(update_fields=['cl_balance', 'sl_balance', 'el_balance'])
+                
             lr.save()
             return JsonResponse({'status': 'success'})
         except Exception as e:
@@ -922,6 +1004,10 @@ def manage_users_api(request):
             "role": u.role,
             "shift_timing": u.shift_timing,
             "profile_picture": u.profile_picture.url if u.profile_picture else None,
+            "cl_balance": u.cl_balance,
+            "sl_balance": u.sl_balance,
+            "el_balance": u.el_balance,
+            "late_count": u.late_count_this_month,
         } for u in users]
         return JsonResponse({"users": data})
         

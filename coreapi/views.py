@@ -619,7 +619,7 @@ def login_api(request):
         request.session.set_expiry(604800)  
     request.session.modified = True
 
-    # --- WORK SESSION TRACKING ---
+    # --- WORK SESSION TRACKING + LATE DETECTION ---
     now = timezone.now()
     today = now.date()
     session_obj, created = WorkSession.objects.get_or_create(
@@ -631,6 +631,59 @@ def login_api(request):
         # Resuming an existing session today — reactivate it
         session_obj.is_active = True
         session_obj.save(update_fields=['is_active'])
+    else:
+        # --- LATE DETECTION (only on first login of the day) ---
+        try:
+            from datetime import datetime as dt, timedelta
+            shift = (user.shift_timing or "09:00 AM - 05:30 PM").strip()
+            shift_start_str = shift.split("-")[0].strip()
+            # Parse "09:00 AM" or "9:30 AM" format
+            shift_start = dt.strptime(shift_start_str, "%I:%M %p").time()
+            
+            # Add 15-minute buffer
+            shift_start_dt = dt.combine(today, shift_start)
+            buffer_end = (shift_start_dt + timedelta(minutes=15)).time()
+            
+            login_time_local = now.time()
+            
+            if login_time_local > buffer_end:
+                session_obj.is_late = True
+                session_obj.save(update_fields=['is_late'])
+                
+                # Reset late count if month changed
+                from django.db.models import Max
+                last_session = WorkSession.objects.filter(
+                    user=user, date__lt=today
+                ).order_by('-date').first()
+                if last_session and last_session.date.month != today.month:
+                    user.late_count_this_month = 0
+                
+                user.late_count_this_month += 1
+                user.save(update_fields=['late_count_this_month'])
+                
+                # Auto half-day CL deduction on 4th+ late arrival
+                if user.late_count_this_month >= 4:
+                    from .models import LeaveRecord
+                    # Check if we already created a late penalty for today
+                    already_penalized = LeaveRecord.objects.filter(
+                        user=user, leave_date=today, leave_type='casual',
+                        reason__icontains='[Auto: Late Penalty]'
+                    ).exists()
+                    if not already_penalized:
+                        LeaveRecord.objects.create(
+                            user=user,
+                            leave_date=today,
+                            leave_type='casual',
+                            duration='half_day',
+                            reason=f'[Auto: Late Penalty] Late arrival #{user.late_count_this_month} this month',
+                            status='approved'  # Auto-approved system penalty
+                        )
+                        # Deduct 0.5 from CL balance
+                        user.cl_balance = max(0, user.cl_balance - 0.5)
+                        user.save(update_fields=['cl_balance'])
+        except Exception as e:
+            print(f"Late detection error: {e}")
+    
     # Store the original login_time as ISO string in the Django session for the JS timer
     request.session["work_session_start"] = session_obj.login_time.isoformat()
 
@@ -640,10 +693,18 @@ def login_api(request):
     else:
         redirect_target = "/coreapi/dashboard/"  # URL for everyone else
 
+    # Build response with late info
+    is_late = session_obj.is_late if created else False
+    late_count = user.late_count_this_month
+    was_penalized = late_count >= 4 and is_late
+
     return JsonResponse({
         "success": True,
         "message": "Login successful",
-        "redirect": redirect_target
+        "redirect": redirect_target,
+        "is_late": is_late,
+        "late_count": late_count,
+        "was_penalized": was_penalized,
     })
 
 
@@ -655,15 +716,20 @@ def logout_api(request):
             from .models import SystemConfiguration
             config = SystemConfiguration.objects.first()
             max_session_hours = config.max_session_hours if config else 10.0
+            BREAK_HOURS = 0.5  # 30-minute mandatory lunch break deduction
             
             now = timezone.now()
             today = now.date()
             session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
             if session_obj:
-                elapsed = (now - session_obj.login_time).total_seconds() / 3600.0  # hours
+                elapsed = (now - session_obj.login_time).total_seconds() / 3600.0  # total hours in office
+                # Deduct 30-minute break from actual work calculation
+                actual_work = max(0, elapsed - BREAK_HOURS)
+                actual_work = min(actual_work, max_session_hours)  # Cap at max
+                
                 session_obj.logout_time = now
-                session_obj.hours_worked = round(min(elapsed, max_session_hours), 2)  # Cap at max_session_hours
-                session_obj.overtime_hours = round(max(min(elapsed, max_session_hours) - 8.0, 0), 2)  # OT starts after 8h
+                session_obj.hours_worked = round(actual_work, 2)
+                session_obj.overtime_hours = round(max(actual_work - 8.0, 0), 2)  # OT after 8h of actual work
                 session_obj.is_active = False
                 session_obj.save()
         except Exception:
@@ -690,12 +756,15 @@ def session_status_api(request):
         
         session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
         hours_worked = 0.0
+        BREAK_HOURS = 0.5  # 30-minute break deduction
         if session_obj:
             elapsed = (now - session_obj.login_time).total_seconds() / 3600.0
-            hours_worked = round(elapsed, 2)
+            # Deduct break for actual work display
+            actual_work = max(0, elapsed - BREAK_HOURS)
+            hours_worked = round(actual_work, 2)
             
-            # STRICT LOGOUT
-            if hours_worked >= max_session_hours:
+            # STRICT LOGOUT (based on total elapsed, not work hours)
+            if elapsed >= max_session_hours + BREAK_HOURS:
                 session_obj.logout_time = now
                 session_obj.hours_worked = round(max_session_hours, 2)
                 session_obj.overtime_hours = round(max(max_session_hours - 8.0, 0), 2)
@@ -870,6 +939,10 @@ def office(request):
         "earned_leaves": earned_leaves,
         "sick_leaves": sick_leaves,
         "casual_leaves": casual_leaves,
+        "cl_balance": user_profile.cl_balance,
+        "sl_balance": user_profile.sl_balance,
+        "el_balance": user_profile.el_balance,
+        "late_count": user_profile.late_count_this_month,
         "recent_leaves": LeaveRecord.objects.filter(user=user_profile).order_by('-created_at')[:3],
         "latest_leave_status": LeaveRecord.objects.filter(user=user_profile).order_by('-created_at').first().status if LeaveRecord.objects.filter(user=user_profile).exists() else None,
     }
@@ -3474,25 +3547,56 @@ def request_leaves_api(request):
             from .models import LeaveRecord, UserProfile
             user = UserProfile.objects.get(id=user_id)
             
+            errors = []
             for req in requests:
                 date_str = req.get('date')
                 leave_type = req.get('type')
                 reason = req.get('reason', '')
+                duration = req.get('duration', 'full_day')  # full_day or half_day
                 
-                if date_str and leave_type:
-                    # Update if exists, or create new
-                    lr, created = LeaveRecord.objects.get_or_create(
-                        user=user, leave_date=date_str,
-                        defaults={'leave_type': leave_type, 'reason': reason, 'status': 'pending'}
-                    )
-                    if not created:
-                        lr.leave_type = leave_type
-                        lr.reason = reason
-                        lr.status = 'pending' # Reset to pending when user updates it
-                        lr.save()
-                        
+                if not date_str or not leave_type:
+                    continue
+                
+                deduction = 0.5 if duration == 'half_day' else 1.0
+                
+                # Validate leave balance before creating
+                if leave_type == 'casual' and user.cl_balance < deduction:
+                    errors.append(f"Insufficient Casual Leave balance for {date_str} (have {user.cl_balance}, need {deduction})")
+                    continue
+                elif leave_type == 'sick' and user.sl_balance < deduction:
+                    errors.append(f"Insufficient Sick Leave balance for {date_str} (have {user.sl_balance}, need {deduction})")
+                    continue
+                elif leave_type == 'earned' and user.el_balance < deduction:
+                    errors.append(f"Insufficient Earned Leave balance for {date_str} (have {user.el_balance}, need {deduction})")
+                    continue
+                
+                # Determine initial status based on group routing
+                group_a = ['anushaanutti@gmail.com', 'fathimabai21@gmail.com', 'reshmamartin17@gmail.com', 'sanujoseph4444@gmail.com', 'maluremya13@gmail.com']
+                group_b = ['athirathilak86@gmail.com', 'sayalsafna1@gmail.com']
+                initial_status = 'pending_office' if user.email in group_a or user.email in group_b else 'pending'
+                
+                # Update if exists, or create new
+                lr, created = LeaveRecord.objects.get_or_create(
+                    user=user, leave_date=date_str,
+                    defaults={
+                        'leave_type': leave_type,
+                        'duration': duration,
+                        'reason': reason,
+                        'status': initial_status
+                    }
+                )
+                if not created:
+                    lr.leave_type = leave_type
+                    lr.duration = duration
+                    lr.reason = reason
+                    lr.status = initial_status
+                    lr.save()
+                    
+            if errors:
+                return JsonResponse({"status": "partial", "errors": errors})
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
             
     return JsonResponse({"error": "Invalid request"}, status=400)
+
