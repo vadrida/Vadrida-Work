@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/system-config/', views.system_config_api, name='system_config_api'),
     path('api/credit-users/', views.credit_users_api, name='credit_users_api'),
     path('api/attendance/', views.attendance_api, name='attendance_api'),
+    path('api/attendance-monthly/', views.monthly_attendance_api, name='monthly_attendance_api'),
     path('api/leaves/', views.leaves_api, name='leaves_api'),
     path('api/manage-users/', views.manage_users_api, name='manage_users_api'),
 ]

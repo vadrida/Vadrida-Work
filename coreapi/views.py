@@ -637,7 +637,12 @@ def login_api(request):
             from datetime import datetime as dt, timedelta
             shift = (user.shift_timing or "09:00 AM - 05:30 PM").strip()
             shift_start_str = shift.split("-")[0].strip()
-            # Parse "09:00 AM" or "9:30 AM" format
+            
+            # Override shift start to 10:00 AM on Saturdays
+            if today.weekday() == 5:
+                shift_start_str = "10:00 AM"
+                
+            # Parse "09:00 AM" or "10:00 AM" format
             shift_start = dt.strptime(shift_start_str, "%I:%M %p").time()
             
             # Add 15-minute buffer
@@ -727,9 +732,11 @@ def logout_api(request):
                 actual_work = max(0, elapsed - BREAK_HOURS)
                 actual_work = min(actual_work, max_session_hours)  # Cap at max
                 
+                required_hours = 7.0 if today.weekday() == 5 else 8.0 # Saturday is 5
+                
                 session_obj.logout_time = now
                 session_obj.hours_worked = round(actual_work, 2)
-                session_obj.overtime_hours = round(max(actual_work - 8.0, 0), 2)  # OT after 8h of actual work
+                session_obj.overtime_hours = round(max(actual_work - required_hours, 0), 2)  # OT after required hours
                 session_obj.is_active = False
                 session_obj.save()
         except Exception:
@@ -765,9 +772,11 @@ def session_status_api(request):
             
             # STRICT LOGOUT (based on total elapsed, not work hours)
             if elapsed >= max_session_hours + BREAK_HOURS:
+                required_hours = 7.0 if today.weekday() == 5 else 8.0 # Saturday is 5
+                
                 session_obj.logout_time = now
                 session_obj.hours_worked = round(max_session_hours, 2)
-                session_obj.overtime_hours = round(max(max_session_hours - 8.0, 0), 2)
+                session_obj.overtime_hours = round(max(max_session_hours - required_hours, 0), 2)
                 session_obj.is_active = False
                 session_obj.save()
                 
@@ -829,10 +838,12 @@ def office(request):
     month = now.month
     _, total_days = calendar.monthrange(year, month)
     
-    # Calculate Sundays (0=Monday, 6=Sunday)
+    # Calculate Sundays and Saturdays
     sundays = len([1 for i in calendar.monthcalendar(year, month) if i[6] != 0])
+    saturdays = len([1 for i in calendar.monthcalendar(year, month) if i[5] != 0])
+    weekdays = total_days - sundays - saturdays
     
-    working_days = total_days - sundays
+    working_days = weekdays + saturdays
     files_per_day = 5
     credits_per_file = 6
     
@@ -869,7 +880,7 @@ def office(request):
     overtime_this_month = current_perf.overtime_hours if current_perf else 0.0
     
     hours_worked = current_perf.hours_worked if current_perf else 0.0
-    hours_target = current_perf.hours_target if current_perf else (working_days * 8)
+    hours_target = current_perf.hours_target if current_perf else ((weekdays * 8) + (saturdays * 7))
     hours_remaining = max(0, hours_target - hours_worked)
 
     today_session = WorkSession.objects.filter(user=user_profile, date=now.date()).first()
@@ -3597,6 +3608,97 @@ def request_leaves_api(request):
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+            
+@csrf_exempt
+def biometric_action_api(request):
+    """
+    Handles eSSL / ZKTeco biometric device operations.
+    Actions: 'unlock' or 'logs'
+    """
+    if request.method == "POST":
+        try:
+            import json
+            from zk import ZK
+            
+            data = json.loads(request.body)
+            action = data.get('action')
+            
+            # Default IP/Port for ZKTeco devices if not explicitly set
+            # In a real setup, this would come from SystemConfiguration
+            import os
+            device_ip = os.getenv("DEVICE_IP")
+            try:
+                device_port = int(os.getenv("DEVICE_PORT"))
+            except (TypeError, ValueError):
+                device_port = 4370
+            
+            zk = ZK(device_ip, port=device_port, timeout=5, password=0, force_udp=False)
+            conn = None
+            
+            try:
+                conn = zk.connect()
+                
+                if action == 'unlock':
+                    conn.enable_device()
+                    # Trigger the door relay for 5 seconds
+                    conn.unlock(time=10)
+                    return JsonResponse({"status": "success", "message": "Door Unlocked!"})
+                    
+                elif action == 'logs':
+                    from django.utils import timezone
+                    from coreapi.models import UserProfile, WorkSession
+                    
+                    # Get raw attendance punches
+                    punches = conn.get_attendance()
+                    logs_data = []
+                    
+                    # Sort by timestamp descending
+                    punches_sorted = sorted(punches, key=lambda x: x.timestamp, reverse=True)
+                    
+                    # We usually only care about today's logs for comparison
+                    today = timezone.now().date()
+                    today_sessions = {s.user_id: s for s in WorkSession.objects.filter(date=today)}
+                    
+                    # Get user profiles to map ID -> Name
+                    user_ids_in_punches = set(p.user_id for p in punches_sorted[:100])
+                    users = {u.id: u for u in UserProfile.objects.filter(id__in=user_ids_in_punches)}
+                    
+                    for p in punches_sorted[:50]:
+                        user = users.get(p.user_id)
+                        user_name = user.user_name if user else f"Unknown ({p.user_id})"
+                        
+                        system_login = "Not Logged In"
+                        if p.user_id in today_sessions:
+                            # Format system login time
+                            system_login = today_sessions[p.user_id].login_time.strftime("%I:%M %p")
+                            
+                        logs_data.append({
+                            "user_id": p.user_id,
+                            "user_name": user_name,
+                            "timestamp": p.timestamp.strftime("%Y-%m-%d %I:%M %p"),
+                            "punch_type": "IN" if p.punch == 0 else "OUT" if p.punch == 1 else str(p.punch),
+                            "system_login": system_login
+                        })
+                        
+                    return JsonResponse({"status": "success", "logs": logs_data})
+                    
+                else:
+                    return JsonResponse({"error": "Invalid action"}, status=400)
+                    
+            except Exception as e:
+                # Network or connection error
+                error_str = str(e)
+                return JsonResponse({
+                    "status": "error",
+                    "error": f"Failed to connect to biometric device at {device_ip}:{device_port}. Please verify the device is online and IP is correct.",
+                    "details": error_str
+                }, status=200)
+            finally:
+                if conn:
+                    conn.disconnect()
+                    
+        except Exception as e:
+            return JsonResponse({"status": "error", "error": str(e)}, status=200)
             
     return JsonResponse({"error": "Invalid request"}, status=400)
 

@@ -7,33 +7,84 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     /* Prevent body scrolling since dashboard is fixed */
-    body { overflow: hidden; }
+    body {
+        overflow: hidden;
+    }
 
-    .font-outfit { font-family: 'Outfit', sans-serif; }
-    .royal-blue { color: #003d99; }
-    .bg-royal-blue { background-color: #003d99; }
-    
-    .nav-item { transition: all 0.2s ease; }
+    .font-outfit {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .royal-blue {
+        color: #003d99;
+    }
+
+    .bg-royal-blue {
+        background-color: #003d99;
+    }
+
+    .nav-item {
+        transition: all 0.2s ease;
+    }
+
     .nav-item.active {
         background-color: #e6f0ff;
         color: #0052cc;
         border-radius: 8px;
         font-weight: 600;
     }
+
     .nav-item:hover:not(.active) {
         background-color: #f0f4f8;
         border-radius: 8px;
     }
-    
-    .card-shadow { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); border: 1px solid #edf2f7; }
+
+    .card-shadow {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        border: 1px solid #edf2f7;
+    }
 
     /* Circular Progress */
-    .circular-chart { display: block; margin: 0 auto; max-width: 100%; max-height: 200px; }
-    .circle-bg { fill: none; stroke: #f1f5f9; stroke-width: 3.8; }
-    .circle { fill: none; stroke-width: 2.8; stroke-linecap: round; animation: progress 1s ease-out forwards; }
-    @keyframes progress { 0% { stroke-dasharray: 0 100; } }
-    .percentage { fill: #334155; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.5em; text-anchor: middle; }
-    .subtext { fill: #94a3b8; font-family: 'Outfit', sans-serif; font-size: 0.2em; text-anchor: middle; }
+    .circular-chart {
+        display: block;
+        margin: 0 auto;
+        max-width: 100%;
+        max-height: 200px;
+    }
+
+    .circle-bg {
+        fill: none;
+        stroke: #f1f5f9;
+        stroke-width: 3.8;
+    }
+
+    .circle {
+        fill: none;
+        stroke-width: 2.8;
+        stroke-linecap: round;
+        animation: progress 1s ease-out forwards;
+    }
+
+    @keyframes progress {
+        0% {
+            stroke-dasharray: 0 100;
+        }
+    }
+
+    .percentage {
+        fill: #334155;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 0.5em;
+        text-anchor: middle;
+    }
+
+    .subtext {
+        fill: #94a3b8;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.2em;
+        text-anchor: middle;
+    }
 
     .node-bg {
         background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
@@ -44,47 +95,55 @@
 
 {% block content %}
 <!-- FULL VIEWPORT DASHBOARD FRAME (Offset for Top Nav) -->
-<div class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex flex-col md:flex-row overflow-hidden font-outfit text-gray-800">
+<div
+    class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex flex-col md:flex-row overflow-hidden font-outfit text-gray-800">
 
     <!-- LEFT COLUMN: NAVIGATION (FLUSH TO EDGE) -->
-    <aside class="hidden md:flex md:w-[220px] lg:w-[260px] h-full bg-white border-r border-gray-200 flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+    <aside
+        class="hidden md:flex md:w-[220px] lg:w-[260px] h-full bg-white border-r border-gray-200 flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div class="p-6 pb-4">
             <h2 class="text-[19px] font-bold royal-blue flex items-center gap-2 tracking-tight">
-               OFFICE 
+                OFFICE
             </h2>
             <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Employee Portal</p>
         </div>
-        
+
         <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4">NAVIGATION</div>
-        
+
         <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto">
             <a href="#" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
                 <i class="fas fa-th-large w-5 text-blue-600"></i> Dashboard
             </a>
-            <a href="{% url 'coreapi:create_folder' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="{% url 'coreapi:create_folder' %}"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-folder-plus w-5"></i> File Creation
             </a>
-            <a href="{% url 'coreapi:office_verification' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="{% url 'coreapi:office_verification' %}"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-shield-alt w-5"></i> Val. Report Drafter
             </a>
-            <a href="{% url 'coreapi:status_viewer' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="{% url 'coreapi:status_viewer' %}"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-chart-line w-5"></i> Monitoring
             </a>
-            
+
             {% if user_profile.email == "treesaneenu89@gmail.com" or user_profile.email == "maluremya13@gmail.com" or user_profile.email == "sayalsafna1@gmail.com" %}
-            <a href="{% url 'coreapi:feedback' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="{% url 'coreapi:feedback' %}"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-comment-alt w-5"></i> Site Inspection
             </a>
             {% endif %}
-            
-            <a href="{% url 'coreapi:digital_signer' %}" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+
+            <a href="{% url 'coreapi:digital_signer' %}"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-file-signature w-5"></i> Sign Documents
             </a>
-            <a href="#" onclick="openLeaveModal()" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" onclick="openLeaveModal()"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-calendar-plus w-5"></i> Request Leave/WFH
             </a>
         </nav>
-        
+
         <div class="mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
             <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">FY 2025-26 · June 2026</p>
         </div>
@@ -94,9 +153,10 @@
     <main class="flex-1 w-full h-full overflow-y-auto lg:overflow-hidden flex flex-col p-4 lg:p-5 gap-3 relative">
         <!-- Header -->
         <div class="flex-shrink-0">
-            <h1 class="text-[20px] font-bold text-gray-800 leading-tight">Employee Analysis <span class="text-gray-400 font-medium ml-1">- {% now "j F Y" %}</span></h1>
+            <h1 class="text-[20px] font-bold text-gray-800 leading-tight">Employee Analysis <span
+                    class="text-gray-400 font-medium ml-1">- {% now "j F Y" %}</span></h1>
         </div>
-        
+
         <!-- KEY PERFORMANCE METRICS -->
         <div class="bg-white rounded-xl p-4 card-shadow border-t-4 border-blue-600 flex-shrink-0">
             <h3 class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3">Key Performance Metrics</h3>
@@ -104,8 +164,10 @@
                 <!-- Metric 1 -->
                 <div class="flex flex-col items-center">
                     <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" stroke="#2563eb" stroke-dasharray="{{ files_percentage }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#2563eb" stroke-dasharray="{{ files_percentage }}, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <text x="18" y="16.5" class="percentage">{{ current_month_files }}</text>
                         <text x="18" y="21.5" class="subtext">/{{ target_files }}</text>
                     </svg>
@@ -115,8 +177,10 @@
                 <!-- Metric 2 -->
                 <div class="flex flex-col items-center">
                     <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" stroke="#eab308" stroke-dasharray="{{ leaves_percentage }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#eab308" stroke-dasharray="{{ leaves_percentage }}, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <text x="18" y="16.5" class="percentage">{{ leaves_taken }}</text>
                         <text x="18" y="21.5" class="subtext">/{{ leave_target }}</text>
                     </svg>
@@ -126,8 +190,10 @@
                 <!-- Metric 3 -->
                 <div class="flex flex-col items-center">
                     <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" stroke="#10b981" stroke-dasharray="{{ hours_percentage }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#10b981" stroke-dasharray="{{ hours_percentage }}, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <text x="18" y="16.5" class="percentage">{{ hours_worked }}</text>
                         <text x="18" y="21.5" class="subtext">/{{ hours_target }}</text>
                     </svg>
@@ -137,8 +203,10 @@
                 <!-- Metric 4 -->
                 <div class="flex flex-col items-center">
                     <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle" stroke="#8b5cf6" stroke-dasharray="{{ credits_percentage }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke="#8b5cf6" stroke-dasharray="{{ credits_percentage }}, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         <text x="18" y="16.5" class="percentage">{{ current_month_credits }}</text>
                         <text x="18" y="21.5" class="subtext">/{{ target_credits }}</text>
                     </svg>
@@ -147,44 +215,52 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- OVERTIME & CREDITS ROW -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 flex-shrink-0">
             <div class="bg-white rounded-xl p-4 card-shadow flex flex-col justify-center">
                 <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1.5">Overtime Hours</h3>
                 <div class="flex gap-6 items-end">
                     <div>
-                        <div class="text-[28px] font-bold text-gray-800 leading-none">{{ overtime_this_month }}<span class="text-lg text-orange-500">h</span></div>
+                        <div class="text-[28px] font-bold text-gray-800 leading-none">{{ overtime_this_month }}<span
+                                class="text-lg text-orange-500">h</span></div>
                         <div class="text-[10px] text-gray-400 mt-1 font-medium">This month</div>
                     </div>
                     <div>
-                        <div class="text-[18px] font-bold text-gray-600 leading-none">{{ overtime_today }}<span class="text-sm text-pink-400">h</span></div>
+                        <div class="text-[18px] font-bold text-gray-600 leading-none">{{ overtime_today }}<span
+                                class="text-sm text-pink-400">h</span></div>
                         <div class="text-[10px] text-gray-400 mt-1 font-medium">Today</div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-xl p-4 card-shadow flex flex-col justify-center">
-                <h3 class="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1.5">Credits This Month</h3>
+                <h3 class="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1.5">Credits This Month
+                </h3>
                 <div class="flex items-baseline gap-2 mb-1.5">
                     <div class="text-[28px] font-bold text-purple-600 leading-none">{{ current_month_credits }}</div>
                     <div class="text-[28px] font-bold text-green-400 leading-none">/ {{ target_credits }}</div>
                     <div class="text-[15px] text-gray-500 ml-1 font-medium">{{ current_month_files }} files x {{ credits_per_file }} credits</div>
                 </div>
                 <div class="w-full bg-gray-100 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style="--w: {{ credits_percentage }}%; width: var(--w);"></div>
+                    <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full"
+                        style="--w: {{ credits_percentage }}%; width: var(--w);"></div>
                 </div>
                 <div class="mt-2 flex flex-col gap-1 border-t border-gray-100 pt-2">
                     <div class="flex justify-between items-center text-[10px] text-gray-400 font-medium">
-                        <span class="flex items-center gap-1"><i class="fas fa-calendar-day text-gray-300"></i> Working Days</span>
-                        <span class="text-gray-600 font-bold">{{ month_working_days }} <span class="font-normal text-gray-400">({{ month_total_days }} days - {{ month_sundays }} Sundays)</span></span>
+                        <span class="flex items-center gap-1"><i class="fas fa-calendar-day text-gray-300"></i> Working
+                            Days</span>
+                        <span class="text-gray-600 font-bold">{{ month_working_days }} <span
+                                class="font-normal text-gray-400">({{ month_total_days }} days - {{ month_sundays }} Sundays)</span></span>
                     </div>
                     <div class="flex justify-between items-center text-[10px] text-gray-400 font-medium">
-                        <span class="flex items-center gap-1"><i class="fas fa-bullseye text-gray-300"></i> Daily Average</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-bullseye text-gray-300"></i> Daily
+                            Average</span>
                         <span class="text-gray-600 font-bold">{{ files_per_day }} files / day</span>
                     </div>
                     <div class="flex justify-between items-center text-[10px] text-gray-400 font-medium">
-                        <span class="flex items-center gap-1"><i class="fas fa-calculator text-gray-300"></i> Total Target</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-calculator text-gray-300"></i> Total
+                            Target</span>
                         <span class="text-gray-600 font-bold">{{ target_files }} files × {{ credits_per_file }} cr = {{ target_credits }}</span>
                     </div>
                 </div>
@@ -198,11 +274,13 @@
                 <div class="flex justify-between items-center mb-2 flex-shrink-0">
                     <h3 class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">6 Months Trend</h3>
                     {% if is_trend_up %}
-                    <div class="bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                    <div
+                        class="bg-green-50 border border-green-200 text-green-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1">
                         <i class="fas fa-arrow-trend-up"></i> +{{ trend_diff }}
                     </div>
                     {% else %}
-                    <div class="bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                    <div
+                        class="bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1">
                         <i class="fas fa-arrow-trend-down"></i> -{{ trend_diff }}
                     </div>
                     {% endif %}
@@ -218,124 +296,160 @@
 
             <!-- Donut 1 -->
             <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
-                <h3 class="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Case Type Breakdown</h3>
+                <h3 class="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Case Type
+                    Breakdown</h3>
                 <div class="flex-1 min-h-0 relative flex items-center justify-center">
                     <canvas id="caseTypeChart"></canvas>
                 </div>
                 <div class="grid grid-cols-2 gap-y-1 mt-2 text-[10px] text-gray-600 font-medium flex-shrink-0">
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> PD Cases: {{ pd_cases }}</div>
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-400"></span> NPA Cases: {{ npa_cases }}</div>
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span> Project: {{ project_cases }}</div>
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Other: {{ other_cases }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> PD
+                        Cases: {{ pd_cases }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-400"></span> NPA
+                        Cases: {{ npa_cases }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        Project: {{ project_cases }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                        Other: {{ other_cases }}</div>
                 </div>
             </div>
 
             <!-- Donut 2 -->
             <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
-                <h3 class="text-[9px] font-bold text-yellow-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Leave Breakdown</h3>
+                <h3 class="text-[9px] font-bold text-yellow-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Leave
+                    Breakdown</h3>
                 <div class="flex-1 min-h-0 relative flex items-center justify-center">
                     <canvas id="leaveChart"></canvas>
                 </div>
                 <div class="grid grid-cols-2 gap-y-1 mt-2 text-[10px] text-gray-600 font-medium flex-shrink-0">
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Earned: {{ earned_leaves }}</div>
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-400"></span> Sick: {{ sick_leaves }}</div>
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Casual: {{ casual_leaves }}</div>
-                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-200"></span> Rem.: {{ leaves_remaining }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        Earned: {{ earned_leaves }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-400"></span> Sick:
+                        {{ sick_leaves }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                        Casual: {{ casual_leaves }}</div>
+                    <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-gray-200"></span> Rem.:
+                        {{ leaves_remaining }}</div>
                 </div>
             </div>
         </div>
-        
+
     </main>
 
     <!-- RIGHT COLUMN: PROFILE (FLUSH TO EDGE) OR LEAVE APPROVALS -->
-    <aside class="hidden lg:flex w-[260px] xl:w-[320px] h-full bg-white border-l border-gray-200 flex-col relative node-bg flex-shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+    <aside
+        class="hidden lg:flex w-[260px] xl:w-[320px] h-full bg-white border-l border-gray-200 flex-col relative node-bg flex-shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
         {% if user_profile.email == "vijithaithikombil86@gmail.com" or user_profile.email == "feminaabidmanaf@gmail.com" or user_profile.email == "treesaneenu89@gmail.com" %}
-            <!-- LEAVE APPROVALS PANEL -->
-            <div id="rightPanelLeaves" class="flex flex-col h-full bg-purple-50/20 w-full z-20 relative">
-                <div class="p-5 border-b border-purple-100 flex justify-between items-center bg-purple-50 flex-shrink-0">
-                    <h2 class="text-[13px] font-bold text-purple-800 flex items-center gap-2 uppercase tracking-wide">
-                        <i class="fas fa-calendar-times text-purple-500"></i> Leave Approvals
-                    </h2>
-                    <button onclick="fetchLeaves()" class="text-purple-400 hover:text-purple-600 transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
-                </div>
-                <div class="p-3 border-b border-purple-100 bg-white flex-shrink-0">
-                    <div class="flex gap-2">
-                        <button onclick="filterLeaves('pending')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700" id="btnFilterPending">Pending</button>
-                        <button onclick="filterLeaves('approved')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterApproved">Approved</button>
-                        <button onclick="filterLeaves('denied')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterDenied">Denied</button>
-                    </div>
-                </div>
-                <div id="leave-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-2 relative z-30">
-                    <div class="text-center p-4 text-xs text-gray-400">Loading leaves...</div>
-                </div>
-                <!-- Bottom Sign Out -->
-                <div class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0 px-5">
-                    <a href="{% url 'coreapi:logout_api' %}" class="text-red-500 hover:text-red-700 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 w-full justify-center">
-                        <i class="fas fa-sign-out-alt"></i> Sign Out
-                    </a>
+        <!-- LEAVE APPROVALS PANEL -->
+        <div id="rightPanelLeaves" class="flex flex-col h-full bg-purple-50/20 w-full z-20 relative">
+            <div class="p-5 border-b border-purple-100 flex justify-between items-center bg-purple-50 flex-shrink-0">
+                <h2 class="text-[13px] font-bold text-purple-800 flex items-center gap-2 uppercase tracking-wide">
+                    <i class="fas fa-calendar-times text-purple-500"></i> Leave Approvals
+                </h2>
+                <button onclick="fetchLeaves()" class="text-purple-400 hover:text-purple-600 transition-colors"><i
+                        class="fas fa-sync-alt text-xs"></i></button>
+            </div>
+            <div class="p-3 border-b border-purple-100 bg-white flex-shrink-0">
+                <div class="flex gap-2">
+                    <button onclick="filterLeaves('pending')"
+                        class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700"
+                        id="btnFilterPending">Pending</button>
+                    <button onclick="filterLeaves('approved')"
+                        class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100"
+                        id="btnFilterApproved">Approved</button>
+                    <button onclick="filterLeaves('denied')"
+                        class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100"
+                        id="btnFilterDenied">Denied</button>
                 </div>
             </div>
+            <div id="leave-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-2 relative z-30">
+                <div class="text-center p-4 text-xs text-gray-400">Loading leaves...</div>
+            </div>
+            <!-- Bottom Sign Out -->
+            <div
+                class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0 px-5">
+                <a href="{% url 'coreapi:logout_api' %}"
+                    class="text-red-500 hover:text-red-700 transition-all text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 w-full justify-center">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </a>
+            </div>
+        </div>
         {% else %}
         <!-- Header -->
-        <div class="px-5 py-4 flex justify-between items-center bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 flex-shrink-0">
+        <div
+            class="px-5 py-4 flex justify-between items-center bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 flex-shrink-0">
             <span class="text-[10px] font-bold text-blue-500 tracking-widest">EMPLOYEE DETAILS</span>
             <span class="text-[10px] text-gray-400 font-bold tracking-wider">2025-26</span>
         </div>
-        
+
         <div class="p-6 pb-2 flex flex-col items-center relative z-10 bg-white/70 backdrop-blur-[2px] flex-shrink-0">
             <!-- Profile Image -->
             <div class="relative mb-4 group">
-                <div class="w-20 h-20 rounded-full border-[3px] border-white shadow-md overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-2xl font-bold text-blue-500 relative z-10">
+                <div
+                    class="w-20 h-20 rounded-full border-[3px] border-white shadow-md overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-2xl font-bold text-blue-500 relative z-10">
                     {% if user_profile.user_name %}
-                        {{ user_profile.user_name|make_list|first|upper }}
+                    {{ user_profile.user_name|make_list|first|upper }}
                     {% else %}
-                        VP
+                    VP
                     {% endif %}
                 </div>
                 <!-- Decorative outer rings -->
-                <div class="absolute inset-0 rounded-full border border-blue-200 -m-1.5 transition-transform group-hover:scale-105"></div>
-                <div class="absolute inset-0 rounded-full border border-blue-100 -m-3 transition-transform group-hover:scale-110"></div>
+                <div
+                    class="absolute inset-0 rounded-full border border-blue-200 -m-1.5 transition-transform group-hover:scale-105">
+                </div>
+                <div
+                    class="absolute inset-0 rounded-full border border-blue-100 -m-3 transition-transform group-hover:scale-110">
+                </div>
             </div>
-            
-            <h2 class="text-[17px] font-bold text-gray-800 text-center">{{ user_profile.user_name|default:"Employee Name" }}</h2>
-            <p class="text-[11px] text-gray-500 font-medium mt-0.5 text-center">{% if user_profile.role == 'office' %} Report Analyst {% endif %}</p>
-            
-            <div class="mt-3 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[9px] uppercase tracking-wider font-bold flex items-center gap-1.5 border border-green-100 shadow-sm">
+
+            <h2 class="text-[17px] font-bold text-gray-800 text-center">{{ user_profile.user_name|default:"Employee
+                Name" }}</h2>
+            <p class="text-[11px] text-gray-500 font-medium mt-0.5 text-center">{% if user_profile.role == 'office' %}
+                Report Analyst {% endif %}</p>
+
+            <div
+                class="mt-3 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[9px] uppercase tracking-wider font-bold flex items-center gap-1.5 border border-green-100 shadow-sm">
                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 block"></span> Active
             </div>
         </div>
 
         <div class="px-5 pb-5 pt-3 space-y-2.5 relative z-10 bg-white/80 backdrop-blur-[2px] flex-1 overflow-y-auto">
-            <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+            <div
+                class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                 <div class="text-[8px] uppercase font-bold text-blue-400 mb-0.5 tracking-widest">EMP NO</div>
                 <div class="text-[13px] font-semibold text-gray-700">EMP-{{ user_profile.id|default:"000" }}</div>
             </div>
-            <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+            <div
+                class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                 <div class="text-[8px] uppercase font-bold text-green-400 mb-0.5 tracking-widest">ROLE</div>
-                <div class="text-[13px] font-semibold text-gray-700">{% if user_profile.role == 'office' %} Report Analyst {% endif %}</div>
+                <div class="text-[13px] font-semibold text-gray-700">{% if user_profile.role == 'office' %} Report
+                    Analyst {% endif %}</div>
             </div>
             <!-- <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                 <div class="text-[8px] uppercase font-bold text-purple-400 mb-0.5 tracking-widest">DEPARTMENT</div>
                 <div class="text-[13px] font-semibold text-gray-700">Valuation & Assessment</div>
             </div> -->
-            <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
+            <div
+                class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                 <div class="text-[8px] uppercase font-bold text-orange-400 mb-0.5 tracking-widest">MOBILE</div>
-                <div class="text-[13px] font-semibold text-gray-700">{{ user_profile.ph_no|default:"+91 Not Set" }}</div>
+                <div class="text-[13px] font-semibold text-gray-700">{{ user_profile.ph_no|default:"+91 Not Set" }}
+                </div>
             </div>
             <!-- <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                 <div class="text-[8px] uppercase font-bold text-pink-400 mb-0.5 tracking-widest">JOINING DATE</div>
                 <div class="text-[13px] font-semibold text-gray-700">12 Mar 2019</div>
             </div> -->
-            
 
 
-            <a href="{% url 'coreapi:logout_api' %}" class="flex items-center justify-center gap-2 mt-4 text-red-500 hover:text-white hover:bg-red-500 py-2.5 rounded-xl transition-all text-[11px] font-bold uppercase tracking-wider border border-red-100 hover:border-transparent bg-white shadow-sm hover:shadow-md">
+
+            <a href="{% url 'coreapi:logout_api' %}"
+                class="flex items-center justify-center gap-2 mt-4 text-red-500 hover:text-white hover:bg-red-500 py-2.5 rounded-xl transition-all text-[11px] font-bold uppercase tracking-wider border border-red-100 hover:border-transparent bg-white shadow-sm hover:shadow-md">
                 <i class="fas fa-sign-out-alt"></i> Sign Out
             </a>
         </div>
-        
+
         <!-- Bottom barcode decorative -->
-        <div class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0">
+        <div
+            class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0">
             <div class="flex gap-0.5 h-5 opacity-40 mix-blend-multiply">
                 <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
                 <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
@@ -398,18 +512,18 @@
                 <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
                 <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
             </div>
-        {% endif %}
+            {% endif %}
     </aside>
 
 </div>
 
 <script>
     // Initialize Charts
-    document.addEventListener('DOMContentLoaded', function() {
-        
+    document.addEventListener('DOMContentLoaded', function () {
+
         Chart.defaults.font.family = "'Outfit', sans-serif";
         Chart.defaults.color = '#94a3b8';
-        
+
         // Reports Bar Chart
         const reportsCtx = document.getElementById('reportsChart').getContext('2d');
         const monthsLabels = JSON.parse('{{ months_labels_json|escapejs }}');
@@ -421,7 +535,7 @@
                 labels: monthsLabels,
                 datasets: [{
                     data: monthsData,
-                    backgroundColor: monthsData.map((val, idx) => 
+                    backgroundColor: monthsData.map((val, idx) =>
                         idx === monthsData.length - 1 ? '#10b981' : '#94a3b8'
                     ),
                     borderRadius: 4,
@@ -443,7 +557,7 @@
         // Case Type Donut
         const caseTypeCtx = document.getElementById('caseTypeChart').getContext('2d');
         const caseTypeData = JSON.parse('{{ case_data_json|escapejs }}');
-        
+
         new Chart(caseTypeCtx, {
             type: 'doughnut',
             data: {
@@ -467,7 +581,7 @@
         // Leave Donut
         const leaveCtx = document.getElementById('leaveChart').getContext('2d');
         const leaveData = JSON.parse('{{ leave_data_json|escapejs }}');
-        
+
         new Chart(leaveCtx, {
             type: 'doughnut',
             data: {
@@ -578,27 +692,27 @@
             },
             body: JSON.stringify({ requests: requests })
         })
-        .then(r => r.json())
-        .then(data => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            if (data.status === 'success') {
-                closeLeaveModal();
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire('Success', 'Your requests have been submitted for admin approval.', 'success');
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (data.status === 'success') {
+                    closeLeaveModal();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire('Success', 'Your requests have been submitted for admin approval.', 'success');
+                    } else {
+                        alert('Your requests have been submitted for admin approval.');
+                    }
                 } else {
-                    alert('Your requests have been submitted for admin approval.');
+                    alert('Error: ' + data.error);
                 }
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            alert('An error occurred. Please try again.');
-        });
+            })
+            .catch(err => {
+                console.error(err);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                alert('An error occurred. Please try again.');
+            });
     }
 
     // CSRF Cookie getter if not already defined
@@ -617,16 +731,16 @@
 
     function fetchLeaves() {
         const listDiv = document.getElementById('leave-list');
-        if(!listDiv) return;
+        if (!listDiv) return;
         listDiv.innerHTML = '<div class="text-center p-4 text-xs text-gray-400">Loading...</div>';
         fetch('/core/api/leaves/')
-        .then(r => r.json())
-        .then(data => {
-            if(data.leaves) {
-                allLeaves = data.leaves;
-                filterLeaves(currentLeaveFilter);
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.leaves) {
+                    allLeaves = data.leaves;
+                    filterLeaves(currentLeaveFilter);
+                }
+            });
     }
 
     function filterLeaves(status) {
@@ -634,15 +748,15 @@
         const btnP = document.getElementById('btnFilterPending');
         const btnA = document.getElementById('btnFilterApproved');
         const btnR = document.getElementById('btnFilterDenied');
-        
+
         if (btnP) btnP.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'pending' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
         if (btnA) btnA.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'approved' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
         if (btnR) btnR.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'denied' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
 
         const filtered = allLeaves.filter(l => l.status === status);
         const listDiv = document.getElementById('leave-list');
-        if(!listDiv) return;
-        
+        if (!listDiv) return;
+
         let html = '';
         filtered.forEach(l => {
             html += `
@@ -671,7 +785,7 @@
                 </div>
             `;
         });
-        if(html === '') html = `<div class="text-center p-4 text-xs text-gray-400">No ${status} leaves</div>`;
+        if (html === '') html = `<div class="text-center p-4 text-xs text-gray-400">No ${status} leaves</div>`;
         listDiv.innerHTML = html;
     }
 
@@ -684,69 +798,77 @@
             },
             body: JSON.stringify({ leave_id: id, action: action })
         })
-        .then(r => r.json())
-        .then(data => {
-            if(data.status === 'success') {
-                fetchLeaves();
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchLeaves();
+                }
+            });
     }
 
     // Init fetch
-    if(document.getElementById('rightPanelLeaves')) {
+    if (document.getElementById('rightPanelLeaves')) {
         fetchLeaves();
     }
 </script>
 
 <!-- Leave Request Modal -->
 <div id="leaveRequestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[70]">
-  <div class="bg-white rounded-xl p-6 w-[600px] max-w-[95vw] shadow-2xl flex flex-col max-h-[78vh]">
-    <div class="flex justify-between items-center mb-4 flex-shrink-0">
-        <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-calendar-plus text-purple-600 mr-2"></i>Request Leave / WFH</h2>
-        <button onclick="closeLeaveModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-lg"></i></button>
-    </div>
-    
-    <div class="text-sm text-gray-600 mb-4 bg-purple-50 p-3 rounded border border-purple-100 flex-shrink-0">
-        Add the dates you need below. You can mix and match leave types for different days.
-    </div>
+    <div class="bg-white rounded-xl p-6 w-[600px] max-w-[95vw] shadow-2xl flex flex-col max-h-[78vh]">
+        <div class="flex justify-between items-center mb-4 flex-shrink-0">
+            <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-calendar-plus text-purple-600 mr-2"></i>Request
+                Leave / WFH</h2>
+            <button onclick="closeLeaveModal()" class="text-gray-400 hover:text-gray-600"><i
+                    class="fas fa-times text-lg"></i></button>
+        </div>
 
-    <div class="flex-1 overflow-y-auto pr-2" id="leaveDatesContainer">
-        <!-- Date rows go here -->
-    </div>
+        <div class="text-sm text-gray-600 mb-4 bg-purple-50 p-3 rounded border border-purple-100 flex-shrink-0">
+            Add the dates you need below. You can mix and match leave types for different days.
+        </div>
 
-    {% if recent_leaves %}
-    <div class="mt-2 flex-shrink-0 border-t pt-3">
-        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Recent Requests</h3>
-        <div class="space-y-2 max-h-[100px] overflow-y-auto pr-2">
-            {% for leave in recent_leaves %}
-            <div class="flex justify-between items-center text-[11px] bg-gray-50 p-2 rounded border border-gray-100">
-                <div>
-                    <div class="font-bold text-gray-700">{{ leave.leave_date|date:"d M, Y" }}</div>
-                    <div class="text-[9px] text-gray-500 truncate max-w-[200px]">{{ leave.reason|default:leave.get_leave_type_display }}</div>
+        <div class="flex-1 overflow-y-auto pr-2" id="leaveDatesContainer">
+            <!-- Date rows go here -->
+        </div>
+
+        {% if recent_leaves %}
+        <div class="mt-2 flex-shrink-0 border-t pt-3">
+            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Recent Requests</h3>
+            <div class="space-y-2 max-h-[100px] overflow-y-auto pr-2">
+                {% for leave in recent_leaves %}
+                <div
+                    class="flex justify-between items-center text-[11px] bg-gray-50 p-2 rounded border border-gray-100">
+                    <div>
+                        <div class="font-bold text-gray-700">{{ leave.leave_date|date:"d M, Y" }}</div>
+                        <div class="text-[9px] text-gray-500 truncate max-w-[200px]">{{
+                            leave.reason|default:leave.get_leave_type_display }}</div>
+                    </div>
+                    {% if leave.status == 'approved' %}
+                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-bold">Approved</span>
+                    {% elif leave.status == 'denied' %}
+                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-[9px] font-bold">Denied</span>
+                    {% else %}
+                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-[9px] font-bold">Pending</span>
+                    {% endif %}
                 </div>
-                {% if leave.status == 'approved' %}
-                <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-bold">Approved</span>
-                {% elif leave.status == 'denied' %}
-                <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded text-[9px] font-bold">Denied</span>
-                {% else %}
-                <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-[9px] font-bold">Pending</span>
-                {% endif %}
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="mt-4 flex-shrink-0 border-t pt-4">
+            <button onclick="addLeaveRow()"
+                class="text-sm text-blue-600 font-bold hover:underline mb-4 flex items-center gap-1">
+                <i class="fas fa-plus-circle"></i> Add Another Date
+            </button>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeLeaveModal()"
+                    class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50 font-semibold">Cancel</button>
+                <button onclick="submitLeaveRequest()"
+                    class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-bold shadow-sm transition-colors"
+                    id="submitLeaveBtn">Submit Request</button>
+            </div>
         </div>
     </div>
-    {% endif %}
-
-    <div class="mt-4 flex-shrink-0 border-t pt-4">
-        <button onclick="addLeaveRow()" class="text-sm text-blue-600 font-bold hover:underline mb-4 flex items-center gap-1">
-            <i class="fas fa-plus-circle"></i> Add Another Date
-        </button>
-
-        <div class="flex justify-end gap-3">
-            <button onclick="closeLeaveModal()" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50 font-semibold">Cancel</button>
-            <button onclick="submitLeaveRequest()" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-bold shadow-sm transition-colors" id="submitLeaveBtn">Submit Request</button>
-        </div>
-    </div>
-  </div>
 </div>
 {% endblock %}

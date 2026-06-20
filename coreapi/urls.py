@@ -10,6 +10,7 @@ urlpatterns = [
     path("api/session-status/", views.session_status_api, name="session_status_api"),
     path("api/request-overtime/", views.request_overtime_api, name="request_overtime_api"),
     path("api/request-leaves/", views.request_leaves_api, name="request_leaves_api"),
+    path("api/biometric-action/", views.biometric_action_api, name="biometric_action_api"),
     
     # admin
     path('dev-center/', views.developer_dashboard, name='dev_dashboard'),

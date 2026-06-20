@@ -27,6 +27,7 @@ class LoginRequiredMiddleware:
             "/offline",                 # <--- NEW: Required for PWA offline mode
             "/.well-known/assetlinks.json",
             "/admin/",
+            "/coreapi/api/biometric-action/",
         ]
 
         # Allow static + media

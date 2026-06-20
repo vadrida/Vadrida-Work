@@ -876,6 +876,61 @@ def attendance_api(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
+@csrf_exempt
+def monthly_attendance_api(request):
+    if request.method == "GET":
+        from django.utils import timezone
+        import calendar
+        
+        year = int(request.GET.get('year', timezone.now().year))
+        month = int(request.GET.get('month', timezone.now().month))
+        
+        _, num_days = calendar.monthrange(year, month)
+        
+        users = UserProfile.objects.exclude(role__in=['admin', 'IT', 'site', ''])
+        user_data = []
+        
+        # Pre-fetch all WorkSessions and Leaves for the month to avoid N+1 queries
+        sessions = WorkSession.objects.filter(date__year=year, date__month=month)
+        leaves = LeaveRecord.objects.filter(leave_date__year=year, leave_date__month=month, status='approved')
+        
+        session_map = {}
+        for s in sessions:
+            if s.user_id not in session_map:
+                session_map[s.user_id] = {}
+            session_map[s.user_id][s.date.day] = 'present'
+            
+        leave_map = {}
+        for l in leaves:
+            if l.user_id not in leave_map:
+                leave_map[l.user_id] = {}
+            leave_map[l.user_id][l.leave_date.day] = l.leave_type
+            
+        for u in users:
+            attendance = {}
+            for day in range(1, num_days + 1):
+                status = 'absent' # Default
+                
+                # Check leaves first
+                if u.id in leave_map and day in leave_map[u.id]:
+                    status = leave_map[u.id][day]
+                # Then check sessions
+                elif u.id in session_map and day in session_map[u.id]:
+                    status = session_map[u.id][day]
+                    
+                # Future dates shouldn't be marked absent automatically
+                if year == timezone.now().year and month == timezone.now().month and day > timezone.now().day:
+                    status = 'future'
+                    
+                attendance[str(day)] = status
+                
+            user_data.append({
+                'id': u.id,
+                'user_name': u.user_name,
+                'attendance': attendance
+            })
+            
+        return JsonResponse({'status': 'success', 'days': num_days, 'users': user_data})
 
 @csrf_exempt
 def leaves_api(request):

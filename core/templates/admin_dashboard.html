@@ -63,6 +63,9 @@
             <a href="#" data-tab="reports" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-file-pdf w-5"></i> Recent Reports
             </a>
+            <a href="#" onclick="openBiometricModal()" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600 hover:text-blue-600">
+                <i class="fas fa-door-closed w-5"></i> Smart Lock / Logs
+            </a>
         </nav>
         
         <div class="mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
@@ -337,8 +340,31 @@
                 </div>
 
                 <!-- Monthly Summaries (Grid) -->
-                <div class="grid grid-cols-2 gap-6" id="attendanceSummaryCards">
-                    <!-- Cards will go here -->
+                <div class="bg-white rounded-2xl border border-gray-100 card-shadow flex flex-col min-h-[400px]">
+                    <div class="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-800">Monthly Roster</h3>
+                            <p class="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">Excel-style view</p>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <select id="monthlyGridMonth" class="text-xs border-gray-300 rounded outline-none p-1.5 focus:ring-2 focus:ring-blue-500">
+                                <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                                <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                                <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                                <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                            </select>
+                            <select id="monthlyGridYear" class="text-xs border-gray-300 rounded outline-none p-1.5 focus:ring-2 focus:ring-blue-500">
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                            </select>
+                            <button onclick="fetchMonthlyAttendance()" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded text-[11px] font-bold transition-colors">
+                                <i class="fas fa-sync-alt"></i> Load
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-x-auto p-4" id="monthlyGridContainer">
+                        <div class="text-center text-xs text-gray-400 py-10 italic">Click 'Load' to view monthly grid.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -449,6 +475,44 @@
                 <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 rounded hover:bg-indigo-600 transition-colors">Save User</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- BIOMETRIC DEVICE MODAL -->
+<div id="biometricModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 w-[800px] card-shadow flex flex-col max-h-[80vh]">
+        <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3 flex-shrink-0">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Smart Lock & Attendance</h2>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">eSSL Biometric Logs</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="unlockBiometricDoor()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-2">
+                    <i class="fas fa-unlock-alt"></i> UNLOCK DOOR
+                </button>
+                <button onclick="closeBiometricModal()" class="text-gray-400 hover:text-gray-600 ml-2"><i class="fas fa-times text-lg"></i></button>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-gray-600 uppercase">Recent Punches</span>
+            <button onclick="fetchBiometricLogs()" class="text-[10px] font-bold text-blue-500 hover:text-blue-700"><i class="fas fa-sync-alt mr-1"></i> Sync Data</button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto pr-2 bg-gray-50 rounded-lg border border-gray-200">
+            <table class="w-full text-left text-sm text-gray-600 border-collapse">
+                <thead class="sticky top-0 bg-gray-100/90 backdrop-blur text-[10px] uppercase font-bold text-gray-500 z-10">
+                    <tr>
+                        <th class="p-3">Employee</th>
+                        <th class="p-3">Device Time</th>
+                        <th class="p-3">System Login</th>
+                    </tr>
+                </thead>
+                <tbody id="biometricLogsTable" class="divide-y divide-gray-200 text-xs bg-white">
+                    <tr><td colspan="3" class="text-center p-4 text-gray-400 italic">Click 'Sync Data' to fetch logs...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -1644,5 +1708,271 @@
             }
         }
     });
+
+    // --- BIOMETRIC / eSSL INTEGRATION ---
+    function openBiometricModal() {
+        document.getElementById('biometricModal').classList.remove('hidden');
+        fetchBiometricLogs();
+    }
+    
+    function closeBiometricModal() {
+        document.getElementById('biometricModal').classList.add('hidden');
+    }
+    
+    function fetchBiometricLogs() {
+        const tbody = document.getElementById('biometricLogsTable');
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i> Fetching logs from device...</td></tr>';
+        
+        fetch('/coreapi/api/biometric-action/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({action: 'logs'})
+        })
+        .then(async r => {
+            if (!r.ok) {
+                console.warn("Biometric Logs API returned non-OK status:", r.status);
+            }
+            const text = await r.text();
+            try {
+                return JSON.parse(text);
+            } catch(e) {
+                console.error("Raw response:", text);
+                throw new Error("Raw response: " + text.substring(0, 80));
+            }
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-400">No logs found on device.</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                data.logs.forEach(log => {
+                    const sysLoginClass = log.system_login === "Not Logged In" ? "text-gray-400 text-[10px]" : "font-bold text-blue-600";
+                    html += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 font-bold">${log.user_name} <span class="text-gray-400 text-[10px] font-normal ml-1">(#${log.user_id})</span></td>
+                            <td class="p-3 font-medium">${log.timestamp} <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-100 text-green-700 ml-1">${log.punch_type}</span></td>
+                            <td class="p-3"><span class="${sysLoginClass}">${log.system_login}</span></td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500 font-bold">${data.error || 'Failed to connect'}</td></tr>`;
+            }
+        })
+        .catch(e => {
+            console.error("Biometric Logs Error:", e);
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500 font-bold">Error: ${e.message}</td></tr>`;
+        });
+    }
+
+    function unlockBiometricDoor() {
+        if(!confirm("Are you sure you want to unlock the main door?")) return;
+        
+        const btn = document.querySelector('#biometricModal .fa-unlock-alt').parentElement;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> UNLOCKING...';
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        fetch('/coreapi/api/biometric-action/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({action: 'unlock'})
+        })
+        .then(async r => {
+            if (!r.ok) {
+                console.warn("Biometric Unlock API returned non-OK status:", r.status);
+            }
+            const text = await r.text();
+            try {
+                return JSON.parse(text);
+            } catch(e) {
+                console.error("Raw response:", text);
+                throw new Error("Raw response: " + text.substring(0, 80));
+            }
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Success: Start the 12 second countdown
+                let timeLeft = 12;
+                btn.innerHTML = `<i class="fas fa-unlock text-green-300"></i> OPEN (${timeLeft}s)`;
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        btn.innerHTML = `<i class="fas fa-unlock text-green-300"></i> OPEN (${timeLeft}s)`;
+                    }
+                }, 1000);
+            } else {
+                alert("Error: " + (data.error || "Failed to unlock"));
+                if(data.details) console.error(data.details);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        })
+        .catch(e => {
+            console.error("Biometric Unlock Error:", e);
+            alert("Error trying to unlock door: " + e.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+    }
+
+    // --- MONTHLY GRID LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const now = new Date();
+        const monthSelect = document.getElementById('monthlyGridMonth');
+        const yearSelect = document.getElementById('monthlyGridYear');
+        if(monthSelect) monthSelect.value = now.getMonth() + 1;
+        if(yearSelect) yearSelect.value = now.getFullYear();
+    });
+
+    function fetchMonthlyAttendance() {
+        const month = document.getElementById('monthlyGridMonth').value;
+        const year = document.getElementById('monthlyGridYear').value;
+        const container = document.getElementById('monthlyGridContainer');
+        
+        container.innerHTML = '<div class="text-center text-xs text-gray-400 py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Loading monthly grid...</div>';
+        
+        fetch(`/core/api/attendance-monthly/?year=${year}&month=${month}`)
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                renderMonthlyGrid(data.users, data.days);
+            } else {
+                container.innerHTML = `<div class="text-center text-xs text-red-500 py-10">Error: ${data.error}</div>`;
+            }
+        })
+        .catch(e => {
+            container.innerHTML = `<div class="text-center text-xs text-red-500 py-10">Network error fetching data.</div>`;
+        });
+    }
+
+    function renderMonthlyGrid(users, daysInMonth) {
+        const container = document.getElementById('monthlyGridContainer');
+        if(!users || users.length === 0) {
+            container.innerHTML = '<div class="text-center text-xs text-gray-400 py-10">No users found for this month.</div>';
+            return;
+        }
+
+        // Build header
+        let html = `
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-gray-100 text-[9px] uppercase font-bold text-gray-500 sticky top-0 z-10">
+                    <tr>
+                        <th class="p-2 border border-gray-200 sticky left-0 bg-gray-100 z-20 min-w-[120px]">Employee</th>
+        `;
+        for(let d = 1; d <= daysInMonth; d++) {
+            html += `<th class="p-1 border border-gray-200 text-center w-6">${d}</th>`;
+        }
+        html += `
+                    </tr>
+                </thead>
+                <tbody class="text-[10px]">
+        `;
+
+        // Build rows
+        users.forEach(u => {
+            html += `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-2 border border-gray-200 font-bold text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">${u.user_name}</td>
+            `;
+            for(let d = 1; d <= daysInMonth; d++) {
+                const status = u.attendance[d] || 'absent';
+                
+                let cellHtml = '';
+                if(status === 'present') cellHtml = '<span class="text-green-600 font-bold">P</span>';
+                else if(status === 'absent') cellHtml = '<span class="text-red-500 font-bold">A</span>';
+                else if(status === 'half_day') cellHtml = '<span class="text-blue-500 font-bold">HD</span>';
+                else if(status === 'sick') cellHtml = '<span class="text-orange-500 font-bold">SL</span>';
+                else if(status === 'casual') cellHtml = '<span class="text-blue-500 font-bold">CL</span>';
+                else if(status === 'wfh') cellHtml = '<span class="text-purple-500 font-bold">WH</span>';
+                else if(status === 'future') cellHtml = '<span class="text-gray-300">-</span>';
+                else cellHtml = `<span class="text-gray-500 font-bold">${status.substring(0,2).toUpperCase()}</span>`;
+
+                html += `<td class="p-1 border border-gray-200 text-center cursor-pointer hover:bg-blue-50 transition-colors" title="${u.user_name} - Day ${d}" onclick="editMonthlyCell('${u.id}', '${d}', '${status}')">${cellHtml}</td>`;
+            }
+            html += `</tr>`;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    function editMonthlyCell(userId, day, currentStatus) {
+        if(currentStatus === 'future') return; // Can't edit future dates directly easily, wait till they pass
+        
+        const month = document.getElementById('monthlyGridMonth').value;
+        const year = document.getElementById('monthlyGridYear').value;
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // Use sweetalert if available, otherwise native prompt
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Edit Attendance',
+                html: `Update status for <b>${dateStr}</b>`,
+                input: 'select',
+                inputOptions: {
+                    'present': 'Present (P)',
+                    'absent': 'Absent (A)',
+                    'half_day': 'Half Day (HD)',
+                    'sick': 'Sick Leave (SL)',
+                    'casual': 'Casual Leave (CL)',
+                    'wfh': 'Work From Home (WH)'
+                },
+                inputValue: currentStatus,
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    saveSingleMonthlyUpdate(userId, dateStr, result.value);
+                }
+            });
+        } else {
+            const newStatus = prompt(`Update status for ${dateStr} (present, absent, half_day, sick, casual, wfh):`, currentStatus);
+            if(newStatus && ['present', 'absent', 'half_day', 'sick', 'casual', 'wfh'].includes(newStatus)) {
+                saveSingleMonthlyUpdate(userId, dateStr, newStatus);
+            }
+        }
+    }
+
+    function saveSingleMonthlyUpdate(userId, dateStr, status) {
+        fetch('/core/api/attendance/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                updates: [{ user_id: userId, date: dateStr, status: status }]
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if(data.status === 'success') {
+                fetchMonthlyAttendance(); // Reload the grid
+            } else {
+                alert('Error updating: ' + data.error);
+            }
+        });
+    }
 </script>
 {% endblock %}
