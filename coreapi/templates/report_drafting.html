@@ -8990,12 +8990,32 @@
     }
 
     let draftingAutoSaveTimer = null;
+    let isAutoSaving = false;
+    let pendingAutoSave = false;
+
     function triggerAutoSave() {
         updateSyncStatus('waiting');
         clearTimeout(draftingAutoSaveTimer);
         draftingAutoSaveTimer = setTimeout(() => {
-            manualSaveDraftingData();
+            if (isAutoSaving) {
+                pendingAutoSave = true;
+                return;
+            }
+            performDraftingAutoSave();
         }, 1500); // 1.5s debounce as requested
+    }
+
+    async function performDraftingAutoSave() {
+        isAutoSaving = true;
+        pendingAutoSave = false;
+        try {
+            await manualSaveDraftingData(false);
+        } finally {
+            isAutoSaving = false;
+            if (pendingAutoSave) {
+                triggerAutoSave();
+            }
+        }
     }
 
     // Global event listeners to ensure any editable field triggers auto-save

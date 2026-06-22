@@ -203,6 +203,21 @@
         return cookieValue;
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('timeout') === '1') {
+            Swal.fire({
+                title: 'Session Expired',
+                text: 'Logged out due to Time limits as you have worked 10 hrs.',
+                icon: 'info',
+                confirmButtonColor: '#0066ff',
+                confirmButtonText: 'Okay'
+            });
+            // Remove the timeout param from URL to avoid re-triggering on refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+
     // Mobile menu toggle
     const mobileMenuButton = document.getElementById("mobileMenuButton");
     const mobileMenu = document.getElementById("mobileMenu");

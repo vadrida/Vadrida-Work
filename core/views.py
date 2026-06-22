@@ -852,25 +852,74 @@ def attendance_api(request):
                 user = UserProfile.objects.get(id=user_id)
                 
                 if status == 'present':
-                    # Remove LeaveRecord if exists
-                    LeaveRecord.objects.filter(user=user, leave_date=date_str).delete()
+                    # Remove LeaveRecord if exists and RESTORE balance
+                    lrs = LeaveRecord.objects.filter(user=user, leave_date=date_str)
+                    for lr in lrs:
+                        if lr.status == 'approved' and lr.leave_type in ['casual', 'sick', 'earned']:
+                            ded = lr.deduction_value
+                            if lr.leave_type == 'casual': user.cl_balance += ded
+                            elif lr.leave_type == 'sick': user.sl_balance += ded
+                            elif lr.leave_type == 'earned': user.el_balance += ded
+                            user.save(update_fields=['cl_balance', 'sl_balance', 'el_balance'])
+                        lr.delete()
+                        
                     # Create WorkSession if not exists
                     ws, created = WorkSession.objects.get_or_create(
                         user=user, date=date_str, 
                         defaults={'login_time': timezone.now(), 'is_active': False, 'hours_worked': 0}
                     )
+                elif status == 'absent':
+                    # Remove WorkSession and LeaveRecord (Restore balance)
+                    WorkSession.objects.filter(user=user, date=date_str).delete()
+                    lrs = LeaveRecord.objects.filter(user=user, leave_date=date_str)
+                    for lr in lrs:
+                        if lr.status == 'approved' and lr.leave_type in ['casual', 'sick', 'earned']:
+                            ded = lr.deduction_value
+                            if lr.leave_type == 'casual': user.cl_balance += ded
+                            elif lr.leave_type == 'sick': user.sl_balance += ded
+                            elif lr.leave_type == 'earned': user.el_balance += ded
+                            user.save(update_fields=['cl_balance', 'sl_balance', 'el_balance'])
+                        lr.delete()
                 else:
-                    # Any other status is a LeaveRecord override
+                    # Any other status is a LeaveRecord override (sick, casual, wfh)
                     WorkSession.objects.filter(user=user, date=date_str).delete()
                     
-                    lr, created = LeaveRecord.objects.get_or_create(
-                        user=user, leave_date=date_str,
-                        defaults={'leave_type': status, 'status': 'approved', 'reason': 'Admin mapped'}
-                    )
-                    if not created:
+                    lr = LeaveRecord.objects.filter(user=user, leave_date=date_str).first()
+                    if not lr:
+                        # New override leave, deduct balance
+                        lr = LeaveRecord.objects.create(
+                            user=user, leave_date=date_str,
+                            leave_type=status, status='approved', reason='Admin mapped'
+                        )
+                        if status in ['casual', 'sick', 'earned']:
+                            ded = lr.deduction_value
+                            if status == 'casual': user.cl_balance = max(0, user.cl_balance - ded)
+                            elif status == 'sick': user.sl_balance = max(0, user.sl_balance - ded)
+                            elif status == 'earned': user.el_balance = max(0, user.el_balance - ded)
+                            user.save(update_fields=['cl_balance', 'sl_balance', 'el_balance'])
+                    else:
+                        old_type = lr.leave_type
+                        old_status = lr.status
+                        
+                        # If changing from one paid leave to another, restore old balance first
+                        if old_status == 'approved' and old_type != status and old_type in ['casual', 'sick', 'earned']:
+                            ded = lr.deduction_value
+                            if old_type == 'casual': user.cl_balance += ded
+                            elif old_type == 'sick': user.sl_balance += ded
+                            elif old_type == 'earned': user.el_balance += ded
+                            
                         lr.leave_type = status
                         lr.status = 'approved'
                         lr.save()
+                        
+                        # Deduct new balance
+                        if status in ['casual', 'sick', 'earned'] and (old_type != status or old_status != 'approved'):
+                            ded = lr.deduction_value
+                            if status == 'casual': user.cl_balance = max(0, user.cl_balance - ded)
+                            elif status == 'sick': user.sl_balance = max(0, user.sl_balance - ded)
+                            elif status == 'earned': user.el_balance = max(0, user.el_balance - ded)
+                        
+                        user.save(update_fields=['cl_balance', 'sl_balance', 'el_balance'])
                         
             return JsonResponse({'status': 'success'})
         except Exception as e:

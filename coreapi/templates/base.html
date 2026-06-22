@@ -280,7 +280,7 @@
                 .then(r => r.json())
                 .then(d => {
                     if (d.force_logout) {
-                        window.location.href = "{% url 'coreapi:logout_api' %}";
+                        window.location.href = "{% url 'coreapi:logout_api' %}?timeout=1";
                     }
                     if (d.max_hours) {
                         MAX_LIMIT = d.max_hours * 3600;
@@ -313,7 +313,7 @@
 
                 // Enforce strict auto-logout for 'office' users only
                 if (elapsed >= MAX_LIMIT) {
-                    window.location.href = "{% url 'coreapi:logout_api' %}";
+                    window.location.href = "{% url 'coreapi:logout_api' %}?timeout=1";
                     return;
                 }
             }

@@ -742,7 +742,11 @@ def logout_api(request):
         except Exception:
             pass  # Don't block logout on tracking errors
 
+    timeout = request.GET.get('timeout')
     request.session.flush()
+    if timeout == '1':
+        from django.urls import reverse
+        return redirect(f"{reverse('coreapi:login_page')}?timeout=1")
     return redirect("coreapi:login_page")
 
 @csrf_exempt
