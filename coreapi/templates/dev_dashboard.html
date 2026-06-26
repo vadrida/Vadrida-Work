@@ -5,396 +5,512 @@
 
 {% block extra_head %}
 <style>
-    /* Dark Theme specific to Dev Dashboard */
-    .dev-bg {
-        background-color: #0f172a;
-        min-height: calc(100vh - 70px);
+    /* Full Page Background Video Setup */
+    .bg-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        min-width: 100vw;
+        min-height: 100vh;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -10;
+        opacity: 0.85; /* Dim it slightly for readability */
+    }
+
+    body {
+        background-color: #000;
         color: #f8fafc;
-        padding: 20px;
+        overflow-x: hidden;
     }
 
-    .dev-card {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    .dev-container {
+        padding: 20px 40px 80px 40px;
+        position: relative;
+        z-index: 1;
+        perspective: 1000px;
     }
 
-    .dev-header {
-        border-bottom: 1px solid #334155;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-        font-weight: 600;
-        color: #94a3b8;
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #fff;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* --- 3D GLASSMORPHISM CARDS --- */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.92); /* White Frosted Glass */
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,1);
+        transform-style: preserve-3d;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        max-width: 100%;
+        box-sizing: border-box;
+        color: #1e293b; /* Dark text for readability */
+    }
+
+    .glass-card:hover {
+        transform: translateY(-3px); 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,1);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        padding-bottom: 12px;
+        margin-bottom: 20px;
+        font-weight: 800;
+        color: #334155;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+        font-size: 0.9rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        transform: translateZ(20px); /* 3D pop */
     }
 
-    /* Responsive Grid */
-    .dev-grid {
+    /* --- NAVIGATION GRID --- */
+    .nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        transform: translateZ(30px);
+    }
+
+    .nav-btn {
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 15px;
+        color: #475569;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.8), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .nav-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.5);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .nav-btn:hover::before { opacity: 1; }
+    
+    .nav-btn i {
+        font-size: 1.5rem;
+        color: #60a5fa;
+        transition: transform 0.3s ease;
+    }
+    .nav-btn:hover i { transform: scale(1.2); }
+
+    /* --- SPECIFIC ACTION BUTTONS --- */
+    .action-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(239, 68, 68, 0.5);
+    }
+
+    .door-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+    }
+    .door-btn:hover {
+        box-shadow: 0 15px 30px rgba(16, 185, 129, 0.5);
+    }
+
+    /* --- LAYOUT GRID --- */
+    .dashboard-grid {
         display: grid;
         grid-template-columns: 1fr;
-        /* Mobile: 1 column */
-        gap: 20px;
+        gap: 30px;
+        margin-top: 30px;
     }
 
-    @media (min-width: 768px) {
-        .dev-grid {
+    @media (min-width: 1024px) {
+        .dashboard-grid {
             grid-template-columns: repeat(2, 1fr);
         }
-
-        /* Tablet: 2 columns */
-    }
-
-    @media (min-width: 1280px) {
-        .dev-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        /* Desktop: 3 columns */
-    }
-
-    /* Spans 2 columns on desktop for wide elements like Logs */
-    .col-span-full {
-        grid-column: 1 / -1;
-    }
-
-    @media (min-width: 1280px) {
         .col-span-2 {
-            grid-column: span 2 / span 2;
+            grid-column: span 2;
         }
+    }
+
+    /* --- MOBILE RESPONSIVENESS (Poco F4 & similar) --- */
+    @media (max-width: 768px) {
+        .dev-container {
+            padding: 15px 10px 80px 10px;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .glass-card {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px !important;
+        }
+        .card-header {
+            font-size: 0.8rem;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .nav-grid {
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        .nav-btn {
+            padding: 8px 5px;
+            font-size: 0.65rem;
+            text-align: center;
+        }
+        .nav-btn i {
+            font-size: 1.1rem;
+        }
+        .action-container {
+            flex-direction: column;
+            width: 100%;
+        }
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        .terminal-container {
+            height: 300px;
+        }
+        .terminal-input-wrapper span {
+            display: none; /* Hide root@vadrida on mobile to save space */
+        }
+    }
+
+    /* Terminal Styling */
+    .terminal-container {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+    }
+
+    .terminal-output {
+        flex: 1;
+        padding: 15px;
+        color: #4ade80;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        overflow-y: auto;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        line-height: 1.4;
+    }
+
+    .terminal-input-wrapper {
+        display: flex;
+        align-items: center;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding: 10px 15px;
+        background: rgba(0,0,0,0.5);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dev-bg">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: #fff;"><i class="fas fa-terminal text-blue-500 mr-2"></i>
-            Command Center</h1>
-        <span
-            style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">SUPERADMIN
-            ONLY</span>
+<!-- BACKGROUND VIDEO -->
+<video autoplay loop muted playsinline class="bg-video">
+    <source src="{% static 'videos/background_2_compressed.mp4' %}" type="video/mp4">
+</video>
+
+<div class="dev-container">
+    <div class="page-title">
+        <i class="fas fa-space-shuttle text-blue-500" style="filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.8));"></i> 
+        Dev Command Center
     </div>
 
-    <div class="dev-grid">
+    <!-- MAIN NAVIGATION SECTION (FULL WIDTH) -->
+    <div class="glass-card" style="margin-bottom: 30px;">
+        <div class="card-header">
+            <span style="margin-top: 20px;"><i class="fas fa-compass mr-2"></i> System Navigation</span>
+        </div>
+        <div class="nav-grid ml-5 mr-5">
+            <a href="/coreapi/office-verification/" class="nav-btn"><i class="fas fa-check-double"></i> Office Verification</a>
+            <a href="/coreapi/digital-signer/" class="nav-btn"><i class="fas fa-signature"></i> Digital Signer</a>
+            <a href="/coreapi/feedback/" class="nav-btn"><i class="fas fa-comment-dots"></i> Feedback</a>
+            <a href="/coreapi/status-viewer/" class="nav-btn"><i class="fas fa-tasks"></i> Status Viewer</a>
+            <a href="/coreapi/create-folder/" class="nav-btn"><i class="fas fa-folder-plus"></i> Create Folder</a>
+            <a href="/admin/" class="nav-btn" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);"><i class="fas fa-users-cog" style="color: #34d399;"></i> User Management</a>
+        </div>
+    </div>
 
-        <div class="dev-card">
-            <div class="dev-header">
-                <span><i class="fas fa-server mr-2"></i> Server Health</span>
-                <span id="serverStatusBadge" style="color: #4ade80;">Online</span>
+    <!-- HARDWARE ACTIONS & AC CONTROL -->
+    <div class="dashboard-grid" style="margin-top: 0; margin-bottom: 30px;">
+        
+        <div class="glass-card">
+            <div class="card-header">
+                <span style="margin-top: 5px;"><i class="fas fa-microchip mr-2 text-gray-500"></i> Hardware Controls</span>
             </div>
+            <div class="action-container" style="display: flex; flex-direction: column; gap: 15px; transform: translateZ(20px);">
+                <button onclick="triggerDoorUnlock()" class="action-btn door-btn">
+                    <i class="fas fa-door-open"></i> Unlock Office Door
+                </button>
+                <div style="display: flex; gap: 15px;">
+                    <button onclick="triggerServerRestart()" class="action-btn" id="restartBtn" style="flex: 1;">
+                        <i class="fas fa-power-off"></i> Reboot Server
+                    </button>
+                    <button onclick="clearStaleSessions()" id="sweepBtn" class="action-btn" style="flex: 1; background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                        <i class="fas fa-broom"></i> Sweep Redis
+                    </button>
+                </div>
+            </div>
+        </div>
 
-            <div style="margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+        <!-- NEW: SMART AC CONTROL (CARRIER / MIDEA) -->
+        <div class="glass-card">
+            <div class="card-header">
+                <span style="margin-top: 5px;"><i class="fas fa-snowflake text-blue-500 mr-2"></i> Climate Control (AC)</span>
+                <span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-1 rounded-full font-bold">WIFI LINK: OFFLINE</span>
+            </div>
+            <div style="transform: translateZ(20px);">
+                
+                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4">
+                    <div>
+                        <div class="text-xs text-gray-400 font-bold uppercase">Current Temp</div>
+                        <div class="text-3xl font-black text-gray-800">--°<span class="text-lg text-gray-400">C</span></div>
+                    </div>
+                    <button onclick="toggleACPower()" id="acPowerBtn" class="w-16 h-16 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-2xl shadow-inner transition-all hover:bg-gray-300">
+                        <i class="fas fa-power-off"></i>
+                    </button>
+                </div>
+
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-lg font-bold hover:bg-blue-50 hover:text-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2">
+                        <i class="fas fa-minus text-sm"></i> Temp
+                    </button>
+                    <button class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-lg font-bold hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm flex items-center justify-center gap-2">
+                        Temp <i class="fas fa-plus text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- TERMINAL (FULL WIDTH) -->
+        <div class="glass-card col-span-2">
+            <div class="card-header">
+                <span><i class="fas fa-terminal mr-2"></i> Live Terminal</span>
+                <span id="wsStatus" style="color: #facc15; font-size: 0.75rem;"><i class="fas fa-circle-notch fa-spin"></i> Connecting...</span>
+            </div>
+            <div class="terminal-container">
+                <div id="terminalWindow" class="terminal-output">{{ system_logs }}</div>
+                <div class="terminal-input-wrapper">
+                    <span style="color: #ef4444; font-family: monospace; font-weight: bold; margin-right: 10px;">root@vadrida:~#</span>
+                    <input type="text" id="commandInput" placeholder="Execute shell command..." autocomplete="off"
+                           style="flex: 1; background: transparent; border: none; color: #fff; font-family: monospace; outline: none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVER HEALTH -->
+        <div class="glass-card col-span-2">
+            <div class="card-header">
+                <span><i class="fas fa-heartbeat text-red-500 mr-2"></i> Server Health</span>
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px]">Online</span>
+            </div>
+            <div style="transform: translateZ(10px);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; font-weight: bold; color: #475569;">
                     <span>CPU Usage</span>
-                    <span id="cpuText">{{ cpu_usage }}%</span>
+                    <span id="cpuText" class="text-blue-600">{{ cpu_usage }}%</span>
                 </div>
-                <div style="width: 100%; background: #334155; height: 8px; border-radius: 4px;">
-                    <div id="cpuBar"
-                        style="width: {{ cpu_usage }}%; background: #3b82f6; height: 100%; border-radius: 4px; transition: width 0.5s ease, background 0.3s ease;">
-                    </div>
+                <div style="width: 100%; background: #e2e8f0; height: 8px; border-radius: 4px; margin-bottom: 25px;">
+                    <div id="cpuBar" style="width: {{ cpu_usage }}%; background: #3b82f6; height: 100%; border-radius: 4px; transition: width 0.5s ease;"></div>
                 </div>
-            </div>
 
-            <div style="margin-bottom: 25px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
-                    <span>RAM Usage (<span id="ramTotalText">{{ ram_total }}</span> GB Total)</span>
-                    <span id="ramText">{{ ram_usage }}%</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; font-weight: bold; color: #475569;">
+                    <span>RAM Usage ({{ ram_total }} GB)</span>
+                    <span id="ramText" class="text-purple-600">{{ ram_usage }}%</span>
                 </div>
-                <div style="width: 100%; background: #334155; height: 8px; border-radius: 4px;">
-                    <div id="ramBar"
-                        style="width: {{ ram_usage }}%; background: #8b5cf6; height: 100%; border-radius: 4px; transition: width 0.5s ease;">
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="triggerServerRestart()" id="restartBtn"
-                style="width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
-                <i class="fas fa-power-off mr-2"></i> Restart Daphne Server
-            </button>
-        </div>
-
-        <div class="dev-card">
-            <div class="dev-header">
-                <span><i class="fas fa-users mr-2"></i> Active Users (Redis)</span>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span
-                        style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem;">Live</span>
-                    <button onclick="clearStaleSessions()" id="sweepBtn"
-                        style="background: transparent; border: none; color: #94a3b8; cursor: pointer; transition: color 0.2s;"
-                        title="Sweep Stale Sessions">
-                        <i class="fas fa-broom"></i>
-                    </button>
-                </div>
-            </div>
-            <div style="color: #94a3b8; font-size: 0.9rem; display: flex; flex-direction: column; gap: 12px;">
-
-                {% for u in active_users %}
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div
-                            style="width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80;">
-                        </div>
-
-                        <span>
-                            {{ u.user_name }}
-                            {% if u.user_name == request.session.user_name %}
-                            <span
-                                style="color: #3b82f6; font-size: 0.75rem; font-weight: bold; margin-left: 5px;">(You)</span>
-                            {% endif %}
-                        </span>
-                    </div>
-                    <span
-                        style="font-size: 0.7rem; background: #334155; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                        {{ u.role }}</span>
-                </div>
-                {% empty %}
-                <div style="text-align: center; color: #475569; padding: 10px 0; font-size: 0.8rem;">
-                    No other users currently online.
-                </div>
-                {% endfor %}
-
-            </div>
-        </div>
-        <div class="dev-card">
-            <div class="dev-header">
-                <span><i class="fas fa-database mr-2"></i> Quick Links</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="/admin/" target="_blank"
-                    style="display: block; padding: 10px; background: #334155; color: white; text-decoration: none; border-radius: 6px; text-align: center;">
-                    Open Django Admin <i class="fas fa-external-link-alt ml-1"></i>
-                </a>
-                <a href="/admin/auth/user/" target="_blank"
-                    style="display: block; padding: 10px; background: #334155; color: white; text-decoration: none; border-radius: 6px; text-align: center;">
-                    Manage Users <i class="fas fa-external-link-alt ml-1"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="dev-card col-span-2">
-            <div class="dev-header">
-                <span><i class="fas fa-terminal mr-2"></i> Interactive Terminal & Logs</span>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span id="wsStatus"
-                        style="color: #facc15; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
-                        <span class="status-dot status-yellow"></span> Connecting...
-                    </span>
-                    <button onclick="terminal.textContent=''"
-                        style="background: transparent; border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
-                        <i class="fas fa-eraser"></i> Clear Screen
-                    </button>
-                </div>
-            </div>
-
-            <div
-                style="background: #000; border-radius: 6px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); display: flex; flex-direction: column; height: 500px; overflow: hidden;">
-
-                <div id="terminalWindow"
-                    style="flex: 1; color: #4ade80; padding: 15px; font-family: monospace; font-size: 0.85rem; overflow-y: auto; white-space: pre-wrap; line-height: 1.2;">
-                    {{ system_logs }}</div>
-
-                <div
-                    style="display: flex; align-items: center; border-top: 1px solid #333; padding: 10px 15px; background: #0a0a0a;">
-                    <span
-                        style="color: #ef4444; font-family: monospace; font-weight: bold; margin-right: 10px;">root@vadrida:~#</span>
-                    <input type="text" id="commandInput"
-                        placeholder="Type a command... (Use ↑/↓ for history. Press Ctrl+C to stop running command)"
-                        style="flex: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 0.9rem; outline: none;"
-                        autocomplete="off">
+                <div style="width: 100%; background: #e2e8f0; height: 8px; border-radius: 4px;">
+                    <div id="ramBar" style="width: {{ ram_usage }}%; background: #8b5cf6; height: 100%; border-radius: 4px; transition: width 0.5s ease;"></div>
                 </div>
             </div>
         </div>
-        <div class="dev-card col-span-2" style="border-left: 4px solid #ef4444;">
-            <div class="dev-header">
-                <span><i class="fas fa-bug mr-2" style="color: #ef4444;"></i> Latest Unhandled Exception</span>
-                <button onclick="fetchLatestError()"
-                    style="background: transparent; border: 1px solid #475569; color: #cbd5e1; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
-                    <i class="fas fa-sync-alt"></i> Check Errors
+
+        <!-- EXCEPTION TRACKER -->
+        <div class="glass-card col-span-2" style="border-left: 4px solid #ef4444;">
+            <div class="card-header">
+                <span><i class="fas fa-bug mr-2" style="color: #ef4444;"></i> Diagnostics</span>
+                <button onclick="fetchLatestError()" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #4b4e52; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
+                    Refresh
                 </button>
             </div>
-
-            <div id="errorBoardEmpty"
-                style="color: #4ade80; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 6px;">
-                <i class="fas fa-check-circle text-2xl mb-2"></i><br>
-                Zero crashes detected. Server is running perfectly.
+            
+            <div id="errorBoardEmpty" style="color: #4ade80; padding: 20px; text-align: center; background: rgba(0,0,0,0.3); border-radius: 6px;">
+                <i class="fas fa-check-circle text-2xl mb-2"></i><br>Zero crashes detected.
             </div>
 
-            <div id="errorBoardContent"
-                style="display: none; background: #1a0b0b; border: 1px solid #451a1a; border-radius: 6px; padding: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span id="errorType"
-                        style="color: #ef4444; font-family: monospace; font-size: 1.1rem; font-weight: bold;"></span>
-                    <span id="errorTime" style="color: #94a3b8; font-size: 0.8rem;"></span>
+            <div id="errorBoardContent" style="display: none; background: rgba(255, 255, 255, 0.4); border: 1px solid #451a1a; border-radius: 6px; padding: 15px; width: 100%; box-sizing: border-box;">
+                <div style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px;">
+                    <span id="errorType" style="color: #ef4444; font-family: monospace; font-size: 1rem; font-weight: bold;"></span>
+                    <span id="errorTime" style="color: #ef4444; font-size: 0.8rem;"></span>
                 </div>
-
-                <div id="errorMessage"
-                    style="color: #fca5a5; font-size: 0.9rem; margin-bottom: 15px; font-family: monospace;"></div>
-
-                <div
-                    style="background: #000; padding: 10px; border-radius: 4px; border-left: 3px solid #facc15; margin-bottom: 15px;">
-                    <div
-                        style="color: #facc15; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
-                        AI Suggested Fix:</div>
-                    <div id="errorSolution" style="color: #cbd5e1; font-size: 0.9rem;"></div>
-                </div>
-
-                <div style="color: #64748b; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px;">RAW TRACEBACK:
-                </div>
-                <div id="errorTraceback"
-                    style="background: #000; color: #ef4444; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; overflow-y: auto; max-height: 200px; white-space: pre-wrap;">
-                </div>
+                <div id="errorMessage" style="color: #ef4444; font-size: 0.9rem; margin-bottom: 15px; word-break: break-all; overflow-wrap: break-word;"></div>
+                <div style="color: #000000; font-size: 0.75rem; font-weight: bold;">TRACEBACK:</div>
+                <div id="errorTraceback" style="background: rgba(255, 255, 255, 0.5); color: #ef4444; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; overflow-y: auto; max-height: 150px; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word;"></div>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
+    // Unlock Door Functionality
+    function triggerDoorUnlock() {
+        Swal.fire({
+            title: 'Opening Door...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        
+        // You'll need to pass CSRF token if required by backend
+        fetch('/coreapi/api/biometric-action/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'unlock' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                Swal.fire({ icon: 'success', title: 'Unlocked!', text: data.message, timer: 2000 });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Failed', text: data.error || 'Connection failed' });
+            }
+        }).catch(err => {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Network Error' });
+        });
+    }
+
+    // Terminal WebSockets and general functions
     const terminal = document.getElementById('terminalWindow');
     const cmdInput = document.getElementById('commandInput');
     const wsStatus = document.getElementById('wsStatus');
-
-    // Command History Logic
-    const cmdHistory = [];
-    let historyIndex = -1;
-
-    // WebSocket Setup
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const termSocket = new WebSocket(`${protocol}://${window.location.host}/ws/terminal/`);
 
-    termSocket.onopen = function () {
-        wsStatus.innerHTML = '<span class="status-dot status-green"></span> Live';
-        wsStatus.style.color = '#4ade80';
+    termSocket.onopen = () => {
+        wsStatus.innerHTML = '<span style="color:#4ade80"><i class="fas fa-check-circle"></i> Connected</span>';
         terminal.scrollTop = terminal.scrollHeight;
     };
-
-    termSocket.onclose = function () {
-        wsStatus.innerHTML = '<span class="status-dot status-red"></span> Disconnected';
-        wsStatus.style.color = '#ef4444';
-        terminal.textContent += '\n\n[WebSocket Connection Lost. Refresh page to reconnect.]';
+    termSocket.onclose = () => {
+        wsStatus.innerHTML = '<span style="color:#ef4444"><i class="fas fa-times-circle"></i> Offline</span>';
     };
-    termSocket.onmessage = function (e) {
+    termSocket.onmessage = (e) => {
         const data = JSON.parse(e.data);
-
-        // --- HANDLE HEALTH UPDATES ---
         if (data.type === 'health') {
             document.getElementById('cpuText').innerText = data.cpu + '%';
             document.getElementById('cpuBar').style.width = data.cpu + '%';
             document.getElementById('cpuBar').style.background = data.cpu > 85 ? '#ef4444' : '#3b82f6';
-
             document.getElementById('ramText').innerText = data.ram + '%';
             document.getElementById('ramBar').style.width = data.ram + '%';
-            return; // Stop here so we don't print health stats to the black terminal
+            return;
         }
-
-        // --- HANDLE TERMINAL TEXT LOGS ---
         if (data.text) {
-            // Smart Scroll: Check if user is already at the bottom
             const isAtBottom = terminal.scrollHeight - terminal.scrollTop <= terminal.clientHeight + 50;
-
-            terminal.textContent += data.text;
-
-            if (isAtBottom) {
-                terminal.scrollTop = terminal.scrollHeight;
+            
+            // Prevent terminal string from growing infinitely and crashing browser
+            let newText = terminal.textContent + data.text;
+            if (newText.length > 50000) {
+                newText = newText.slice(-40000);
             }
+            terminal.textContent = newText;
+            
+            if (isAtBottom) terminal.scrollTop = terminal.scrollHeight;
         }
     };
 
-    // Input Key Listeners (Enter, Up, Down, Ctrl+C)
     cmdInput.addEventListener('keydown', function (e) {
-        // 1. EXECUTE COMMAND (ENTER)
         if (e.key === 'Enter') {
             const cmd = this.value.trim();
-            if (!cmd) return;
-
-            // Save to history
-            cmdHistory.push(cmd);
-            historyIndex = cmdHistory.length;
-
-            // Send via WebSocket
-            termSocket.send(JSON.stringify({ action: 'command', command: cmd }));
-            this.value = '';
-        }
-
-        // 2. HISTORY UP (Arrow Up)
-        else if (e.key === 'ArrowUp') {
-            e.preventDefault(); // Stop cursor from jumping to start
-            if (historyIndex > 0) {
-                historyIndex--;
-                this.value = cmdHistory[historyIndex];
+            if (cmd) {
+                termSocket.send(JSON.stringify({ action: 'command', command: cmd }));
+                this.value = '';
             }
-        }
-
-        // 3. HISTORY DOWN (Arrow Down)
-        else if (e.key === 'ArrowDown') {
-            if (historyIndex < cmdHistory.length - 1) {
-                historyIndex++;
-                this.value = cmdHistory[historyIndex];
-            } else {
-                historyIndex = cmdHistory.length;
-                this.value = ''; // Blank input
-            }
-        }
-
-        // 4. INTERRUPT PROCESS (Ctrl + C)
-        else if (e.ctrlKey && e.key === 'c') {
-            e.preventDefault();
-            termSocket.send(JSON.stringify({ action: 'interrupt' }));
-            this.value = ''; // Clear input box
         }
     });
 
-    // --- RESTART SERVER LOGIC ---
     function triggerServerRestart() {
-        if (!confirm("Are you sure you want to restart the server? Active users may experience a brief interruption.")) return;
-
-        const btn = document.getElementById('restartBtn');
-        const badge = document.getElementById('serverStatusBadge');
-        const originalText = btn.innerHTML;
-
-        // Update UI to show restarting state
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Rebooting...';
-        btn.style.background = '#b91c1c';
-        btn.disabled = true;
-
-        badge.innerText = 'Restarting';
-        badge.style.color = '#facc15'; // Yellow
-
-        fetch('/coreapi/api/dev-restart/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(res => res.json())
-            .then(data => {
-                // Echo the restart command to your web terminal
-                if (terminal) {
-                    terminal.textContent += `\n\nroot@vadrida:~# systemctl restart daphne\n[SYSTEM] ${data.message}\n`;
-                    terminal.scrollTop = terminal.scrollHeight;
-                }
-
-                // Wait 5 seconds for Django to reload, then reset the button UI
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '#ef4444';
-                    btn.disabled = false;
-
-                    badge.innerText = 'Online';
-                    badge.style.color = '#4ade80'; // Green
-                }, 5000);
-            })
-            .catch(e => {
-                alert("Error triggering restart.");
-                btn.innerHTML = originalText;
-                btn.style.background = '#ef4444';
-                btn.disabled = false;
-            });
+        if (!confirm("Reboot Server?")) return;
+        document.getElementById('restartBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rebooting...';
+        fetch('/coreapi/api/dev-restart/', { method: 'POST', headers: { 'Content-Type': 'application/json' }})
+            .then(() => setTimeout(() => location.reload(), 5000));
     }
+
+    function clearStaleSessions() {
+        fetch('/coreapi/api/dev-clear-sessions/', { method: 'POST', headers: { 'Content-Type': 'application/json' }})
+            .then(() => Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Sessions Swept', timer: 2000, showConfirmButton: false}));
+    }
+
+    function toggleACPower() {
+        Swal.fire({
+            title: 'AC Connection Offline',
+            text: 'To connect to your Carrier/CMI AC, we need to extract its local IP address and authentication token using a Python discovery script. Would you like me to guide you through setting that up?',
+            icon: 'info',
+            confirmButtonText: 'Yes, let\'s set it up',
+            cancelButtonText: 'Not right now',
+            showCancelButton: true
+        });
+    }
+
     function fetchLatestError() {
         fetch('/coreapi/api/dev-error/')
             .then(res => res.json())
@@ -405,30 +521,13 @@
                 } else {
                     document.getElementById('errorBoardEmpty').style.display = 'none';
                     document.getElementById('errorBoardContent').style.display = 'block';
-
-                    document.getElementById('errorType').innerText = data.type + " at " + data.path;
+                    document.getElementById('errorType').innerText = data.type;
                     document.getElementById('errorTime').innerText = data.timestamp;
                     document.getElementById('errorMessage').innerText = data.message;
-                    document.getElementById('errorSolution').innerText = data.solution;
                     document.getElementById('errorTraceback').innerText = data.traceback;
                 }
             });
     }
-
-    // Load errors on page load
     fetchLatestError();
-    function clearStaleSessions() {
-        const btn = document.getElementById('sweepBtn');
-        btn.style.color = '#4ade80'; // Flash green
-        fetch('/coreapi/api/dev-clear-sessions/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(res => res.json())
-            .then(data => {
-                setTimeout(() => { btn.style.color = '#94a3b8'; }, 1000);
-                // The screen will automatically update as users reconnect via WebSocket!
-            });
-    }
 </script>
 {% endblock %}

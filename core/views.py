@@ -818,7 +818,10 @@ def attendance_api(request):
             else:
                 ws = WorkSession.objects.filter(user=u, date=date_str).first()
                 if ws:
-                    status = 'present'
+                    if ws.is_active and ws.is_on_break:
+                        status = 'on_break'
+                    else:
+                        status = 'present'
                     
             user_data.append({
                 'id': u.id,

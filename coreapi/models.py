@@ -227,7 +227,6 @@ class LeaveRecord(models.Model):
 class CreditLedger(models.Model):
     """Credit-only ledger. Credits added on file completion/signing. Admin can deduct manually."""
     SOURCE_TYPES = [
-        ('file_completion', 'File Completion'),
         ('report_signed', 'Report Signed'),
         ('bonus', 'Bonus'),
         ('admin_adjustment', 'Admin Adjustment'),
@@ -262,6 +261,11 @@ class WorkSession(models.Model):
     overtime_hours = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)  # Currently logged in
     is_late = models.BooleanField(default=False)  # Was the user late (past buffer time)?
+    
+    # --- DYNAMIC BREAK TRACKING ---
+    is_on_break = models.BooleanField(default=False)
+    break_start_time = models.DateTimeField(null=True, blank=True)
+    total_break_minutes = models.IntegerField(default=0)
 
     class Meta:
         unique_together = ('user', 'date')
@@ -297,26 +301,33 @@ class SystemConfiguration(models.Model):
             return
         super().save(*args, **kwargs)
 
-class OvertimeRequest(models.Model):
-    """Tracks overtime access requests from employees to bypass the 10-hour logout."""
-    STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('denied', 'Denied')
-    )
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='overtime_requests')
-    request_date = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    requested_at = models.DateTimeField(auto_now_add=True)
-    approved_at = models.DateTimeField(null=True, blank=True)
+class DocumentSignature(models.Model):
+    """Tracks documents and reports signed by users. Repetitions of file_no are allowed here."""
+    DOCUMENT_TYPES = [
+        ('Report', 'Report'),
+        ('Other', 'Other Documents')
+    ]
+    REPORT_TYPES = [
+        ('PD', 'PD (2 Credits)'),
+        ('OTR', 'OTR (6 Credits)')
+    ]
     
+    file_no = models.CharField(max_length=50, null=True, blank=True, db_index=True)
+    signed_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='signatures')
+    signed_at = models.DateTimeField(auto_now_add=True)
+    
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    document_name = models.CharField(max_length=255, null=True, blank=True)
+    report_type = models.CharField(max_length=10, choices=REPORT_TYPES, null=True, blank=True)
+
     class Meta:
-        verbose_name = 'Overtime Request'
-        verbose_name_plural = 'Overtime Requests'
-        ordering = ['-requested_at']
+        ordering = ['-signed_at']
+        verbose_name = 'Document Signature'
+        verbose_name_plural = 'Document Signatures'
 
     def __str__(self):
-        return f"{self.user.user_name} - {self.request_date} ({self.status})"
+        name = self.file_no if self.document_type == 'Report' else self.document_name
+        return f"{name} signed by {self.signed_by.user_name}"
 
 class SystemHoliday(models.Model):
     date = models.DateField(unique=True)

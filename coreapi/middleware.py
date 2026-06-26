@@ -27,6 +27,7 @@ class LoginRequiredMiddleware:
             "/offline",                 # <--- NEW: Required for PWA offline mode
             "/.well-known/assetlinks.json",
             "/admin/",
+            "/coreapi/splash-demo/",
             "/coreapi/api/biometric-action/",
         ]
 
@@ -53,9 +54,14 @@ class RedisActiveUserMiddleware(MiddlewareMixin):
         user_name = request.session.get('user_name')
         if user_name:
             # Set a flag in Redis for this user that auto-deletes after 5 minutes (300 seconds)
-            cache.set(f"online_user_{user_name}", True, 300)
+            try:
+                cache.set(f"online_user_{user_name}", True, 300)
+            except Exception as e:
+                pass # Fail silently if Redis is offline
             
-        # Update session logout time based on last activity
+        # Update session logout_time as a heartbeat (last-seen marker)
+        # NOTE: hours_worked is NOT calculated here. It is only calculated by
+        # calculate_session_metrics() at logout/session-status to avoid conflicts.
         user_id = request.session.get('user_id')
         if user_id:
             try:
@@ -65,13 +71,17 @@ class RedisActiveUserMiddleware(MiddlewareMixin):
                 today = now.date()
                 session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
                 if session_obj:
+                    # --- OFFLINE GAP DETECTOR (30 Minutes) ---
+                    # If the user was away for more than 30 minutes, add as break time
+                    if session_obj.logout_time:
+                        gap_seconds = (now - session_obj.logout_time).total_seconds()
+                        if gap_seconds > 1800:  # 30 minutes
+                            # Cap at 8 hours max to prevent absurd values from overnight gaps
+                            offline_minutes = min(int(gap_seconds / 60.0), 480)
+                            session_obj.total_break_minutes += offline_minutes
+                            
                     session_obj.logout_time = now
-                    delta = now - session_obj.login_time
-                    elapsed_hours = delta.total_seconds() / 3600
-                    # Deduct 30-minute break from actual work
-                    actual_work = max(0, elapsed_hours - 0.5)
-                    session_obj.hours_worked = round(actual_work, 2)
-                    session_obj.save(update_fields=['logout_time', 'hours_worked'])
+                    session_obj.save(update_fields=['logout_time', 'total_break_minutes'])
             except Exception:
                 pass
             

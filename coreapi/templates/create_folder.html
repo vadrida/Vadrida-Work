@@ -184,7 +184,7 @@
 
 {% block content %}
 <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <a href="{% url 'coreapi:office' %}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    <a href="javascript:void(0);" onclick="if(document.referrer) { window.history.back(); } else { window.location.href = '{% url 'coreapi:office' %}'; }" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 </div>
 
 <div class="create-workspace">
@@ -694,6 +694,7 @@
                     <option value="KOTTAYAM">Kottayam</option>
                     <option value="NEYYATTINKARA">Neyyattinkara</option>
                     <option value="ALUVA">Aluva</option>
+                    <option value="PATTAMBI">Pattambi</option>
                     <option value="KAYAMKULAM">Kayamkulam</option>
                     <option value="TRIVANDRUM">Trivandrum</option>
                     <option value="MANJERI">Mancheri</option>

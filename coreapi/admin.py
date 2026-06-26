@@ -154,7 +154,7 @@ class WorkSessionAdmin(admin.ModelAdmin):
     list_per_page = 50
     readonly_fields = ('login_time', 'logout_time', 'hours_worked')
 
-from .models import SystemConfiguration, OvertimeRequest
+from .models import SystemConfiguration, DocumentSignature
 
 @admin.register(SystemConfiguration)
 class SystemConfigurationAdmin(admin.ModelAdmin):
@@ -164,18 +164,10 @@ class SystemConfigurationAdmin(admin.ModelAdmin):
         # Prevent multiple rows
         return not SystemConfiguration.objects.exists()
 
-@admin.register(OvertimeRequest)
-class OvertimeRequestAdmin(admin.ModelAdmin):
-    list_display = ('user', 'request_date', 'status', 'requested_at', 'approved_at')
-    list_filter = ('status', 'request_date')
-    actions = ['approve_requests', 'deny_requests']
-
-    def approve_requests(self, request, queryset):
-        from django.utils import timezone
-        queryset.update(status='approved', approved_at=timezone.now())
-    approve_requests.short_description = "Approve selected requests"
-
-    def deny_requests(self, request, queryset):
-        queryset.update(status='denied')
-    deny_requests.short_description = "Deny selected requests"
-    date_hierarchy = 'request_date'
+@admin.register(DocumentSignature)
+class DocumentSignatureAdmin(admin.ModelAdmin):
+    list_display = ('signed_by', 'file_no', 'document_type', 'document_name', 'report_type', 'signed_at')
+    list_filter = ('document_type', 'report_type', 'signed_at', 'signed_by')
+    search_fields = ('file_no', 'document_name', 'signed_by__user_name')
+    date_hierarchy = 'signed_at'
+    list_per_page = 50

@@ -6,36 +6,41 @@
 {% block extra_head %}
 <!-- PDF.js for rendering PDFs in the browser -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
     :root {
-        --primary: #1e293b;
+        --primary: #f8fafc;
         --accent: #10b981;
         --accent-glow: rgba(16, 185, 129, 0.15);
-        --bg-signer: #0f172a;
-        --panel-bg: #1e293b;
-        --border: #334155;
+        --bg-signer: #f1f5f9;
+        --panel-bg: #ffffff;
+        --border: #e2e8f0;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
     }
 
     body {
         background-color: var(--bg-signer);
         font-family: 'Outfit', sans-serif;
-        color: #f1f5f9;
+        color: var(--text-main);
         margin: 0;
-        overflow: hidden; /* We want a full-screen app feel */
     }
 
     /* --- LAYOUT --- */
     .signer-wrapper {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        height: calc(100vh - 112px); /* Subtract header height */
-        width: 100vw;
+        display: flex;
+        flex-direction: row;
+        height: calc(100vh - 80px); /* Adjust based on your header height */
+        width: 100%;
+        overflow: hidden;
     }
 
     /* --- SIDEBAR --- */
     .sidebar {
+        width: 350px;
+        flex-shrink: 0;
         background: var(--panel-bg);
         border-right: 1px solid var(--border);
         padding: 24px;
@@ -43,8 +48,8 @@
         flex-direction: column;
         gap: 24px;
         z-index: 10;
-        box-shadow: 10px 0 30px rgba(0,0,0,0.3);
-        overflow-y: auto; /* Enable scrolling for long notes */
+        box-shadow: 2px 0 15px rgba(0,0,0,0.03);
+        overflow-y: auto;
     }
 
     .brand-section {
@@ -70,13 +75,14 @@
     .brand-text h2 {
         font-size: 18px;
         font-weight: 700;
+        color: var(--text-main);
         margin: 0;
         letter-spacing: -0.02em;
     }
 
     .brand-text p {
         font-size: 11px;
-        color: #94a3b8;
+        color: var(--text-muted);
         margin: 0;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -84,7 +90,6 @@
 
     /* --- DROP ZONE --- */
     #upload-section {
-        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -92,18 +97,17 @@
 
     .drop-zone {
         border: 2px dashed var(--border);
-        border-radius: 16px;
+        border-radius: 12px;
         padding: 30px 20px;
         text-align: center;
         transition: all 0.3s ease;
         cursor: pointer;
-        background: rgba(255,255,255,0.02);
+        background: var(--primary);
     }
 
     .drop-zone:hover, .drop-zone.dragover {
         border-color: var(--accent);
-        background: var(--accent-soft);
-        transform: scale(1.02);
+        background: rgba(16, 185, 129, 0.05);
     }
 
     .drop-zone i {
@@ -114,13 +118,14 @@
 
     .drop-zone p {
         font-size: 13px;
-        color: #94a3b8;
+        color: var(--text-muted);
         margin: 0;
     }
 
     /* --- CONTROLS --- */
     .control-panel {
-        background: rgba(0,0,0,0.2);
+        background: var(--primary);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 16px;
         display: none; /* Shown after upload */
@@ -129,16 +134,51 @@
     .control-item {
         margin-bottom: 16px;
     }
-
     .control-item:last-child { margin-bottom: 0; }
 
     .control-label {
         font-size: 11px;
         font-weight: 600;
-        color: #94a3b8;
+        color: var(--text-muted);
         text-transform: uppercase;
         margin-bottom: 8px;
         display: block;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 15px;
+        background: var(--panel-bg);
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+    }
+
+    .radio-group label {
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-main);
+    }
+
+    input[type="text"], input[type="password"], select {
+        width: 100%;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-family: inherit;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, select:focus {
+        border-color: var(--accent);
     }
 
     .btn-sign {
@@ -156,302 +196,339 @@
         justify-content: center;
         gap: 10px;
         transition: all 0.2s;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
     }
 
     .btn-sign:hover {
-        filter: brightness(1.1);
-        transform: translateY(-2px);
+        filter: brightness(1.05);
+        transform: translateY(-1px);
     }
-
-    .btn-sign:active { transform: translateY(0); }
+    .btn-sign:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
 
     /* --- VIEWER AREA --- */
     .viewer-area {
-        background-color: #0b0e14;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 35,80 L 50,25 L 75,75 C 85,90 95,70 80,60 L 25,60 C 15,60 15,80 35,80 Z' fill='none' stroke='%23ef4444' stroke-width='8' stroke-linejoin='round' stroke-linecap='round' opacity='0.05'/%3E%3C/svg%3E");
+        flex-grow: 1;
+        background-color: var(--bg-signer);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 35,80 L 50,25 L 75,75 C 85,90 95,70 80,60 L 25,60 C 15,60 15,80 35,80 Z' fill='none' stroke='%230f172a' stroke-width='8' stroke-linejoin='round' stroke-linecap='round' opacity='0.03'/%3E%3C/svg%3E");
         background-position: center;
         background-repeat: no-repeat;
         background-size: 350px;
-        position: relative;
-        overflow: auto;
+        background-attachment: fixed;
+        overflow-y: auto;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
         padding: 40px;
         scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
+        scrollbar-color: #cbd5e1 transparent;
     }
 
-    #pdf-canvas-container {
+    #pdf-pages-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    .pdf-page-wrapper {
         position: relative;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         background: white;
         line-height: 0;
+    }
+
+    .pdf-canvas-page {
+        display: block;
     }
 
     /* --- SIGNATURE BOX --- */
     #sig-box {
         position: absolute;
-        width: 160px;
-        height: 60px;
+        width: 0px;
+        height: 0px;
         border: 2px dashed #3b82f6;
-        background: rgba(59, 130, 246, 0.15);
-        cursor: crosshair;
+        background: rgba(59, 130, 246, 0.1);
         z-index: 100;
         display: none;
         box-sizing: border-box;
     }
 
     #sig-box::after {
-        content: 'SIGNATURE AREA';
+        content: 'SIGNATURE';
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 10px;
-        font-weight: 800;
+        font-size: 12px;
+        font-weight: 700;
         color: #3b82f6;
         white-space: nowrap;
         pointer-events: none;
+        opacity: 0.8;
     }
 
-    /* Corner handles for resizing if needed later */
-    .resize-handle {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        background: white;
-        border: 1px solid var(--accent);
-        bottom: -4px;
-        right: -4px;
-        cursor: nwse-resize;
+    /* --- RESPONSIVE DESIGN --- */
+    @media (max-width: 900px) {
+        .signer-wrapper {
+            flex-direction: column;
+            height: auto;
+            min-height: calc(100vh - 80px);
+        }
+        .sidebar {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid var(--border);
+            padding: 16px;
+        }
+        .viewer-area {
+            padding: 20px;
+            height: 600px;
+        }
     }
 
-    /* --- PAGE NAVIGATION --- */
-    .page-nav {
-        position: fixed;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(30, 41, 59, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border);
-        padding: 8px 16px;
-        border-radius: 100px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        z-index: 100;
+    .swal2-high-z {
+        z-index: 20000 !important;
     }
-
-    .nav-btn {
-        background: transparent;
-        border: none;
-        color: #fff;
-        cursor: pointer;
-        padding: 5px;
-        font-size: 16px;
-        transition: opacity 0.2s;
-    }
-
-    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    #page-info {
-        font-size: 14px;
-        font-weight: 600;
-        color: #94a3b8;
-    }
-
-
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="signer-wrapper">
-    <!-- Sidebar Controls -->
+    <!-- SIDEBAR CONTROLS -->
     <div class="sidebar">
+        
+        <!-- Back Button -->
+        <a href="javascript:void(0);" onclick="if(document.referrer) { window.history.back(); } else { window.location.href = '{% url 'coreapi:office' %}'; }"
+            style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-decoration: none; margin-bottom: -10px; transition: color 0.2s; width: fit-content;">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
         <div class="brand-section">
             <div class="brand-icon">
                 <i class="fas fa-file-signature"></i>
             </div>
             <div class="brand-text">
                 <h2>Digital Signer</h2>
-                <p>Vadrida Secure</p>
+                <p>Hardware Token Interface</p>
             </div>
         </div>
 
+        <!-- File Upload -->
         <div id="upload-section">
-            <div class="drop-zone" id="drop-zone">
-                <input type="file" id="file-input" hidden accept=".pdf">
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <p><strong>Click or Drag</strong> to upload the PDF report you want to sign.</p>
+                <p style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Click or drag PDF here</p>
+                <p>Maximum file size: 10MB</p>
             </div>
+            <input type="file" id="file-input" accept="application/pdf" style="display: none;">
         </div>
 
+        <!-- Controls (Hidden until file loaded) -->
         <div class="control-panel" id="controls">
-            <div class="control-item">
-                <span class="control-label">File Details</span>
-                <div id="file-name-display" style="font-size: 13px; font-weight: 600; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
-                <div id="file-size-display" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">0 KB</div>
+            
+            <div class="control-item" style="background: var(--panel-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px;">SELECTED FILE</div>
+                <div id="file-name-display" style="font-size: 13px; font-weight: 500; word-break: break-all; color: var(--text-main);">filename.pdf</div>
+                <div id="file-size-display" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">0 KB</div>
             </div>
-            <div class="control-item" style="margin-top: 15px;">
-                <span class="control-label">Authorized Signing Password</span>
-                <div style="position: relative;">
-                    <input type="password" id="signing-password" placeholder="Enter System Password" 
-                        style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px; padding-right: 40px; color: white; font-size: 14px; outline: none;">
-                    <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; padding: 5px;">
-                        <i class="fas fa-eye"></i>
-                    </button>
+
+            <div class="control-item">
+                <span class="control-label">1. Document Category</span>
+                <div class="radio-group">
+                    <label><input type="radio" name="doc_type" value="Report" checked onchange="toggleDocFields()"> Report</label>
+                    <label><input type="radio" name="doc_type" value="Other" onchange="toggleDocFields()"> Other</label>
                 </div>
             </div>
-            <div class="control-item" style="margin-top: 15px; display: none;" id="sign-action-wrap">
+
+            <!-- Fields for 'Report' -->
+            <div id="report_fields">
+                <div class="control-item">
+                    <span class="control-label">Office File Number</span>
+                    <input type="text" id="file_no" placeholder="e.g. 0126100111">
+                </div>
+                <div class="control-item">
+                    <span class="control-label">Report Type (Credits)</span>
+                    <div class="radio-group">
+                        <label><input type="radio" name="report_type" value="PD" checked> PD</label>
+                        <label><input type="radio" name="report_type" value="OTR"> OTR</label>
+                    </div>
+                </div>
+                <div class="control-item">
+                    <span class="control-label">Signing User</span>
+                    <select id="signed_user_id">
+                        <option value="">-- Select User --</option>
+                        {% for u in office_users %}
+                            <option value="{{ u.id }}" {% if u.id == request.session.user_id %}selected{% endif %}>{{ u.user_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Fields for 'Other' -->
+            <div id="other_fields" style="display: none;">
+                <div class="control-item">
+                    <span class="control-label">Document Name/Title</span>
+                    <input type="text" id="doc_name" placeholder="e.g. Valuation Request">
+                </div>
+            </div>
+
+            <div class="control-item" style="margin-top: 24px;">
+                <span class="control-label">2. Hardware Authorization</span>
+                <div style="position: relative;">
+                    <input type="password" id="signing-password" placeholder="System Password">
+                    <i class="fas fa-eye" id="toggle-pwd" style="position: absolute; right: 12px; top: 12px; color: var(--text-muted); cursor: pointer;"></i>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="control-item" id="sign-action-wrap" style="display: none; margin-top: 10px;">
                 <button class="btn-sign" id="btn-start-sign">
-                    <i class="fas fa-pen-nib"></i> Sign & Download
+                    <i class="fas fa-signature"></i> Apply Digital Signature
                 </button>
             </div>
-            
-            <p style="font-size: 11px; color: #64748b; margin-top: 20px; line-height: 1.4;">
-                <i class="fas fa-info-circle"></i> Use the "Place Signature Box" button to enable the placement area. Drag the blue box to the required spot.
-                <br><br>
-                <i class="fas fa-shield-alt"></i> <strong>Note:</strong> Ensure your DSC USB token is plugged in and the InnaIT driver is installed at the default path.
-            </p>
-        </div>
 
-        <div style="margin-top: auto;">
-            <a href="{% url 'coreapi:office' %}" style="color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 500;">
-                <i class="fas fa-arrow-left"></i> Back to Office
-            </a>
         </div>
     </div>
 
-    <!-- Viewer Area -->
+    <!-- VIEWER AREA -->
     <div class="viewer-area">
-        <div id="pdf-canvas-container">
-            <canvas id="pdf-canvas"></canvas>
-            <!-- Draggable Signature Box -->
-            <div id="sig-box">
-                <div class="resize-handle"></div>
-            </div>
-        </div>
-
-        <!-- Floating Nav -->
-        <div class="page-nav" id="page-nav" style="display: none;">
-            <button class="nav-btn" id="prev-page"><i class="fas fa-chevron-left"></i></button>
-            <span id="page-info">Page 1 of 1</span>
-            <button class="nav-btn" id="next-page"><i class="fas fa-chevron-right"></i></button>
-        </div>
+        <div id="pdf-pages-container"></div>
+        <div id="sig-box"></div>
     </div>
 </div>
 
 <script>
+    // Toggle Document Type Fields
+    function toggleDocFields() {
+        const type = document.querySelector('input[name="doc_type"]:checked').value;
+        if (type === 'Report') {
+            document.getElementById('report_fields').style.display = 'block';
+            document.getElementById('other_fields').style.display = 'none';
+        } else {
+            document.getElementById('report_fields').style.display = 'none';
+            document.getElementById('other_fields').style.display = 'block';
+        }
+    }
+
+    // Toggle Password Visibility
+    document.getElementById('toggle-pwd').onclick = function() {
+        const pwd = document.getElementById('signing-password');
+        if (pwd.type === 'password') {
+            pwd.type = 'text';
+            this.className = 'fas fa-eye-slash';
+        } else {
+            pwd.type = 'password';
+            this.className = 'fas fa-eye';
+        }
+    };
+
+    // PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    let scale = 1.5;
-    const canvas = document.getElementById('pdf-canvas');
-    const ctx = canvas.getContext('2d');
-    const sigBox = document.getElementById('sig-box');
-    const container = document.getElementById('pdf-canvas-container');
+    let signerScale = 1.5;
+    let signerPageNum = 1;
 
-    // --- FILE UPLOAD ---
+    // Upload & Drag-n-Drop logic
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
 
-    dropZone.onclick = () => fileInput.click();
-
-    fileInput.onchange = (e) => {
-        if (e.target.files.length) loadPDF(e.target.files[0]);
-    };
-
-    dropZone.ondragover = (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    };
-
-    dropZone.ondragleave = () => dropZone.classList.remove('dragover');
-
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+    dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
     dropZone.ondrop = (e) => {
         e.preventDefault();
         dropZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length) loadPDF(e.dataTransfer.files[0]);
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            loadFile(fileInput.files[0]);
+        }
+    };
+    fileInput.onchange = () => {
+        if (fileInput.files.length > 0) loadFile(fileInput.files[0]);
     };
 
-    function loadPDF(file) {
+    function loadFile(file) {
+        if (file.type !== "application/pdf") {
+            Swal.fire({title: 'Invalid File', text: 'Please upload a PDF file.', icon: 'error', confirmButtonColor: '#ef4444', customClass: {container: 'swal2-high-z'}});
+            return;
+        }
+
         document.getElementById('file-name-display').innerText = file.name;
         document.getElementById('file-size-display').innerText = (file.size / 1024).toFixed(1) + ' KB';
+        document.getElementById('controls').style.display = 'block';
         
         const reader = new FileReader();
         reader.onload = function() {
             const typedarray = new Uint8Array(this.result);
             pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
                 pdfDoc = pdf;
-                document.getElementById('page-info').innerText = `Page 1 of ${pdf.numPages}`;
-                document.getElementById('controls').style.display = 'block';
-                document.getElementById('page-nav').style.display = 'flex';
+                const container = document.getElementById('pdf-pages-container');
+                const sigBox = document.getElementById('sig-box');
                 
-                // sigBox is NOT shown yet
-                renderPage(1);
+                // Clear previous canvases but keep sigBox safe
+                Array.from(container.children).forEach(child => {
+                    if(child.id !== 'sig-box') container.removeChild(child);
+                });
+                sigBox.style.display = 'none';
+                document.getElementById('sign-action-wrap').style.display = 'none';
+                
+                for(let i=1; i<=pdf.numPages; i++) {
+                    let wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.marginBottom = '40px';
+                    wrapper.style.boxShadow = '0 10px 30px rgba(0,0,0,0.08)';
+                    wrapper.style.background = 'white';
+                    wrapper.className = 'pdf-page-wrapper';
+                    wrapper.dataset.page = i;
+                    
+                    let canvas = document.createElement('canvas');
+                    canvas.className = 'pdf-canvas-page';
+                    wrapper.appendChild(canvas);
+                    container.appendChild(wrapper);
+                    
+                    renderSignerPage(i, canvas);
+                }
             });
         };
         reader.readAsArrayBuffer(file);
     }
 
-    function renderPage(num) {
-        if (pageRendering) {
-            pageNumPending = num;
-            return;
-        }
-        pageRendering = true;
-        
-        pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({scale: scale});
+    function renderSignerPage(num, canvas) {
+        const ctx = canvas.getContext('2d');
+        return pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({scale: signerScale});
             canvas.height = viewport.height;
             canvas.width = viewport.width;
-
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-            };
-            const renderTask = page.render(renderContext);
-
-            renderTask.promise.then(function() {
-                pageRendering = false;
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
-            });
+            return page.render({ canvasContext: ctx, viewport: viewport }).promise;
         });
-        document.getElementById('page-info').innerText = `Page ${num} of ${pdfDoc.numPages}`;
-        pageNum = num;
-        sigBox.style.display = 'none';
-        document.getElementById('sign-action-wrap').style.display = 'none';
     }
 
-    document.getElementById('prev-page').onclick = () => {
-        if (pageNum <= 1) return;
-        renderPage(pageNum - 1);
-    };
+    // --- DRAW SIGNATURE BOX LOGIC ---
+    const sigBox = document.getElementById('sig-box');
+    let isDrawingBox = false;
+    let startX = 0, startY = 0;
+    let activeWrapper = null;
+    let sigRafId = null;
 
-    document.getElementById('next-page').onclick = () => {
-        if (pageNum >= pdfDoc.numPages) return;
-        renderPage(pageNum + 1);
-    };
-
-    // --- OPTIMIZED DRAWING WITH requestAnimationFrame ---
-    let isDrawing = false;
-    let startX, startY;
-    let rafId = null;
-
-    canvas.onmousedown = (e) => {
+    document.getElementById('pdf-pages-container').onmousedown = (e) => {
         if (!pdfDoc) return;
-        isDrawing = true;
-        const rect = canvas.getBoundingClientRect();
+        const wrapper = e.target.closest('.pdf-page-wrapper');
+        if (!wrapper) return;
+
+        // Don't draw if clicking on the box itself
+        if (e.target.closest('#sig-box')) return;
+
+        isDrawingBox = true;
+        activeWrapper = wrapper;
+        const rect = wrapper.getBoundingClientRect();
         startX = e.clientX - rect.left;
         startY = e.clientY - rect.top;
+
+        wrapper.appendChild(sigBox);
+        signerPageNum = parseInt(wrapper.dataset.page);
 
         sigBox.style.display = 'block';
         sigBox.style.left = startX + 'px';
@@ -459,43 +536,58 @@
         sigBox.style.width = '0px';
         sigBox.style.height = '0px';
         document.getElementById('sign-action-wrap').style.display = 'none';
+        
+        e.preventDefault();
     };
 
-    window.onmousemove = (e) => {
-        if (!isDrawing) return;
-        
-        // Use requestAnimationFrame for smooth, non-laggy updates
-        if (rafId) cancelAnimationFrame(rafId);
-        
-        rafId = requestAnimationFrame(() => {
-            const rect = canvas.getBoundingClientRect();
-            let currentX = e.clientX - rect.left;
-            let currentY = e.clientY - rect.top;
+    window.addEventListener('mousemove', (e) => {
+        if (isDrawingBox && activeWrapper) {
+            if (sigRafId) cancelAnimationFrame(sigRafId);
+            sigRafId = requestAnimationFrame(() => {
+                const rect = activeWrapper.getBoundingClientRect();
+                let currentX = e.clientX - rect.left;
+                let currentY = e.clientY - rect.top;
+                
+                currentX = Math.max(0, Math.min(currentX, activeWrapper.clientWidth));
+                currentY = Math.max(0, Math.min(currentY, activeWrapper.clientHeight));
 
-            currentX = Math.max(0, Math.min(currentX, canvas.width));
-            currentY = Math.max(0, Math.min(currentY, canvas.height));
+                let width = Math.abs(currentX - startX);
+                let height = Math.abs(currentY - startY);
+                let left = Math.min(currentX, startX);
+                let top = Math.min(currentY, startY);
 
-            const width = currentX - startX;
-            const height = currentY - startY;
+                sigBox.style.left = left + 'px';
+                sigBox.style.top = top + 'px';
+                sigBox.style.width = width + 'px';
+                sigBox.style.height = height + 'px';
+            });
+        }
+    });
 
-            sigBox.style.width = Math.abs(width) + 'px';
-            sigBox.style.height = Math.abs(height) + 'px';
-            sigBox.style.left = (width > 0 ? startX : currentX) + 'px';
-            sigBox.style.top = (height > 0 ? startY : currentY) + 'px';
-        });
-    };
-
-    window.onmouseup = () => {
-        if (isDrawing) {
-            isDrawing = false;
-            // Only show sign button if a meaningful area was drawn
-            if (parseInt(sigBox.style.width) > 10 && parseInt(sigBox.style.height) > 10) {
-                document.getElementById('sign-action-wrap').style.display = 'block';
-            } else {
+    window.addEventListener('mouseup', () => {
+        if (isDrawingBox) {
+            isDrawingBox = false;
+            const w = parseFloat(sigBox.style.width) || 0;
+            const h = parseFloat(sigBox.style.height) || 0;
+            
+            // Enforce minimum size: ~80px by ~60px
+            if (w < 80 || h < 60) {
+                Swal.fire({
+                    title: 'Too Small', 
+                    text: 'The signature area is too small! Please draw a larger rectangle (at least 2cm x 1.5cm).', 
+                    icon: 'warning',
+                    confirmButtonColor: '#f59e0b',
+                    customClass: {container: 'swal2-high-z'}
+                });
                 sigBox.style.display = 'none';
+                sigBox.style.width = '0px';
+                sigBox.style.height = '0px';
+                document.getElementById('sign-action-wrap').style.display = 'none';
+            } else {
+                document.getElementById('sign-action-wrap').style.display = 'block';
             }
         }
-    };
+    });
 
     // --- SIGNING ACTION ---
     document.getElementById('btn-start-sign').onclick = async function() {
@@ -510,21 +602,41 @@
             const password = document.getElementById('signing-password').value;
             
             if (!password) {
-                alert("Please enter the Authorized Signing Password");
+                Swal.fire({title: 'Authentication Required', text: 'Please enter the Authorized Signing Password', icon: 'error', customClass: {container: 'swal2-high-z'}});
                 return;
             }
 
-            // Calculate relative position for the backend (PDF Points)
-            // PDF points are usually 72 dpi, bottom-left origin
-            // Canvas is scaled (1.5x), so we must un-scale it
-            const pdfX = x / scale; 
-            // Invert Y because PDF origin is bottom-left, canvas is top-left
-            const pdfY = (canvas.height - y - h) / scale; 
-            const pdfW = w / scale;
-            const pdfH = h / scale;
+            // PDF coordinates
+            const activeCanvas = activeWrapper.querySelector('canvas');
+            const pdfX = x / signerScale; 
+            const pdfY = (activeCanvas.height - y - h) / signerScale; 
+            const pdfW = w / signerScale;
+            const pdfH = h / signerScale;
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing...';
+
+            const docType = document.querySelector('input[name="doc_type"]:checked').value;
+            const docName = document.getElementById('doc_name').value;
+            const fileNo = document.getElementById('file_no').value;
+            const signedUserId = document.getElementById('signed_user_id').value;
+            
+            let reportType = null;
+            const rtInput = document.querySelector('input[name="report_type"]:checked');
+            if (rtInput) reportType = rtInput.value;
+
+            if (docType === 'Report' && (!fileNo || !signedUserId)) {
+                Swal.fire({title: 'Missing Fields', text: 'Please fill in Office File Number and select a Signing User for Reports.', icon: 'warning', customClass: {container: 'swal2-high-z'}});
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                return;
+            }
+            if (docType === 'Other' && !docName) {
+                Swal.fire({title: 'Missing Fields', text: 'Please enter a Document Name.', icon: 'warning', customClass: {container: 'swal2-high-z'}});
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                return;
+            }
 
             const formData = new FormData();
             formData.append('pdf', fileInput.files[0]);
@@ -532,8 +644,16 @@
             formData.append('y', pdfY);
             formData.append('w', pdfW);
             formData.append('h', pdfH);
-            formData.append('page', pageNum);
+            formData.append('page', signerPageNum);
             formData.append('password', password);
+            formData.append('doc_type', docType);
+            if (docType === 'Report') {
+                formData.append('file_no', fileNo);
+                formData.append('report_type', reportType);
+                formData.append('signed_user_id', signedUserId);
+            } else {
+                formData.append('doc_name', docName);
+            }
 
             const response = await fetch('/coreapi/api/digital-sign/', {
                 method: 'POST',
@@ -541,38 +661,88 @@
             });
 
             if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Signed_${fileInput.files[0].name}`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                const contentType = response.headers.get("content-type");
+                const warningMsg = response.headers.get('X-Duplicate-Warning');
                 
-                alert("PDF Signed Successfully!");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    // The backend saved it directly to the server folder
+                    const data = await response.json();
+                    const filename = data.dsc_path ? data.dsc_path.split('\\').pop().split('/').pop() : 'the signed file';
+                    
+                    let swalText = `The ${data.case_type || 'Report'} file has been saved directly to the client folder as <strong>${filename}</strong>.`;
+                    if (warningMsg && warningMsg.trim() !== '') {
+                        swalText += `<br><br><span style="color: #ef4444; font-weight: bold;">Note: ${warningMsg}</span>`;
+                    }
+                    
+                    Swal.fire({
+                        title: 'Signed Successfully!',
+                        html: swalText,
+                        icon: 'success',
+                        background: '#ffffff',
+                        color: '#1e293b',
+                        confirmButtonColor: '#10b981',
+                        customClass: { container: 'swal2-high-z' }
+                    });
+                } else {
+                    // The backend returned a raw PDF download (e.g. 'Other' document)
+                    let swalText = `The signed document has been generated and downloaded to your computer.`;
+                    if (warningMsg && warningMsg.trim() !== '') {
+                        swalText += `<br><br><span style="color: #ef4444; font-weight: bold;">Note: ${warningMsg}</span>`;
+                    }
+                    
+                    Swal.fire({
+                        title: 'Signed Successfully!',
+                        html: swalText,
+                        icon: 'success',
+                        background: '#ffffff',
+                        color: '#1e293b',
+                        confirmButtonColor: '#10b981',
+                        customClass: { container: 'swal2-high-z' }
+                    });
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    
+                    let filename = "Signed_Document.pdf";
+                    const disposition = response.headers.get('Content-Disposition');
+                    if (disposition && disposition.indexOf('filename=') !== -1) {
+                        filename = disposition.split('filename=')[1].replace(/"/g, '');
+                    }
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                }
             } else {
-                const errData = await response.json();
-                alert("Signing Failed: " + (errData.error || "Unknown Error"));
+                const data = await response.json();
+                Swal.fire({
+                    title: 'Signing Failed',
+                    text: data.error || "Hardware token rejected the request. Check your password.",
+                    icon: 'error',
+                    background: '#ffffff',
+                    color: '#1e293b',
+                    confirmButtonColor: '#ef4444',
+                    customClass: { container: 'swal2-high-z' }
+                });
             }
         } catch (error) {
             console.error(error);
-            alert("An error occurred during signing.");
+            Swal.fire({
+                title: 'Error',
+                text: 'A critical network error occurred.',
+                icon: 'error',
+                background: '#ffffff',
+                color: '#1e293b',
+                confirmButtonColor: '#ef4444',
+                customClass: { container: 'swal2-high-z' }
+            });
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         }
     };
-
-    // --- PASSWORD TOGGLE ---
-    const passInput = document.getElementById('signing-password');
-    const toggleBtn = document.getElementById('toggle-password');
-    if (toggleBtn) {
-        toggleBtn.onclick = () => {
-            const isPass = passInput.type === 'password';
-            passInput.type = isPass ? 'text' : 'password';
-            toggleBtn.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
-        };
-    }
 </script>
 {% endblock %}

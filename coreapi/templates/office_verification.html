@@ -1389,9 +1389,9 @@
     <div class="header-icon"><i class="fas fa-university"></i></div>
     <div style="display: flex; align-items: center; gap: 15px;">
         <h1>Comparison & Verification Portal</h1>
-        <a href="{% url 'coreapi:office' %}"
+        <a href="javascript:void(0);" onclick="if(document.referrer) { window.history.back(); } else { window.location.href = '{% url 'coreapi:office' %}'; }"
             style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; text-decoration: none; transition: all 0.2s;">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
+            <i class="fas fa-arrow-left"></i> Back
         </a>
     </div>
     <div class="header-meta">

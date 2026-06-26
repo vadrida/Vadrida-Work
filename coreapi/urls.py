@@ -8,6 +8,7 @@ urlpatterns = [
     path("login/api/", views.login_api, name="login_api"),
     path("logout/api/", views.logout_api, name="logout_api"),
     path("api/session-status/", views.session_status_api, name="session_status_api"),
+    path("api/toggle-break/", views.toggle_break_api, name="toggle_break_api"),
     path("api/request-overtime/", views.request_overtime_api, name="request_overtime_api"),
     path("api/request-leaves/", views.request_leaves_api, name="request_leaves_api"),
     path("api/biometric-action/", views.biometric_action_api, name="biometric_action_api"),
@@ -38,7 +39,7 @@ urlpatterns = [
 
     # Pages
     path("login/", views.login_page, name="login_page"),
-    # path("manager/", views.admin_dashboard, name="admin_dashboard"),
+    path("splash-demo/", views.splash_demo, name="splash_demo"),
     path("office/", views.office_dashboard, name="office_dashboard"),
     path("dashboard/", views.dashboard, name="dashboard"),
     path('office-verification/', views.office_verification, name='office_verification'),

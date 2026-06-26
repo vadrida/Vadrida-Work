@@ -631,61 +631,67 @@ def login_api(request):
         # Resuming an existing session today — reactivate it
         session_obj.is_active = True
         session_obj.save(update_fields=['is_active'])
+        request.session["is_on_break"] = session_obj.is_on_break
+        if session_obj.is_on_break and session_obj.break_start_time:
+            request.session["break_start_time"] = session_obj.break_start_time.isoformat()
+        else:
+            request.session["break_start_time"] = None
     else:
+        request.session["is_on_break"] = False
+        request.session["break_start_time"] = None
         # --- LATE DETECTION (only on first login of the day) ---
         try:
-            from datetime import datetime as dt, timedelta
-            shift = (user.shift_timing or "09:00 AM - 05:30 PM").strip()
-            shift_start_str = shift.split("-")[0].strip()
-            
-            # Override shift start to 10:00 AM on Saturdays
-            if today.weekday() == 5:
-                shift_start_str = "10:00 AM"
+            if getattr(user, 'role', '').lower() not in ['admin', 'accountant', 'it', 'site']:
+                from datetime import datetime as dt, timedelta
+                shift = (user.shift_timing or "09:00 AM - 05:30 PM").strip()
+                shift_start_str = shift.split("-")[0].strip()
                 
-            # Parse "09:00 AM" or "10:00 AM" format
-            shift_start = dt.strptime(shift_start_str, "%I:%M %p").time()
-            
-            # Add 15-minute buffer
-            shift_start_dt = dt.combine(today, shift_start)
-            buffer_end = (shift_start_dt + timedelta(minutes=15)).time()
-            
-            login_time_local = now.time()
-            
-            if login_time_local > buffer_end:
-                session_obj.is_late = True
-                session_obj.save(update_fields=['is_late'])
+                # Override shift start to 10:00 AM on Saturdays
+                if today.weekday() == 5:
+                    shift_start_str = "10:00 AM"
+                    
+                # Parse "09:00 AM" or "10:00 AM" format
+                shift_start = dt.strptime(shift_start_str, "%I:%M %p").time()
                 
-                # Reset late count if month changed
-                from django.db.models import Max
-                last_session = WorkSession.objects.filter(
-                    user=user, date__lt=today
-                ).order_by('-date').first()
-                if last_session and last_session.date.month != today.month:
-                    user.late_count_this_month = 0
+                # Add 15-minute buffer
+                shift_start_dt = dt.combine(today, shift_start)
+                buffer_end = (shift_start_dt + timedelta(minutes=15)).time()
                 
-                user.late_count_this_month += 1
-                user.save(update_fields=['late_count_this_month'])
+                login_time_local = now.time()
                 
-                # Auto half-day CL deduction on 4th+ late arrival
-                if user.late_count_this_month >= 4:
-                    from .models import LeaveRecord
-                    # Check if we already created a late penalty for today
-                    already_penalized = LeaveRecord.objects.filter(
-                        user=user, leave_date=today, leave_type='casual',
-                        reason__icontains='[Auto: Late Penalty]'
-                    ).exists()
-                    if not already_penalized:
-                        LeaveRecord.objects.create(
-                            user=user,
-                            leave_date=today,
-                            leave_type='casual',
-                            duration='half_day',
-                            reason=f'[Auto: Late Penalty] Late arrival #{user.late_count_this_month} this month',
-                            status='approved'  # Auto-approved system penalty
-                        )
-                        # Deduct 0.5 from CL balance
-                        user.cl_balance = max(0, user.cl_balance - 0.5)
-                        user.save(update_fields=['cl_balance'])
+                if login_time_local > buffer_end:
+                    session_obj.is_late = True
+                    session_obj.save(update_fields=['is_late'])
+                    
+                    # Reset late count if month changed
+                    from django.db.models import Max
+                    last_session = WorkSession.objects.filter(
+                        user=user, date__lt=today
+                    ).order_by('-date').first()
+                    if last_session and last_session.date.month != today.month:
+                        user.late_count_this_month = 0
+                    
+                    user.late_count_this_month += 1
+                    user.save(update_fields=['late_count_this_month'])
+                    
+                    # Log 4th+ late arrival as a Notification (No penalty deducted)
+                    if user.late_count_this_month >= 4:
+                        from .models import LeaveRecord
+                        # Check if we already created a late log for today
+                        already_penalized = LeaveRecord.objects.filter(
+                            user=user, leave_date=today,
+                            reason__icontains='[Auto: Late Log]'
+                        ).exists()
+                        if not already_penalized:
+                            LeaveRecord.objects.create(
+                                user=user,
+                                leave_date=today,
+                                leave_type='late',  # Use 'late' instead of 'casual'
+                                duration='half_day',
+                                reason=f'[Auto: Late Log] Late arrival #{user.late_count_this_month} this month',
+                                status='pending'  # Kept as pending so admin sees it in Notifications
+                            )
+                            # Penalty is nullified for now, NO CL deduction.
         except Exception as e:
             print(f"Late detection error: {e}")
     
@@ -713,41 +719,167 @@ def login_api(request):
     })
 
 
+def calculate_session_metrics(session_obj, user, current_time):
+    from datetime import datetime as dt, timedelta
+    
+    today = session_obj.date
+    shift = (user.shift_timing or "09:00 AM - 05:30 PM").strip()
+    shift_start_str = shift.split("-")[0].strip()
+    if today.weekday() == 5:
+        shift_start_str = "10:00 AM" # Saturday
+        
+    # Standard shift length is 8.5 hours (8 hours work + 30 min default break)
+    # Saturday is 7.5 hours (7 hours work + 30 min default break)
+    shift_duration_hours = 7.5 if today.weekday() == 5 else 8.5
+    
+    # 1. Base Shift
+    shift_start_time = dt.strptime(shift_start_str, "%I:%M %p").time()
+    shift_start_dt = dt.combine(today, shift_start_time)
+    
+    # Grace Period 15 mins
+    grace_end_dt = shift_start_dt + timedelta(minutes=15)
+    
+    # Calculate Late Extension
+    late_extension_minutes = 0
+    # ensure login time and grace end dt are compared in the same timezone context
+    from django.utils import timezone
+    if timezone.is_aware(session_obj.login_time):
+        if timezone.is_naive(grace_end_dt):
+            tz = timezone.get_current_timezone()
+            grace_end_dt = timezone.make_aware(grace_end_dt, tz)
+            shift_start_dt = timezone.make_aware(shift_start_dt, tz)
+    else:
+        if timezone.is_aware(grace_end_dt):
+            tz = timezone.get_current_timezone()
+            grace_end_dt = timezone.make_naive(grace_end_dt, tz)
+            shift_start_dt = timezone.make_naive(shift_start_dt, tz)
+            
+    # Also harmonize current_time
+    if timezone.is_aware(session_obj.login_time) and timezone.is_naive(current_time):
+        current_time = timezone.make_aware(current_time, timezone.get_current_timezone())
+    elif timezone.is_naive(session_obj.login_time) and timezone.is_aware(current_time):
+        current_time = timezone.make_naive(current_time, timezone.get_current_timezone())
+    
+    if session_obj.login_time > grace_end_dt:
+        late_extension_minutes = (session_obj.login_time - grace_end_dt).total_seconds() / 60.0
+        
+    # Calculate Break Extension (Explicit breaks via button are extra and extend the shift fully)
+    break_extension_minutes = session_obj.total_break_minutes
+    
+    # Total extension
+    total_extension_minutes = late_extension_minutes + break_extension_minutes
+    
+    # Target Logout Time
+    target_logout_dt = shift_start_dt + timedelta(hours=shift_duration_hours) + timedelta(minutes=total_extension_minutes)
+    
+    # Calculate OT (only if current_time > target_logout_dt)
+    overtime_hours = 0.0
+    if current_time > target_logout_dt:
+        overtime_hours = (current_time - target_logout_dt).total_seconds() / 3600.0
+        
+    # Actual Work calculation
+    elapsed_seconds = (current_time - max(session_obj.login_time, shift_start_dt)).total_seconds()
+    # 30-min mandatory lunch break + any explicit break minutes taken
+    total_deducted_break_mins = 30 + session_obj.total_break_minutes
+    actual_work_hours = max(0, (elapsed_seconds / 3600.0) - (total_deducted_break_mins / 60.0))
+    
+    return {
+        "target_logout_dt": target_logout_dt,
+        "overtime_hours": round(overtime_hours, 2),
+        "hours_worked": round(actual_work_hours, 2),
+        "late_extension_minutes": int(late_extension_minutes),
+        "break_extension_minutes": int(break_extension_minutes)
+    }
+
 def logout_api(request):
     # --- CLOSE WORK SESSION & RECORD HOURS ---
     user_id = request.session.get("user_id")
     if user_id:
         try:
-            from .models import SystemConfiguration
-            config = SystemConfiguration.objects.first()
-            max_session_hours = config.max_session_hours if config else 10.0
-            BREAK_HOURS = 0.5  # 30-minute mandatory lunch break deduction
-            
+            from django.utils import timezone
+            from .models import WorkSession, UserProfile
             now = timezone.now()
             today = now.date()
+            user = UserProfile.objects.get(id=user_id)
             session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
             if session_obj:
-                elapsed = (now - session_obj.login_time).total_seconds() / 3600.0  # total hours in office
-                # Deduct 30-minute break from actual work calculation
-                actual_work = max(0, elapsed - BREAK_HOURS)
-                actual_work = min(actual_work, max_session_hours)  # Cap at max
-                
-                required_hours = 7.0 if today.weekday() == 5 else 8.0 # Saturday is 5
+                # Close any active break
+                if session_obj.is_on_break and session_obj.break_start_time:
+                    break_dur = (now - session_obj.break_start_time).total_seconds() / 60.0
+                    session_obj.total_break_minutes += int(break_dur)
+                    session_obj.is_on_break = False
+                    session_obj.break_start_time = None
+                    
+                metrics = calculate_session_metrics(session_obj, user, now)
                 
                 session_obj.logout_time = now
-                session_obj.hours_worked = round(actual_work, 2)
-                session_obj.overtime_hours = round(max(actual_work - required_hours, 0), 2)  # OT after required hours
+                session_obj.hours_worked = metrics["hours_worked"]
+                session_obj.overtime_hours = metrics["overtime_hours"]
                 session_obj.is_active = False
                 session_obj.save()
         except Exception:
             pass  # Don't block logout on tracking errors
 
     timeout = request.GET.get('timeout')
-    request.session.flush()
+    keys_to_clear = ["user_id", "user_name", "user_email", "user_role", "is_on_break", "break_start_time", "work_session_start"]
+    for key in keys_to_clear:
+        if key in request.session:
+            del request.session[key]
     if timeout == '1':
         from django.urls import reverse
         return redirect(f"{reverse('coreapi:login_page')}?timeout=1")
     return redirect("coreapi:login_page")
+
+@csrf_exempt
+def toggle_break_api(request):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+        
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        action = data.get("action") # "start" or "stop"
+        
+        from django.utils import timezone
+        from .models import WorkSession
+        now = timezone.now()
+        today = now.date()
+        
+        session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
+        if not session_obj:
+            return JsonResponse({"error": "No active session"}, status=400)
+            
+        if action == "start":
+            if session_obj.is_on_break:
+                return JsonResponse({"error": "Already on a break"}, status=400)
+            session_obj.is_on_break = True
+            session_obj.break_start_time = now
+            session_obj.save(update_fields=['is_on_break', 'break_start_time'])
+            request.session['is_on_break'] = True
+            request.session['break_start_time'] = session_obj.break_start_time.isoformat()
+            request.session.modified = True
+            return JsonResponse({"success": True, "message": "Break started.", "break_start_time": session_obj.break_start_time.isoformat()})
+            
+        elif action == "stop":
+            if not session_obj.is_on_break:
+                return JsonResponse({"error": "Not currently on a break"}, status=400)
+            
+            if session_obj.break_start_time:
+                break_dur = (now - session_obj.break_start_time).total_seconds() / 60.0
+                session_obj.total_break_minutes += int(break_dur)
+            
+            session_obj.is_on_break = False
+            session_obj.break_start_time = None
+            session_obj.save(update_fields=['is_on_break', 'break_start_time', 'total_break_minutes'])
+            request.session['is_on_break'] = False
+            request.session['break_start_time'] = None
+            request.session.modified = True
+            return JsonResponse({"success": True, "message": "Break ended.", "total_break_minutes": session_obj.total_break_minutes})
+            
+        return JsonResponse({"error": "Invalid action"}, status=400)
+        
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
 def session_status_api(request):
@@ -756,43 +888,94 @@ def session_status_api(request):
         return JsonResponse({"error": "Unauthorized", "hours_worked": 0, "max_hours": 10}, status=401)
         
     try:
-        from .models import WorkSession, SystemConfiguration
+        from .models import WorkSession, SystemConfiguration, UserProfile
         from django.utils import timezone
         
         now = timezone.now()
         today = now.date()
+        user = UserProfile.objects.get(id=user_id)
+        
+        # If user is not office staff, ignore all shift and OT logic
+        if getattr(user, 'role', '').lower() != 'office':
+            return JsonResponse({
+                "hours_worked": 0,
+                "max_hours": 10,
+                "minutes_remaining": 0,
+                "is_on_break": False,
+                "break_start_time": None,
+                "total_break_minutes": 0,
+                "metrics": None
+            })
+            
+        # --- MIDNIGHT FLUSH FOR YESTERDAY'S SESSIONS ---
+        stale_sessions = WorkSession.objects.filter(user_id=user_id, is_active=True, date__lt=today)
+        for old_session in stale_sessions:
+            from datetime import datetime, time
+            end_of_day = datetime.combine(old_session.date, time(23, 59, 59))
+            if timezone.is_aware(now):
+                end_of_day = timezone.make_aware(end_of_day, timezone.get_current_timezone())
+                
+            # Close it out right before midnight
+            if old_session.is_on_break and old_session.break_start_time:
+                break_dur = (end_of_day - old_session.break_start_time).total_seconds() / 60.0
+                old_session.total_break_minutes += int(break_dur)
+                old_session.is_on_break = False
+                old_session.break_start_time = None
+            
+            old_session.logout_time = end_of_day
+            metrics = calculate_session_metrics(old_session, user, end_of_day)
+            old_session.hours_worked = metrics["hours_worked"]
+            old_session.overtime_hours = metrics["overtime_hours"]
+            old_session.is_active = False
+            old_session.save()
         
         config = SystemConfiguration.objects.first()
         max_session_hours = config.max_session_hours if config else 10.0
         
         session_obj = WorkSession.objects.filter(user_id=user_id, date=today, is_active=True).first()
+        if not session_obj:
+            keys_to_clear = ["user_id", "user_name", "user_email", "user_role", "is_on_break", "break_start_time", "work_session_start"]
+            for key in keys_to_clear:
+                if key in request.session:
+                    del request.session[key]
+            return JsonResponse({"force_logout": True})
+            
         hours_worked = 0.0
-        BREAK_HOURS = 0.5  # 30-minute break deduction
+        minutes_remaining = 0
+        is_on_break = False
+        break_start_time = None
+        total_break_minutes = 0
+        metrics = None
+        
         if session_obj:
-            elapsed = (now - session_obj.login_time).total_seconds() / 3600.0
-            # Deduct break for actual work display
-            actual_work = max(0, elapsed - BREAK_HOURS)
-            hours_worked = round(actual_work, 2)
+            metrics = calculate_session_metrics(session_obj, user, now)
+            hours_worked = metrics["hours_worked"]
+            is_on_break = session_obj.is_on_break
+            total_break_minutes = session_obj.total_break_minutes
+            if is_on_break and session_obj.break_start_time:
+                break_start_time = session_obj.break_start_time.isoformat()
             
-            # STRICT LOGOUT (based on total elapsed, not work hours)
-            if elapsed >= max_session_hours + BREAK_HOURS:
-                required_hours = 7.0 if today.weekday() == 5 else 8.0 # Saturday is 5
+            # Calculate minutes remaining until shift target is reached
+            # If current time is past target, they are in OT.
+            if now < metrics["target_logout_dt"]:
+                minutes_remaining = int((metrics["target_logout_dt"] - now).total_seconds() / 60)
+            else:
+                minutes_remaining = 0
                 
-                session_obj.logout_time = now
-                session_obj.hours_worked = round(max_session_hours, 2)
-                session_obj.overtime_hours = round(max(max_session_hours - required_hours, 0), 2)
-                session_obj.is_active = False
-                session_obj.save()
-                
-                request.session.flush()
-                return JsonResponse({"force_logout": True})
-            
         return JsonResponse({
             "hours_worked": hours_worked,
             "max_hours": max_session_hours,
-            "minutes_remaining": max(0, int((max_session_hours - hours_worked) * 60))
+            "minutes_remaining": minutes_remaining,
+            "is_on_break": is_on_break,
+            "break_start_time": break_start_time,
+            "total_break_minutes": total_break_minutes,
+            "metrics": {
+                **metrics,
+                "target_logout_dt": metrics["target_logout_dt"].isoformat()
+            } if metrics else None
         })
     except Exception as e:
+        import traceback; traceback.print_exc()
         return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
@@ -2887,6 +3070,10 @@ def status_viewer(request):
     return render(request, "status_viewer.html", context)
 
 
+def splash_demo(request):
+    return render(request, 'splash_demo.html')
+
+
 @csrf_protect
 @require_POST
 def export_status_excel_api(request):
@@ -3334,7 +3521,9 @@ def upload_eb_image_api(request):
 
 def digital_signer(request):
     if not request.session.get("user_id"): return redirect("coreapi:login_page")
-    return render(request, "digital_signer.html")
+    from .models import UserProfile
+    office_users = UserProfile.objects.filter(role__iexact='office')
+    return render(request, "digital_signer.html", {'office_users': office_users})
 
 import threading
 DSC_TOKEN_LOCK = threading.Lock()
@@ -3370,9 +3559,48 @@ def _digital_sign_pdf_api_internal(request):
         if user_password != os.environ.get('SIGNING_PASSWORD'): 
             return JsonResponse({'success': False, 'error': 'Invalid Password'}, status=403)
 
+        # --- PRE-FLIGHT VALIDATION ---
+        doc_type = request.POST.get('doc_type', 'Report') # Default to Report if from modal
+        file_no = request.POST.get('file_no')
+        if not file_no and file_path:
+            filename = os.path.basename(file_path)
+            file_no = filename.split('_')[0]
+            
+        if doc_type == 'Report' and file_no:
+            from .models import ClientFolder
+            try:
+                folder = ClientFolder.objects.get(unique_file_no=file_no)
+                # If file_path wasn't provided (meaning we are using the standalone page),
+                # dynamically set it so the signed PDF gets saved straight into the Client Folder!
+                if not file_path and pdf_file:
+                    file_path = os.path.join(folder.full_folder_path, pdf_file.name)
+            except ClientFolder.DoesNotExist:
+                return JsonResponse({'success': False, 'error': f'No files found with no: {file_no}'}, status=400)
+
         # Token Configuration
-        PKCS11_LIB = os.environ.get('PKCS11_LIB')
+        env_lib = os.environ.get('PKCS11_LIB')
         USER_PIN = os.environ.get('DSC_PIN')
+
+        fallback_libs = [
+            r'C:\Windows\System32\eps2003csp11v2.dll',
+            r'C:\Windows\System32\InnaITPKCS11Driver.dll',
+            r'C:\Windows\System32\Watchdata_PROUT_PKCS11.dll',
+            r'C:\Windows\System32\InnaIT11.dll'
+        ]
+        if env_lib and env_lib not in fallback_libs:
+            fallback_libs.insert(0, env_lib)
+        USER_PIN = os.environ.get('DSC_PIN')
+
+        if file_path and not os.path.exists(file_path):
+            # Fallback: Find the newest PDF in the same directory if user altered the name
+            dir_path = os.path.dirname(file_path)
+            if os.path.exists(dir_path):
+                import glob
+                pdfs = glob.glob(os.path.join(dir_path, '*.pdf'))
+                # Filter out already signed files to avoid re-signing loop
+                pdfs = [p for p in pdfs if not p.endswith('_DSC.pdf')]
+                if pdfs:
+                    file_path = max(pdfs, key=os.path.getmtime)
 
         if file_path and os.path.exists(file_path):
             with open(file_path, 'rb') as f:
@@ -3393,29 +3621,85 @@ def _digital_sign_pdf_api_internal(request):
         import pkcs11
         
         try:
-            # Manually load the PKCS#11 library
-            lib = pkcs11.lib(PKCS11_LIB)
-            
-            # 🚨 CRITICAL FIX: Some token drivers (InnaIT) falsely report token_present=False
-            # We must get ALL slots and manually test them instead of relying on token_present=True
-            all_slots = lib.get_slots()
+            # Try loading available PKCS#11 libraries and finding an active token
+            lib = None
             active_token = None
             
-            for slot in all_slots:
-                try:
-                    # If this succeeds, the token is physically accessible here
-                    token = slot.get_token()
-                    active_token = token
-                    break
-                except Exception:
-                    continue
-                    
-            if not active_token:
-                raise Exception("No token detected in any slot. Please ensure the USB token is plugged in securely.")
+            for p in fallback_libs:
+                if os.path.exists(p):
+                    try:
+                        temp_lib = pkcs11.lib(p)
+                        temp_slots = temp_lib.get_slots()
+                        for slot in temp_slots:
+                            try:
+                                token = slot.get_token()
+                                if token:
+                                    lib = temp_lib
+                                    active_token = token
+                                    break
+                            except Exception:
+                                continue
+                        
+                        if active_token:
+                            break
+                    except Exception:
+                        continue
+            
+            if not lib or not active_token:
+                raise Exception(f"No token detected in any slot for drivers: {fallback_libs}. Please ensure the USB token is plugged in securely.")
             
             # Open a session on the active token
             session = active_token.open(user_pin=USER_PIN)
-            signer = PKCS11Signer(pkcs11_session=session)
+            
+            # 🚨 CRITICAL FIX: Tokens like InnaIT often have multiple certificates (Signature & Encryption).
+            # We must explicitly define which one to use to avoid Pyhanko's "more than one certificate" error.
+            certs = list(session.get_objects({pkcs11.Attribute.CLASS: pkcs11.ObjectClass.CERTIFICATE}))
+            if not certs:
+                raise Exception("No certificates found on the plugged-in token.")
+                
+            # Default to the first certificate found (typically the Signature cert)
+            target_cert = certs[0]
+            
+            from asn1crypto.x509 import Certificate
+            
+            # --- START MONKEY PATCH FOR DUPLICATE KEYS ---
+            # Tokens like InnaIT often duplicate the Private Key or have multiple keys.
+            # PyHanko strictly crashes if len(keys) > 1. We override this to just grab the first valid one.
+            class RobustPKCS11Signer(PKCS11Signer):
+                def _pull_signing_key_handle(self):
+                    query = {
+                        pkcs11.Attribute.CLASS: pkcs11.ObjectClass.PRIVATE_KEY,
+                        pkcs11.Attribute.SIGN: True
+                    }
+                    if self.key_id is not None:
+                        query[pkcs11.Attribute.ID] = self.key_id
+                    if getattr(self, 'key_label', None) is not None:
+                        query[pkcs11.Attribute.LABEL] = self.key_label
+                        
+                    keys = list(self.pkcs11_session.get_objects(query))
+                    if len(keys) >= 1:
+                        return keys[0] # Just return the first one instead of crashing!
+                    else:
+                        raise Exception("Could not find a private signing key on the token.")
+            # --- END MONKEY PATCH ---
+            
+            signer_kwargs = {'pkcs11_session': session}
+            
+            try:
+                # Load the raw certificate bytes explicitly
+                cert_bytes = target_cert[pkcs11.Attribute.VALUE]
+                parsed_cert = Certificate.load(cert_bytes)
+                signer_kwargs['signing_cert'] = parsed_cert
+            except Exception as e:
+                print(f"Warning: could not parse certificate bytes: {e}")
+            
+            try:
+                if pkcs11.Attribute.ID in target_cert:
+                    signer_kwargs['key_id'] = target_cert[pkcs11.Attribute.ID]
+            except Exception:
+                pass
+                
+            signer = RobustPKCS11Signer(**signer_kwargs)
         except Exception as dsc_err:
             import traceback
             traceback.print_exc()
@@ -3516,6 +3800,47 @@ def _digital_sign_pdf_api_internal(request):
         if not final_data or len(final_data) < 100:
             raise Exception("Signing produced an empty or corrupted file. Check your USB Token.")
 
+        # --- Document Tracking and Credit System Integration ---
+        duplicate_warning = ""
+        
+        signed_user_id = request.POST.get('signed_user_id') or request.session.get('user_id')
+        report_type = request.POST.get('report_type') or case_type
+        doc_name = request.POST.get('doc_name')
+        
+        from .models import DocumentSignature, CreditLedger, UserProfile
+        try:
+            if signed_user_id:
+                signed_by_user = UserProfile.objects.get(id=signed_user_id)
+                
+                if doc_type == 'Report' and file_no:
+                    # Check if this file_no already has credit assigned
+                    has_credit = CreditLedger.objects.filter(source='report_signed', reference=file_no).exists()
+                    if has_credit:
+                        duplicate_warning = "Duplicate File No - No credits applied."
+                    else:
+                        # Apply credit
+                        credits_to_add = 6 if report_type == 'OTR' else 2
+                        from django.utils import timezone
+                        CreditLedger.objects.create(
+                            user=signed_by_user,
+                            credits=credits_to_add,
+                            source='report_signed',
+                            reference=file_no,
+                            earned_date=timezone.now().date()
+                        )
+                
+                # Always record the signature
+                DocumentSignature.objects.create(
+                    file_no=file_no if doc_type == 'Report' else None,
+                    signed_by=signed_by_user,
+                    document_type=doc_type,
+                    document_name=doc_name if doc_type == 'Other' else None,
+                    report_type=report_type if doc_type == 'Report' else None
+                )
+        except Exception as e:
+            print("Failed to record signature to DB:", e)
+
+        # --- Return Strategy ---
         if file_path:
             # Save it to disk with _DSC
             base, ext = os.path.splitext(file_path)
@@ -3523,12 +3848,18 @@ def _digital_sign_pdf_api_internal(request):
             with open(dsc_path, 'wb') as out_f:
                 out_f.write(final_data)
                 
-            return JsonResponse({'success': True, 'dsc_path': dsc_path, 'case_type': case_type})
+            response = JsonResponse({'success': True, 'dsc_path': dsc_path, 'case_type': case_type})
+            if duplicate_warning:
+                response['X-Duplicate-Warning'] = duplicate_warning
+            return response
         else:
+            # Raw download for Standalone Signer
             response = HttpResponse(final_data, content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="Signed_{pdf_file.name}"'
             response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
             response['Pragma'] = 'no-cache'
+            if duplicate_warning:
+                response['X-Duplicate-Warning'] = duplicate_warning
             return response
     except Exception as e:
         import traceback
@@ -3541,8 +3872,23 @@ def serve_local_pdf(request):
     import os
     from django.http import FileResponse, JsonResponse
     file_path = request.GET.get('path')
+    
+    if file_path and not os.path.exists(file_path):
+        # Fallback: Find the newest PDF in the same directory if user altered the name
+        dir_path = os.path.dirname(file_path)
+        if os.path.exists(dir_path):
+            import glob
+            pdfs = glob.glob(os.path.join(dir_path, '*.pdf'))
+            pdfs = [p for p in pdfs if not p.endswith('_DSC.pdf')]
+            if pdfs:
+                file_path = max(pdfs, key=os.path.getmtime)
+                
     if file_path and os.path.exists(file_path):
-        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+        response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+        # Send the actual file name in the header so the frontend knows what it found
+        response['X-Resolved-Path'] = file_path.replace('\\', '\\\\')
+        return response
+        
     return JsonResponse({'error': 'File not found'}, status=404)
 
 @csrf_exempt
@@ -3601,6 +3947,10 @@ def request_leaves_api(request):
                     }
                 )
                 if not created:
+                    # Don't allow re-submission if the leave is already approved
+                    if lr.status == 'approved':
+                        errors.append(f"Leave for {date_str} is already approved and cannot be modified.")
+                        continue
                     lr.leave_type = leave_type
                     lr.duration = duration
                     lr.reason = reason

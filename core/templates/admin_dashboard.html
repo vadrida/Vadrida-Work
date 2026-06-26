@@ -7,88 +7,144 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
-    body { overflow: hidden; }
-    .font-outfit { font-family: 'Outfit', sans-serif; }
-    .royal-blue { color: #003d99; }
-    .bg-royal-blue { background-color: #003d99; }
-    
-    .nav-item { transition: all 0.2s ease; }
-    .nav-item.active { background-color: #e6f0ff; color: #0052cc; border-radius: 8px; font-weight: 600; }
-    .nav-item:hover:not(.active) { background-color: #f0f4f8; border-radius: 8px; }
-    
-    .card-shadow { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02); border: 1px solid #edf2f7; }
+    body {
+        overflow: hidden;
+    }
+
+    .font-outfit {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .royal-blue {
+        color: #003d99;
+    }
+
+    .bg-royal-blue {
+        background-color: #003d99;
+    }
+
+    .nav-item {
+        transition: all 0.2s ease;
+    }
+
+    .nav-item.active {
+        background-color: #e6f0ff;
+        color: #0052cc;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .nav-item:hover:not(.active) {
+        background-color: #f0f4f8;
+        border-radius: 8px;
+    }
+
+    .card-shadow {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        border: 1px solid #edf2f7;
+    }
 
     /* Slide Over Panel */
-    .slide-over { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
-    .slide-over.open { transform: translateX(0); }
-    
+    .slide-over {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .slide-over.open {
+        transform: translateX(0);
+    }
+
     /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex overflow-hidden font-outfit text-gray-800">
+<div
+    class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex overflow-hidden font-outfit text-gray-800">
 
     <!-- LEFT COLUMN: NAVIGATION -->
-    <aside class="w-[260px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+    <aside
+        class="w-[260px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div class="p-6 pb-4">
             <h2 class="text-[19px] font-bold royal-blue flex items-center gap-2 tracking-tight">
-               ADMIN
+                ADMIN
             </h2>
             <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Command Center</p>
         </div>
-        
+
         <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4">NAVIGATION</div>
-        
+
         <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto" id="main-nav">
-            <a href="#" data-tab="team" onclick="switchTab(this, event)" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
+            <a href="#" data-tab="team" onclick="switchTab(this, event)"
+                class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
                 <i class="fas fa-users w-5 text-blue-600"></i> Team Overview
             </a>
-            <a href="#" data-tab="analysis" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="analysis" onclick="switchTab(this, event)"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-chart-bar w-5"></i> Performance Analysis
             </a>
-            <a href="#" data-tab="billing" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="billing" onclick="switchTab(this, event)"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-file-invoice-dollar w-5"></i> Billing & Invoices
             </a>
-            <a href="#" data-tab="config" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="config" onclick="switchTab(this, event)"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-cogs w-5"></i> System Configuration
             </a>
-            <a href="#" data-tab="attendance" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="attendance" onclick="switchTab(this, event)"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-calendar-check w-5"></i> Attendance
             </a>
-            <a href="#" data-tab="reports" onclick="switchTab(this, event)" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
+            <a href="#" data-tab="reports" onclick="switchTab(this, event)"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600">
                 <i class="fas fa-file-pdf w-5"></i> Recent Reports
             </a>
-            <a href="#" onclick="openBiometricModal()" class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600 hover:text-blue-600">
+            <a href="#" onclick="openBiometricModal()"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] text-gray-600 hover:text-blue-600">
                 <i class="fas fa-door-closed w-5"></i> Smart Lock / Logs
             </a>
         </nav>
-        
+
         <div class="mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
             <div class="flex items-center justify-between">
                 <span class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">Live Users</span>
-                <span id="online-count" class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                <span id="online-count"
+                    class="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
             </div>
         </div>
     </aside>
 
     <!-- MIDDLE COLUMN: TEAM LIST & PROFILE -->
     <main class="flex-1 h-full overflow-y-auto p-5 lg:p-8 flex flex-col relative bg-[#f8fafc]" id="middleMainContainer">
-        
+
         <!-- TEAM LIST VIEW -->
         <div id="teamViewContainer" class="flex-1 flex flex-col">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-[24px] font-bold text-gray-800 leading-tight">Team Roster</h1>
                 <div class="relative w-64">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                    <input type="text" id="teamSearch" class="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all card-shadow" placeholder="Search team..." onkeyup="filterTeam()">
+                    <input type="text" id="teamSearch"
+                        class="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all card-shadow"
+                        placeholder="Search team..." onkeyup="filterTeam()">
                 </div>
             </div>
-            
+
             <div id="user-list" class="flex flex-col gap-6 pb-20">
                 <div class="text-center p-8 text-gray-400">Loading team...</div>
             </div>
@@ -99,22 +155,28 @@
             <!-- Header -->
             <div class="flex justify-between items-start mb-6">
                 <div>
-                    <button onclick="closeUserPanel()" class="text-gray-400 hover:text-blue-600 mb-2 transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
+                    <button onclick="closeUserPanel()"
+                        class="text-gray-400 hover:text-blue-600 mb-2 transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
                         <i class="fas fa-arrow-left mr-2"></i> Back to Team
                     </button>
                     <h1 id="profName" class="text-[28px] font-bold text-gray-800 leading-tight">User Name</h1>
-                    <p id="profRole" class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Role</p>
+                    <p id="profRole" class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Role
+                    </p>
                 </div>
                 <div class="text-right">
-                    <span id="profLastSeen" class="text-xs text-gray-400 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm">Last active: -</span>
+                    <span id="profLastSeen"
+                        class="text-xs text-gray-400 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-sm">Last
+                        active: -</span>
                 </div>
             </div>
 
             <!-- Top Stats & Charts Row -->
             <div class="grid grid-cols-4 gap-6 mb-6">
                 <!-- Monthly Target Donut -->
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Files This Month</h3>
+                <div
+                    class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">
+                        Files This Month</h3>
                     <div class="w-[140px] h-[140px] mt-6 relative">
                         <canvas id="filesChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -125,39 +187,51 @@
                 </div>
 
                 <!-- Credits vs Target Donut -->
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Credits Earned</h3>
+                <div
+                    class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">
+                        Credits Earned</h3>
                     <div class="w-[140px] h-[140px] mt-6 relative">
                         <canvas id="creditsChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span id="profCreditsEarned" class="text-2xl font-black text-purple-600 leading-none">0</span>
+                            <span id="profCreditsEarned"
+                                class="text-2xl font-black text-purple-600 leading-none">0</span>
                             <span id="profCreditsTarget" class="text-[10px] text-gray-400 font-bold">/ 0</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Leaves Taken Donut -->
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Leaves Taken</h3>
+                <div
+                    class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">
+                        Leaves Taken</h3>
                     <div class="w-[140px] h-[140px] mt-6 relative">
                         <canvas id="leavesChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <span id="profLeavesTaken" class="text-2xl font-black text-orange-500 leading-none">0</span>
                         </div>
                     </div>
-                    <div id="profLeaveTypes" class="flex flex-wrap justify-center gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase"></div>
+                    <div id="profLeaveTypes"
+                        class="flex flex-wrap justify-center gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase">
+                    </div>
                 </div>
 
                 <!-- Leaves Left Donut -->
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">Leaves Left</h3>
+                <div
+                    class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col items-center justify-center relative">
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest absolute top-5 left-5">
+                        Leaves Left</h3>
                     <div class="w-[140px] h-[140px] mt-6 relative">
                         <canvas id="leavesLeftChart"></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span id="profLeavesLeftTotal" class="text-2xl font-black text-green-500 leading-none">0</span>
+                            <span id="profLeavesLeftTotal"
+                                class="text-2xl font-black text-green-500 leading-none">0</span>
                         </div>
                     </div>
-                    <div id="profLeaveBalances" class="flex flex-wrap justify-center gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase"></div>
+                    <div id="profLeaveBalances"
+                        class="flex flex-wrap justify-center gap-2 mt-4 text-[9px] font-bold text-gray-400 uppercase">
+                    </div>
                 </div>
             </div>
 
@@ -165,7 +239,8 @@
             <div class="grid grid-cols-2 gap-6 mb-6">
                 <!-- Categories Bar Chart -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">File Categories (Month)</h3>
+                    <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">File Categories
+                        (Month)</h3>
                     <div class="h-[200px] w-full">
                         <canvas id="categoriesChart"></canvas>
                     </div>
@@ -173,15 +248,19 @@
 
                 <!-- Overtime Cards -->
                 <div class="grid grid-rows-3 gap-3">
-                    <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center bg-gradient-to-r from-red-50 to-white">
-                        <span class="text-[11px] font-bold text-red-400 uppercase tracking-widest"><i class="fas fa-clock mr-2"></i>Daily OT</span>
+                    <div
+                        class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center bg-gradient-to-r from-red-50 to-white">
+                        <span class="text-[11px] font-bold text-red-400 uppercase tracking-widest"><i
+                                class="fas fa-clock mr-2"></i>Daily OT</span>
                         <span id="profOTDaily" class="text-xl font-black text-red-600">0h</span>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center">
+                    <div
+                        class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center">
                         <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Weekly OT</span>
                         <span id="profOTWeekly" class="text-xl font-black text-gray-600">0h</span>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center">
+                    <div
+                        class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex justify-between items-center">
                         <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Monthly OT</span>
                         <span id="profOTMonthly" class="text-xl font-black text-gray-600">0h</span>
                     </div>
@@ -220,22 +299,27 @@
             <div class="flex justify-between items-start mb-6 px-6 pt-6 flex-shrink-0">
                 <div>
                     <h1 class="text-[24px] font-bold text-gray-800 leading-tight">System Configuration</h1>
-                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Settings & Attendance</p>
+                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Settings &
+                        Attendance</p>
                 </div>
             </div>
 
             <!-- Content Area (Scrollable) -->
             <div class="flex-1 overflow-y-auto px-6 pb-6">
-                
+
                 <!-- TOP SECTION: Split view -->
                 <div class="flex gap-6 mb-6">
                     <!-- Left Calendar Panel (decrease height, real calendar) -->
-                    <div class="w-[30%] bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[420px]">
+                    <div
+                        class="w-[30%] bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[420px]">
                         <div class="flex justify-between items-center mb-4 flex-shrink-0">
                             <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Calendar</h3>
-                            <button id="editCalendarBtn" onclick="manageHolidays()" class="text-blue-500 hover:text-blue-700 text-[10px] bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 flex items-center transition-colors font-bold"><i class="fas fa-calendar-plus mr-1"></i>Edit</button>
+                            <button id="editCalendarBtn" onclick="manageHolidays()"
+                                class="text-blue-500 hover:text-blue-700 text-[10px] bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 flex items-center transition-colors font-bold"><i
+                                    class="fas fa-calendar-plus mr-1"></i>Edit</button>
                         </div>
-                        <div id="calendarRoot" class="rounded-xl bg-gray-50/50 flex flex-col flex-1 border border-gray-100 p-2 min-h-72 overflow-hidden">
+                        <div id="calendarRoot"
+                            class="rounded-xl bg-gray-50/50 flex flex-col flex-1 border border-gray-100 p-2 min-h-72 overflow-hidden">
                             <!-- Real Calendar will go here -->
                         </div>
                     </div>
@@ -243,24 +327,32 @@
                     <!-- Right Panel: Cards -->
                     <div class="w-[70%] grid grid-cols-2 gap-6 h-[420px]">
                         <!-- Card 1: Limits & Credits -->
-                        <div id="limitsCardRoot" class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col relative h-[420px] transition-colors">
+                        <div id="limitsCardRoot"
+                            class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col relative h-[420px] transition-colors">
                             <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest"><i class="fas fa-sliders-h mr-2"></i>Global Limits</h3>
-                                <button id="editLimitsBtn" onclick="toggleEditLimits()" class="text-blue-500 hover:text-blue-700 text-[10px] bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 flex items-center transition-colors font-bold"><i class="fas fa-pen mr-1"></i>Edit</button>
+                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest"><i
+                                        class="fas fa-sliders-h mr-2"></i>Global Limits</h3>
+                                <button id="editLimitsBtn" onclick="toggleEditLimits()"
+                                    class="text-blue-500 hover:text-blue-700 text-[10px] bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 flex items-center transition-colors font-bold"><i
+                                        class="fas fa-pen mr-1"></i>Edit</button>
                             </div>
-                            
+
                             <div class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1" id="limitsContainer">
                                 <!-- Rendered by JS -->
                             </div>
                         </div>
 
                         <!-- Card 2: Credit Adjustment -->
-                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[420px]">
+                        <div
+                            class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[420px]">
                             <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest"><i class="fas fa-coins mr-2 text-yellow-500"></i>Credit Adjustment</h3>
+                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest"><i
+                                        class="fas fa-coins mr-2 text-yellow-500"></i>Credit Adjustment</h3>
                             </div>
                             <div class="mb-3">
-                                <input type="text" id="creditSearchInput" onkeyup="filterCreditUsers()" placeholder="Search users..." class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-blue-400">
+                                <input type="text" id="creditSearchInput" onkeyup="filterCreditUsers()"
+                                    placeholder="Search users..."
+                                    class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-1.5 text-xs outline-none focus:border-blue-400">
                             </div>
                             <div class="flex-1 overflow-y-auto pr-2">
                                 <div class="flex flex-col gap-2" id="userCreditList">
@@ -274,13 +366,17 @@
                 <!-- USER MANAGEMENT -->
                 <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col mb-6 mt-6">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                        <h3 class="text-[14px] font-bold text-gray-700 uppercase tracking-widest"><i class="fas fa-users mr-2 text-indigo-500"></i>User Management</h3>
-                        <button onclick="openUserModal()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded text-[12px] font-bold transition-colors shadow">
+                        <h3 class="text-[14px] font-bold text-gray-700 uppercase tracking-widest"><i
+                                class="fas fa-users mr-2 text-indigo-500"></i>User Management</h3>
+                        <button onclick="openUserModal()"
+                            class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded text-[12px] font-bold transition-colors shadow">
                             <i class="fas fa-user-plus mr-1"></i> Add New User
                         </button>
                     </div>
                     <div class="mb-4">
-                        <input type="text" id="userSearchInput" onkeyup="filterUserManagement()" placeholder="Search users by name, id, role..." class="w-full md:w-1/3 bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-indigo-400">
+                        <input type="text" id="userSearchInput" onkeyup="filterUserManagement()"
+                            placeholder="Search users by name, id, role..."
+                            class="w-full md:w-1/3 bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm outline-none focus:border-indigo-400">
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm text-gray-600 border-collapse">
@@ -296,7 +392,9 @@
                                 </tr>
                             </thead>
                             <tbody id="userManagementTable" class="divide-y divide-gray-100">
-                                <tr><td colspan="7" class="text-center py-4 text-gray-400 text-xs">Loading users...</td></tr>
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-gray-400 text-xs">Loading users...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -309,7 +407,8 @@
             <div class="flex justify-between items-center mb-6 px-6 pt-6 flex-shrink-0">
                 <div>
                     <h1 class="text-[24px] font-bold text-gray-800 leading-tight">Attendance Roster</h1>
-                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Daily Logs</p>
+                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Manage Daily Logs
+                    </p>
                 </div>
             </div>
 
@@ -318,15 +417,22 @@
                 <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow flex flex-col h-[619px]">
                     <div class="flex justify-between items-center mb-4 flex-shrink-0 border-b border-gray-100 pb-3">
                         <div class="flex gap-2 items-center">
-                            <button onclick="changeAttendanceDate(-1)" class="text-gray-400 hover:text-purple-600 px-2 py-1"><i class="fas fa-chevron-left"></i></button>
-                            <span id="attendanceDateLabel" class="text-[13px] font-bold text-gray-800 uppercase tracking-widest">LOADING...</span>
-                            <button onclick="changeAttendanceDate(1)" class="text-gray-400 hover:text-purple-600 px-2 py-1"><i class="fas fa-chevron-right"></i></button>
+                            <button onclick="changeAttendanceDate(-1)"
+                                class="text-gray-400 hover:text-purple-600 px-2 py-1"><i
+                                    class="fas fa-chevron-left"></i></button>
+                            <span id="attendanceDateLabel"
+                                class="text-[13px] font-bold text-gray-800 uppercase tracking-widest">LOADING...</span>
+                            <button onclick="changeAttendanceDate(1)"
+                                class="text-gray-400 hover:text-purple-600 px-2 py-1"><i
+                                    class="fas fa-chevron-right"></i></button>
                         </div>
                         <div class="flex gap-2">
-                            <button id="saveAttendanceBtn" onclick="saveAttendanceUpdates()" class="hidden text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1 rounded text-[11px] font-bold transition-colors">
+                            <button id="saveAttendanceBtn" onclick="saveAttendanceUpdates()"
+                                class="hidden text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1 rounded text-[11px] font-bold transition-colors">
                                 <i class="fas fa-check mr-1"></i> Save Changes
                             </button>
-                            <button onclick="fetchAttendance()" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-[11px] font-bold transition-colors">
+                            <button onclick="fetchAttendance()"
+                                class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-[11px] font-bold transition-colors">
                                 <i class="fas fa-sync-alt mr-1"></i> Refresh
                             </button>
                         </div>
@@ -341,29 +447,43 @@
 
                 <!-- Monthly Summaries (Grid) -->
                 <div class="bg-white rounded-2xl border border-gray-100 card-shadow flex flex-col min-h-[400px]">
-                    <div class="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
                         <div>
                             <h3 class="text-sm font-bold text-gray-800">Monthly Roster</h3>
-                            <p class="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">Excel-style view</p>
+                            <p class="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-0.5">
+                                Excel-style view</p>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <select id="monthlyGridMonth" class="text-xs border-gray-300 rounded outline-none p-1.5 focus:ring-2 focus:ring-blue-500">
-                                <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
-                                <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
-                                <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
-                                <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                            <select id="monthlyGridMonth"
+                                class="text-xs border-gray-300 rounded outline-none p-1.5 focus:ring-2 focus:ring-blue-500">
+                                <option value="1">Jan</option>
+                                <option value="2">Feb</option>
+                                <option value="3">Mar</option>
+                                <option value="4">Apr</option>
+                                <option value="5">May</option>
+                                <option value="6">Jun</option>
+                                <option value="7">Jul</option>
+                                <option value="8">Aug</option>
+                                <option value="9">Sep</option>
+                                <option value="10">Oct</option>
+                                <option value="11">Nov</option>
+                                <option value="12">Dec</option>
                             </select>
-                            <select id="monthlyGridYear" class="text-xs border-gray-300 rounded outline-none p-1.5 focus:ring-2 focus:ring-blue-500">
+                            <select id="monthlyGridYear"
+                                class="text-xs border-gray-300 rounded outline-none p-1.5 focus:ring-2 focus:ring-blue-500">
                                 <option value="2026">2026</option>
                                 <option value="2027">2027</option>
                             </select>
-                            <button onclick="fetchMonthlyAttendance()" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded text-[11px] font-bold transition-colors">
+                            <button onclick="fetchMonthlyAttendance()"
+                                class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded text-[11px] font-bold transition-colors">
                                 <i class="fas fa-sync-alt"></i> Load
                             </button>
                         </div>
                     </div>
                     <div class="flex-1 overflow-x-auto p-4" id="monthlyGridContainer">
-                        <div class="text-center text-xs text-gray-400 py-10 italic">Click 'Load' to view monthly grid.</div>
+                        <div class="text-center text-xs text-gray-400 py-10 italic">Click 'Load' to view monthly grid.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -371,7 +491,8 @@
 
         <!-- IFRAME CONTAINER (For External Tabs) -->
         <div id="iframeContainer" class="hidden flex-1 w-full h-full pb-4 flex-col">
-            <iframe id="mainIframe" src="" class="block w-full flex-1 border-0 rounded-2xl card-shadow min-h-[800px]"></iframe>
+            <iframe id="mainIframe" src=""
+                class="block w-full flex-1 border-0 rounded-2xl card-shadow min-h-[800px]"></iframe>
         </div>
 
         <!-- RECENT REPORTS VIEW -->
@@ -379,12 +500,17 @@
             <div class="flex justify-between items-center mb-6 px-6 pt-6 flex-shrink-0">
                 <div>
                     <h1 class="text-[24px] font-bold text-gray-800 leading-tight">Recent Reports</h1>
-                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Latest Submissions</p>
+                    <p class="text-[12px] text-gray-500 font-semibold uppercase tracking-widest mt-1">Latest Submissions
+                    </p>
                 </div>
-                <button onclick="loadGeneratedReports()" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-[11px] font-bold transition-colors"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+                <button onclick="loadGeneratedReports()"
+                    class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-[11px] font-bold transition-colors"><i
+                        class="fas fa-sync-alt mr-1"></i>Refresh</button>
             </div>
             <div class="px-6 pb-2">
-                <input type="text" id="reportSearch" class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-400 card-shadow" placeholder="Search filename..." onkeyup="filterReports()">
+                <input type="text" id="reportSearch"
+                    class="w-full bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-400 card-shadow"
+                    placeholder="Search filename..." onkeyup="filterReports()">
             </div>
             <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-3" id="report-list">
                 <div class="text-center p-4 text-xs text-gray-400">Loading reports...</div>
@@ -394,23 +520,31 @@
     </main>
 
     <!-- RIGHT COLUMN -->
-    <aside class="w-[320px] h-full bg-white border-l border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
-        
-        <!-- LEAVE APPROVALS PANEL -->
+    <aside
+        class="w-[320px] h-full bg-white border-l border-gray-200 flex flex-col flex-shrink-0 relative z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+
+        <!-- NOTIFICATIONS PANEL -->
         <div id="rightPanelLeaves" class="flex flex-col h-full bg-purple-50/20">
             <div class="p-5 border-b border-purple-100 flex justify-between items-center bg-purple-50">
                 <h2 class="text-[13px] font-bold text-purple-800 flex items-center gap-2 uppercase tracking-wide">
-                    <i class="fas fa-calendar-times text-purple-500"></i> Leave Approvals
+                    <i class="fas fa-bell text-purple-500"></i> Notifications
                 </h2>
-                <button onclick="fetchLeaves()" class="text-purple-400 hover:text-purple-600 transition-colors"><i class="fas fa-sync-alt text-xs"></i></button>
+                <button onclick="fetchLeaves()" class="text-purple-400 hover:text-purple-600 transition-colors"><i
+                        class="fas fa-sync-alt text-xs"></i></button>
             </div>
             <div class="p-3 border-b border-purple-100 bg-white">
                 <div class="flex gap-2">
                     {% if request.session.user_role != 'accountant' %}
-                    <button onclick="filterLeaves('pending')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700" id="btnFilterPending">Pending</button>
+                    <button onclick="filterLeaves('pending')"
+                        class="flex-1 py-1.5 text-[10px] font-bold rounded bg-purple-100 text-purple-700"
+                        id="btnFilterPending">Pending</button>
                     {% endif %}
-                    <button onclick="filterLeaves('approved')" class="flex-1 py-1.5 text-[10px] font-bold rounded {% if request.session.user_role == 'accountant' %}bg-purple-100 text-purple-700{% else %}bg-gray-50 text-gray-500 hover:bg-gray-100{% endif %}" id="btnFilterApproved">Approved</button>
-                    <button onclick="filterLeaves('denied')" class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100" id="btnFilterDenied">Denied</button>
+                    <button onclick="filterLeaves('approved')"
+                        class="flex-1 py-1.5 text-[10px] font-bold rounded {% if request.session.user_role == 'accountant' %}bg-purple-100 text-purple-700{% else %}bg-gray-50 text-gray-500 hover:bg-gray-100{% endif %}"
+                        id="btnFilterApproved">Approved</button>
+                    <button onclick="filterLeaves('denied')"
+                        class="flex-1 py-1.5 text-[10px] font-bold rounded bg-gray-50 text-gray-500 hover:bg-gray-100"
+                        id="btnFilterDenied">Denied</button>
                 </div>
             </div>
             <div id="leave-list" class="flex-1 overflow-y-auto p-2 flex flex-col gap-2">
@@ -430,24 +564,30 @@
             <input type="hidden" id="userAction" value="create">
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">User ID</label>
-                    <input type="text" id="userId" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">User
+                        ID</label>
+                    <input type="text" id="userId"
+                        class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Name</label>
-                    <input type="text" id="userName" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                    <input type="text" id="userName"
+                        class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Email</label>
-                    <input type="email" id="userEmail" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                    <input type="email" id="userEmail"
+                        class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Phone</label>
-                    <input type="text" id="userPhone" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                    <input type="text" id="userPhone"
+                        class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Role</label>
-                    <select id="userRole" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                    <select id="userRole" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm"
+                        required>
                         <option value="office">Office</option>
                         <option value="site">Site</option>
                         <option value="admin">Admin</option>
@@ -455,31 +595,41 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Shift Timing</label>
-                    <select id="userShift" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" required>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Shift
+                        Timing</label>
+                    <select id="userShift" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm"
+                        required>
                         <option value="09:00 AM - 05:30 PM">09:00 AM - 05:30 PM</option>
                         <option value="09:30 AM - 06:00 PM">09:30 AM - 06:00 PM</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Password</label>
-                    <input type="password" id="userPassword" class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm" placeholder="Leave blank to keep current">
+                    <label
+                        class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="userPassword"
+                        class="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm"
+                        placeholder="Leave blank to keep current">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Profile Picture</label>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Profile
+                        Picture</label>
                     <input type="file" id="userProfilePic" accept="image/*" class="w-full text-xs">
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">Cancel</button>
-                <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 rounded hover:bg-indigo-600 transition-colors">Save User</button>
+                <button type="button" onclick="closeUserModal()"
+                    class="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">Cancel</button>
+                <button type="submit"
+                    class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 rounded hover:bg-indigo-600 transition-colors">Save
+                    User</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- BIOMETRIC DEVICE MODAL -->
-<div id="biometricModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+<div id="biometricModal"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
     <div class="bg-white rounded-2xl p-6 w-[800px] card-shadow flex flex-col max-h-[80vh]">
         <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3 flex-shrink-0">
             <div>
@@ -487,21 +637,25 @@
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">eSSL Biometric Logs</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="unlockBiometricDoor()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-2">
+                <button onclick="unlockBiometricDoor()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-2">
                     <i class="fas fa-unlock-alt"></i> UNLOCK DOOR
                 </button>
-                <button onclick="closeBiometricModal()" class="text-gray-400 hover:text-gray-600 ml-2"><i class="fas fa-times text-lg"></i></button>
+                <button onclick="closeBiometricModal()" class="text-gray-400 hover:text-gray-600 ml-2"><i
+                        class="fas fa-times text-lg"></i></button>
             </div>
         </div>
 
         <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-bold text-gray-600 uppercase">Recent Punches</span>
-            <button onclick="fetchBiometricLogs()" class="text-[10px] font-bold text-blue-500 hover:text-blue-700"><i class="fas fa-sync-alt mr-1"></i> Sync Data</button>
+            <button onclick="fetchBiometricLogs()" class="text-[10px] font-bold text-blue-500 hover:text-blue-700"><i
+                    class="fas fa-sync-alt mr-1"></i> Sync Data</button>
         </div>
-        
+
         <div class="flex-1 overflow-y-auto pr-2 bg-gray-50 rounded-lg border border-gray-200">
             <table class="w-full text-left text-sm text-gray-600 border-collapse">
-                <thead class="sticky top-0 bg-gray-100/90 backdrop-blur text-[10px] uppercase font-bold text-gray-500 z-10">
+                <thead
+                    class="sticky top-0 bg-gray-100/90 backdrop-blur text-[10px] uppercase font-bold text-gray-500 z-10">
                     <tr>
                         <th class="p-3">Employee</th>
                         <th class="p-3">Device Time</th>
@@ -509,7 +663,10 @@
                     </tr>
                 </thead>
                 <tbody id="biometricLogsTable" class="divide-y divide-gray-200 text-xs bg-white">
-                    <tr><td colspan="3" class="text-center p-4 text-gray-400 italic">Click 'Sync Data' to fetch logs...</td></tr>
+                    <tr>
+                        <td colspan="3" class="text-center p-4 text-gray-400 italic">Click 'Sync Data' to fetch logs...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -529,7 +686,7 @@
     // --- WEBSOCKETS ---
     const presenceWs = new WebSocket(`${protocol}://${location.host}/ws/presence/`);
     presenceWs.onopen = () => presenceWs.send(JSON.stringify({ "page": "Command Center" }));
-    
+
     presenceWs.onmessage = (e) => {
         const data = JSON.parse(e.data);
         if (data.type === "team_update") {
@@ -537,13 +694,13 @@
             renderTeam(allUsers);
         }
         if (data.type === "report_generated") {
-            loadGeneratedReports(true); 
+            loadGeneratedReports(true);
         }
     };
 
     // --- TEAM LIST LOGIC ---
     function syncTeamData() {
-        fetch('/core/api/stats/').then(r=>r.json()).then(data => {
+        fetch('/core/api/stats/').then(r => r.json()).then(data => {
             allUsers = data.team_members || [];
             renderTeam(allUsers);
         });
@@ -552,11 +709,11 @@
     function renderTeam(users) {
         const list = document.getElementById('user-list');
         const term = document.getElementById('teamSearch').value.toLowerCase();
-        
+
         const filtered = users.filter(u => u.user_name.toLowerCase().includes(term));
         const countEl = document.getElementById('online-count');
-        if(countEl) countEl.innerText = users.filter(u => u.is_online).length;
-        
+        if (countEl) countEl.innerText = users.filter(u => u.is_online).length;
+
         list.innerHTML = "";
 
         if (filtered.length === 0) {
@@ -585,7 +742,7 @@
             `;
 
             groupUsers.forEach(u => {
-                const color = ['#3b82f6','#10b981','#8b5cf6','#f43f5e'][u.user_name.length % 4];
+                const color = ['#3b82f6', '#10b981', '#8b5cf6', '#f43f5e'][u.user_name.length % 4];
                 const initial = u.user_name.charAt(0).toUpperCase();
                 const isOnline = u.is_online;
                 const roleDisplay = u.role ? u.role.toUpperCase() : 'N/A';
@@ -630,7 +787,7 @@
     function openUserPanel(userId) {
         currentSelectedUserId = userId;
         const user = allUsers.find(u => u.id == userId);
-        if(!user) return;
+        if (!user) return;
 
         // Toggle Views
         document.getElementById('teamViewContainer').classList.add('hidden');
@@ -638,121 +795,121 @@
 
         // Reset Profile Header
         document.getElementById('profName').innerText = "Loading...";
-        
+
         fetch(`/core/api/user-details/${userId}/`)
-        .then(r => r.json())
-        .then(data => {
-            if(data.error) {
-                alert("Error loading profile: " + data.error);
-                closeUserPanel();
-                return;
-            }
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error loading profile: " + data.error);
+                    closeUserPanel();
+                    return;
+                }
 
-            // Header
-            document.getElementById('profName').innerText = data.name;
-            document.getElementById('profRole').innerText = (data.role || 'UNKNOWN').toUpperCase();
-            document.getElementById('profLastSeen').innerText = data.last_seen ? "Last active: " + new Date(data.last_seen).toLocaleString() : "Offline";
+                // Header
+                document.getElementById('profName').innerText = data.name;
+                document.getElementById('profRole').innerText = (data.role || 'UNKNOWN').toUpperCase();
+                document.getElementById('profLastSeen').innerText = data.last_seen ? "Last active: " + new Date(data.last_seen).toLocaleString() : "Offline";
 
-            const a = data.analytics;
+                const a = data.analytics;
 
-            // Stats Update
-            document.getElementById('profFilesDone').innerText = a.files_done;
-            document.getElementById('profFilesTarget').innerText = "/ " + a.files_target;
-            
-            document.getElementById('profCreditsEarned').innerText = a.total_credits;
-            document.getElementById('profCreditsTarget').innerText = "/ " + a.credits_target;
-            
-            document.getElementById('profLeavesTaken').innerText = a.total_leaves;
-            
-            // Calculate Total Leaves Left
-            let totalLeft = (a.leave_balances?.cl || 0) + (a.leave_balances?.sl || 0) + (a.leave_balances?.el || 0);
-            document.getElementById('profLeavesLeftTotal').innerText = totalLeft.toFixed(1);
+                // Stats Update
+                document.getElementById('profFilesDone').innerText = a.files_done;
+                document.getElementById('profFilesTarget').innerText = "/ " + a.files_target;
 
-            // OT
-            document.getElementById('profOTDaily').innerText = a.ot.daily + "h";
-            document.getElementById('profOTWeekly').innerText = a.ot.weekly + "h";
-            document.getElementById('profOTMonthly').innerText = a.ot.monthly + "h";
+                document.getElementById('profCreditsEarned').innerText = a.total_credits;
+                document.getElementById('profCreditsTarget').innerText = "/ " + a.credits_target;
 
-            // Leave Types Text & Charts Breakdown
-            let takenLabels = [];
-            let takenData = [];
-            let takenColors = [];
-            
-            let typeColorMap = {
-                'casual': '#f97316', // Orange
-                'sick': '#ef4444',   // Red
-                'earned': '#10b981', // Emerald
-                'wfh': '#3b82f6',    // Blue
-            };
+                document.getElementById('profLeavesTaken').innerText = a.total_leaves;
 
-            a.leave_types.forEach(lt => {
-                takenLabels.push(lt.leave_type.toUpperCase());
-                takenData.push(lt.count);
-                takenColors.push(typeColorMap[lt.leave_type] || '#8b5cf6');
-            });
-            
-            // If no leaves taken, show placeholder donut
-            if(takenData.length === 0) {
-                takenLabels = ['None'];
-                takenData = [1];
-                takenColors = ['#f3f4f6'];
-                document.getElementById('profLeaveTypes').innerHTML = "<span>No leaves taken</span>";
-            } else {
-                let leaveStr = a.leave_types.map(lt => `<span style="color:${typeColorMap[lt.leave_type] || '#8b5cf6'}">${lt.leave_type}: ${lt.count}</span>`).join(' | ');
-                document.getElementById('profLeaveTypes').innerHTML = leaveStr;
-            }
+                // Calculate Total Leaves Left
+                let totalLeft = (a.leave_balances?.cl || 0) + (a.leave_balances?.sl || 0) + (a.leave_balances?.el || 0);
+                document.getElementById('profLeavesLeftTotal').innerText = totalLeft.toFixed(1);
 
-            // Leaves Left Setup
-            let leftLabels = ['CL', 'SL', 'EL'];
-            let leftData = [
-                a.leave_balances?.cl || 0,
-                a.leave_balances?.sl || 0,
-                a.leave_balances?.el || 0
-            ];
-            let leftColors = ['#f97316', '#ef4444', '#10b981']; // CL, SL, EL colors
-            
-            // If no balances, show placeholder donut
-            if(totalLeft === 0) {
-                leftLabels = ['Zero Balance'];
-                leftData = [1];
-                leftColors = ['#f3f4f6'];
-                document.getElementById('profLeaveBalances').innerHTML = "<span>No leaves left</span>";
-            } else {
-                let balStr = `
+                // OT
+                document.getElementById('profOTDaily').innerText = a.ot.daily + "h";
+                document.getElementById('profOTWeekly').innerText = a.ot.weekly + "h";
+                document.getElementById('profOTMonthly').innerText = a.ot.monthly + "h";
+
+                // Leave Types Text & Charts Breakdown
+                let takenLabels = [];
+                let takenData = [];
+                let takenColors = [];
+
+                let typeColorMap = {
+                    'casual': '#f97316', // Orange
+                    'sick': '#ef4444',   // Red
+                    'earned': '#10b981', // Emerald
+                    'wfh': '#3b82f6',    // Blue
+                };
+
+                a.leave_types.forEach(lt => {
+                    takenLabels.push(lt.leave_type.toUpperCase());
+                    takenData.push(lt.count);
+                    takenColors.push(typeColorMap[lt.leave_type] || '#8b5cf6');
+                });
+
+                // If no leaves taken, show placeholder donut
+                if (takenData.length === 0) {
+                    takenLabels = ['None'];
+                    takenData = [1];
+                    takenColors = ['#f3f4f6'];
+                    document.getElementById('profLeaveTypes').innerHTML = "<span>No leaves taken</span>";
+                } else {
+                    let leaveStr = a.leave_types.map(lt => `<span style="color:${typeColorMap[lt.leave_type] || '#8b5cf6'}">${lt.leave_type}: ${lt.count}</span>`).join(' | ');
+                    document.getElementById('profLeaveTypes').innerHTML = leaveStr;
+                }
+
+                // Leaves Left Setup
+                let leftLabels = ['CL', 'SL', 'EL'];
+                let leftData = [
+                    a.leave_balances?.cl || 0,
+                    a.leave_balances?.sl || 0,
+                    a.leave_balances?.el || 0
+                ];
+                let leftColors = ['#f97316', '#ef4444', '#10b981']; // CL, SL, EL colors
+
+                // If no balances, show placeholder donut
+                if (totalLeft === 0) {
+                    leftLabels = ['Zero Balance'];
+                    leftData = [1];
+                    leftColors = ['#f3f4f6'];
+                    document.getElementById('profLeaveBalances').innerHTML = "<span>No leaves left</span>";
+                } else {
+                    let balStr = `
                     <span class="text-orange-500">CL: ${a.leave_balances?.cl || 0}</span> | 
                     <span class="text-red-500">SL: ${a.leave_balances?.sl || 0}</span> | 
                     <span class="text-emerald-500">EL: ${a.leave_balances?.el || 0}</span>
                 `;
-                document.getElementById('profLeaveBalances').innerHTML = balStr;
-            }
+                    document.getElementById('profLeaveBalances').innerHTML = balStr;
+                }
 
-            // Render Charts
-            renderDonutChart('filesChart', ['Done', 'Remaining'], [a.files_done, Math.max(0, a.files_target - a.files_done)], ['#3b82f6', '#eff6ff']);
-            renderDonutChart('creditsChart', ['Earned', 'Remaining'], [a.total_credits, Math.max(0, a.credits_target - a.total_credits)], ['#9333ea', '#f5f3ff']);
-            renderDonutChart('leavesChart', takenLabels, takenData, takenColors);
-            renderDonutChart('leavesLeftChart', leftLabels, leftData, leftColors);
-            
-            renderCategoriesChart('categoriesChart', [a.pd_cases, a.npa_cases, a.project_cases, a.other_cases]);
-            renderHoursChart('hoursChart', a.sessions);
+                // Render Charts
+                renderDonutChart('filesChart', ['Done', 'Remaining'], [a.files_done, Math.max(0, a.files_target - a.files_done)], ['#3b82f6', '#eff6ff']);
+                renderDonutChart('creditsChart', ['Earned', 'Remaining'], [a.total_credits, Math.max(0, a.credits_target - a.total_credits)], ['#9333ea', '#f5f3ff']);
+                renderDonutChart('leavesChart', takenLabels, takenData, takenColors);
+                renderDonutChart('leavesLeftChart', leftLabels, leftData, leftColors);
 
-            // Populate Tables
-            let sessionsHtml = '';
-            a.sessions.forEach(s => {
-                sessionsHtml += `
+                renderCategoriesChart('categoriesChart', [a.pd_cases, a.npa_cases, a.project_cases, a.other_cases]);
+                renderHoursChart('hoursChart', a.sessions);
+
+                // Populate Tables
+                let sessionsHtml = '';
+                a.sessions.forEach(s => {
+                    sessionsHtml += `
                     <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
                         <td class="p-3 font-semibold text-gray-800">${s.date}</td>
                         <td class="p-3">${s.login || '-'}</td>
                         <td class="p-3">${s.logout || '-'}</td>
                         <td class="p-3 text-right font-bold text-gray-800">${s.hours_worked}h</td>
                     </tr>`;
+                });
+                document.getElementById('profSessionsBody').innerHTML = sessionsHtml || '<tr><td colspan="4" class="p-4 text-center text-gray-400">No recent sessions</td></tr>';
+
+
+            }).catch(err => {
+                console.error("Error fetching user details", err);
+                document.getElementById('profName').innerText = "Error loading user data";
             });
-            document.getElementById('profSessionsBody').innerHTML = sessionsHtml || '<tr><td colspan="4" class="p-4 text-center text-gray-400">No recent sessions</td></tr>';
-
-
-        }).catch(err => {
-            console.error("Error fetching user details", err);
-            document.getElementById('profName').innerText = "Error loading user data";
-        });
     }
 
     function closeUserPanel() {
@@ -764,7 +921,7 @@
 
     // Chart Helpers
     function renderDonutChart(canvasId, labels, dataArr, colors) {
-        if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
         const ctx = document.getElementById(canvasId).getContext('2d');
         chartInstances[canvasId] = new Chart(ctx, {
             type: 'doughnut',
@@ -774,7 +931,7 @@
     }
 
     function renderCategoriesChart(canvasId, dataArr) {
-        if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
         const ctx = document.getElementById(canvasId).getContext('2d');
         chartInstances[canvasId] = new Chart(ctx, {
             type: 'bar',
@@ -794,7 +951,7 @@
     }
 
     function renderHoursChart(canvasId, sessions) {
-        if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+        if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
         const ctx = document.getElementById(canvasId).getContext('2d');
         const labels = sessions.map(s => s.date);
         const dataArr = sessions.map(s => s.hours_worked);
@@ -830,9 +987,9 @@
         const list = document.getElementById('report-list');
         const term = document.getElementById('reportSearch').value.toLowerCase();
         const filtered = files.filter(f => f.applicant.toLowerCase().includes(term) || f.user.toLowerCase().includes(term));
-        
+
         list.innerHTML = "";
-        if(filtered.length === 0) { list.innerHTML = '<div class="text-center p-4 text-xs text-gray-400">No reports found</div>'; return; }
+        if (filtered.length === 0) { list.innerHTML = '<div class="text-center p-4 text-xs text-gray-400">No reports found</div>'; return; }
 
         filtered.forEach(f => {
             list.innerHTML += `
@@ -854,7 +1011,7 @@
 
     // --- STUB FUNCTIONS FOR SYSTEM EDITS ---
     function editCredits() {
-        if(typeof Swal !== 'undefined') {
+        if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: 'Add Credits',
                 input: 'number',
@@ -862,13 +1019,13 @@
                 showCancelButton: true,
                 confirmButtonText: 'Add'
             }).then(r => {
-                if(r.isConfirmed) Swal.fire('Success', 'Credits added (Backend pending)', 'success');
+                if (r.isConfirmed) Swal.fire('Success', 'Credits added (Backend pending)', 'success');
             });
         }
     }
 
     function editLeaves() {
-        if(typeof Swal !== 'undefined') {
+        if (typeof Swal !== 'undefined') {
             Swal.fire('Log Leave', 'Leave tracking logic will open here.', 'info');
         }
     }
@@ -876,7 +1033,7 @@
     let currentAttendanceDate = new Date();
     let systemHolidays = {};
     let isCalendarEditMode = false;
-    
+
     let systemConfig = {
         files_per_day: 5,
         credits_other: 6,
@@ -889,29 +1046,29 @@
 
     function fetchSystemConfig() {
         fetch('/core/api/system-config/')
-        .then(r => r.json())
-        .then(data => {
-            if(!data.error) {
-                systemConfig = data;
-                renderSystemLimits();
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (!data.error) {
+                    systemConfig = data;
+                    renderSystemLimits();
+                }
+            });
     }
 
     function fetchHolidays() {
         fetch('/core/api/system-holidays/')
-        .then(r => r.json())
-        .then(data => {
-            if(data.holidays) {
-                systemHolidays = {};
-                data.holidays.forEach(h => { systemHolidays[h.date] = h.reason; });
-                renderCalendar();
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.holidays) {
+                    systemHolidays = {};
+                    data.holidays.forEach(h => { systemHolidays[h.date] = h.reason; });
+                    renderCalendar();
+                }
+            });
     }
 
     function switchTab(element, event) {
-        if(event) event.preventDefault();
+        if (event) event.preventDefault();
         const tabName = element.getAttribute('data-tab');
 
         // 1. Update active styling
@@ -919,12 +1076,12 @@
             el.classList.remove('active', 'text-blue-600');
             el.classList.add('text-gray-600');
             const icon = el.querySelector('i');
-            if(icon) icon.classList.remove('text-blue-600');
+            if (icon) icon.classList.remove('text-blue-600');
         });
         element.classList.add('active');
         element.classList.remove('text-gray-600');
         const activeIcon = element.querySelector('i');
-        if(activeIcon) activeIcon.classList.add('text-blue-600');
+        if (activeIcon) activeIcon.classList.add('text-blue-600');
 
         // 2. Hide all containers
         document.getElementById('teamViewContainer').classList.add('hidden');
@@ -935,28 +1092,28 @@
         document.getElementById('reportsMainContainer').classList.remove('flex');
         document.getElementById('iframeContainer').classList.add('hidden');
         document.getElementById('iframeContainer').classList.remove('flex');
-        
+
         // 3. Show specific container & set iframe src if needed
-        if(tabName === 'team') {
+        if (tabName === 'team') {
             document.getElementById('teamViewContainer').classList.remove('hidden');
-        } else if(tabName === 'config') {
+        } else if (tabName === 'config') {
             document.getElementById('systemConfigContainer').classList.remove('hidden');
             fetchHolidays();
             fetchSystemConfig();
             fetchCreditUsers();
-        } else if(tabName === 'attendance') {
+        } else if (tabName === 'attendance') {
             document.getElementById('attendanceMainContainer').classList.remove('hidden');
             initAttendanceDate();
-        } else if(tabName === 'reports') {
+        } else if (tabName === 'reports') {
             document.getElementById('reportsMainContainer').classList.remove('hidden');
             document.getElementById('reportsMainContainer').classList.add('flex');
             loadGeneratedReports();
-        } else if(tabName === 'analysis') {
+        } else if (tabName === 'analysis') {
             document.getElementById('iframeContainer').classList.remove('hidden');
             document.getElementById('iframeContainer').classList.add('flex');
             const iframe = document.getElementById('mainIframe');
             iframe.src = "{% url 'core:report_analysis' %}";
-        } else if(tabName === 'billing') {
+        } else if (tabName === 'billing') {
             document.getElementById('iframeContainer').classList.remove('hidden');
             document.getElementById('iframeContainer').classList.add('flex');
             const iframe = document.getElementById('mainIframe');
@@ -971,12 +1128,12 @@
         const root = document.getElementById('calendarRoot');
         const year = currentAttendanceDate.getFullYear();
         const month = currentAttendanceDate.getMonth();
-        
+
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
+
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        
+
         let calHtml = `
             <div class="flex justify-between items-center mb-2 px-1">
                 <button onclick="changeCalMonth(-1)" class="text-gray-400 hover:text-purple-600"><i class="fas fa-chevron-left text-xs"></i></button>
@@ -985,7 +1142,7 @@
             </div>
             <div class="w-full h-full flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 p-2">
         `;
-        
+
         const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         calHtml += `<div class="grid grid-cols-7 gap-1 mb-1">`;
         days.forEach((d, i) => {
@@ -993,31 +1150,31 @@
             calHtml += `<div class="text-center text-[9px] font-bold ${isSun ? 'text-red-400' : 'text-gray-400'} uppercase">${d}</div>`;
         });
         calHtml += `</div><div class="grid grid-cols-7 gap-1 flex-1 auto-rows-fr">`;
-        
+
         for (let i = 0; i < firstDay; i++) {
             calHtml += `<div class="border border-transparent rounded"></div>`;
         }
-        
+
         const today = new Date();
         for (let i = 1; i <= daysInMonth; i++) {
             const dateObj = new Date(year, month, i);
             const isSunday = dateObj.getDay() === 0;
             const isToday = dateObj.toDateString() === today.toDateString();
-            
+
             // Format date string as YYYY-MM-DD to match DB
             const mStr = String(month + 1).padStart(2, '0');
             const dStr = String(i).padStart(2, '0');
             const dateStr = `${year}-${mStr}-${dStr}`;
-            
+
             const holidayReason = systemHolidays[dateStr];
-                       let bg = isSunday ? 'bg-red-50 text-red-600 font-bold border-red-100' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-100';
+            let bg = isSunday ? 'bg-red-50 text-red-600 font-bold border-red-100' : 'bg-gray-50 text-gray-700 hover:bg-blue-50 border-gray-100';
             if (isToday) bg = 'bg-purple-500 text-white font-bold border-purple-600 shadow-sm';
             if (holidayReason) bg = 'bg-red-500 text-white font-bold shadow-sm';
-            
+
             if (isCalendarEditMode) {
                 bg += ' hover:ring-2 hover:ring-yellow-400 cursor-pointer border-dashed border-yellow-300';
             }
-            
+
             calHtml += `<div onclick="calendarDateClicked('${dateStr}')" class="flex items-center justify-center text-[10px] rounded border transition-colors ${bg}" title="${holidayReason || ''}">${i}</div>`;
         }
         calHtml += `</div></div>`;
@@ -1026,9 +1183,9 @@
 
     function manageHolidays() {
         isCalendarEditMode = !isCalendarEditMode;
-        
+
         const btn = document.getElementById('editCalendarBtn');
-        if(isCalendarEditMode) {
+        if (isCalendarEditMode) {
             btn.innerHTML = '<i class="fas fa-check mr-1"></i>Done';
             btn.classList.replace('text-blue-500', 'text-green-600');
             btn.classList.replace('hover:text-blue-700', 'hover:text-green-800');
@@ -1041,15 +1198,15 @@
             btn.classList.replace('bg-green-50', 'bg-blue-50');
             btn.classList.replace('hover:bg-green-100', 'hover:bg-blue-100');
         }
-        
+
         renderCalendar();
     }
 
     function calendarDateClicked(dateStr) {
         if (!isCalendarEditMode) return;
-        
+
         const existingReason = systemHolidays[dateStr] || '';
-        
+
         let htmlContent = `
             <div class="text-left font-outfit mt-4">
                 <label class="text-[11px] font-bold text-gray-500 uppercase">Selected Date</label>
@@ -1059,7 +1216,7 @@
             </div>
         `;
 
-        if(typeof Swal !== 'undefined') {
+        if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: existingReason ? 'Edit Holiday' : 'Add Holiday',
                 html: htmlContent,
@@ -1071,31 +1228,31 @@
                 denyButtonColor: '#ef4444',
                 preConfirm: () => {
                     const reason = document.getElementById('swal-hol-reason').value;
-                    if(!reason) Swal.showValidationMessage('Reason is required to save');
+                    if (!reason) Swal.showValidationMessage('Reason is required to save');
                     return { action: 'save', reason };
                 }
             }).then(res => {
-                if(res.isConfirmed) {
+                if (res.isConfirmed) {
                     // SAVE
                     fetch('/core/api/system-holidays/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ holidays: [{date: dateStr, reason: res.value.reason}] })
+                        body: JSON.stringify({ holidays: [{ date: dateStr, reason: res.value.reason }] })
                     }).then(r => r.json()).then(data => {
-                        if(data.status === 'success') {
+                        if (data.status === 'success') {
                             fetchHolidays(); // Refresh
                         } else {
                             Swal.fire('Error', data.error || 'Failed to save', 'error');
                         }
                     });
-                } else if(res.isDenied) {
+                } else if (res.isDenied) {
                     // DELETE
                     fetch('/core/api/system-holidays/', {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ date: dateStr })
                     }).then(r => r.json()).then(data => {
-                        if(data.status === 'success') {
+                        if (data.status === 'success') {
                             fetchHolidays(); // Refresh
                         } else {
                             Swal.fire('Error', data.error || 'Failed to delete', 'error');
@@ -1115,13 +1272,13 @@
 
     function fetchCreditUsers() {
         fetch('/core/api/credit-users/')
-        .then(res => res.json())
-        .then(data => {
-            if(data.users) {
-                creditUsersData = data.users;
-                renderCreditList(creditUsersData);
-            }
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.users) {
+                    creditUsersData = data.users;
+                    renderCreditList(creditUsersData);
+                }
+            });
     }
 
     function filterCreditUsers() {
@@ -1134,9 +1291,9 @@
         const listDiv = document.getElementById('userCreditList');
         let html = '';
         users.forEach(u => {
-            if(u.role !== 'admin') {
+            if (u.role !== 'admin') {
                 let adjustHtml = '';
-                if(u.latest_adjustments && u.latest_adjustments.length > 0) {
+                if (u.latest_adjustments && u.latest_adjustments.length > 0) {
                     const latest = u.latest_adjustments[0];
                     const sign = latest.amt > 0 ? '+' : '';
                     const color = latest.amt > 0 ? 'text-green-500' : 'text-red-500';
@@ -1157,12 +1314,12 @@
                 `;
             }
         });
-        if(html === '') html = '<div class="text-center text-xs text-gray-400 py-4">No users found.</div>';
+        if (html === '') html = '<div class="text-center text-xs text-gray-400 py-4">No users found.</div>';
         listDiv.innerHTML = html;
     }
 
     function promptCreditAdjust(userId, userName) {
-        if(typeof Swal !== 'undefined') {
+        if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: 'Adjust Credits: ' + userName,
                 html: `
@@ -1179,29 +1336,29 @@
                 preConfirm: () => {
                     const amt = document.getElementById('swal-credit-amt').value;
                     const rsn = document.getElementById('swal-credit-reason').value;
-                    if(!amt || !rsn) Swal.showValidationMessage('Both fields are required');
+                    if (!amt || !rsn) Swal.showValidationMessage('Both fields are required');
                     return { amt, rsn };
                 }
             }).then(res => {
-                if(res.isConfirmed) {
+                if (res.isConfirmed) {
                     fetch('/core/api/credit-users/', {
                         method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             user_id: userId,
                             amt: res.value.amt,
                             reason: res.value.rsn
                         })
                     })
-                    .then(r => r.json())
-                    .then(data => {
-                        if(data.status === 'success') {
-                            Swal.fire('Saved!', 'Credits updated for ' + userName, 'success');
-                            fetchCreditUsers();
-                        } else {
-                            Swal.fire('Error', data.error || 'Failed to update credits', 'error');
-                        }
-                    });
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire('Saved!', 'Credits updated for ' + userName, 'success');
+                                fetchCreditUsers();
+                            } else {
+                                Swal.fire('Error', data.error || 'Failed to update credits', 'error');
+                            }
+                        });
                 }
             });
         }
@@ -1218,25 +1375,25 @@
                 hours_target: document.getElementById('inp_hours_target').value,
                 max_session_hours: document.getElementById('inp_max_session_hours').value,
             };
-            
+
             fetch('/core/api/system-config/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(inputs)
             }).then(r => r.json()).then(data => {
-                if(data.status === 'success') {
+                if (data.status === 'success') {
                     fetchSystemConfig();
                 }
             });
-            
+
             isLimitsEditMode = false;
         } else {
             isLimitsEditMode = true;
         }
-        
+
         const btn = document.getElementById('editLimitsBtn');
         const cardRoot = document.getElementById('limitsCardRoot');
-        if(isLimitsEditMode) {
+        if (isLimitsEditMode) {
             btn.innerHTML = '<i class="fas fa-check mr-1"></i>Done';
             btn.classList.replace('text-blue-500', 'text-green-600');
             btn.classList.replace('hover:text-blue-700', 'hover:text-green-800');
@@ -1253,15 +1410,15 @@
             cardRoot.classList.replace('bg-yellow-50/30', 'bg-white');
             cardRoot.classList.replace('border-yellow-200', 'border-gray-100');
         }
-        
+
         renderSystemLimits();
     }
 
     function renderSystemLimits() {
         const container = document.getElementById('limitsContainer');
         const bg = isLimitsEditMode ? 'bg-yellow-50 border-yellow-200 shadow-sm' : 'bg-gray-50 border-gray-100';
-        
-        const renderItem = (label, key, isFloat=false) => {
+
+        const renderItem = (label, key, isFloat = false) => {
             const val = systemConfig[key];
             if (isLimitsEditMode) {
                 const step = isFloat ? '0.1' : '1';
@@ -1313,37 +1470,37 @@
         const mm = String(currentAttendanceDateObj.getMonth() + 1).padStart(2, '0');
         const dd = String(currentAttendanceDateObj.getDate()).padStart(2, '0');
         const dateStr = `${yyyy}-${mm}-${dd}`;
-        
+
         const displayOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('attendanceDateLabel').innerText = currentAttendanceDateObj.toLocaleDateString('en-US', displayOptions);
-        
+
         fetchAttendance(dateStr);
     }
 
     function fetchAttendance(dateStr = null) {
-        if(!dateStr) {
+        if (!dateStr) {
             const yyyy = currentAttendanceDateObj.getFullYear();
             const mm = String(currentAttendanceDateObj.getMonth() + 1).padStart(2, '0');
             const dd = String(currentAttendanceDateObj.getDate()).padStart(2, '0');
             dateStr = `${yyyy}-${mm}-${dd}`;
         }
-        
+
         const listDiv = document.getElementById('dailyAttendanceList');
         listDiv.innerHTML = '<div class="text-center p-4 text-xs text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
 
         fetch(`/core/api/attendance/?date=${dateStr}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.users) {
-                renderDailyAttendance(data.users, dateStr);
-            }
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.users) {
+                    renderDailyAttendance(data.users, dateStr);
+                }
+            });
     }
 
     function renderDailyAttendance(users, dateStr) {
         const listDiv = document.getElementById('dailyAttendanceList');
         let html = '';
-        
+
         users.forEach(u => {
             const statusColors = {
                 'present': 'text-green-600 bg-green-50 border-green-200',
@@ -1352,7 +1509,8 @@
                 'sick': 'text-orange-600 bg-orange-50 border-orange-200',
                 'casual': 'text-blue-600 bg-blue-50 border-blue-200',
                 'wfh': 'text-purple-600 bg-purple-50 border-purple-200',
-                'late': 'text-yellow-600 bg-yellow-50 border-yellow-200'
+                'late': 'text-yellow-600 bg-yellow-50 border-yellow-200',
+                'on_break': 'text-amber-700 bg-amber-50 border-amber-300 animate-pulse'
             };
             const currentStatus = u.status || 'absent';
             const colorClass = statusColors[currentStatus] || statusColors['absent'];
@@ -1361,7 +1519,7 @@
                 <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded border border-gray-100">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase shadow-sm border border-blue-200">
-                            ${u.user_name.substring(0,2)}
+                            ${u.user_name.substring(0, 2)}
                         </div>
                         <div class="flex flex-col">
                             <span class="text-[12px] font-bold text-gray-800">${u.user_name}</span>
@@ -1370,19 +1528,20 @@
                     </div>
                     <select onchange="updateAttendanceStatus('${u.id}', '${dateStr}', this.value, this)" 
                         class="text-[10px] font-bold outline-none rounded px-2 py-1.5 border appearance-none text-center cursor-pointer ${colorClass}">
-                        <option value="present" ${currentStatus==='present'?'selected':''}>PRESENT</option>
-                        <option value="absent" ${currentStatus==='absent'?'selected':''}>ABSENT</option>
-                        <option value="half_day" ${currentStatus==='half_day'?'selected':''}>HALF DAY</option>
-                        <option value="sick" ${currentStatus==='sick'?'selected':''}>SICK LEAVE</option>
-                        <option value="casual" ${currentStatus==='casual'?'selected':''}>CASUAL LEAVE</option>
-                        <option value="wfh" ${currentStatus==='wfh'?'selected':''}>WORK FROM HOME</option>
-                        <option value="late" ${currentStatus==='late'?'selected':''}>LATE</option>
+                        <option value="present" ${currentStatus === 'present' ? 'selected' : ''}>PRESENT</option>
+                        <option value="on_break" ${currentStatus === 'on_break' ? 'selected' : ''}>ON BREAK</option>
+                        <option value="absent" ${currentStatus === 'absent' ? 'selected' : ''}>ABSENT</option>
+                        <option value="half_day" ${currentStatus === 'half_day' ? 'selected' : ''}>HALF DAY</option>
+                        <option value="sick" ${currentStatus === 'sick' ? 'selected' : ''}>SICK LEAVE</option>
+                        <option value="casual" ${currentStatus === 'casual' ? 'selected' : ''}>CASUAL LEAVE</option>
+                        <option value="wfh" ${currentStatus === 'wfh' ? 'selected' : ''}>WORK FROM HOME</option>
+                        <option value="late" ${currentStatus === 'late' ? 'selected' : ''}>LATE</option>
                     </select>
                 </div>
             `;
         });
-        
-        if(html === '') html = '<div class="text-center text-xs text-gray-400 py-4">No users found.</div>';
+
+        if (html === '') html = '<div class="text-center text-xs text-gray-400 py-4">No users found.</div>';
         listDiv.innerHTML = html;
     }
 
@@ -1390,7 +1549,7 @@
 
     function updateAttendanceStatus(userId, dateStr, status, selectElement) {
         pendingAttendanceUpdates[userId] = { user_id: userId, date: dateStr, status: status };
-        
+
         // Update styling instantly
         const statusColors = {
             'present': 'text-green-600 bg-green-50 border-green-200',
@@ -1403,45 +1562,45 @@
         };
         const colorClass = statusColors[status] || statusColors['absent'];
         selectElement.className = `text-[10px] font-bold outline-none rounded px-2 py-1.5 border appearance-none text-center cursor-pointer ${colorClass}`;
-        
+
         // Show save button
         document.getElementById('saveAttendanceBtn').classList.remove('hidden');
     }
 
     function saveAttendanceUpdates() {
         const updates = Object.values(pendingAttendanceUpdates);
-        if(updates.length === 0) return;
+        if (updates.length === 0) return;
 
         const btn = document.getElementById('saveAttendanceBtn');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
         btn.disabled = true;
-        
+
         fetch('/core/api/attendance/', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ updates: updates })
         })
-        .then(r => r.json())
-        .then(data => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            if(data.status === 'success') {
-                pendingAttendanceUpdates = {};
-                btn.classList.add('hidden');
-                // Refresh cleanly
-                const dateStr = updates[0].date;
-                fetchAttendance(dateStr);
-            } else {
-                alert('Error saving updates: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(err => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            alert('Error saving updates');
-            console.error(err);
-        });
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (data.status === 'success') {
+                    pendingAttendanceUpdates = {};
+                    btn.classList.add('hidden');
+                    // Refresh cleanly
+                    const dateStr = updates[0].date;
+                    fetchAttendance(dateStr);
+                } else {
+                    alert('Error saving updates: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                alert('Error saving updates');
+                console.error(err);
+            });
     }
 
     // LEAVES LOGIC
@@ -1454,23 +1613,23 @@
         listDiv.innerHTML = '<div class="text-center p-4 text-xs text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>';
 
         fetch('/core/api/leaves/')
-        .then(r => r.json())
-        .then(data => {
-            if(data.leaves) {
-                allLeaves = data.leaves;
-                filterLeaves(currentLeaveFilter);
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.leaves) {
+                    allLeaves = data.leaves;
+                    filterLeaves(currentLeaveFilter);
+                }
+            });
     }
 
     function filterLeaves(status) {
         currentLeaveFilter = status;
-        
+
         // Update tabs styling
         const btnP = document.getElementById('btnFilterPending');
         const btnA = document.getElementById('btnFilterApproved');
         const btnR = document.getElementById('btnFilterDenied');
-        
+
         if (USER_ROLE_FOR_LEAVES !== 'accountant' && btnP) {
             btnP.className = `flex-1 py-1.5 text-[10px] font-bold rounded ${status === 'pending' ? 'bg-purple-100 text-purple-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`;
         } else if (btnP) {
@@ -1482,7 +1641,7 @@
         const filtered = allLeaves.filter(l => l.status === status);
         const listDiv = document.getElementById('leave-list');
         let html = '';
-        
+
         filtered.forEach(l => {
             html += `
                 <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
@@ -1510,62 +1669,61 @@
                 </div>
             `;
         });
-        
-        if(html === '') html = `<div class="text-center p-4 text-xs text-gray-400">No ${status} leaves</div>`;
+
+        if (html === '') html = `<div class="text-center p-4 text-xs text-gray-400">No ${status} leaves</div>`;
         listDiv.innerHTML = html;
     }
 
     function approveLeave(id, action) {
         fetch('/core/api/leaves/', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ leave_id: id, action: action })
         })
-        .then(r => r.json())
-        .then(data => {
-            if(data.status === 'success') {
-                fetchLeaves();
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchLeaves();
+                }
+            });
     }
     // --- USER MANAGEMENT API ---
     let globalUsers = [];
 
     function fetchUserManagement() {
         fetch('/core/api/manage-users/')
-        .then(r => r.json())
-        .then(data => {
-            if(data.users) {
-                globalUsers = data.users;
-                renderUserManagement(globalUsers);
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.users) {
+                    globalUsers = data.users;
+                    renderUserManagement(globalUsers);
+                }
+            });
     }
 
     function renderUserManagement(users) {
         const tbody = document.getElementById('userManagementTable');
         tbody.innerHTML = '';
-        if(users.length === 0) {
+        if (users.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-400">No users found.</td></tr>';
             return;
         }
 
         users.forEach(u => {
-            const picHtml = u.profile_picture ? 
-                `<img src="${u.profile_picture}" class="w-8 h-8 rounded-full object-cover">` : 
+            const picHtml = u.profile_picture ?
+                `<img src="${u.profile_picture}" class="w-8 h-8 rounded-full object-cover">` :
                 `<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center font-bold text-xs">${u.user_name.charAt(0)}</div>`;
-                
+
             tbody.innerHTML += `
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-4 py-2">${picHtml}</td>
                     <td class="px-4 py-2 font-mono text-xs">${u.id}</td>
                     <td class="px-4 py-2 font-bold text-gray-700">${u.user_name}</td>
                     <td class="px-4 py-2">
-                        <span class="px-2 py-1 text-[10px] font-bold rounded-full ${
-                            u.role === 'admin' ? 'bg-purple-100 text-purple-700' :
-                            u.role === 'office' ? 'bg-blue-100 text-blue-700' :
-                            u.role === 'site' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
-                        }">${u.role.toUpperCase()}</span>
+                        <span class="px-2 py-1 text-[10px] font-bold rounded-full ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+                    u.role === 'office' ? 'bg-blue-100 text-blue-700' :
+                        u.role === 'site' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
+                }">${u.role.toUpperCase()}</span>
                     </td>
                     <td class="px-4 py-2 text-xs">${u.shift_timing || '--'}</td>
                     <td class="px-4 py-2 text-xs">${u.ph_no}</td>
@@ -1580,9 +1738,9 @@
 
     function filterUserManagement() {
         const query = document.getElementById('userSearchInput').value.toLowerCase();
-        const filtered = globalUsers.filter(u => 
-            u.user_name.toLowerCase().includes(query) || 
-            u.id.toLowerCase().includes(query) || 
+        const filtered = globalUsers.filter(u =>
+            u.user_name.toLowerCase().includes(query) ||
+            u.id.toLowerCase().includes(query) ||
             u.role.toLowerCase().includes(query)
         );
         renderUserManagement(filtered);
@@ -1634,11 +1792,11 @@
         formData.append('ph_no', document.getElementById('userPhone').value);
         formData.append('role', document.getElementById('userRole').value);
         formData.append('shift_timing', document.getElementById('userShift').value);
-        if(document.getElementById('userPassword').value) {
+        if (document.getElementById('userPassword').value) {
             formData.append('password', document.getElementById('userPassword').value);
         }
         const fileInput = document.getElementById('userProfilePic');
-        if(fileInput.files.length > 0) {
+        if (fileInput.files.length > 0) {
             formData.append('profile_picture', fileInput.files[0]);
         }
 
@@ -1646,23 +1804,23 @@
             method: 'POST',
             body: formData
         })
-        .then(r => r.json())
-        .then(data => {
-            if(data.status === 'success') {
-                closeUserModal();
-                fetchUserManagement();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Saved',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            } else {
-                Swal.fire('Error', data.error || 'Failed to save user', 'error');
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    closeUserModal();
+                    fetchUserManagement();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } else {
+                    Swal.fire('Error', data.error || 'Failed to save user', 'error');
+                }
+            });
     }
 
     function deleteUser(id) {
@@ -1683,12 +1841,12 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        fetchUserManagement();
-                    }
-                });
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            fetchUserManagement();
+                        }
+                    });
             }
         });
     }
@@ -1698,12 +1856,12 @@
         loadGeneratedReports();
         fetchLeaves(); // Load leaves immediately since it's always visible now
         fetchUserManagement();
-        
+
         // Restore tab state from localStorage
         const savedTab = localStorage.getItem('adminDashboardTab');
-        if(savedTab) {
+        if (savedTab) {
             const tabElement = document.querySelector(`#main-nav a[data-tab="${savedTab}"]`);
-            if(tabElement) {
+            if (tabElement) {
                 switchTab(tabElement);
             }
         }
@@ -1714,123 +1872,123 @@
         document.getElementById('biometricModal').classList.remove('hidden');
         fetchBiometricLogs();
     }
-    
+
     function closeBiometricModal() {
         document.getElementById('biometricModal').classList.add('hidden');
     }
-    
+
     function fetchBiometricLogs() {
         const tbody = document.getElementById('biometricLogsTable');
         tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i> Fetching logs from device...</td></tr>';
-        
+
         fetch('/coreapi/api/biometric-action/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({action: 'logs'})
+            body: JSON.stringify({ action: 'logs' })
         })
-        .then(async r => {
-            if (!r.ok) {
-                console.warn("Biometric Logs API returned non-OK status:", r.status);
-            }
-            const text = await r.text();
-            try {
-                return JSON.parse(text);
-            } catch(e) {
-                console.error("Raw response:", text);
-                throw new Error("Raw response: " + text.substring(0, 80));
-            }
-        })
-        .then(data => {
-            if (data.status === 'success') {
-                if (data.logs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-400">No logs found on device.</td></tr>';
-                    return;
+            .then(async r => {
+                if (!r.ok) {
+                    console.warn("Biometric Logs API returned non-OK status:", r.status);
                 }
-                
-                let html = '';
-                data.logs.forEach(log => {
-                    const sysLoginClass = log.system_login === "Not Logged In" ? "text-gray-400 text-[10px]" : "font-bold text-blue-600";
-                    html += `
+                const text = await r.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error("Raw response:", text);
+                    throw new Error("Raw response: " + text.substring(0, 80));
+                }
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.logs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-400">No logs found on device.</td></tr>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.logs.forEach(log => {
+                        const sysLoginClass = log.system_login === "Not Logged In" ? "text-gray-400 text-[10px]" : "font-bold text-blue-600";
+                        html += `
                         <tr class="hover:bg-gray-50">
                             <td class="p-3 font-bold">${log.user_name} <span class="text-gray-400 text-[10px] font-normal ml-1">(#${log.user_id})</span></td>
                             <td class="p-3 font-medium">${log.timestamp} <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-100 text-green-700 ml-1">${log.punch_type}</span></td>
                             <td class="p-3"><span class="${sysLoginClass}">${log.system_login}</span></td>
                         </tr>
                     `;
-                });
-                tbody.innerHTML = html;
-            } else {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500 font-bold">${data.error || 'Failed to connect'}</td></tr>`;
-            }
-        })
-        .catch(e => {
-            console.error("Biometric Logs Error:", e);
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500 font-bold">Error: ${e.message}</td></tr>`;
-        });
+                    });
+                    tbody.innerHTML = html;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500 font-bold">${data.error || 'Failed to connect'}</td></tr>`;
+                }
+            })
+            .catch(e => {
+                console.error("Biometric Logs Error:", e);
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500 font-bold">Error: ${e.message}</td></tr>`;
+            });
     }
 
     function unlockBiometricDoor() {
-        if(!confirm("Are you sure you want to unlock the main door?")) return;
-        
+        if (!confirm("Are you sure you want to unlock the main door?")) return;
+
         const btn = document.querySelector('#biometricModal .fa-unlock-alt').parentElement;
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> UNLOCKING...';
         btn.disabled = true;
         btn.classList.add('opacity-50', 'cursor-not-allowed');
-        
+
         fetch('/coreapi/api/biometric-action/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({action: 'unlock'})
+            body: JSON.stringify({ action: 'unlock' })
         })
-        .then(async r => {
-            if (!r.ok) {
-                console.warn("Biometric Unlock API returned non-OK status:", r.status);
-            }
-            const text = await r.text();
-            try {
-                return JSON.parse(text);
-            } catch(e) {
-                console.error("Raw response:", text);
-                throw new Error("Raw response: " + text.substring(0, 80));
-            }
-        })
-        .then(data => {
-            if (data.status === 'success') {
-                // Success: Start the 12 second countdown
-                let timeLeft = 12;
-                btn.innerHTML = `<i class="fas fa-unlock text-green-300"></i> OPEN (${timeLeft}s)`;
-                
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    } else {
-                        btn.innerHTML = `<i class="fas fa-unlock text-green-300"></i> OPEN (${timeLeft}s)`;
-                    }
-                }, 1000);
-            } else {
-                alert("Error: " + (data.error || "Failed to unlock"));
-                if(data.details) console.error(data.details);
+            .then(async r => {
+                if (!r.ok) {
+                    console.warn("Biometric Unlock API returned non-OK status:", r.status);
+                }
+                const text = await r.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error("Raw response:", text);
+                    throw new Error("Raw response: " + text.substring(0, 80));
+                }
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Success: Start the 12 second countdown
+                    let timeLeft = 12;
+                    btn.innerHTML = `<i class="fas fa-unlock text-green-300"></i> OPEN (${timeLeft}s)`;
+
+                    const timer = setInterval(() => {
+                        timeLeft--;
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        } else {
+                            btn.innerHTML = `<i class="fas fa-unlock text-green-300"></i> OPEN (${timeLeft}s)`;
+                        }
+                    }, 1000);
+                } else {
+                    alert("Error: " + (data.error || "Failed to unlock"));
+                    if (data.details) console.error(data.details);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            })
+            .catch(e => {
+                console.error("Biometric Unlock Error:", e);
+                alert("Error trying to unlock door: " + e.message);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        })
-        .catch(e => {
-            console.error("Biometric Unlock Error:", e);
-            alert("Error trying to unlock door: " + e.message);
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        });
+            });
     }
 
     // --- MONTHLY GRID LOGIC ---
@@ -1838,34 +1996,34 @@
         const now = new Date();
         const monthSelect = document.getElementById('monthlyGridMonth');
         const yearSelect = document.getElementById('monthlyGridYear');
-        if(monthSelect) monthSelect.value = now.getMonth() + 1;
-        if(yearSelect) yearSelect.value = now.getFullYear();
+        if (monthSelect) monthSelect.value = now.getMonth() + 1;
+        if (yearSelect) yearSelect.value = now.getFullYear();
     });
 
     function fetchMonthlyAttendance() {
         const month = document.getElementById('monthlyGridMonth').value;
         const year = document.getElementById('monthlyGridYear').value;
         const container = document.getElementById('monthlyGridContainer');
-        
+
         container.innerHTML = '<div class="text-center text-xs text-gray-400 py-10"><i class="fas fa-spinner fa-spin mr-2"></i>Loading monthly grid...</div>';
-        
+
         fetch(`/core/api/attendance-monthly/?year=${year}&month=${month}`)
-        .then(r => r.json())
-        .then(data => {
-            if(data.status === 'success') {
-                renderMonthlyGrid(data.users, data.days);
-            } else {
-                container.innerHTML = `<div class="text-center text-xs text-red-500 py-10">Error: ${data.error}</div>`;
-            }
-        })
-        .catch(e => {
-            container.innerHTML = `<div class="text-center text-xs text-red-500 py-10">Network error fetching data.</div>`;
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    renderMonthlyGrid(data.users, data.days);
+                } else {
+                    container.innerHTML = `<div class="text-center text-xs text-red-500 py-10">Error: ${data.error}</div>`;
+                }
+            })
+            .catch(e => {
+                container.innerHTML = `<div class="text-center text-xs text-red-500 py-10">Network error fetching data.</div>`;
+            });
     }
 
     function renderMonthlyGrid(users, daysInMonth) {
         const container = document.getElementById('monthlyGridContainer');
-        if(!users || users.length === 0) {
+        if (!users || users.length === 0) {
             container.innerHTML = '<div class="text-center text-xs text-gray-400 py-10">No users found for this month.</div>';
             return;
         }
@@ -1877,7 +2035,7 @@
                     <tr>
                         <th class="p-2 border border-gray-200 sticky left-0 bg-gray-100 z-20 min-w-[120px]">Employee</th>
         `;
-        for(let d = 1; d <= daysInMonth; d++) {
+        for (let d = 1; d <= daysInMonth; d++) {
             html += `<th class="p-1 border border-gray-200 text-center w-6">${d}</th>`;
         }
         html += `
@@ -1892,18 +2050,18 @@
                 <tr class="hover:bg-gray-50">
                     <td class="p-2 border border-gray-200 font-bold text-gray-800 sticky left-0 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">${u.user_name}</td>
             `;
-            for(let d = 1; d <= daysInMonth; d++) {
+            for (let d = 1; d <= daysInMonth; d++) {
                 const status = u.attendance[d] || 'absent';
-                
+
                 let cellHtml = '';
-                if(status === 'present') cellHtml = '<span class="text-green-600 font-bold">P</span>';
-                else if(status === 'absent') cellHtml = '<span class="text-red-500 font-bold">A</span>';
-                else if(status === 'half_day') cellHtml = '<span class="text-blue-500 font-bold">HD</span>';
-                else if(status === 'sick') cellHtml = '<span class="text-orange-500 font-bold">SL</span>';
-                else if(status === 'casual') cellHtml = '<span class="text-blue-500 font-bold">CL</span>';
-                else if(status === 'wfh') cellHtml = '<span class="text-purple-500 font-bold">WH</span>';
-                else if(status === 'future') cellHtml = '<span class="text-gray-300">-</span>';
-                else cellHtml = `<span class="text-gray-500 font-bold">${status.substring(0,2).toUpperCase()}</span>`;
+                if (status === 'present') cellHtml = '<span class="text-green-600 font-bold">P</span>';
+                else if (status === 'absent') cellHtml = '<span class="text-red-500 font-bold">A</span>';
+                else if (status === 'half_day') cellHtml = '<span class="text-blue-500 font-bold">HD</span>';
+                else if (status === 'sick') cellHtml = '<span class="text-orange-500 font-bold">SL</span>';
+                else if (status === 'casual') cellHtml = '<span class="text-blue-500 font-bold">CL</span>';
+                else if (status === 'wfh') cellHtml = '<span class="text-purple-500 font-bold">WH</span>';
+                else if (status === 'future') cellHtml = '<span class="text-gray-300">-</span>';
+                else cellHtml = `<span class="text-gray-500 font-bold">${status.substring(0, 2).toUpperCase()}</span>`;
 
                 html += `<td class="p-1 border border-gray-200 text-center cursor-pointer hover:bg-blue-50 transition-colors" title="${u.user_name} - Day ${d}" onclick="editMonthlyCell('${u.id}', '${d}', '${status}')">${cellHtml}</td>`;
             }
@@ -1914,19 +2072,19 @@
                 </tbody>
             </table>
         `;
-        
+
         container.innerHTML = html;
     }
 
     function editMonthlyCell(userId, day, currentStatus) {
-        if(currentStatus === 'future') return; // Can't edit future dates directly easily, wait till they pass
-        
+        if (currentStatus === 'future') return; // Can't edit future dates directly easily, wait till they pass
+
         const month = document.getElementById('monthlyGridMonth').value;
         const year = document.getElementById('monthlyGridYear').value;
         const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
+
         // Use sweetalert if available, otherwise native prompt
-        if(typeof Swal !== 'undefined') {
+        if (typeof Swal !== 'undefined') {
             Swal.fire({
                 title: 'Edit Attendance',
                 html: `Update status for <b>${dateStr}</b>`,
@@ -1949,7 +2107,7 @@
             });
         } else {
             const newStatus = prompt(`Update status for ${dateStr} (present, absent, half_day, sick, casual, wfh):`, currentStatus);
-            if(newStatus && ['present', 'absent', 'half_day', 'sick', 'casual', 'wfh'].includes(newStatus)) {
+            if (newStatus && ['present', 'absent', 'half_day', 'sick', 'casual', 'wfh'].includes(newStatus)) {
                 saveSingleMonthlyUpdate(userId, dateStr, newStatus);
             }
         }
@@ -1965,14 +2123,14 @@
                 updates: [{ user_id: userId, date: dateStr, status: status }]
             })
         })
-        .then(r => r.json())
-        .then(data => {
-            if(data.status === 'success') {
-                fetchMonthlyAttendance(); // Reload the grid
-            } else {
-                alert('Error updating: ' + data.error);
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchMonthlyAttendance(); // Reload the grid
+                } else {
+                    alert('Error updating: ' + data.error);
+                }
+            });
     }
 </script>
 {% endblock %}

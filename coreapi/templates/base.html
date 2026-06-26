@@ -142,7 +142,7 @@
 <body class="text-gray-800 bg-gray-50">
 
     <nav class="w-full fixed top-0 left-0 glass-effect shadow-md">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="w-full px-6 lg:px-8 py-4 flex justify-between items-center">
 
             <a href="{% url 'coreapi:dashboard' %}" class="flex items-center gap-2 cursor-pointer">
                 <img src="{% static 'images/VADRIDA LOGO.png' %}" class="w-32 h-auto" alt="Vadrida Logo">
@@ -161,23 +161,53 @@
                     <li style="color: #FFD700; font-weight: bold;">Welcome</li>
                     <li style="font-weight: bold;">{{ request.session.user_name }}</li>
                     <li><a href="{% url 'coreapi:dashboard' %}" class="nav-link">Home</a></li>
+
+                    {% if request.session.user_role|lower == 'office' %}
+                    <li>
+                        <button id="breakToggleBtn" onclick="toggleBreakMenu()"
+                            class="text-[12px] font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full shadow-sm transition-colors flex items-center gap-2 relative">
+                            <i class="fas fa-coffee"></i> <span id="breakBtnText">Take a Break</span>
+                        </button>
+
+                        <!-- Break Dropdown Menu -->
+                        <div id="breakDropdown"
+                            class="hidden absolute top-16 bg-white shadow-xl rounded-lg border border-gray-100 p-4 w-64 z-50 animate-slideDown">
+                            <h3 class="font-bold text-gray-800 mb-2 text-sm" id="breakMenuTitle">Start a Break?</h3>
+                            <p class="text-xs text-gray-500 mb-4" id="breakMenuDesc">This will pause your work. Your
+                                shift end time will be extended by the length of this break.</p>
+                            <div class="flex gap-2">
+                                <button onclick="confirmBreakAction()" id="breakActionBtn"
+                                    class="flex-1 bg-royal-blue-600 hover:bg-royal-blue-700 text-white text-xs font-bold py-2 rounded transition-colors">
+                                    Start Now
+                                </button>
+                                <button onclick="toggleBreakMenu()"
+                                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold py-2 rounded transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    {% endif %}
+
                     {% if request.session.work_session_start %}
                     <!-- Timer hidden per user request, background script still enforces rules -->
-                    <div id="workTimer" class="hidden" data-start="{{ request.session.work_session_start }}" data-role="{{ request.session.user_role|lower }}"></div>
-                    <button id="requestAccessBtn" class="hidden text-[11px] font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded shadow-sm transition-colors" onclick="requestOtAccess()">
+                    <div id="workTimer" class="hidden" data-start="{{ request.session.work_session_start }}"
+                        data-role="{{ request.session.user_role|lower }}"></div>
+                    <button id="requestAccessBtn"
+                        class="hidden text-[11px] font-bold bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded shadow-sm transition-colors"
+                        onclick="requestOtAccess()">
                         Request Access
                     </button>
                     {% endif %}
-                    <li>
-                        <a href="{% url 'coreapi:logout_api' %}" class="nav-link text-red-500 hover:text-red-700"
-                            title="Logout" onclick="return confirmLogout(event)">
-                            <i class="fas fa-sign-out-alt text-lg"></i>
-                        </a>
-                    </li>
                 </ul>
 
-                <button id="mobileMenuBtn" class="md:hidden text-2xl text-royal-blue-700 focus:outline-none">
-                    <i class="fas fa-bars"></i>
+                <!-- Profile Picture Menu Button -->
+                <button id="mobileMenuBtn" class="ml-4 focus:outline-none flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-500 font-bold border border-blue-200 shadow-sm transition-transform hover:scale-105">
+                    {% if request.session.user_name %}
+                    {{ request.session.user_name|make_list|first|upper }}
+                    {% else %}
+                    VP
+                    {% endif %}
                 </button>
             </div>
 
@@ -185,35 +215,311 @@
     </nav>
 
     <div id="mobileMenu"
-        class="hidden fixed top-20 left-0 w-full bg-white shadow-lg border-t border-gray-100 py-6 z-40 animate-slideDown">
-
-        <div class="flex flex-col text-lg px-6 font-montserrat">
-            <div class="py-3 border-b border-gray-100 text-sm text-gray-500 font-medium">
-                Welcome {{ request.session.user_name }}
+        class="hidden fixed top-[80px] right-0 md:right-4 w-full md:w-72 bg-white shadow-2xl md:rounded-xl border border-gray-100 z-50 animate-slideDown overflow-hidden">
+        
+        <!-- Profile Header -->
+        <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-500 font-bold border border-blue-200 flex items-center justify-center text-lg">
+                {% if request.session.user_name %}{{ request.session.user_name|make_list|first|upper }}{% else %}VP{% endif %}
             </div>
-            <a href="{% url 'coreapi:dashboard' %}" class="py-4 border-b border-gray-100 flex items-center gap-3">
-                <i class="fas fa-home text-royal-blue-600"></i> Home
+            <div>
+                <h3 class="font-bold text-gray-800 text-[15px] leading-tight">{{ request.session.user_name|default:"Employee Name" }}</h3>
+                <p class="text-[11px] text-gray-500 font-medium">EMP-{{ request.session.user_id|default:"000" }}</p>
+                <p class="text-[10px] text-gray-400 mt-0.5">{{ request.session.user_email|default:"Not Set" }}</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col p-2 font-montserrat">
+            <a href="{% url 'coreapi:dashboard' %}" class="px-4 py-3 hover:bg-blue-50 rounded-lg text-sm text-gray-700 flex items-center gap-3 transition-colors">
+                <i class="fas fa-home text-blue-500 w-4"></i> Home Dashboard
             </a>
-            <a href="javascript:location.reload()" class="py-4 border-b border-gray-100 flex items-center gap-3">
-                <i class="fas fa-sync-alt text-royal-blue-600"></i> Reload Page
-            </a>
-            <a href="{% url 'coreapi:logout_api' %}" class="py-4 text-red-600 flex items-center gap-3"
+            
+            {% if request.resolver_match.url_name in 'office,dashboard,dev_dashboard,office_dashboard' %}
+            <div class="h-px bg-gray-100 my-2"></div>
+            <a href="{% url 'coreapi:logout_api' %}" class="px-4 py-3 hover:bg-red-50 rounded-lg text-sm text-red-600 flex items-center gap-3 transition-colors font-medium"
                 onclick="return confirmLogout(event)">
-                <i class="fas fa-sign-out-alt"></i> Logout
+                <i class="fas fa-sign-out-alt w-4"></i> Sign Out
             </a>
+            {% endif %}
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmLogout(e) {
-            if (window.VadridaSync && window.VadridaSync.status === 'offline') {
-                const proceed = confirm("⚠️ SERVER IS OFFLINE\n\nIf you logout now, you will NOT be able to log back in until the server is back online. \n\nDo you still want to logout?");
-                if (!proceed) {
-                    e.preventDefault();
-                    return false;
+        // Wrapping in quotes prevents IDE Javascript linters from throwing syntax errors
+        let isBreakActive = "{{ request.session.is_on_break|yesno:'true,false' }}" === "true";
+        let breakStartTimeISO = "{{ request.session.break_start_time|default_if_none:'' }}";
+        if (breakStartTimeISO === "") breakStartTimeISO = null;
+        let breakTimerInterval = null;
+
+        // Run immediately to prevent any flicker if loaded from server
+        if (isBreakActive) {
+            // We don't have the exact ISO time yet, but we lock the UI immediately. 
+            // syncBreakState will fetch the ISO time shortly after.
+            updateBreakUI();
+        }
+
+        function toggleBreakMenu() {
+            const menu = document.getElementById('breakDropdown');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        function formatBreakTime(isoStr) {
+            if (!isoStr) return "00:00";
+            const start = new Date(isoStr).getTime();
+            const now = Date.now();
+            let seconds = Math.floor((now - start) / 1000);
+            if (seconds < 0) seconds = 0;
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            if (h > 0) {
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        async function confirmBreakAction() {
+            toggleBreakMenu(); // close
+
+            const action = isBreakActive ? 'stop' : 'start';
+
+            try {
+                const res = await fetch('/coreapi/api/toggle-break/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    isBreakActive = (action === 'start');
+                    if (isBreakActive) {
+                        breakStartTimeISO = data.break_start_time;
+                    } else {
+                        breakStartTimeISO = null;
+                    }
+                    updateBreakUI();
+                    Swal.fire({
+                        icon: 'success',
+                        title: isBreakActive ? 'Break Started' : 'Welcome Back',
+                        text: isBreakActive ? 'Your work session is paused.' : `Total break time logged: ${data.total_break_minutes || 0} minutes.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    if (data.error === "Already on a break") {
+                        isBreakActive = true;
+                        syncBreakState(); // fetch actual time
+                    } else if (data.error === "Not currently on a break") {
+                        isBreakActive = false;
+                        breakStartTimeISO = null;
+                        updateBreakUI();
+                    } else {
+                        Swal.fire('Error', data.error || 'Failed to toggle break.', 'error');
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function updateBreakUI() {
+            const btnText = document.getElementById('breakBtnText');
+            const menuTitle = document.getElementById('breakMenuTitle');
+            const menuDesc = document.getElementById('breakMenuDesc');
+            const actionBtn = document.getElementById('breakActionBtn');
+            const toggleBtn = document.getElementById('breakToggleBtn');
+
+            let overlay = document.getElementById('breakOverlayScreen');
+
+            if (breakTimerInterval) {
+                clearInterval(breakTimerInterval);
+                breakTimerInterval = null;
+            }
+
+            if (isBreakActive) {
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'breakOverlayScreen';
+                    overlay.className = 'fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center animate-fadeIn';
+                    overlay.innerHTML = `
+                        <div class="bg-white p-8 rounded-2xl shadow-2xl border-t-4 border-amber-500 flex flex-col items-center max-w-md w-full text-center transform scale-100 transition-transform">
+                            <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-5 shadow-inner">
+                                <i class="fas fa-coffee text-4xl animate-bounce"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2 font-montserrat tracking-tight">On Break</h2>
+                            <p class="text-gray-500 text-sm mb-4 font-opensans px-4">Your session is paused. The screen is locked until you resume.</p>
+                            <div class="mb-6 bg-gray-50 rounded-lg py-2 px-6 border border-gray-100">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block mb-1">Time Elapsed</span>
+                                <span id="liveBreakTimer" class="text-2xl font-bold text-amber-600 font-montserrat tracking-widest">--:--</span>
+                            </div>
+                            <button onclick="confirmBreakAction()" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-xl w-full text-lg">
+                                <i class="fas fa-play mr-2"></i> Resume Session
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                }
+
+                // Start timer updates
+                const timerEl = document.getElementById('liveBreakTimer');
+                if (timerEl && breakStartTimeISO) {
+                    timerEl.innerText = formatBreakTime(breakStartTimeISO);
+                    breakTimerInterval = setInterval(() => {
+                        timerEl.innerText = formatBreakTime(breakStartTimeISO);
+                    }, 1000);
+                }
+
+                if (btnText) btnText.innerText = "Resume Work";
+                if (menuTitle) menuTitle.innerText = "End Break?";
+                if (menuDesc) menuDesc.innerText = "Click to resume your work session and finalize break minutes.";
+                if (actionBtn) {
+                    actionBtn.innerText = "Resume Now";
+                    actionBtn.className = "flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded transition-colors";
+                }
+                if (toggleBtn) {
+                    toggleBtn.className = "text-[12px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-700 px-3 py-1.5 rounded-full shadow-sm transition-colors flex items-center gap-2 relative border border-amber-300 animate-pulse";
+                }
+            } else {
+                if (overlay) overlay.remove();
+
+                if (btnText) btnText.innerText = "Take a Break";
+                if (menuTitle) menuTitle.innerText = "Start a Break?";
+                if (menuDesc) menuDesc.innerText = "This will pause your work. Your shift end time will be extended by the length of this break.";
+                if (actionBtn) {
+                    actionBtn.innerText = "Start Now";
+                    actionBtn.className = "flex-1 bg-royal-blue-600 hover:bg-royal-blue-700 text-white text-xs font-bold py-2 rounded transition-colors";
+                }
+                if (toggleBtn) {
+                    toggleBtn.className = "text-[12px] font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full shadow-sm transition-colors flex items-center gap-2 relative";
                 }
             }
-            return true;
+        }
+
+        // Sync break state from backend
+        async function syncBreakState() {
+            try {
+                const res = await fetch('/coreapi/api/session-status/');
+                const data = await res.json();
+                if (data.is_on_break !== undefined) {
+                    isBreakActive = data.is_on_break;
+                    breakStartTimeISO = data.break_start_time || null;
+                    updateBreakUI();
+                }
+            } catch (e) { }
+        }
+
+        document.addEventListener("DOMContentLoaded", syncBreakState);
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted) {
+                syncBreakState();
+            }
+        });
+
+        async function handleSmartLogout(e) {
+            e.preventDefault();
+
+            if (window.VadridaSync && window.VadridaSync.status === 'offline') {
+                const proceed = confirm("⚠️ SERVER IS OFFLINE\n\nIf you logout now, you will NOT be able to log back in until the server is back online. \n\nDo you still want to logout?");
+                if (!proceed) return false;
+                window.location.href = e.currentTarget.href;
+                return true;
+            }
+
+            // Check session status
+            const logoutUrl = e.currentTarget.href;
+
+            Swal.fire({
+                title: 'Checking Shift Status...',
+                text: 'Please wait...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const res = await fetch('/coreapi/api/session-status/');
+                const data = await res.json();
+
+                if (data.error) {
+                    window.location.href = logoutUrl;
+                    return;
+                }
+
+                let title = "Ready to Logout?";
+                let html = "";
+                let icon = "info";
+
+                const minsLeft = data.minutes_remaining || 0;
+                const m = data.metrics;
+
+                let timePendingText = `${minsLeft} minute${minsLeft !== 1 ? 's' : ''}`;
+                if (minsLeft >= 60) {
+                    const h = Math.floor(minsLeft / 60);
+                    const mRem = minsLeft % 60;
+                    timePendingText = `${h} hour${h > 1 ? 's' : ''}`;
+                    if (mRem > 0) {
+                        timePendingText += ` and ${mRem} minute${mRem !== 1 ? 's' : ''}`;
+                    }
+                }
+
+                if (!m) {
+                    // Non-office user (Admin, Accountant, Site Staff)
+                    title = "Log Out";
+                    icon = "question";
+                    html = "<p>Are you sure you want to log out?</p>";
+                } else if (minsLeft > 0) {
+                    title = "⚠️ Shift Not Finished!";
+                    icon = "warning";
+                    html = `
+                        <div class="text-sm text-left">
+                            <p class="mb-2 text-red-600 font-bold">Your 8-hour shift is not finished yet.</p>
+                            <p class="mb-3">You still have <b>${timePendingText}</b> pending before your shift ends.</p>
+                            <div class="bg-gray-50 p-3 rounded border text-xs">
+                                <p class="mb-1 text-gray-700"><b>Why?</b> Your target logout time was extended due to:</p>
+                                <ul class="list-disc pl-5">
+                                    <li>Late Arrival Penalty: <b>${m.late_extension_minutes} mins</b></li>
+                                    <li>Extra Breaks Taken: <b>${m.break_extension_minutes} mins</b></li>
+                                </ul>
+                            </div>
+                            <p class="mt-3 text-xs text-gray-500">Leaving early may flag your session. Do you still want to logout?</p>
+                        </div>
+                    `;
+                } else {
+                    title = "Shift Completed!";
+                    icon = "success";
+                    html = `
+                        <div class="text-sm text-left">
+                            <p class="mb-2 text-green-600 font-bold">You have successfully completed your 8-hour shift.</p>
+                            <div class="bg-gray-50 p-3 rounded border text-xs mb-3">
+                                <p>Total Hours Worked: <b>${m.hours_worked} hrs</b></p>
+                                <p>Overtime Logged: <b>${m.overtime_hours} hrs</b></p>
+                            </div>
+                            <p>Do you want to log out now?</p>
+                        </div>
+                    `;
+                }
+
+                Swal.fire({
+                    title: title,
+                    html: html,
+                    icon: icon,
+                    showCancelButton: true,
+                    confirmButtonColor: minsLeft > 0 ? '#d33' : '#3085d6',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, Logout',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = logoutUrl;
+                    }
+                });
+
+            } catch (err) {
+                window.location.href = logoutUrl;
+            }
         }
     </script>
 
@@ -261,67 +567,127 @@
     <script>
         (function () {
             const timerEl = document.getElementById('workTimer');
-            const displayEl = document.getElementById('timerDisplay');
-            const reqBtnEl = document.getElementById('requestAccessBtn');
-            if (!timerEl || !displayEl) return;
-
-            const startISO = timerEl.dataset.start;
-            if (!startISO) return;
-
-            const startTime = new Date(startISO).getTime();
-            const NORMAL_LIMIT = 8 * 3600;  // 8 hours in seconds
-            let MAX_LIMIT = 10 * 3600;      // 10 hours in seconds
+            if (!timerEl) return;
             const userRole = timerEl.dataset.role;
-            let logoutWarned = false;
+            if (userRole !== 'office') return;
 
-            // Poll backend to check for updated max_hours or force_logout
+            // Poll backend to check for session status and OT thresholds
             setInterval(() => {
+                // Only poll if the tab is currently visible
+                if (document.visibilityState !== 'visible') return;
+
                 fetch('/coreapi/api/session-status/')
-                .then(r => r.json())
-                .then(d => {
-                    if (d.force_logout) {
-                        window.location.href = "{% url 'coreapi:logout_api' %}?timeout=1";
-                    }
-                    if (d.max_hours) {
-                        MAX_LIMIT = d.max_hours * 3600;
-                    }
-                }).catch(e => console.error('Timer Poll Error:', e));
-            }, 60000); // 1 minute
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.force_logout) {
+                            window.location.href = "{% url 'coreapi:logout_api' %}?timeout=1";
+                            return;
+                        }
 
-            function updateTimer() {
-                if (userRole !== 'office') return; // Do not enforce for non-office staff
-                
-                const now = Date.now();
-                let elapsed = Math.floor((now - startTime) / 1000);
-                if (elapsed < 0) elapsed = 0;
+                        if (d.metrics && d.metrics.target_logout_dt) {
+                            const targetDt = new Date(d.metrics.target_logout_dt).getTime();
+                            const now = Date.now();
 
-                // Warning 10 minutes before logout
-                if (elapsed >= (MAX_LIMIT - 600) && !logoutWarned) {
-                    logoutWarned = true;
-                    if (typeof Swal !== 'undefined') {
+                            // Use localStorage to prevent repeating toasts after reload or across multiple tabs
+                            const todayStr = new Date().toISOString().split('T')[0];
+                            const shiftOverKey = 'shift_notified_' + todayStr;
+                            const otQuotaKey = 'ot_quota_notified_' + todayStr;
+
+                            // 1. Shift Over Notification (0 hrs OT)
+                            if (now >= targetDt && !localStorage.getItem(shiftOverKey)) {
+                                localStorage.setItem(shiftOverKey, 'true');
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top',
+                                        icon: 'info',
+                                        title: 'Shift Complete!',
+                                        text: 'Your 8 hrs work time is over. OT begins from now on.',
+                                        showConfirmButton: false,
+                                        showCloseButton: true,
+                                        timer: 5000,
+                                        timerProgressBar: true
+                                    });
+                                }
+                            }
+
+                            // 2. OT 2hr Quota Over Notification (+2 hrs OT)
+                            const otTargetDt = targetDt + (2 * 3600 * 1000); // add 2 hours
+                            if (now >= otTargetDt && !localStorage.getItem(otQuotaKey)) {
+                                localStorage.setItem(otQuotaKey, 'true');
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top',
+                                        icon: 'warning',
+                                        title: 'OT Quota Reached',
+                                        text: "Your 2 hr OT quota is over. Further work will continue to add to today's OT.",
+                                        showConfirmButton: false,
+                                        showCloseButton: true,
+                                        timer: 5000,
+                                        timerProgressBar: true
+                                    });
+                                }
+                            }
+                        }
+                    }).catch(e => console.error('Timer Poll Error:', e));
+            }, 60000); // Check every 1 minute
+        })();
+    </script>
+
+    <!-- Auto-Idle Monitor (30 Minutes) -->
+    <script>
+        (function () {
+            const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+            let idleTimer = null;
+
+            function resetIdleTimer() {
+                if (idleTimer) clearTimeout(idleTimer);
+                idleTimer = setTimeout(forceIdleBreak, IDLE_TIMEOUT_MS);
+            }
+
+            async function forceIdleBreak() {
+                // Check if break UI is present (prevents triggering on site staff/login pages)
+                const breakOverlay = document.getElementById('breakOverlay');
+                if (!breakOverlay) return;
+
+                // If already on break, do nothing
+                if (typeof isBreakActive !== 'undefined' && isBreakActive) return;
+
+                console.log("Idle timeout reached! Forcing break...");
+                try {
+                    const res = await fetch('/coreapi/api/toggle-break/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'start' })
+                    });
+                    const data = await res.json();
+                    if (data.success && typeof updateBreakUI !== 'undefined') {
+                        isBreakActive = true;
+                        breakStartTimeISO = data.break_start_time;
+                        updateBreakUI();
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Session Ending Soon',
-                            text: 'Your session will automatically end in 10 minutes. Please save your work.',
-                            confirmButtonColor: '#eab308',
-                            confirmButtonText: 'Understood'
+                            title: 'You went Idle',
+                            text: 'You were inactive for 30 minutes. We have placed you on a mandatory break to prevent time tracking inaccuracies.',
+                            confirmButtonColor: '#0066ff'
                         });
-                    } else {
-                        alert('Your session will automatically end in 10 minutes. Please save your work.');
                     }
-                }
-
-                // Enforce strict auto-logout for 'office' users only
-                if (elapsed >= MAX_LIMIT) {
-                    window.location.href = "{% url 'coreapi:logout_api' %}?timeout=1";
-                    return;
+                } catch (e) {
+                    console.error("Failed to auto-break:", e);
                 }
             }
 
-            updateTimer();
-            setInterval(updateTimer, 1000);
+            // Listen for user activity
+            ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'].forEach(evt => {
+                window.addEventListener(evt, resetIdleTimer, true);
+            });
+
+            // Start timer
+            resetIdleTimer();
         })();
     </script>
+
     {% if request.session.user_id %}
     <script>
         (function () {

@@ -96,11 +96,11 @@
 {% block content %}
 <!-- FULL VIEWPORT DASHBOARD FRAME (Offset for Top Nav) -->
 <div
-    class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex flex-col md:flex-row overflow-hidden font-outfit text-gray-800">
+    class="fixed top-[80px] left-0 right-0 bottom-0 z-[40] bg-[#f4f7fb] flex flex-col md:flex-row overflow-y-auto md:overflow-hidden font-outfit text-gray-800">
 
     <!-- LEFT COLUMN: NAVIGATION (FLUSH TO EDGE) -->
     <aside
-        class="hidden md:flex md:w-[220px] lg:w-[260px] h-full bg-white border-r border-gray-200 flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        class="flex w-full h-auto md:h-full md:w-[220px] lg:w-[260px] bg-white border-b md:border-b-0 md:border-r border-gray-200 flex-col flex-shrink-0 relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
         <div class="p-6 pb-4">
             <h2 class="text-[19px] font-bold royal-blue flex items-center gap-2 tracking-tight">
                 OFFICE
@@ -108,10 +108,10 @@
             <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Employee Portal</p>
         </div>
 
-        <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4">NAVIGATION</div>
+        <div class="text-[10px] text-gray-400 font-bold mb-2 px-6 tracking-widest mt-4 hidden md:block">NAVIGATION</div>
 
-        <nav class="flex flex-col gap-1 flex-1 px-4 overflow-y-auto">
-            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-[13px]">
+        <nav class="flex md:flex-col gap-1 flex-wrap px-4 py-2 md:py-0 overflow-x-auto md:overflow-y-auto md:flex-1">
+            <a href="#" class="nav-item active flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 text-[11px] md:text-[13px] whitespace-nowrap">
                 <i class="fas fa-th-large w-5 text-blue-600"></i> Dashboard
             </a>
             <a href="{% url 'coreapi:create_folder' %}"
@@ -144,7 +144,7 @@
             </a>
         </nav>
 
-        <div class="mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
+        <div class="hidden md:block mt-auto px-6 py-5 border-t border-gray-100 bg-gray-50/50">
             <p class="text-[10px] text-gray-400 font-bold tracking-wider uppercase">FY 2025-26 · June 2026</p>
         </div>
     </aside>
@@ -160,7 +160,7 @@
         <!-- KEY PERFORMANCE METRICS -->
         <div class="bg-white rounded-xl p-4 card-shadow border-t-4 border-blue-600 flex-shrink-0">
             <h3 class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3">Key Performance Metrics</h3>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-3">
                 <!-- Metric 1 -->
                 <div class="flex flex-col items-center">
                     <svg viewBox="0 0 36 36" class="circular-chart w-[56px] h-[56px] mb-1.5">
@@ -217,7 +217,7 @@
         </div>
 
         <!-- OVERTIME & CREDITS ROW -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 flex-shrink-0">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-shrink-0">
             <div class="bg-white rounded-xl p-4 card-shadow flex flex-col justify-center">
                 <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1.5">Overtime Hours</h3>
                 <div class="flex gap-6 items-end">
@@ -268,9 +268,9 @@
         </div>
 
         <!-- CHARTS ROW -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1 min-h-[500px] lg:min-h-0 pb-1">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 min-h-[500px] lg:min-h-0 pb-1">
             <!-- Bar Chart -->
-            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
+            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full min-h-0">
                 <div class="flex justify-between items-center mb-2 flex-shrink-0">
                     <h3 class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">6 Months Trend</h3>
                     {% if is_trend_up %}
@@ -289,16 +289,16 @@
                     <span class="text-2xl font-bold text-gray-800">{{ current_month_files }}</span>
                     <span class="text-[10px] text-gray-400 font-medium">vs {{ prev_month_files }} prev</span>
                 </div>
-                <div class="flex-1 min-h-0 relative">
+                <div class="flex-1 min-h-0 relative w-full h-full">
                     <canvas id="reportsChart"></canvas>
                 </div>
             </div>
 
             <!-- Donut 1 -->
-            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
+            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full min-h-0">
                 <h3 class="text-[9px] font-bold text-blue-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Case Type
                     Breakdown</h3>
-                <div class="flex-1 min-h-0 relative flex items-center justify-center">
+                <div class="flex-1 min-h-0 relative w-full h-full">
                     <canvas id="caseTypeChart"></canvas>
                 </div>
                 <div class="grid grid-cols-2 gap-y-1 mt-2 text-[10px] text-gray-600 font-medium flex-shrink-0">
@@ -314,10 +314,10 @@
             </div>
 
             <!-- Donut 2 -->
-            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full">
+            <div class="bg-white rounded-xl p-3.5 card-shadow flex flex-col h-full min-h-0">
                 <h3 class="text-[9px] font-bold text-yellow-500 uppercase tracking-widest mb-1.5 flex-shrink-0">Leave
                     Breakdown</h3>
-                <div class="flex-1 min-h-0 relative flex items-center justify-center">
+                <div class="flex-1 min-h-0 relative w-full h-full">
                     <canvas id="leaveChart"></canvas>
                 </div>
                 <div class="grid grid-cols-2 gap-y-1 mt-2 text-[10px] text-gray-600 font-medium flex-shrink-0">
@@ -335,10 +335,10 @@
 
     </main>
 
-    <!-- RIGHT COLUMN: PROFILE (FLUSH TO EDGE) OR LEAVE APPROVALS -->
+    <!-- RIGHT COLUMN: LEAVE APPROVALS -->
+    {% if user_profile.email == "vijithaithikombil86@gmail.com" or user_profile.email == "feminaabidmanaf@gmail.com" or user_profile.email == "treesaneenu89@gmail.com" %}
     <aside
-        class="hidden lg:flex w-[260px] xl:w-[320px] h-full bg-white border-l border-gray-200 flex-col relative node-bg flex-shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
-        {% if user_profile.email == "vijithaithikombil86@gmail.com" or user_profile.email == "feminaabidmanaf@gmail.com" or user_profile.email == "treesaneenu89@gmail.com" %}
+        class="hidden lg:flex w-full md:w-[260px] xl:w-[320px] h-auto lg:h-full bg-white border-t lg:border-t-0 lg:border-l border-gray-200 flex-col relative node-bg flex-shrink-0 shadow-[0_-4px_24px_rgba(0,0,0,0.02)] lg:shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
         <!-- LEAVE APPROVALS PANEL -->
         <div id="rightPanelLeaves" class="flex flex-col h-full bg-purple-50/20 w-full z-20 relative">
             <div class="p-5 border-b border-purple-100 flex justify-between items-center bg-purple-50 flex-shrink-0">
@@ -373,139 +373,6 @@
                 </a>
             </div>
         </div>
-        {% else %}
-        <!-- Header -->
-        <div
-            class="px-5 py-4 flex justify-between items-center bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 flex-shrink-0">
-            <span class="text-[10px] font-bold text-blue-500 tracking-widest">EMPLOYEE DETAILS</span>
-            <span class="text-[10px] text-gray-400 font-bold tracking-wider">2025-26</span>
-        </div>
-
-        <div class="p-6 pb-2 flex flex-col items-center relative z-10 bg-white/70 backdrop-blur-[2px] flex-shrink-0">
-            <!-- Profile Image -->
-            <div class="relative mb-4 group">
-                <div
-                    class="w-20 h-20 rounded-full border-[3px] border-white shadow-md overflow-hidden bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-2xl font-bold text-blue-500 relative z-10">
-                    {% if user_profile.user_name %}
-                    {{ user_profile.user_name|make_list|first|upper }}
-                    {% else %}
-                    VP
-                    {% endif %}
-                </div>
-                <!-- Decorative outer rings -->
-                <div
-                    class="absolute inset-0 rounded-full border border-blue-200 -m-1.5 transition-transform group-hover:scale-105">
-                </div>
-                <div
-                    class="absolute inset-0 rounded-full border border-blue-100 -m-3 transition-transform group-hover:scale-110">
-                </div>
-            </div>
-
-            <h2 class="text-[17px] font-bold text-gray-800 text-center">{{ user_profile.user_name|default:"EmployeeName" }}</h2>
-            <p class="text-[11px] text-gray-500 font-medium mt-0.5 text-center">{% if user_profile.role == 'office' %}
-                Report Analyst {% endif %}</p>
-
-            <div
-                class="mt-3 bg-green-50 text-green-600 px-3 py-1 rounded-full text-[9px] uppercase tracking-wider font-bold flex items-center gap-1.5 border border-green-100 shadow-sm">
-                <span class="w-1.5 h-1.5 rounded-full bg-green-500 block"></span> Active
-            </div>
-        </div>
-
-        <div class="px-5 pb-5 pt-3 space-y-2.5 relative z-10 bg-white/80 backdrop-blur-[2px] flex-1 overflow-y-auto">
-            <div
-                class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
-                <div class="text-[8px] uppercase font-bold text-blue-400 mb-0.5 tracking-widest">EMP NO</div>
-                <div class="text-[13px] font-semibold text-gray-700">EMP-{{ user_profile.id|default:"000" }}</div>
-            </div>
-            <div
-                class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
-                <div class="text-[8px] uppercase font-bold text-green-400 mb-0.5 tracking-widest">ROLE</div>
-                <div class="text-[13px] font-semibold text-gray-700">{% if user_profile.role == 'office' %} Report
-                    Analyst {% endif %}</div>
-            </div>
-            <!-- <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
-                <div class="text-[8px] uppercase font-bold text-purple-400 mb-0.5 tracking-widest">DEPARTMENT</div>
-                <div class="text-[13px] font-semibold text-gray-700">Valuation & Assessment</div>
-            </div> -->
-            <div
-                class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
-                <div class="text-[8px] uppercase font-bold text-orange-400 mb-0.5 tracking-widest">MOBILE</div>
-                <div class="text-[13px] font-semibold text-gray-700">{{ user_profile.ph_no|default:"+91 Not Set" }}
-                </div>
-            </div>
-            <!-- <div class="bg-white/90 p-2.5 rounded-xl border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
-                <div class="text-[8px] uppercase font-bold text-pink-400 mb-0.5 tracking-widest">JOINING DATE</div>
-                <div class="text-[13px] font-semibold text-gray-700">12 Mar 2019</div>
-            </div> -->
-
-
-
-            <a href="{% url 'coreapi:logout_api' %}"
-                class="flex items-center justify-center gap-2 mt-4 text-red-500 hover:text-white hover:bg-red-500 py-2.5 rounded-xl transition-all text-[11px] font-bold uppercase tracking-wider border border-red-100 hover:border-transparent bg-white shadow-sm hover:shadow-md">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
-            </a>
-        </div>
-
-        <!-- Bottom barcode decorative -->
-        <div
-            class="mt-auto py-3 bg-gray-50 flex items-center justify-between border-t border-gray-100 z-10 relative flex-shrink-0">
-            <div class="flex gap-0.5 h-5 opacity-40 mix-blend-multiply">
-                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
-                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
-                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
-                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
-                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
-                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
-                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
-                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
-                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
-                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
-                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
-                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
-                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
-                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
-                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
-                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
-                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
-                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
-                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
-                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
-                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
-                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
-                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
-                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
-                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
-                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
-                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
-                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
-                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
-                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
-                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
-                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
-                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
-                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
-                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
-                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
-                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
-                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
-                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
-                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
-                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
-                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
-                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
-                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
-                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
-                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
-                <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
-                <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
-                <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>
-                <div class="w-0.5 bg-gray-400 h-full rounded-sm"></div>
-                <div class="w-1 bg-blue-400 h-full rounded-sm"></div>
-                <div class="w-0.5 bg-green-400 h-4 mt-1 rounded-sm"></div>
-                <div class="w-1 bg-purple-400 h-full rounded-sm"></div>
-                <div class="w-1.5 bg-orange-400 h-3 mt-2 rounded-sm"></div>
-                <div class="w-0.5 bg-blue-500 h-full rounded-sm"></div>
-                <div class="w-1 bg-green-500 h-5 rounded-sm"></div>
                 <div class="w-0.5 bg-purple-500 h-2.5 mt-2.5 rounded-sm"></div>
                 <div class="w-1.5 bg-blue-300 h-full rounded-sm"></div>
                 <div class="w-1 bg-orange-300 h-4 mt-1 rounded-sm"></div>

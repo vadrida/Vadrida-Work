@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vadrida 3D Reveal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; margin: 0; overflow: hidden; background: #ffffff; }
+
+        /* THE WHITE OVERLAY */
+        #splash-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #ffffff;
+            z-index: 9998;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* OUTER CONTAINER: Handles positioning and final smooth flight to navbar */
+        #scene-container {
+            position: fixed;
+            z-index: 9999;
+            top: 50%;
+            left: 50%;
+            /* Offset initial center by half the width to center it perfectly */
+            margin-left: -200px;
+            margin-top: -65px;
+            width: 400px;
+            /* Height is auto so it matches the image perfectly */
+            perspective: 1200px; 
+            
+            /* The transition for when it flies to the navbar */
+            transition: all 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        /* INNER WRAPPER: Handles only the 3D coming-alive effect */
+        #logo-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: come-alive 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes come-alive {
+            0% { 
+                transform: scale(0.5) rotateY(-40deg) translateZ(-300px); 
+                opacity: 0; 
+                filter: blur(10px);
+            }
+            100% { 
+                transform: scale(1) rotateY(0deg) translateZ(0px); 
+                opacity: 1; 
+                filter: blur(0px);
+            }
+        }
+
+        /* THE ACTUAL LOGO IMAGE */
+        #splash-logo {
+            display: block;
+            width: 100%;
+            height: auto;
+            /* Premium Neon Shadow */
+            filter: drop-shadow(0 15px 25px rgba(37, 99, 235, 0.4)) drop-shadow(0 0 15px rgba(6, 182, 212, 0.3));
+            transition: filter 1.5s ease;
+        }
+
+        /* THE MASKED GLARE (Perfectly matches the image size) */
+        #glare-mask {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            -webkit-mask-image: url("{% static 'images/VADRIDA LOGO.png' %}");
+            -webkit-mask-size: 100% 100%; /* Forces mask to stretch exactly to the wrapper */
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-image: url("{% static 'images/VADRIDA LOGO.png' %}");
+            mask-size: 100% 100%;
+            mask-repeat: no-repeat;
+            mask-position: center;
+            pointer-events: none;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+
+        /* THE ULTRA-SLOW BLADE SWEEP */
+        .blade-glare {
+            position: absolute;
+            top: -50%;
+            left: -100%;
+            width: 30%;
+            height: 200%;
+            background: linear-gradient(to right, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,1) 50%, 
+                rgba(255,255,255,0.8) 60%,
+                rgba(255,255,255,0) 100%);
+            transform: rotate(25deg);
+            /* Starts at 2.0s (after logo is settled), runs for 4.0 SECONDS (Ultra Slow) */
+            animation: sharp-blade 4.0s cubic-bezier(0.4, 0, 0.2, 1) 2.0s forwards;
+            box-shadow: 0 0 30px rgba(255,255,255,1);
+        }
+
+        @keyframes sharp-blade {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* FINAL NAVBAR DESTINATION STATE */
+        /* Smoothly transitions the outer container to the top left */
+        #scene-container.nav-docked {
+            top: 16px; 
+            left: 32px; 
+            margin-left: 0; /* Remove centering offsets */
+            margin-top: 0;
+            width: 128px; /* Final navbar width */
+        }
+
+        /* Remove the neon glow when docked */
+        #scene-container.nav-docked #splash-logo {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); 
+        }
+
+        /* BACKGROUND REVEAL */
+        body.app-loaded {
+            overflow: auto;
+        }
+        body.app-loaded #splash-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Dummy Navbar behind it just to show the final placement */
+        .dummy-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 75px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            z-index: 9990;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FAKE APP CONTENT -->
+    <div class="dummy-nav"></div>
+    <div class="pt-32 px-8">
+        <h1 class="text-3xl font-bold text-gray-800">Welcome to Vadrida</h1>
+        <p class="text-gray-500 mt-4 max-w-2xl">The 3D animation and the positional flight are now completely separated into two layers. The mask size is perfectly bound to the image, and the glare takes a full 4 seconds to sweep!</p>
+        <button onclick="location.reload()" class="mt-8 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-200">Replay Animation</button>
+    </div>
+
+    <!-- SPLASH SCREEN ELEMENTS -->
+    <div id="splash-overlay"></div>
+    
+    <!-- Outer container moves the position -->
+    <div id="scene-container">
+        <!-- Inner wrapper does the 3D rotation -->
+        <div id="logo-wrapper">
+            <!-- Logo Image -->
+            <img src="{% static 'images/VADRIDA LOGO.png' %}" id="splash-logo" alt="Vadrida Logo">
+            
+            <!-- Mask for the Glare -->
+            <div id="glare-mask">
+                <div class="blade-glare"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NEW SEQUENCE TIMELINE:
+        // 0.0s - 2.0s: 3D logo flies from left and centers perfectly.
+        // 2.0s - 6.0s: Ultra-slow blade glare sweeps across the logo (4 seconds).
+        // 6.5s       : Logo smoothly flies to the top-left navbar slot.
+        
+        setTimeout(() => {
+            // Trigger the fly-to-navbar
+            const scene = document.getElementById('scene-container');
+            const glareMask = document.getElementById('glare-mask');
+            
+            glareMask.style.opacity = '0'; // hide the glare wrapper
+            
+            // Add docking class to move the outer container
+            scene.classList.add('nav-docked'); 
+            
+            // Fade out the white overlay
+            document.body.classList.add('app-loaded'); 
+            
+        }, 6500); // Trigger at 6.5 seconds
+    </script>
+</body>
+</html>
